@@ -15,7 +15,7 @@ async function bootstrap() {
   app.useLogger(logger);
 
   const config = app.get(ConfigService);
-  const appName = config.get<string>('APP_NAME', 'DataHub');
+  const appName = config.get<string>('APP_NAME', 'Sinopec KB');
   const port = config.get<number>('APP_PORT', 3000);
   const prefix = config.get<string>('APP_PREFIX', 'api');
 

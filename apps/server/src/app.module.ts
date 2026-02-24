@@ -10,9 +10,8 @@ import { CustomPrismaModule } from 'nestjs-prisma/dist/custom';
 import { ConfigModule } from './common/config/config.module';
 import { extendedPrismaClient } from './common/database/prisma.extension';
 import { LogsModule } from './common/logger/logs.module';
-// import { AuthModule } from './modules/auth/auth.module';
-// import { MonitorModule } from './modules/monitor/monitor.module';
-// import { SystemModule } from './modules/system/system.module';
+import { AuthModule } from './modules/auth/auth.module';
+import { SystemModule } from './modules/system/system.module';
 
 @Module({
   imports: [
@@ -27,7 +26,7 @@ import { LogsModule } from './common/logger/logs.module';
         const port = configService.get('REDIS_PORT', 6379);
         const password = configService.get('REDIS_PASSWORD', '');
         const redisUrl = `redis://:${password}@${host}:${port}`;
-        return { stores: new KeyvRedis(redisUrl), namespace: 'datahub' };
+        return { stores: new KeyvRedis(redisUrl), namespace: 'sinopec-kb' };
       },
     }),
     CustomPrismaModule.forRootAsync({
@@ -41,13 +40,11 @@ import { LogsModule } from './common/logger/logs.module';
     }),
     EventEmitterModule.forRoot(),
     RouterModule.register([
-      // { path: 'auth', module: AuthModule },
-      // { path: 'system', module: SystemModule },
-      // { path: 'monitor', module: MonitorModule },
+      { path: 'auth', module: AuthModule },
+      { path: 'system', module: SystemModule },
     ]),
-    // AuthModule,
-    // SystemModule,
-    // MonitorModule,
+    AuthModule,
+    SystemModule,
   ],
   controllers: [],
   providers: [],

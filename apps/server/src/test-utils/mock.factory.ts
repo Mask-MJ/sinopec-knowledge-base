@@ -34,11 +34,3 @@ export {
   createMockOrder,
   createMockShop,
 } from './erp.mock';
-
-// Monitor 模块
-export {
-  createMockCreateLoginLogDto,
-  createMockCreateOperationLogDto,
-  createMockLoginLog,
-  createMockOperationLog,
-} from './monitor.mock';

@@ -1,10 +1,11 @@
 {
   "name": "@sinopec-kb/server",
   "version": "0.0.1",
-  "description": "",
+  "description": "Sinopec Knowledge Base - NestJS Backend Server",
   "private": true,
   "license": "UNLICENSED",
   "author": "",
+  "type": "commonjs",
   "scripts": {
     "build": "nest build",
     "dev": "nest start --watch",
