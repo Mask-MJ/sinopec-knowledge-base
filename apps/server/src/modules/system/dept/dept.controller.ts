@@ -15,7 +15,7 @@ import {
   ApiTags,
 } from '@nestjs/swagger';
 
-import { AutoPermission } from 'src/modules/auth/authorization/decorators/auto-permission.decorator';
+import { AutoPermission } from '@/modules/auth/authorization/decorators/auto-permission.decorator';
 
 import { CreateDeptDto, QueryDeptDto, UpdateDeptDto } from './dept.dto';
 import { DeptEntity } from './dept.entity';

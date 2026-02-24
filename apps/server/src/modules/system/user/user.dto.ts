@@ -14,7 +14,7 @@ import {
   MinLength,
 } from 'class-validator';
 
-import { BaseDto } from 'src/common/dto/base.dto';
+import { BaseDto } from '@/common/dto/base.dto';
 
 export class CreateUserDto {
   /**

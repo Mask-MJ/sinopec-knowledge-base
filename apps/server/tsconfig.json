@@ -12,5 +12,10 @@
     "noFallthroughCasesInSwitch": false,
     "outDir": "./dist"
   },
-  "exclude": ["src/metadata.ts", "vitest.config.ts", "vitest.config.e2e.ts"]
+  "exclude": [
+    "src/metadata.ts",
+    "vitest.base.ts",
+    "vitest.config.ts",
+    "vitest.config.e2e.ts"
+  ]
 }

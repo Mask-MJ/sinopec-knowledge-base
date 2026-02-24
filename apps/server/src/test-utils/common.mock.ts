@@ -51,7 +51,8 @@ export const createMockFile = (
     originalname: 'test.png',
     encoding: '7bit',
     mimetype: 'image/png',
-    buffer: Buffer.from(''),
+    // eslint-disable-next-line n/prefer-global/buffer
+    buffer: new Uint8Array() as Buffer,
     size: 1024,
     ...overrides,
   }) as Express.Multer.File;
@@ -60,11 +61,10 @@ export const createMockFile = (
 
 /**
  * 创建基础 PrismaService mock
- * 包含所有模块的 CRUD 方法 mock
+ * 包含知识库项目所有模块的 CRUD 方法 mock
  */
 export const createMockPrismaService = () => ({
   client: {
-    // System 模块
     user: {
       findUnique: vi.fn(),
       findUniqueOrThrow: vi.fn(),
@@ -119,117 +119,6 @@ export const createMockPrismaService = () => ({
       delete: vi.fn(),
       paginate: vi.fn(),
     },
-    // Business 模块
-    influencer: {
-      findUnique: vi.fn(),
-      findUniqueOrThrow: vi.fn(),
-      findMany: vi.fn(),
-      create: vi.fn(),
-      update: vi.fn(),
-      delete: vi.fn(),
-      paginate: vi.fn(),
-    },
-    task: {
-      findUnique: vi.fn(),
-      findUniqueOrThrow: vi.fn(),
-      findMany: vi.fn(),
-      create: vi.fn(),
-      update: vi.fn(),
-      updateMany: vi.fn(),
-      delete: vi.fn(),
-      paginate: vi.fn(),
-    },
-    taskVideo: {
-      findUnique: vi.fn(),
-      findMany: vi.fn(),
-      create: vi.fn(),
-      update: vi.fn(),
-      delete: vi.fn(),
-      updateMany: vi.fn(),
-    },
-    // ERP 模块
-    order: {
-      findUnique: vi.fn(),
-      findUniqueOrThrow: vi.fn(),
-      findMany: vi.fn(),
-      create: vi.fn(),
-      update: vi.fn(),
-      delete: vi.fn(),
-      paginate: vi.fn(),
-    },
-    shop: {
-      findUnique: vi.fn(),
-      findUniqueOrThrow: vi.fn(),
-      findMany: vi.fn(),
-      create: vi.fn(),
-      update: vi.fn(),
-      delete: vi.fn(),
-      paginate: vi.fn(),
-    },
-    showcase: {
-      findUnique: vi.fn(),
-      findUniqueOrThrow: vi.fn(),
-      findMany: vi.fn(),
-      create: vi.fn(),
-      update: vi.fn(),
-      delete: vi.fn(),
-      paginate: vi.fn(),
-    },
-    buyer: {
-      findUnique: vi.fn(),
-      findUniqueOrThrow: vi.fn(),
-      findMany: vi.fn(),
-      create: vi.fn(),
-      update: vi.fn(),
-      delete: vi.fn(),
-      upsert: vi.fn(),
-      paginate: vi.fn(),
-    },
-    shopAnalytics: {
-      findUnique: vi.fn(),
-      findMany: vi.fn(),
-      create: vi.fn(),
-      update: vi.fn(),
-      delete: vi.fn(),
-      upsert: vi.fn(),
-    },
-    shopProduct: {
-      findUnique: vi.fn(),
-      findUniqueOrThrow: vi.fn(),
-      findMany: vi.fn(),
-      create: vi.fn(),
-      update: vi.fn(),
-      delete: vi.fn(),
-      paginate: vi.fn(),
-    },
-    shopProductSku: {
-      findUnique: vi.fn(),
-      findMany: vi.fn(),
-      create: vi.fn(),
-      update: vi.fn(),
-      delete: vi.fn(),
-      upsert: vi.fn(),
-    },
-    brand: {
-      findUnique: vi.fn(),
-      findMany: vi.fn(),
-      create: vi.fn(),
-      update: vi.fn(),
-      upsert: vi.fn(),
-    },
-    // Monitor 模块
-    loginLog: {
-      findUniqueOrThrow: vi.fn(),
-      findMany: vi.fn(),
-      create: vi.fn(),
-      paginate: vi.fn(),
-    },
-    operationLog: {
-      findUniqueOrThrow: vi.fn(),
-      findMany: vi.fn(),
-      create: vi.fn(),
-      paginate: vi.fn(),
-    },
     // Transaction support
     $transaction: vi.fn((cb) => cb({})),
   },
@@ -275,15 +164,4 @@ export const createMockHttpService = () => ({
     get: vi.fn(),
     post: vi.fn(),
   },
-});
-
-/**
- * 创建 BuyerService mock
- */
-export const createMockBuyerService = () => ({
-  create: vi.fn(),
-  findOne: vi.fn(),
-  update: vi.fn(),
-  delete: vi.fn(),
-  upsertByUserId: vi.fn(),
 });

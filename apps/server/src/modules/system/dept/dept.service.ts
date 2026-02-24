@@ -47,10 +47,6 @@ export class DeptService {
     return await this.prisma.client.dept.findUniqueOrThrow({ where: { id } });
   }
 
-  async findWithPagination(id: number) {
-    return await this.prisma.client.dept.findUniqueOrThrow({ where: { id } });
-  }
-
   async update(id: number, updateDeptDto: UpdateDeptDto) {
     return await this.prisma.client.dept.update({
       where: { id },

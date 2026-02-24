@@ -15,8 +15,8 @@ import {
   ApiTags,
 } from '@nestjs/swagger';
 
-import { AutoPermission } from 'src/modules/auth/authorization/decorators/auto-permission.decorator';
-import { Permissions } from 'src/modules/auth/authorization/decorators/permissions.decorator';
+import { AutoPermission } from '@/modules/auth/authorization/decorators/auto-permission.decorator';
+import { Permissions } from '@/modules/auth/authorization/decorators/permissions.decorator';
 
 import {
   CreateDictDataDto,

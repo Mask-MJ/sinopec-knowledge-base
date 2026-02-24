@@ -1,4 +1,4 @@
-import { ApiProperty, IntersectionType } from '@nestjs/swagger';
+import { IntersectionType } from '@nestjs/swagger';
 import { Type } from 'class-transformer';
 import {
   IsArray,
@@ -6,7 +6,6 @@ import {
   IsNumber,
   IsOptional,
   IsPositive,
-  IsString,
 } from 'class-validator';
 
 export enum SortOrder {
@@ -67,34 +66,4 @@ export class DateRangeDto {
   @IsOptional()
   @Type(() => Date)
   dateRange?: [Date, Date];
-}
-
-export class UploadDto {
-  file: Express.Multer.File;
-  @IsString()
-  fileName: string;
-}
-
-/**
- * 上传文件类型枚举
- */
-export enum FileType {
-  AUDIOS = 'audios',
-  IMAGES = 'images',
-  VIDEOS = 'videos',
-}
-
-export class FilesUploadDto {
-  /**
-   * 上传的文件列表
-   */
-  @ApiProperty({ type: 'array', items: { type: 'string', format: 'binary' } })
-  files: any[];
-
-  /**
-   * 文件类型
-   * @example 'images'
-   */
-  @IsEnum(FileType)
-  type: FileType;
 }
