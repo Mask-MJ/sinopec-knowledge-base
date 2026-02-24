@@ -1,0 +1,18 @@
+/// 岗位信息表
+model Post {
+  /// 岗位ID
+  id        Int      @id @default(autoincrement())
+  /// 岗位编码
+  code      String   @unique
+  /// 岗位名称
+  name      String
+  /// 显示顺序
+  order     Int      @default(1)
+  /// 创建时间
+  createdAt DateTime @default(now())
+  /// 更新时间
+  updatedAt DateTime @updatedAt
+  /// 备注
+  remark    String   @default("")
+  users     User[]   @relation("PostToUser")
+}

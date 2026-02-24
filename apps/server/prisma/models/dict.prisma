@@ -1,0 +1,40 @@
+/// 字典类型表
+model Dict {
+  /// 字典类型ID
+  id        Int        @id @default(autoincrement())
+  /// 字典名称
+  name      String     @unique
+  /// 字典键值
+  value     String
+  /// 状态
+  status    Boolean    @default(true)
+  /// 创建时间
+  createdAt DateTime   @default(now())
+  /// 更新时间
+  updatedAt DateTime   @updatedAt
+  /// 备注
+  remark    String     @default("")
+  dictData  DictData[]
+}
+
+/// 字典数据表
+model DictData {
+  /// 数据ID
+  id        Int      @id @default(autoincrement())
+  /// 数据名称
+  name      String
+  /// 数据键值
+  value     String
+  /// 数据排序
+  order     Int      @default(1)
+  /// 状态
+  status    Boolean  @default(true)
+  /// 创建时间
+  createdAt DateTime @default(now())
+  /// 更新时间
+  updatedAt DateTime @updatedAt
+  /// 备注
+  remark    String   @default("")
+  dictId    Int
+  dict      Dict     @relation(fields: [dictId], references: [id], onDelete: Cascade)
+}

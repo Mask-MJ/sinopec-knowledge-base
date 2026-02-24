@@ -1,0 +1,45 @@
+import type { Linter } from 'eslint';
+
+export async function ignores(): Promise<Linter.Config[]> {
+  return [
+    {
+      ignores: [
+        '**/node_modules',
+        '**/dist',
+        '**/dist-*',
+        '**/*-dist',
+        '**/.output',
+        '**/.nitro',
+        '**/output',
+        '**/coverage',
+        '**/temp',
+        '**/.temp',
+        '**/tmp',
+        '**/.tmp',
+        '**/.history',
+        '**/.turbo',
+        '**/.nuxt',
+        '**/.next',
+        '**/.vercel',
+        '**/.changeset',
+        '**/.idea',
+        '**/.cache',
+        '**/.vite-inspect',
+        '**/CHANGELOG*.md',
+        '**/*.min.*',
+        '**/LICENSE*',
+        '**/__snapshots__',
+        '**/*.snap',
+        '**/fixtures/**',
+        '**/auto-import?(s).d.ts',
+        '**/components.d.ts',
+        '**/*.sh',
+        '**/*.ttf',
+        '**/*.woff',
+        '**/.github',
+        '**/pnpm-lock.yaml',
+        '**/package-lock.json',
+      ],
+    },
+  ];
+}

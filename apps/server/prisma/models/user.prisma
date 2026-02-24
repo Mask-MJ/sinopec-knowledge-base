@@ -1,0 +1,39 @@
+/// 用户信息表
+model User {
+  /// 用户ID
+  id          Int          @id @default(autoincrement())
+  /// 是否是超级管理员
+  isAdmin     Boolean      @default(false)
+  /// 是否是部门管理员
+  isDeptAdmin Boolean      @default(false)
+  /// 用户名
+  username    String       @unique
+  /// 密码
+  password    String
+  /// 昵称
+  nickname    String       @default("")
+  /// 头像路径
+  avatar      String       @default("")
+  /// 邮箱
+  email       String       @default("")
+  /// 手机号
+  phoneNumber String       @default("")
+  /// 性别（0女 1男 2未知）
+  sex         String       @default("1")
+  /// 状态
+  status      Boolean      @default(true)
+  deptId      Int?
+  /// 创建时间
+  createdAt   DateTime     @default(now())
+  /// 更新时间
+  updatedAt   DateTime     @updatedAt
+  /// 备注
+  remark      String       @default("")
+  dept        Dept?        @relation("DeptToUser", fields: [deptId], references: [id])
+  posts       Post[]       @relation("PostToUser")
+  roles       Role[]       @relation("RoleToUser")
+
+  @@index([deptId])
+  @@index([status])
+  @@index([createdAt])
+}

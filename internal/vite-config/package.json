@@ -1,0 +1,44 @@
+{
+  "name": "@sinopec-kb/vite-config",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "stub": "pnpm unbuild --stub"
+  },
+  "files": [
+    "dist"
+  ],
+  "main": "./dist/index.mjs",
+  "module": "./dist/index.mjs",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./src/index.ts",
+      "default": "./dist/index.mjs"
+    }
+  },
+  "dependencies": {
+    "dotenv": "catalog:",
+    "picocolors": "catalog:",
+    "vite-plugin-app-loading": "catalog:",
+    "vite-plugin-vue-devtools": "catalog:"
+  },
+  "devDependencies": {
+    "@intlify/unplugin-vue-i18n": "catalog:",
+    "@manypkg/get-packages": "catalog:",
+    "@sinopec-kb/tsconfig": "workspace:*",
+    "@vitejs/plugin-vue": "catalog:",
+    "@vitejs/plugin-vue-jsx": "catalog:",
+    "dayjs": "catalog:",
+    "pkg-types": "catalog:",
+    "rollup-plugin-visualizer": "catalog:",
+    "unocss": "catalog:",
+    "unplugin-auto-import": "catalog:",
+    "unplugin-vue-components": "catalog:",
+    "unplugin-vue-router": "catalog:",
+    "vite": "catalog:",
+    "vite-plugin-html": "catalog:",
+    "vite-plugin-vue-layouts-next": "catalog:"
+  }
+}

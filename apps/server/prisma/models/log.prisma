@@ -1,0 +1,51 @@
+/// 操作日志记录表
+model OperationLog {
+  /// 操作日志ID
+  id           Int      @id @default(autoincrement())
+  /// 创建时间
+  createdAt    DateTime @default(now())
+  /// 模块标题
+  title        String
+  /// 业务类型（0其它 1新增 2修改 3删除）
+  businessType Int      @default(1)
+  /// 模块名称
+  module       String
+  /// 操作员账号
+  username     String
+  /// ip地址
+  ip           String
+  /// ip地址对应的地理位置
+  address      String
+
+  @@index([username])
+  @@index([createdAt])
+  @@index([module])
+}
+
+/// 登录日志记录表
+model LoginLog {
+  /// 登录日志ID
+  id        Int      @id @default(autoincrement())
+  /// 登录账号
+  username  String
+  /// 登录状态
+  status    Boolean  @default(true)
+  /// ip地址
+  ip        String
+  /// ip地址对应的地理位置
+  address   String
+  /// 浏览器类型
+  browser   String?
+  /// 操作系统
+  os        String?
+  /// 提示消息
+  message   String   @default("")
+  /// 登录时间
+  loginTime DateTime @default(now())
+  /// 创建时间
+  createdAt DateTime @default(now())
+
+  @@index([username])
+  @@index([createdAt])
+  @@index([status])
+}

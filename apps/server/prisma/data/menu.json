@@ -1,0 +1,615 @@
+[
+  {
+    "name": "概览",
+    "title": "dashboard.title",
+    "icon": "i-ant-design:appstore-outlined",
+    "order": 1,
+    "type": "catalog",
+    "path": "/dashboard",
+    "children": {
+      "create": [
+        {
+          "name": "分析页",
+          "title": "dashboard.analytics",
+          "type": "menu",
+          "icon": "i-ant-design:area-chart-outlined",
+          "order": 1,
+          "path": "/dashboard/analytics"
+        },
+        {
+          "name": "工作台",
+          "title": "dashboard.workspace",
+          "type": "menu",
+          "icon": "i-ant-design:laptop-outlined",
+          "order": 2,
+          "path": "/dashboard/workspace"
+        },
+        {
+          "name": "地图",
+          "title": "dashboard.map",
+          "type": "menu",
+          "icon": "i-ant-design:environment-outlined",
+          "order": 3,
+          "path": "/dashboard/map"
+        }
+      ]
+    }
+  },
+  {
+    "name": "知识库",
+    "title": "knowledgeBase.title",
+    "icon": "i-ant-design:database-outlined",
+    "order": 2,
+    "type": "menu",
+    "status": false,
+    "path": "/knowledgeBase",
+    "hideChildrenInMenu": true,
+    "children": {
+      "create": [
+        {
+          "name": "知识库详情",
+          "title": "knowledgeBase.detail.title",
+          "hideInMenu": true,
+          "icon": "i-ant-design:folder-outlined",
+          "order": 1,
+          "type": "menu",
+          "path": "/knowledgeBase/detail/:id"
+        },
+        {
+          "name": "创建知识库",
+          "type": "button",
+          "permission": "knowledgeBase:create"
+        },
+        {
+          "name": "修改知识库",
+          "type": "button",
+          "permission": "knowledgeBase:update"
+        },
+        {
+          "name": "删除知识库",
+          "type": "button",
+          "permission": "knowledgeBase:delete"
+        },
+        {
+          "name": "上传文件",
+          "type": "button",
+          "permission": "document:upload"
+        },
+        {
+          "name": "解析文件",
+          "type": "button",
+          "permission": "document:parse"
+        },
+        {
+          "name": "停止解析文件",
+          "type": "button",
+          "permission": "document:stop-parse"
+        },
+        {
+          "name": "修改文件",
+          "type": "button",
+          "permission": "document:update"
+        },
+        {
+          "name": "删除文件",
+          "type": "button",
+          "permission": "document:delete"
+        },
+        {
+          "name": "下载文件",
+          "type": "button",
+          "permission": "document:download"
+        }
+      ]
+    }
+  },
+  {
+    "name": "聊天助手",
+    "title": "assistant.title",
+    "icon": "i-ant-design:robot-outlined",
+    "order": 2,
+    "type": "menu",
+    "path": "/assistant",
+    "status": false,
+    "hideChildrenInMenu": true,
+    "children": {
+      "create": [
+        {
+          "name": "聊天",
+          "title": "assistant.chat.title",
+          "hideInMenu": true,
+          "icon": "i-ant-design:message-outlined",
+          "order": 1,
+          "type": "menu",
+          "path": "/assistant/chat/:id"
+        },
+        {
+          "name": "创建聊天",
+          "type": "button",
+          "permission": "assistant:create"
+        },
+        {
+          "name": "修改聊天",
+          "type": "button",
+          "permission": "assistant:update"
+        },
+        {
+          "name": "删除聊天",
+          "type": "button",
+          "permission": "assistant:delete"
+        }
+      ]
+    }
+  },
+  {
+    "name": "短视频业务工具",
+    "title": "business.title",
+    "icon": "i-ant-design:tool-outlined",
+    "order": 2,
+    "type": "catalog",
+    "path": "/business",
+    "children": {
+      "create": [
+        {
+          "name": "任务列表",
+          "title": "business.task.title",
+          "icon": "i-ant-design:control-outlined",
+          "order": 1,
+          "type": "menu",
+          "path": "/business/task",
+          "children": {
+            "create": [
+              {
+                "name": "任务产出视频列表",
+                "title": "business.task.video.title",
+                "hideInMenu": true,
+                "icon": "i-ant-design:folder-outlined",
+                "order": 1,
+                "type": "menu",
+                "path": "/business/task/:id"
+              },
+              {
+                "name": "创建任务",
+                "type": "button",
+                "permission": "business:task:create"
+              },
+              {
+                "name": "执行任务",
+                "type": "button",
+                "permission": "business:task:execute"
+              },
+              {
+                "name": "重试任务",
+                "type": "button",
+                "permission": "business:task:retry"
+              },
+              {
+                "name": "视频审核",
+                "type": "button",
+                "permission": "business:task:review"
+              },
+              {
+                "name": "上传视频",
+                "type": "button",
+                "permission": "business:task:upload"
+              },
+              {
+                "name": "更新任务",
+                "type": "button",
+                "permission": "business:task:update"
+              },
+              {
+                "name": "删除任务",
+                "type": "button",
+                "permission": "business:task:delete"
+              }
+            ]
+          }
+        },
+        {
+          "name": "橱窗商品",
+          "title": "business.showcase.title",
+          "icon": "i-ant-design:apartment-outlined",
+          "order": 2,
+          "type": "menu",
+          "path": "/business/showcase",
+          "children": {
+            "create": [
+              {
+                "name": "创建橱窗商品",
+                "type": "button",
+                "permission": "business:showcase:create"
+              },
+              {
+                "name": "修改橱窗商品",
+                "type": "button",
+                "permission": "business:showcase:update"
+              },
+              {
+                "name": "删除橱窗商品",
+                "type": "button",
+                "permission": "business:showcase:delete"
+              }
+            ]
+          }
+        },
+        {
+          "name": "网红账号管理",
+          "title": "business.influencer.title",
+          "icon": "i-ant-design:idcard-outlined",
+          "order": 3,
+          "type": "menu",
+          "path": "/business/influencer",
+          "children": {
+            "create": [
+              {
+                "name": "创建网红账号",
+                "type": "button",
+                "permission": "business:influencer:create"
+              },
+              {
+                "name": "修改网红账号",
+                "type": "button",
+                "permission": "business:influencer:update"
+              },
+              {
+                "name": "删除网红账号",
+                "type": "button",
+                "permission": "business:influencer:delete"
+              }
+            ]
+          }
+        }
+      ]
+    }
+  },
+  {
+    "name": "ERP",
+    "title": "erp.title",
+    "icon": "i-ant-design:shop-outlined",
+    "order": 3,
+    "type": "catalog",
+    "path": "/erp",
+    "children": {
+      "create": [
+        {
+          "name": "买家管理",
+          "title": "erp.buyer.title",
+          "icon": "i-ant-design:team-outlined",
+          "order": 1,
+          "type": "menu",
+          "path": "/erp/buyer",
+          "children": {
+            "create": [
+              {
+                "name": "创建买家",
+                "type": "button",
+                "permission": "erp:buyer:create"
+              },
+              {
+                "name": "修改买家",
+                "type": "button",
+                "permission": "erp:buyer:update"
+              },
+              {
+                "name": "删除买家",
+                "type": "button",
+                "permission": "erp:buyer:delete"
+              }
+            ]
+          }
+        },
+        {
+          "name": "订单管理",
+          "title": "erp.order.title",
+          "icon": "i-ant-design:shopping-cart-outlined",
+          "order": 2,
+          "type": "menu",
+          "path": "/erp/order",
+          "children": {
+            "create": [
+              {
+                "name": "创建订单",
+                "type": "button",
+                "permission": "erp:order:create"
+              },
+              {
+                "name": "修改订单",
+                "type": "button",
+                "permission": "erp:order:update"
+              },
+              {
+                "name": "删除订单",
+                "type": "button",
+                "permission": "erp:order:delete"
+              }
+            ]
+          }
+        },
+        {
+          "name": "商店管理",
+          "title": "erp.shop.title",
+          "icon": "i-ant-design:shop-outlined",
+          "order": 2,
+          "type": "menu",
+          "path": "/erp/shop",
+          "children": {
+            "create": [
+              {
+                "name": "数据报表",
+                "title": "erp.shop.analytics.title",
+                "hideInMenu": true,
+                "icon": "i-ant-design:bar-chart-outlined",
+                "order": 1,
+                "type": "menu",
+                "path": "/erp/shop/:id"
+              },
+              {
+                "name": "创建商店",
+                "type": "button",
+                "permission": "erp:shop:create"
+              },
+              {
+                "name": "修改商店",
+                "type": "button",
+                "permission": "erp:shop:update"
+              },
+              {
+                "name": "数据分析报表",
+                "type": "button",
+                "permission": "erp:shop:analytics"
+              },
+              {
+                "name": "删除商店",
+                "type": "button",
+                "permission": "erp:shop:delete"
+              }
+            ]
+          }
+        }
+      ]
+    }
+  },
+  {
+    "name": "系统管理",
+    "title": "system.title",
+    "icon": "i-ant-design:setting-outlined",
+    "order": 5,
+    "type": "catalog",
+    "path": "/system",
+    "children": {
+      "create": [
+        {
+          "name": "用户管理",
+          "title": "system.user.title",
+          "icon": "i-ant-design:user-outlined",
+          "order": 1,
+          "type": "menu",
+          "path": "/system/user",
+          "children": {
+            "create": [
+              {
+                "name": "创建用户",
+                "type": "button",
+                "permission": "system:user:create"
+              },
+              {
+                "name": "修改用户",
+                "type": "button",
+                "permission": "system:user:update"
+              },
+              {
+                "name": "删除用户",
+                "type": "button",
+                "permission": "system:user:delete"
+              }
+            ]
+          }
+        },
+        {
+          "name": "角色管理",
+          "title": "system.role.title",
+          "icon": "i-ant-design:usergroup-add-outlined",
+          "order": 2,
+          "type": "menu",
+          "path": "/system/role",
+          "children": {
+            "create": [
+              {
+                "name": "创建角色",
+                "type": "button",
+                "permission": "system:role:create"
+              },
+              {
+                "name": "修改角色",
+                "type": "button",
+                "permission": "system:role:update"
+              },
+              {
+                "name": "删除角色",
+                "type": "button",
+                "permission": "system:role:delete"
+              }
+            ]
+          }
+        },
+        {
+          "name": "菜单管理",
+          "title": "system.menu.title",
+          "icon": "i-ant-design:menu-outlined",
+          "order": 3,
+          "type": "menu",
+          "path": "/system/menu",
+          "children": {
+            "create": [
+              {
+                "name": "创建菜单",
+                "type": "button",
+                "permission": "system:menu:create"
+              },
+              {
+                "name": "修改菜单",
+                "type": "button",
+                "permission": "system:menu:update"
+              },
+              {
+                "name": "删除菜单",
+                "type": "button",
+                "permission": "system:menu:delete"
+              }
+            ]
+          }
+        },
+        {
+          "name": "字典管理",
+          "title": "system.dict.title",
+          "icon": "i-ant-design:medicine-box-outlined",
+          "order": 4,
+          "type": "menu",
+          "path": "/system/dict",
+          "children": {
+            "create": [
+              {
+                "name": "创建字典",
+                "type": "button",
+                "permission": "system:dict:create"
+              },
+              {
+                "name": "修改字典",
+                "type": "button",
+                "permission": "system:dict:update"
+              },
+              {
+                "name": "删除字典",
+                "type": "button",
+                "permission": "system:dict:delete"
+              },
+              {
+                "name": "创建字典数据",
+                "type": "button",
+                "permission": "system:dictData:create"
+              },
+              {
+                "name": "修改字典数据",
+                "type": "button",
+                "permission": "system:dictData:update"
+              },
+              {
+                "name": "删除字典数据",
+                "type": "button",
+                "permission": "system:dictData:delete"
+              }
+            ]
+          }
+        },
+        {
+          "name": "部门管理",
+          "title": "system.dept.title",
+          "icon": "i-ant-design:gold-twotone",
+          "order": 6,
+          "type": "menu",
+          "path": "/system/dept",
+          "children": {
+            "create": [
+              {
+                "name": "创建部门",
+                "type": "button",
+                "permission": "system:dept:create"
+              },
+              {
+                "name": "修改部门",
+                "type": "button",
+                "permission": "system:dept:update"
+              },
+              {
+                "name": "删除部门",
+                "type": "button",
+                "permission": "system:dept:delete"
+              }
+            ]
+          }
+        },
+        {
+          "name": "岗位管理",
+          "title": "system.post.title",
+          "icon": "i-ant-design:deployment-unit-outlined",
+          "order": 7,
+          "type": "menu",
+          "path": "/system/post",
+          "children": {
+            "create": [
+              {
+                "name": "创建岗位",
+                "type": "button",
+                "permission": "system:post:create"
+              },
+              {
+                "name": "修改岗位",
+                "type": "button",
+                "permission": "system:post:update"
+              },
+              {
+                "name": "删除岗位",
+                "type": "button",
+                "permission": "system:post:delete"
+              }
+            ]
+          }
+        }
+      ]
+    }
+  },
+  {
+    "name": "系统监控",
+    "title": "monitor.title",
+    "icon": "i-ant-design:android-filled",
+    "order": 6,
+    "type": "catalog",
+    "path": "/monitor",
+    "children": {
+      "create": [
+        {
+          "name": "在线用户",
+          "title": "monitor.online.title",
+          "icon": "i-ant-design:aim-outlined",
+          "order": 1,
+          "type": "menu",
+          "path": "/monitor/online",
+          "children": {
+            "create": [
+              {
+                "name": "强退",
+                "type": "button",
+                "permission": "monitor:online:forceLogout"
+              }
+            ]
+          }
+        },
+        {
+          "name": "登录日志",
+          "title": "monitor.loginLog.title",
+          "order": 2,
+          "icon": "i-ant-design:contacts-outlined",
+          "type": "menu",
+          "path": "/monitor/loginLog"
+        },
+        {
+          "name": "操作日志",
+          "title": "monitor.operationLog.title",
+          "order": 3,
+          "icon": "i-ant-design:cloud-server-outlined",
+          "type": "menu",
+          "path": "/monitor/operationLog"
+        },
+        {
+          "name": "服务器监控",
+          "title": "monitor.info.title",
+          "icon": "i-ant-design:fund-projection-screen-outlined",
+          "order": 4,
+          "path": "/monitor/info",
+          "type": "menu"
+        }
+      ]
+    }
+  }
+]

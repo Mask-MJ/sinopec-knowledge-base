@@ -1,0 +1,15 @@
+node_modules
+.git
+.gitignore
+dist
+.turbo
+dist.zip
+.vscode
+.changeset
+*.log
+coverage
+e2e
+playwright-report
+test-results
+.eslintcache
+.DS_Store

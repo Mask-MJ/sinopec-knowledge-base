@@ -1,0 +1,26 @@
+/// 部门信息表
+model Dept {
+  /// 部门ID
+  id        Int      @id @default(autoincrement())
+  /// 部门名称
+  name      String
+  /// 显示顺序
+  order     Int      @default(1)
+  /// 负责人
+  leader    String?
+  /// 负责人ID
+  leaderId  Int?
+  /// 负责人电话
+  phone     String   @default("")
+  /// 负责人邮箱
+  email     String   @default("")
+  /// 创建时间
+  createdAt DateTime @default(now())
+  /// 更新时间
+  updatedAt DateTime @updatedAt
+  /// 父部门id
+  parentId  Int?
+  parent    Dept?    @relation("DeptToDept", fields: [parentId], references: [id])
+  children  Dept[]   @relation("DeptToDept")
+  users     User[]   @relation("DeptToUser")
+}

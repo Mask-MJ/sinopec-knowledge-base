@@ -1,0 +1,17 @@
+{
+  "name": "@sinopec-kb/prettier-config",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "main": "./index.mjs",
+  "module": "./index.mjs",
+  "exports": {
+    ".": {
+      "types": "./index.d.mts",
+      "default": "./index.mjs"
+    }
+  },
+  "dependencies": {
+    "prettier": "catalog:"
+  }
+}

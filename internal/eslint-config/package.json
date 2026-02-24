@@ -1,0 +1,50 @@
+{
+  "name": "@sinopec-kb/eslint-config",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "stub": "pnpm unbuild --stub"
+  },
+  "files": [
+    "dist"
+  ],
+  "main": "./dist/index.mjs",
+  "module": "./dist/index.mjs",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.mjs"
+    }
+  },
+  "dependencies": {
+    "@eslint/js": "catalog:",
+    "@vitest/eslint-plugin": "catalog:",
+    "eslint-config-prettier": "catalog:",
+    "eslint-config-turbo": "catalog:",
+    "eslint-plugin-command": "catalog:",
+    "eslint-plugin-import-x": "catalog:",
+    "eslint-plugin-jsdoc": "catalog:",
+    "eslint-plugin-jsonc": "catalog:",
+    "eslint-plugin-n": "catalog:",
+    "eslint-plugin-perfectionist": "catalog:",
+    "eslint-plugin-playwright": "catalog:",
+    "eslint-plugin-pnpm": "catalog:",
+    "eslint-plugin-prettier": "catalog:",
+    "eslint-plugin-regexp": "catalog:",
+    "eslint-plugin-unicorn": "catalog:",
+    "eslint-plugin-unused-imports": "catalog:",
+    "eslint-plugin-vue": "catalog:",
+    "eslint-plugin-yml": "catalog:",
+    "globals": "catalog:",
+    "jsonc-eslint-parser": "catalog:",
+    "typescript-eslint": "catalog:",
+    "yaml-eslint-parser": "catalog:"
+  },
+  "devDependencies": {
+    "@types/eslint": "catalog:",
+    "eslint": "catalog:",
+    "unbuild": "catalog:"
+  }
+}

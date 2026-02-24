@@ -1,0 +1,46 @@
+{
+  "name": "sinopec-knowledge-base",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "build": "turbo build",
+    "changeset": "pnpm exec changeset",
+    "dev": "node ./scripts/turbo-run.mjs dev",
+    "dev:client": "pnpm -F @sinopec-kb/client dev",
+    "dev:server": "pnpm -F @sinopec-kb/server dev",
+    "docker:dev": "docker compose -f docker-compose.dev.yaml up -d",
+    "docker:dev:down": "docker compose -f docker-compose.dev.yaml down",
+    "lint": "turbo lint",
+    "format": "turbo format",
+    "test": "turbo test",
+    "check": "pnpm run check:knip && pnpm run check:type && pnpm run check:cspell",
+    "check:cspell": "cspell lint **/*.ts **/README.md --no-progress",
+    "check:knip": "knip",
+    "check:type": "turbo run typecheck",
+    "preinstall": "npx only-allow pnpm",
+    "clean": "node ./scripts/clean.mjs",
+    "reinstall": "pnpm clean --del-lock && pnpm install",
+    "postinstall": "pnpm -r run stub --if-present",
+    "version": "pnpm exec changeset version && pnpm install --no-frozen-lockfile",
+    "catalog": "pnpx codemod pnpm/catalog"
+  },
+  "devDependencies": {
+    "@changesets/cli": "catalog:",
+    "@clack/prompts": "catalog:",
+    "@manypkg/get-packages": "catalog:",
+    "@sinopec-kb/commitlint-config": "workspace:*",
+    "@sinopec-kb/eslint-config": "workspace:*",
+    "@sinopec-kb/prettier-config": "workspace:*",
+    "@sinopec-kb/tsconfig": "workspace:*",
+    "cspell": "catalog:",
+    "execa": "catalog:",
+    "knip": "catalog:",
+    "lefthook": "catalog:",
+    "turbo": "catalog:"
+  },
+  "engines": {
+    "node": "^20.19.0 || >=22.12.0"
+  },
+  "packageManager": "pnpm@10.24.0"
+}

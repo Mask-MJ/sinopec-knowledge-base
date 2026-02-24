@@ -1,0 +1,21 @@
+/// 角色信息表
+model Role {
+  /// 角色ID
+  id        Int      @id @default(autoincrement())
+  /// 角色名称
+  name      String   @unique
+  /// 角色键值
+  value     String   @unique
+  /// 显示顺序
+  order     Int      @default(1)
+  /// 状态
+  status    Boolean  @default(true)
+  /// 创建时间
+  createdAt DateTime @default(now())
+  /// 更新时间
+  updatedAt DateTime @updatedAt
+  /// 备注
+  remark    String   @default("")
+  menus     Menu[]   @relation("MenuToRole")
+  users     User[]   @relation("RoleToUser")
+}

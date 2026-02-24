@@ -1,0 +1,98 @@
+[
+  {
+    "name": "用户性别",
+    "value": "sex",
+    "dictData": {
+      "create": [
+        { "name": "男", "value": "1", "order": 1 },
+        { "name": "女", "value": "2", "order": 2 },
+        { "name": "未知", "value": "3", "order": 3 }
+      ]
+    }
+  },
+  {
+    "name": "状态",
+    "value": "status",
+    "dictData": {
+      "create": [
+        { "name": "启用", "value": "1", "order": 1 },
+        { "name": "禁用", "value": "2", "order": 2 }
+      ]
+    }
+  },
+  {
+    "name": "任务类别",
+    "value": "taskType",
+    "dictData": {
+      "create": [
+        { "name": "海螺", "value": "1", "order": 1 },
+        { "name": "数字人", "value": "2", "order": 2 },
+        { "name": "人物模仿", "value": "3", "order": 3 },
+        { "name": "手动上传", "value": "4", "order": 4 }
+      ]
+    }
+  },
+  {
+    "name": "归属地",
+    "value": "region",
+    "dictData": {
+      "create": [
+        { "name": "英国", "value": "1", "order": 1 },
+        { "name": "美国", "value": "2", "order": 2 },
+        { "name": "法国", "value": "3", "order": 3 },
+        { "name": "德国", "value": "4", "order": 4 },
+        { "name": "西班牙", "value": "5", "order": 5 },
+        { "name": "意大利", "value": "6", "order": 6 }
+      ]
+    }
+  },
+  {
+    "name": "视频任务状态",
+    "value": "videoTaskStatus",
+    "dictData": {
+      "create": [
+        { "name": "未开始", "value": "0", "order": 1 },
+        { "name": "待审核", "value": "1", "order": 1 },
+        { "name": "失败", "value": "2", "order": 2 },
+        { "name": "进行中", "value": "3", "order": 3 },
+        { "name": "已审核", "value": "4", "order": 4 },
+        { "name": "已完成", "value": "5", "order": 5 }
+      ]
+    }
+  },
+  {
+    "name": "视频审核状态",
+    "value": "videoReviewStatus",
+    "dictData": {
+      "create": [
+        { "name": "未审核", "value": "0", "order": 1 },
+        { "name": "审核通过", "value": "1", "order": 1 },
+        { "name": "审核不通过", "value": "2", "order": 2 },
+        { "name": "关联商品码错误", "value": "3", "order": 3 },
+        { "name": "发布中", "value": "4", "order": 4 },
+        { "name": "发布成功", "value": "5", "order": 5 },
+        { "name": "发布失败", "value": "6", "order": 6 },
+        { "name": "已发布", "value": "7", "order": 7 },
+        { "name": "用户不存在", "value": "8", "order": 8 },
+        { "name": "视频有误", "value": "9", "order": 9 }
+      ]
+    }
+  },
+  {
+    "name": "订单状态",
+    "value": "orderStatus",
+    "dictData": {
+      "create": [
+        { "name": "未付款", "value": "UNPAID", "order": 1 },
+        { "name": "待处理", "value": "ON_HOLD", "order": 2 },
+        { "name": "待发货", "value": "AWAITING_SHIPMENT", "order": 3 },
+        { "name": "部分发货", "value": "PARTIALLY_SHIPPING", "order": 4 },
+        { "name": "待揽收", "value": "AWAITING_COLLECTION", "order": 5 },
+        { "name": "运输中", "value": "IN_TRANSIT", "order": 6 },
+        { "name": "已签收", "value": "DELIVERED", "order": 7 },
+        { "name": "已完成", "value": "COMPLETED", "order": 8 },
+        { "name": "已取消", "value": "CANCELLED", "order": 9 }
+      ]
+    }
+  }
+]

@@ -1,0 +1,9 @@
+{
+  "extends": "@sinopec-kb/tsconfig/node.json",
+  "compilerOptions": {
+    "composite": false,
+    "declaration": true,
+    "noEmit": false
+  },
+  "include": ["src"]
+}

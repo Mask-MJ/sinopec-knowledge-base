@@ -1,0 +1,53 @@
+{
+  "$schema": "https://unpkg.com/knip@5/schema.json",
+  "workspaces": {
+    ".": {
+      "entry": [
+        "eslint.config.mjs",
+        ".commitlintrc.mjs",
+        ".prettierrc.mjs",
+        "vitest.config.ts",
+        "scripts/*.mjs"
+      ],
+      "ignoreDependencies": ["lefthook"],
+      "ignoreBinaries": ["only-allow", "eslint", "prettier", "commitlint"]
+    },
+    "apps/client": {
+      "entry": ["eslint.config.mjs", "src/**/*.spec.ts"],
+      "ignoreDependencies": ["@vue/tsconfig", "@tsconfig/node24"]
+    },
+    "apps/server": {
+      "entry": ["eslint.config.mjs", "src/main.ts", "src/**/*.spec.ts"],
+      "ignoreDependencies": ["source-map-support", "@vitest/coverage-v8"]
+    },
+    "internal/commitlint-config": {
+      "ignoreDependencies": [
+        "@commitlint/cli",
+        "@commitlint/config-conventional",
+        "commitlint-plugin-function-rules"
+      ]
+    },
+    "internal/eslint-config": {
+      "ignoreDependencies": [
+        "eslint-config-turbo",
+        "eslint-plugin-playwright",
+        "typescript-eslint"
+      ]
+    },
+    "internal/prettier-config": {
+      "ignoreDependencies": ["prettier"]
+    },
+    "internal/tsconfig": {
+      "entry": [],
+      "project": []
+    }
+  },
+  "ignoreDependencies": [
+    "@types/*",
+    "@commitlint/types",
+    "vitest",
+    "unplugin-swc",
+    "vue"
+  ],
+  "ignoreUnresolved": ["vite/client"]
+}

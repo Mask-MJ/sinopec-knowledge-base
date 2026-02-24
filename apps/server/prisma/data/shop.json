@@ -1,0 +1,97 @@
+{
+  "avgOrderValue": {
+    "amount": "0.00",
+    "currency": "USD"
+  },
+  "avgProductPageVisitorBreakdowns": [
+    {
+      "amount": 0,
+      "type": "LIVE"
+    },
+    {
+      "amount": 5,
+      "type": "VIDEO"
+    },
+    {
+      "amount": 2,
+      "type": "PRODUCT_CARD"
+    }
+  ],
+  "avgProductPageVisitors": 7,
+  "buyerBreakdowns": [
+    {
+      "amount": 0,
+      "type": "LIVE"
+    },
+    {
+      "amount": 0,
+      "type": "VIDEO"
+    },
+    {
+      "amount": 0,
+      "type": "PRODUCT_CARD"
+    }
+  ],
+  "buyers": 0,
+  "cancellationsAndReturns": 0,
+  "endDate": "2025-02-17",
+  "gmv": {
+    "amount": "0.00",
+    "currency": "USD"
+  },
+  "gmvBreakdowns": [
+    {
+      "amount": "0.00",
+      "currency": "USD",
+      "type": "LIVE"
+    },
+    {
+      "amount": "0.00",
+      "currency": "USD",
+      "type": "VIDEO"
+    },
+    {
+      "amount": "0.00",
+      "currency": "USD",
+      "type": "PRODUCT_CARD"
+    }
+  ],
+  "orders": 0,
+  "productImpressionBreakdowns": [
+    {
+      "amount": 0,
+      "type": "LIVE"
+    },
+    {
+      "amount": 164,
+      "type": "VIDEO"
+    },
+    {
+      "amount": 30,
+      "type": "PRODUCT_CARD"
+    }
+  ],
+  "productImpressions": 194,
+  "productPageViewBreakdowns": [
+    {
+      "amount": 0,
+      "type": "LIVE"
+    },
+    {
+      "amount": 5,
+      "type": "VIDEO"
+    },
+    {
+      "amount": 2,
+      "type": "PRODUCT_CARD"
+    }
+  ],
+  "productPageViews": 7,
+  "refunds": {
+    "amount": "0.00",
+    "currency": "USD"
+  },
+  "skuOrders": 0,
+  "startDate": "2025-02-16",
+  "unitsSold": 0
+}

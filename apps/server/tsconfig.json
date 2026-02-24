@@ -1,0 +1,27 @@
+{
+  "$schema": "https://json.schemastore.org/tsconfig",
+  "extends": "@sinopec-kb/tsconfig/node.json",
+  "compilerOptions": {
+    "resolvePackageJsonExports": true,
+    "removeComments": true,
+    "incremental": true,
+    "target": "ES2023",
+    "emitDecoratorMetadata": true,
+    "baseUrl": "./",
+    "module": "nodenext",
+    "moduleResolution": "nodenext",
+    "paths": {
+      "@/*": ["src/*"],
+      "@prisma/generated/*": ["src/prisma/generated/*"]
+    },
+    "types": ["node", "vitest/globals", "multer"],
+    "strictBindCallApply": false,
+    "strictPropertyInitialization": false,
+    "noFallthroughCasesInSwitch": false,
+    "declaration": true,
+    "outDir": "./dist",
+    "sourceMap": true,
+    "verbatimModuleSyntax": false
+  },
+  "exclude": ["src/metadata.ts", "vitest.config.ts"]
+}

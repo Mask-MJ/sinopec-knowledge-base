@@ -1,0 +1,64 @@
+/// 菜单信息表
+model Menu {
+  /// 角色ID
+  id                 Int     @id @default(autoincrement())
+  /// 菜单名称
+  name               String
+  /// 菜单标题 (配置页面的标题,配合国际化使用,例如: "system.title")
+  title              String?
+  /// 菜单路径
+  path               String  @default("")
+  /// 菜单图标
+  icon               String?
+  /// 激活时的图标名
+  activeIcon         String?
+  /// 菜单类别 catalog | menu | embedded | link | button
+  type               String  @default("menu")
+  /// 状态
+  status             Boolean @default(true)
+  /// 作为路由时，需要激活的菜单的Path
+  activePath         String?
+  /// 固定在标签栏
+  affixTab           Boolean @default(false)
+  /// 在标签栏固定的顺序
+  affixTabOrder      Int     @default(0)
+  /// 徽标内容(当徽标类型为normal时有效)
+  badge              String?
+  /// 徽标类型 dot | normal
+  badgeType          String  @default("normal")
+  /// 徽标颜色 default | success | error | warning | info
+  badgeVariants      String  @default("default")
+  /// 在菜单中隐藏下级
+  hideChildrenInMenu Boolean @default(false)
+  /// 在面包屑中隐藏
+  hideInBreadcrumb   Boolean @default(false)
+  /// 在菜单中隐藏
+  hideInMenu         Boolean @default(false)
+  /// 在标签栏中隐藏
+  hideInTab          Boolean @default(false)
+  /// 内嵌Iframe的URL
+  iframeSrc          String?
+  /// 外链页面的URL
+  link               String?
+  /// 是否缓存页面
+  keepAlive          Boolean @default(false)
+  /// 同一个路由最大打开的标签数
+  maxNumOfOpenTabs   Int?
+  /// 无需基础布局
+  noBasicLayout      Boolean @default(false)
+  /// 是否在新窗口打开
+  openInNewWindow    Boolean @default(false)
+  /// 额外的路由参数
+  query              String?
+  /// 重定向
+  redirect           String?
+  /// 权限标识
+  permission         String  @default("")
+  /// 排序
+  order              Int     @default(1)
+  /// 父级菜单ID
+  parentId           Int?
+  parent             Menu?   @relation("MenuToMenu", fields: [parentId], references: [id])
+  children           Menu[]  @relation("MenuToMenu")
+  roles              Role[]  @relation("MenuToRole")
+}
