@@ -7,7 +7,6 @@ config({ path: path.resolve(process.cwd(), '../../.env') });
 
 export default defineConfig({
   schema: path.join('prisma', 'models'),
-  // schema: 'prisma',
   migrations: {
     path: 'prisma/migrations',
     seed: 'tsx prisma/seed.ts',

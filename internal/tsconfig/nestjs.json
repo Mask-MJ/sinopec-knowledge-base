@@ -1,0 +1,22 @@
+{
+  "$schema": "https://json.schemastore.org/tsconfig",
+  "display": "NestJS Server Config",
+  "extends": "./base.json",
+  "compilerOptions": {
+    "incremental": true,
+    "composite": false,
+    "target": "ES2023",
+    "lib": ["ESNext"],
+    "emitDecoratorMetadata": true,
+    "module": "nodenext",
+    "moduleResolution": "nodenext",
+    "types": ["node"],
+    "strictBindCallApply": false,
+    "strictPropertyInitialization": false,
+    "removeComments": true,
+    "declaration": true,
+    "noEmit": false,
+    "sourceMap": true,
+    "verbatimModuleSyntax": false
+  }
+}

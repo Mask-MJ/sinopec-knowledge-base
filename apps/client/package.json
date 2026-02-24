@@ -35,8 +35,5 @@
     "vite": "catalog:",
     "vitest": "catalog:",
     "vue-tsc": "catalog:"
-  },
-  "engines": {
-    "node": "^20.19.0 || >=22.12.0"
   }
 }

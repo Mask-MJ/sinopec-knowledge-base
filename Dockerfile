@@ -31,16 +31,22 @@ RUN pnpm run postinstall \
     && pnpm --filter @sinopec-kb/server build \
     && pnpm --filter @sinopec-kb/client build-only
 
+# 生成精简的 server 生产依赖
+RUN pnpm --filter @sinopec-kb/server deploy --prod /app/deploy
+
 # ===== Stage 3: Production =====
 FROM node:24-alpine AS production
 WORKDIR /app
 
+# 拷贝精简的生产部署目录
+COPY --from=builder /app/deploy/node_modules ./node_modules
+COPY --from=builder /app/deploy/package.json ./
+
 # 拷贝后端构建产物
 COPY --from=builder /app/apps/server/dist ./dist
-COPY --from=builder /app/apps/server/package.json ./
 
-# 拷贝生产依赖 (仅后端所需的 node_modules)
-COPY --from=builder /app/node_modules ./node_modules
+# 拷贝 Prisma 生成文件（运行时需要）
+COPY --from=builder /app/apps/server/src/prisma/generated ./dist/prisma/generated
 
 # 前端构建产物 (后续通过 volume 共享给 Nginx)
 COPY --from=builder /app/apps/client/dist ./public
@@ -48,3 +54,4 @@ COPY --from=builder /app/apps/client/dist ./public
 EXPOSE 3000
 
 CMD ["node", "dist/main.js"]
+

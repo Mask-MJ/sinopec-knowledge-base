@@ -105,7 +105,7 @@ describe('deptService', () => {
       const result = await service.findAll(queryDeptDto);
 
       expect(result).toHaveLength(1);
-      expect(result[0].children).toHaveLength(1);
+      expect(result[0]?.children).toHaveLength(1);
     });
   });
 

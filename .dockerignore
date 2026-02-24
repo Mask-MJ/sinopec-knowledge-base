@@ -13,3 +13,25 @@ playwright-report
 test-results
 .eslintcache
 .DS_Store
+
+# Environment files (secrets)
+.env
+.env.*
+!.env.example
+
+# Docker configs (not needed in build context)
+docker/
+docker-compose*.yaml
+
+# Documentation
+*.md
+!README.md
+
+# AI assistant
+.agent/
+.gemini/
+
+# Misc
+.prettiercache
+*.tsbuildinfo
+.idea/
