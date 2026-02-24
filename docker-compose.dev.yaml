@@ -1,2 +1,8 @@
 include:
   - docker-compose.infra.yaml
+
+# ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+#  Development-only Overrides
+#  开发环境通过 pnpm docker:dev 启动基础设施服务
+#  应用本身通过 pnpm dev:server / pnpm dev:client 启动
+# ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━

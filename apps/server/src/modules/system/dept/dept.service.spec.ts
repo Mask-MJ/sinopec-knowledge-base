@@ -109,19 +109,6 @@ describe('deptService', () => {
     });
   });
 
-  describe('findWithPagination', () => {
-    it('should return a single department', async () => {
-      mockPrismaService.client.dept.findUniqueOrThrow.mockResolvedValue({
-        id: 1,
-        name: 'Tech',
-      });
-
-      const result = await service.findWithPagination(1);
-
-      expect(result.id).toBe(1);
-    });
-  });
-
   describe('findOne', () => {
     it('should return a single department', async () => {
       mockPrismaService.client.dept.findUniqueOrThrow.mockResolvedValue({

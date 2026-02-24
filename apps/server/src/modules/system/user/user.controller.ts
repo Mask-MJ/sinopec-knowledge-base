@@ -29,10 +29,10 @@ import {
 } from '@nestjs/swagger';
 import { IsIP, IsIpVersion } from 'class-validator';
 
+import { ApiPaginatedResponse } from '@/common/response/paginated.response';
+import { AutoPermission } from '@/modules/auth/authorization/decorators/auto-permission.decorator';
+import { Permissions } from '@/modules/auth/authorization/decorators/permissions.decorator';
 import { ActiveUser } from '@/modules/auth/decorators/active-user.decorator';
-import { ApiPaginatedResponse } from 'src/common/response/paginated.response';
-import { AutoPermission } from 'src/modules/auth/authorization/decorators/auto-permission.decorator';
-import { Permissions } from 'src/modules/auth/authorization/decorators/permissions.decorator';
 
 import {
   ChangePasswordDto,

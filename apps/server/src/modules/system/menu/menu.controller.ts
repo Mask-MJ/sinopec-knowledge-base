@@ -17,8 +17,8 @@ import {
   ApiTags,
 } from '@nestjs/swagger';
 
+import { AutoPermission } from '@/modules/auth/authorization/decorators/auto-permission.decorator';
 import { ActiveUser } from '@/modules/auth/decorators/active-user.decorator';
-import { AutoPermission } from 'src/modules/auth/authorization/decorators/auto-permission.decorator';
 
 import { CreateMenuDto, QueryMenuDto, UpdateMenuDto } from './menu.dto';
 import { MenuEntity } from './menu.entity';

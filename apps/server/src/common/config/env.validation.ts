@@ -69,29 +69,7 @@ class EnvironmentVariables {
   @IsString()
   DATABASE_USER!: string;
 
-  // ─── Redis ───────────────────────────────────────
-
-  @IsOptional()
-  @IsString()
-  FEISHU_APP_ID?: string;
-
-  @IsOptional()
-  @IsString()
-  FEISHU_APP_SECRET?: string;
-
-  @IsOptional()
-  @IsString()
-  FEISHU_BASE_DOMAIN?: string;
-
   // ─── Minio (Object Storage) ──────────────────────
-
-  @IsOptional()
-  @IsString()
-  MABANGERP_APP_KEY?: string;
-
-  @IsOptional()
-  @IsString()
-  MABANGERP_APP_TOKEN?: string;
 
   @IsString()
   MINIO_ACCESS_KEY!: string;
@@ -112,25 +90,19 @@ class EnvironmentVariables {
   @IsString()
   MINIO_ROOT_PASSWORD!: string;
 
-  // ─── Feishu Bot ──────────────────────────────────
-
   @IsString()
   MINIO_ROOT_USER!: string;
 
   @IsString()
   MINIO_SECRET_KEY!: string;
 
-  @IsOptional()
-  @IsString()
-  RAGFLOW_API_KEY?: string;
-
   // ─── RAGFlow ─────────────────────────────────────
 
   @IsOptional()
   @IsString()
-  RATE_APP_KEY?: string;
+  RAGFLOW_API_KEY?: string;
 
-  // ─── MaBang ERP ──────────────────────────────────
+  // ─── Redis ───────────────────────────────────────
 
   @IsString()
   REDIS_HOST!: string;
@@ -139,22 +111,10 @@ class EnvironmentVariables {
   @IsString()
   REDIS_PASSWORD?: string;
 
-  // ─── TikTok Ads ──────────────────────────────────
-
   @IsInt()
   @Max(65_535)
   @Min(0)
   REDIS_PORT!: number;
-
-  @IsOptional()
-  @IsString()
-  TIKTOK_ADS_ACCESS_TOKEN?: string;
-
-  // ─── Exchange Rate (Alpha Vantage) ───────────────
-
-  @IsOptional()
-  @IsString()
-  TIKTOK_ADS_APP_ID?: string;
 }
 
 export function validate(config: Record<string, unknown>) {

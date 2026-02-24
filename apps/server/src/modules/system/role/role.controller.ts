@@ -16,7 +16,7 @@ import {
 } from '@nestjs/swagger';
 
 import { ApiPaginatedResponse } from '@/common/response/paginated.response';
-import { AutoPermission } from 'src/modules/auth/authorization/decorators/auto-permission.decorator';
+import { AutoPermission } from '@/modules/auth/authorization/decorators/auto-permission.decorator';
 
 import { CreateRoleDto, QueryRoleDto, UpdateRoleDto } from './role.dto';
 import { RoleEntity } from './role.entity';
