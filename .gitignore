@@ -87,7 +87,6 @@ package-lock.json
 .history
 .cursor
 .agent
-
 # VS Code (keep shared settings, ignore personal)
 # .vscode/ is intentionally tracked for shared settings
 # Add personal overrides below if needed
@@ -96,6 +95,7 @@ package-lock.json
 # OS generated files
 # ========================
 .DS_Store
+**/.DS_Store
 Thumbs.db
 ehthumbs.db
 Desktop.ini

@@ -1,5 +1,5 @@
 {
-  "extends": "@sinopec-kb/tsconfig/web-app.json",
+  "extends": "@sinopec-kb/tsconfig/web.json",
   "compilerOptions": {
     "tsBuildInfoFile": "./node_modules/.tmp/tsconfig.app.tsbuildinfo",
 

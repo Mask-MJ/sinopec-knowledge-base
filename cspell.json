@@ -7,7 +7,6 @@
     "axios",
     "commitlint",
     "dotenv",
-    "ependencies",
     "esbuild",
     "kamil",
     "lefthook",

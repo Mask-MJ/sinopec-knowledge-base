@@ -6,7 +6,7 @@
         "eslint.config.mjs",
         ".commitlintrc.mjs",
         ".prettierrc.mjs",
-        "vitest.config.ts",
+
         "scripts/*.mjs"
       ],
       "ignoreDependencies": ["lefthook"],
