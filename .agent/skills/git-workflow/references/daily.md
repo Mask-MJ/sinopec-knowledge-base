@@ -6,18 +6,18 @@ The complete daily loop: classify changes → decide path → commit → push.
 
 ### Classification Matrix
 
-| Type         | File Patterns                                  | Diff Patterns                                 | Keywords                                   |
-| :----------- | :--------------------------------------------- | :-------------------------------------------- | :----------------------------------------- |
-| **feat**     | New files in `src/modules/`, `src/components/` | `export class`, `export function`, new routes | add, new, implement, create                |
-| **fix**      | Modified files, error handlers                 | `catch`, `throw`, `try`, condition changes    | fix, bug, issue, error, resolve            |
-| **refactor** | Renamed/moved files                            | No behavior change, same tests pass           | refactor, restructure, reorganize, extract |
-| **perf**     | Any source files                               | Caching, indexing, batch operations           | perf, performance, optimize, cache         |
-| **docs**     | `*.md`, `README`, `CHANGELOG`                  | Comments, JSDoc                               | docs, document, readme                     |
-| **test**     | `*.spec.ts`, `*.test.ts`, `__tests__/`         | `describe`, `it`, `expect`                    | test, spec, coverage                       |
-| **chore**    | `*.config.*`, `package.json`, `.env*`          | Dependencies, scripts                         | chore, deps, build                         |
-| **style**    | Any source files                               | Whitespace, formatting only                   | style, format, lint                        |
-| **ci**       | `.github/`, `.gitea/`, CI config files         | Pipeline, workflow, action changes            | ci, pipeline, workflow, action             |
-| **revert**   | Any files                                      | Reverts previous commit                       | revert, undo, rollback                     |
+| Type | File Patterns | Diff Patterns | Keywords |
+| :-- | :-- | :-- | :-- |
+| **feat** | New files in `src/modules/`, `src/components/` | `export class`, `export function`, new routes | add, new, implement, create |
+| **fix** | Modified files, error handlers | `catch`, `throw`, `try`, condition changes | fix, bug, issue, error, resolve |
+| **refactor** | Renamed/moved files | No behavior change, same tests pass | refactor, restructure, reorganize, extract |
+| **perf** | Any source files | Caching, indexing, batch operations | perf, performance, optimize, cache |
+| **docs** | `*.md`, `README`, `CHANGELOG` | Comments, JSDoc | docs, document, readme |
+| **test** | `*.spec.ts`, `*.test.ts`, `__tests__/` | `describe`, `it`, `expect` | test, spec, coverage |
+| **chore** | `*.config.*`, `package.json`, `.env*` | Dependencies, scripts | chore, deps, build |
+| **style** | Any source files | Whitespace, formatting only | style, format, lint |
+| **ci** | `.github/`, `.gitea/`, CI config files | Pipeline, workflow, action changes | ci, pipeline, workflow, action |
+| **revert** | Any files | Reverts previous commit | revert, undo, rollback |
 
 ### Detection Algorithm
 
@@ -76,8 +76,14 @@ When changes span multiple types:
 
 > ⚠️ **Rule of thumb**: If it touches business logic or could break existing behavior, create a branch.
 
-> [!CAUTION]
-> **No exceptions**: If the table says "✅ Yes", you MUST create a branch — even if you are already on `develop` with uncommitted or ahead commits. Stash or carry changes to the new branch. Never rationalize a direct commit on `develop` for branch-required changes.
+> [!CAUTION] **No exceptions**: If the table says "✅ Yes", you MUST create a branch — even if you are already on `develop` with uncommitted or ahead commits. Stash or carry changes to the new branch. Never rationalize a direct commit on `develop` for branch-required changes.
+
+> [!WARNING] **AI Agent Pre-Commit Checklist** — Before EVERY commit, you MUST:
+>
+> 1. Run `git branch --show-current` to confirm which branch you are on.
+> 2. Verify the current branch **matches the scope** of your changes. Do NOT commit unrelated changes to a feature branch (e.g., committing a config fix to `chore/add-agent-workflow`).
+> 3. If on the wrong branch: `git stash` → switch to the correct branch → `git stash pop` → commit.
+> 4. When multiple unrelated changes exist, split them into **separate commits** on the appropriate branch(es).
 
 ### Path A: Direct Commit on Develop
 
@@ -108,13 +114,13 @@ git checkout -b refactor/extract-utils
 
 #### Branch Naming
 
-| Rule              | ✅ Correct                 | ❌ Incorrect                                                     |
-| :---------------- | :------------------------- | :--------------------------------------------------------------- |
-| Lowercase only    | `feature/user-auth`        | `Feature/UserAuth`                                               |
-| Hyphen separators | `fix/login-timeout`        | `fix/login_timeout`                                              |
-| No special chars  | `docs/api-guide`           | `docs/api@guide`                                                 |
-| Max 50 chars      | `feature/add-payment`      | `feature/add-payment-gateway-integration-with-stripe-and-paypal` |
-| Descriptive       | `fix/null-pointer-in-auth` | `fix/bug`                                                        |
+| Rule | ✅ Correct | ❌ Incorrect |
+| :-- | :-- | :-- |
+| Lowercase only | `feature/user-auth` | `Feature/UserAuth` |
+| Hyphen separators | `fix/login-timeout` | `fix/login_timeout` |
+| No special chars | `docs/api-guide` | `docs/api@guide` |
+| Max 50 chars | `feature/add-payment` | `feature/add-payment-gateway-integration-with-stripe-and-paypal` |
+| Descriptive | `fix/null-pointer-in-auth` | `fix/bug` |
 
 #### Branch Prefixes
 
@@ -151,23 +157,23 @@ git checkout -b refactor/extract-utils
 
 > Source of truth: `.commitlintrc.mjs` — `prompt.types` + `rules.type-enum`
 
-| Type       | Emoji | Description                                                   | SemVer Impact |
-| :--------- | :---- | :------------------------------------------------------------ | :------------ |
-| `feat`     | ✨    | A new feature                                                 | MINOR         |
-| `fix`      | 🐛    | A bug fix                                                     | PATCH         |
-| `docs`     | 📝    | Documentation only changes                                    | —             |
-| `style`    | 💄    | Changes that do not affect the meaning of the code            | —             |
-| `refactor` | ♻️    | A code change that neither fixes a bug nor adds a feature     | PATCH         |
-| `perf`     | ⚡️    | A code change that improves performance                       | PATCH         |
-| `test`     | ✅    | Adding missing tests or correcting existing tests             | —             |
-| `build`    | 📦️    | Changes that affect the build system or external dependencies | —             |
-| `ci`       | 🎡    | Changes to our CI configuration files and scripts             | —             |
-| `chore`    | 🔨    | Other changes that don't modify src or test files             | —             |
-| `revert`   | ⏪️    | Reverts a previous commit                                     | varies        |
-| `wip`      | 🚧    | Work in progress                                              | —             |
-| `workflow` | 📋    | Workflow changes                                              | —             |
-| `types`    | 🏷️    | Type definition changes                                       | —             |
-| `release`  | 🔖    | Release version                                               | —             |
+| Type | Emoji | Description | SemVer Impact |
+| :-- | :-- | :-- | :-- |
+| `feat` | ✨ | A new feature | MINOR |
+| `fix` | 🐛 | A bug fix | PATCH |
+| `docs` | 📝 | Documentation only changes | — |
+| `style` | 💄 | Changes that do not affect the meaning of the code | — |
+| `refactor` | ♻️ | A code change that neither fixes a bug nor adds a feature | PATCH |
+| `perf` | ⚡️ | A code change that improves performance | PATCH |
+| `test` | ✅ | Adding missing tests or correcting existing tests | — |
+| `build` | 📦️ | Changes that affect the build system or external dependencies | — |
+| `ci` | 🎡 | Changes to our CI configuration files and scripts | — |
+| `chore` | 🔨 | Other changes that don't modify src or test files | — |
+| `revert` | ⏪️ | Reverts a previous commit | varies |
+| `wip` | 🚧 | Work in progress | — |
+| `workflow` | 📋 | Workflow changes | — |
+| `types` | 🏷️ | Type definition changes | — |
+| `release` | 🔖 | Release version | — |
 
 ### Project-Specific Scopes
 
