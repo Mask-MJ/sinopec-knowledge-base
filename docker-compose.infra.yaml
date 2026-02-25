@@ -36,9 +36,11 @@ services:
     networks:
       - sinopec-kb
     command: >
-      redis-server
-      --requirepass ${REDIS_PASSWORD:-}
-      --appendonly yes
+      sh -c 'if [ -n "$$REDIS_PASSWORD" ]; then
+        redis-server --requirepass "$$REDIS_PASSWORD" --appendonly yes;
+      else
+        redis-server --appendonly yes;
+      fi'
     volumes:
       - redis_data:/data
     healthcheck:
