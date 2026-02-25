@@ -1,5 +1,7 @@
 import type { Request as ExpRequest } from 'express';
 
+import { isIP } from 'node:net';
+
 import { Body, Controller, Headers, Post, Request } from '@nestjs/common';
 import {
   ApiCreatedResponse,
@@ -7,7 +9,6 @@ import {
   ApiOkResponse,
   ApiTags,
 } from '@nestjs/swagger';
-import { IsIP, IsIpVersion } from 'class-validator';
 
 import { RefreshTokenDto, SignInDto, SignUpDto } from './authentication.dto';
 import { SignInEntity } from './authentication.entity';
@@ -43,7 +44,7 @@ export class AuthenticationController {
     @Headers() header: any,
     @Headers('X-Real-IP') ip?: string,
   ) {
-    const clientIp = ip && IsIP(ip as IsIpVersion) ? ip : request.ip;
+    const clientIp = ip && isIP(ip) ? ip : request.ip;
     return this.authenticationService.signIn(signInDto, header, clientIp);
   }
 

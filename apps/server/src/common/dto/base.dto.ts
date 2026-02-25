@@ -1,4 +1,3 @@
-import { IntersectionType } from '@nestjs/swagger';
 import { Type } from 'class-transformer';
 import {
   IsArray,
@@ -33,7 +32,7 @@ export class PaginateDto {
   pageSize: number = 10;
 }
 
-export class BaseDto extends IntersectionType(PaginateDto) {
+export class BaseDto extends PaginateDto {
   @IsArray()
   @IsOptional()
   @Type(() => Date)

@@ -36,7 +36,10 @@ export const createMockAdminUser = (
  * @param data 返回的数据列表
  * @param total 总数
  */
-export const createMockPaginate = (data: any[] = [], total: number = 0) => ({
+export const createMockPaginate = (
+  data: any[] = [],
+  total: number = 0,
+): Record<string, any> => ({
   withPages: vi.fn().mockResolvedValue([data, { total }]),
 });
 
@@ -63,7 +66,7 @@ export const createMockFile = (
  * 创建基础 PrismaService mock
  * 包含知识库项目所有模块的 CRUD 方法 mock
  */
-export const createMockPrismaService = () => ({
+export const createMockPrismaService = (): Record<string, any> => ({
   client: {
     user: {
       findUnique: vi.fn(),
@@ -129,7 +132,7 @@ export const createMockPrismaService = () => ({
 /**
  * 创建 MinioService mock
  */
-export const createMockMinioService = () => ({
+export const createMockMinioService = (): Record<string, any> => ({
   uploadFile: vi.fn(),
   getUrl: vi.fn().mockResolvedValue('http://minio/test-file.jpg'),
   deleteFile: vi.fn(),
@@ -138,7 +141,7 @@ export const createMockMinioService = () => ({
 /**
  * 创建 HashingService mock
  */
-export const createMockHashingService = () => ({
+export const createMockHashingService = (): Record<string, any> => ({
   hash: vi.fn().mockResolvedValue('hashedPassword'),
   compare: vi.fn().mockResolvedValue(true),
 });
@@ -146,7 +149,7 @@ export const createMockHashingService = () => ({
 /**
  * 创建 EventEmitter2 mock
  */
-export const createMockEventEmitter = () => ({
+export const createMockEventEmitter = (): Record<string, any> => ({
   emit: vi.fn(),
   on: vi.fn(),
   once: vi.fn(),
@@ -155,7 +158,7 @@ export const createMockEventEmitter = () => ({
 /**
  * 创建 HttpService mock
  */
-export const createMockHttpService = () => ({
+export const createMockHttpService = (): Record<string, any> => ({
   get: vi.fn(),
   post: vi.fn(),
   put: vi.fn(),

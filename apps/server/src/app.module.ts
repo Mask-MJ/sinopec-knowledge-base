@@ -10,6 +10,7 @@ import { CustomPrismaModule } from 'nestjs-prisma/dist/custom';
 import { ConfigModule } from './common/config/config.module';
 import { extendedPrismaClient } from './common/database/prisma.extension';
 import { LogsModule } from './common/logger/logs.module';
+import { MinioModule } from './common/minio/minio.module';
 import { AuthModule } from './modules/auth/auth.module';
 import { SystemModule } from './modules/system/system.module';
 
@@ -17,6 +18,7 @@ import { SystemModule } from './modules/system/system.module';
   imports: [
     ConfigModule,
     LogsModule,
+    MinioModule,
     ScheduleModule.forRoot(),
     CacheModule.registerAsync({
       inject: [ConfigService],

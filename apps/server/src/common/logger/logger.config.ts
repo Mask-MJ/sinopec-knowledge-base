@@ -11,7 +11,7 @@ const LOG_LEVEL = process.env.NODE_ENV === 'production' ? 'info' : 'debug';
 /**
  * 应用名称（用于控制台日志前缀）
  */
-const APP_NAME = 'DataHub';
+const APP_NAME = 'Sinopec KB';
 
 /**
  * 需要过滤的 NestJS 框架日志 context

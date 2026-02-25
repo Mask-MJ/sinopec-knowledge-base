@@ -26,5 +26,6 @@ import { HashingService } from './hashing/hashing.service';
     Logger,
   ],
   controllers: [AuthenticationController],
+  exports: [HashingService],
 })
 export class AuthModule {}

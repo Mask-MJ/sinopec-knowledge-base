@@ -7,12 +7,12 @@ import { MakeBucketOpt } from 'minio';
 
 @Injectable()
 export class MinioService {
-  private endPoint: string;
+  private readonly endPoint: string;
   private readonly minioClient: Minio.Client;
-  private port: number;
+  private readonly port: number;
   constructor(private configService: ConfigService) {
     this.endPoint = this.configService.get<string>('MINIO_ENDPOINT', '');
-    this.port = Number(this.configService.get<string>('MINIO_PORT'));
+    this.port = this.configService.get<number>('MINIO_PORT', 9000);
     this.minioClient = new Minio.Client({
       endPoint: this.endPoint,
       port: this.port,

@@ -1,13 +1,7 @@
 import { HttpModule } from '@nestjs/axios';
 import { Module } from '@nestjs/common';
-import { ConfigModule } from '@nestjs/config';
-import { JwtModule } from '@nestjs/jwt';
 
-import { MinioService } from '@/common/minio/minio.service';
-import jwtConfig from '@/modules/auth/config/jwt.config';
-
-import { BcryptService } from '../auth/hashing/bcrypt.service';
-import { HashingService } from '../auth/hashing/hashing.service';
+import { AuthModule } from '../auth/auth.module';
 import { DeptController } from './dept/dept.controller';
 import { DeptService } from './dept/dept.service';
 import { DictController } from './dict/dict.controller';
@@ -22,11 +16,7 @@ import { UserController } from './user/user.controller';
 import { UserService } from './user/user.service';
 
 @Module({
-  imports: [
-    HttpModule.register({}),
-    JwtModule.registerAsync(jwtConfig.asProvider()),
-    ConfigModule.forFeature(jwtConfig),
-  ],
+  imports: [HttpModule.register({}), AuthModule],
   controllers: [
     UserController,
     DeptController,
@@ -36,8 +26,6 @@ import { UserService } from './user/user.service';
     PostController,
   ],
   providers: [
-    { provide: HashingService, useClass: BcryptService },
-    MinioService,
     UserService,
     DeptService,
     DictService,
