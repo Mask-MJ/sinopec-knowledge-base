@@ -143,20 +143,25 @@ export class QueryUserDto extends PartialType(
   ),
 ) {}
 
-export class UpdateUserDto extends PartialType(CreateUserDto) {
-  @IsNumber()
-  @IsOptional()
-  id: number;
-}
+export class UpdateUserDto extends PartialType(CreateUserDto) {}
 
 export class ChangePasswordDto {
+  @IsNotEmpty()
+  @IsString()
+  oldPassword: string;
+
+  @IsNotEmpty()
+  @IsString()
+  @MinLength(4)
+  password: string;
+}
+
+export class AdminChangePasswordDto {
   @IsNumber()
   id: number;
 
-  @IsOptional()
+  @IsNotEmpty()
   @IsString()
-  oldPassword: string = '';
-
-  @IsString()
+  @MinLength(4)
   password: string;
 }

@@ -37,11 +37,7 @@ export class QueryDictDto extends PartialType(
   IntersectionType(PickType(CreateDictDto, ['name', 'value'])),
 ) {}
 
-export class UpdateDictDto extends PartialType(CreateDictDto) {
-  @IsNumber()
-  @Type(() => Number)
-  id: number;
-}
+export class UpdateDictDto extends PartialType(CreateDictDto) {}
 
 export class CreateDictDataDto {
   /**
@@ -113,8 +109,4 @@ export class QueryDictDataDto extends PartialType(
   dictValue?: string;
 }
 
-export class UpdateDictDataDto extends PartialType(CreateDictDataDto) {
-  @IsNumber()
-  @IsOptional()
-  id: number;
-}
+export class UpdateDictDataDto extends PartialType(CreateDictDataDto) {}

@@ -197,46 +197,31 @@ describe('userService', () => {
       await service.uploadAvatar(mockUser, file);
 
       expect(minioService.uploadFile).toHaveBeenCalled();
-      expect(minioService.getUrl).toHaveBeenCalled();
       expect(prismaService.client.user.update).toHaveBeenCalledWith(
         expect.objectContaining({
-          data: { avatar: 'http://minio/avatar.jpg' },
+          data: { avatar: `avatar/${mockUser.sub}-test.jpg` },
         }),
       );
     });
   });
 
   describe('changePassword', () => {
-    it('should change password for admin without verifying old password', async () => {
+    it('should change password with valid old password', async () => {
       mockPrismaService.client.user.findUniqueOrThrow.mockResolvedValue({
         id: 1,
-        isAdmin: true,
-      });
-
-      await service.changePassword(1, 'newpass', 'oldpass');
-
-      expect(hashingService.compare).not.toHaveBeenCalled();
-      expect(prismaService.client.user.update).toHaveBeenCalled();
-    });
-
-    it('should change password for normal user with valid old password', async () => {
-      mockPrismaService.client.user.findUniqueOrThrow.mockResolvedValue({
-        id: 1,
-        isAdmin: false,
         password: 'hashed',
       });
       mockHashingService.compare.mockResolvedValue(true);
 
       await service.changePassword(1, 'newpass', 'oldpass');
 
-      expect(hashingService.compare).toHaveBeenCalled();
+      expect(hashingService.compare).toHaveBeenCalledWith('oldpass', 'hashed');
       expect(prismaService.client.user.update).toHaveBeenCalled();
     });
 
     it('should throw UnauthorizedException if old password invalid', async () => {
       mockPrismaService.client.user.findUniqueOrThrow.mockResolvedValue({
         id: 1,
-        isAdmin: false,
         password: 'hashed',
       });
       mockHashingService.compare.mockResolvedValue(false);
@@ -247,9 +232,27 @@ describe('userService', () => {
     });
   });
 
+  describe('resetPassword', () => {
+    it('should reset password without verifying old password', async () => {
+      mockPrismaService.client.user.findUniqueOrThrow.mockResolvedValue({
+        id: 2,
+      });
+
+      await service.resetPassword(2, 'newpass');
+
+      expect(hashingService.compare).not.toHaveBeenCalled();
+      expect(hashingService.hash).toHaveBeenCalledWith('newpass');
+      expect(prismaService.client.user.update).toHaveBeenCalledWith(
+        expect.objectContaining({
+          where: { id: 2 },
+        }),
+      );
+    });
+  });
+
   describe('update', () => {
     it('should update user', async () => {
-      const updateUserDto: UpdateUserDto = { id: 1, nickname: 'updated' };
+      const updateUserDto: UpdateUserDto = { nickname: 'updated' };
 
       await service.update(1, updateUserDto);
 

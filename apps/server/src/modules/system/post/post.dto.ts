@@ -38,8 +38,4 @@ export class QueryPostDto extends PartialType(
   IntersectionType(PickType(CreatePostDto, ['name', 'code']), BaseDto),
 ) {}
 
-export class UpdatePostDto extends PartialType(CreatePostDto) {
-  @IsNumber()
-  @IsOptional()
-  id: number;
-}
+export class UpdatePostDto extends PartialType(CreatePostDto) {}

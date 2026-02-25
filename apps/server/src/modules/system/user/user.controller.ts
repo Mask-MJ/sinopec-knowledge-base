@@ -1,6 +1,8 @@
 import type { ActiveUserData } from '@/modules/auth/interfaces/active-user-data.interface';
 import type { Request as ExpRequest } from 'express';
 
+import { isIP } from 'node:net';
+
 import {
   Body,
   Controller,
@@ -27,7 +29,6 @@ import {
   ApiOperation,
   ApiTags,
 } from '@nestjs/swagger';
-import { IsIP, IsIpVersion } from 'class-validator';
 
 import { ApiPaginatedResponse } from '@/common/response/paginated.response';
 import { AutoPermission } from '@/modules/auth/authorization/decorators/auto-permission.decorator';
@@ -35,6 +36,7 @@ import { Permissions } from '@/modules/auth/authorization/decorators/permissions
 import { ActiveUser } from '@/modules/auth/decorators/active-user.decorator';
 
 import {
+  AdminChangePasswordDto,
   ChangePasswordDto,
   CreateUserDto,
   QueryUserDto,
@@ -50,13 +52,15 @@ export class UserController {
   constructor(private readonly userService: UserService) {}
 
   /**
-   * 修改密码
+   * 修改自身密码
    */
   @ApiOkResponse({ type: UserEntity })
   @Patch('changePassword')
-  @Permissions('system:user:update')
-  changePassword(@Body() { id, oldPassword, password }: ChangePasswordDto) {
-    return this.userService.changePassword(id, password, oldPassword);
+  changePassword(
+    @ActiveUser() user: ActiveUserData,
+    @Body() { oldPassword, password }: ChangePasswordDto,
+  ) {
+    return this.userService.changePassword(user.sub, password, oldPassword);
   }
 
   /**
@@ -81,7 +85,7 @@ export class UserController {
     @Request() request: ExpRequest,
     @Headers('X-Real-IP') ip?: string,
   ) {
-    const clientIp = ip && IsIP(ip as IsIpVersion) ? ip : request.ip;
+    const clientIp = ip && isIP(ip) ? ip : request.ip;
     return this.userService.delete(user, id, clientIp);
   }
 
@@ -122,12 +126,22 @@ export class UserController {
   }
 
   /**
-   * 获取用户列表
+   * 获取用户列表（分页）
    */
   @ApiPaginatedResponse(UserEntity)
   @Get()
   findWithPagination(@Query() queryUserDto: QueryUserDto) {
     return this.userService.findWithPagination(queryUserDto);
+  }
+
+  /**
+   * 管理员修改用户密码
+   */
+  @ApiOkResponse({ type: UserEntity })
+  @Patch('resetPassword')
+  @Permissions('system:user:update')
+  resetPassword(@Body() { id, password }: AdminChangePasswordDto) {
+    return this.userService.resetPassword(id, password);
   }
 
   /**

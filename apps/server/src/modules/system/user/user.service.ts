@@ -27,13 +27,6 @@ export class UserService {
     const user = await this.prisma.client.user.findUniqueOrThrow({
       where: { id },
     });
-    // 判断是否是管理员权限 如果是管理员权限则不需要验证原密码
-    if (user.isAdmin) {
-      return this.prisma.client.user.update({
-        where: { id },
-        data: { password: await this.hashingService.hash(password) },
-      });
-    }
     const isPasswordValid = await this.hashingService.compare(
       oldPassword,
       user.password,
@@ -41,10 +34,9 @@ export class UserService {
     if (!isPasswordValid) {
       throw new UnauthorizedException('原密码错误');
     }
-    const newPassword = await this.hashingService.hash(password);
     return this.prisma.client.user.update({
       where: { id },
-      data: { password: newPassword },
+      data: { password: await this.hashingService.hash(password) },
     });
   }
 
@@ -163,6 +155,17 @@ export class UserService {
     return { list, ...meta };
   }
 
+  /**
+   * 管理员重置用户密码（无需旧密码）
+   */
+  async resetPassword(id: number, password: string) {
+    await this.prisma.client.user.findUniqueOrThrow({ where: { id } });
+    return this.prisma.client.user.update({
+      where: { id },
+      data: { password: await this.hashingService.hash(password) },
+    });
+  }
+
   async update(id: number, updateUserDto: UpdateUserDto) {
     const { roleIds, ...rest } = updateUserDto;
     return await this.prisma.client.user.update({
@@ -177,11 +180,12 @@ export class UserService {
   }
 
   async uploadAvatar(user: ActiveUserData, file: Express.Multer.File) {
-    await this.minioClient.uploadFile('avatar', file.originalname, file.buffer);
-    const url = await this.minioClient.getUrl('avatar', file.originalname);
+    const objectName = `${user.sub}-${file.originalname}`;
+    await this.minioClient.uploadFile('avatar', objectName, file.buffer);
+    // 存储对象路径而非 presigned URL（presigned URL 会过期）
     return this.prisma.client.user.update({
       where: { id: user.sub },
-      data: { avatar: url },
+      data: { avatar: `avatar/${objectName}` },
     });
   }
 }

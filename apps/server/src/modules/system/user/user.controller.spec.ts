@@ -9,6 +9,7 @@ import { createMockAdminUser } from '@/test-utils/mock.factory';
 
 import { UserController } from './user.controller';
 import {
+  AdminChangePasswordDto,
   ChangePasswordDto,
   CreateUserDto,
   QueryUserDto,
@@ -53,6 +54,7 @@ describe('userController', () => {
     findSelf: vi.fn(),
     findSelfCode: vi.fn(),
     changePassword: vi.fn(),
+    resetPassword: vi.fn(),
     uploadAvatar: vi.fn(),
     findOne: vi.fn(),
     update: vi.fn(),
@@ -155,19 +157,40 @@ describe('userController', () => {
   describe('changePassword', () => {
     it('should change user password', async () => {
       const changePasswordDto: ChangePasswordDto = {
-        id: 1,
         oldPassword: 'oldpass',
         password: 'newpass',
       };
 
       mockUserService.changePassword.mockResolvedValue(mockUserEntity);
 
-      const result = await controller.changePassword(changePasswordDto);
+      const result = await controller.changePassword(
+        mockUser,
+        changePasswordDto,
+      );
 
       expect(service.changePassword).toHaveBeenCalledWith(
-        changePasswordDto.id,
+        mockUser.sub,
         changePasswordDto.password,
         changePasswordDto.oldPassword,
+      );
+      expect(result).toEqual(mockUserEntity);
+    });
+  });
+
+  describe('resetPassword', () => {
+    it('should reset user password by admin', async () => {
+      const adminChangePasswordDto: AdminChangePasswordDto = {
+        id: 2,
+        password: 'newpass',
+      };
+
+      mockUserService.resetPassword.mockResolvedValue(mockUserEntity);
+
+      const result = await controller.resetPassword(adminChangePasswordDto);
+
+      expect(service.resetPassword).toHaveBeenCalledWith(
+        adminChangePasswordDto.id,
+        adminChangePasswordDto.password,
       );
       expect(result).toEqual(mockUserEntity);
     });
@@ -209,7 +232,6 @@ describe('userController', () => {
   describe('update', () => {
     it('should update a user', async () => {
       const updateUserDto: UpdateUserDto = {
-        id: 1,
         nickname: '更新后的昵称',
       };
       const updatedUser = { ...mockUserEntity, nickname: '更新后的昵称' };

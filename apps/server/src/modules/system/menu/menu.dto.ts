@@ -246,7 +246,4 @@ export class QueryMenuDto extends PartialType(
 export class UpdateMenuDto extends IntersectionType(
   PartialType(CreateMenuDto),
   PickType(CreateMenuDto, ['name', 'path', 'type']),
-) {
-  @IsNumber()
-  id: number;
-}
+) {}
