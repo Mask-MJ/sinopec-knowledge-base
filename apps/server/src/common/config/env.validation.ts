@@ -29,10 +29,6 @@ class EnvironmentVariables {
   @IsString()
   APP_PREFIX!: string;
 
-  @IsOptional()
-  @IsString()
-  APP_VERSION?: string;
-
   // ─── Authentication & Security ───────────────────
 
   @IsInt()
