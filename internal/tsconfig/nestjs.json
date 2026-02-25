@@ -5,8 +5,8 @@
   "compilerOptions": {
     "incremental": true,
     "target": "ES2023",
-    "module": "nodenext",
-    "moduleResolution": "nodenext",
+    "module": "es2022",
+    "moduleResolution": "bundler",
     "strictBindCallApply": false,
     "strictPropertyInitialization": false,
     "removeComments": true,
