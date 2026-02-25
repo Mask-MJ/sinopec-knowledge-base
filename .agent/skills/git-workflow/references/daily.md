@@ -82,7 +82,10 @@ When changes span multiple types:
 >
 > 1. Run `git branch --show-current` to confirm which branch you are on.
 > 2. Verify the current branch **matches the scope** of your changes. Do NOT commit unrelated changes to a feature branch (e.g., committing a config fix to `chore/add-agent-workflow`).
-> 3. If on the wrong branch: `git stash` → switch to the correct branch → `git stash pop` → commit.
+> 3. If on the wrong branch, **check if the target branch already exists** before creating a new one:
+>    - `git branch --list '<target-branch>'` — if it exists, `git checkout <target-branch>`.
+>    - If it does not exist, `git checkout -b <target-branch>`.
+>    - Always stash uncommitted changes first: `git stash` → switch → `git stash pop`.
 > 4. When multiple unrelated changes exist, split them into **separate commits** on the appropriate branch(es).
 
 ### Path A: Direct Commit on Develop
