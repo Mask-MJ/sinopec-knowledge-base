@@ -9,11 +9,11 @@ export class InfoService {
     const { platform, release, arch, hostname } = await systemInfo.osInfo();
 
     return {
-      cpu: { cores, brand, manufacturer, speed: speed + 'GHz' },
+      cpu: { cores, brand, manufacturer, speed: `${speed}GHz` },
       memory: {
-        total: (total / 1024 / 1024 / 1024).toFixed(2) + 'GB',
-        free: (free / 1024 / 1024 / 1024).toFixed(2) + 'GB',
-        used: (used / 1024 / 1024 / 1024).toFixed(2) + 'GB',
+        total: `${(total / 1024 / 1024 / 1024).toFixed(2)}GB`,
+        free: `${(free / 1024 / 1024 / 1024).toFixed(2)}GB`,
+        used: `${(used / 1024 / 1024 / 1024).toFixed(2)}GB`,
         usage: `${((used / total) * 100).toFixed(2)}%`,
       },
       osInfo: { platform, release, arch, hostname },

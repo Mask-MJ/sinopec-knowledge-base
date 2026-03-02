@@ -5,21 +5,21 @@ import { IsNumber, IsString } from 'class-validator';
 import { BaseDto } from '@/common/dto/base.dto';
 
 export class CreateOperationLogDto {
-  @IsString()
-  title: string;
-
-  @IsString()
-  username: string;
-
   @IsNumber()
   @Type(() => Number)
   businessType: number;
 
   @IsString()
+  ip: string;
+
+  @IsString()
   module: string;
 
   @IsString()
-  ip: string;
+  title: string;
+
+  @IsString()
+  username: string;
 }
 
 export class QueryOperationLogDto extends PartialType(

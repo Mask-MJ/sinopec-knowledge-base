@@ -7,27 +7,27 @@ import { QueryOperationLogDto } from './operation-log.dto';
 import { OperationLogEntity } from './operation-log.entity';
 import { OperationLogService } from './operation-log.service';
 
-@ApiTags('操作日志管理')
 @ApiBearerAuth('bearer')
+@ApiTags('操作日志管理')
 @Controller('operation-log')
 export class OperationLogController {
   constructor(private readonly operationLogService: OperationLogService) {}
 
   /**
-   * 获取操作日志列表
+   * 获取操作日志详情
    */
-  @Get()
-  @ApiPaginatedResponse(OperationLogEntity)
-  findWithPagination(@Query() queryOperationDto: QueryOperationLogDto) {
-    return this.operationLogService.findWithPagination(queryOperationDto);
+  @ApiOkResponse({ type: OperationLogEntity })
+  @Get(':id')
+  findOne(@Param('id') id: number) {
+    return this.operationLogService.findOne(id);
   }
 
   /**
-   * 获取操作日志详情
+   * 获取操作日志列表
    */
-  @Get(':id')
-  @ApiOkResponse({ type: OperationLogEntity })
-  findOne(@Param('id') id: number) {
-    return this.operationLogService.findOne(id);
+  @ApiPaginatedResponse(OperationLogEntity)
+  @Get()
+  findWithPagination(@Query() queryOperationDto: QueryOperationLogDto) {
+    return this.operationLogService.findWithPagination(queryOperationDto);
   }
 }

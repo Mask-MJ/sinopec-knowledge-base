@@ -1,12 +1,12 @@
 import { OperationLog } from '@prisma/generated/client';
 
 export class OperationLogEntity implements OperationLog {
-  id: number;
-  title: string;
-  businessType: number;
-  module: string;
-  username: string;
-  ip: string;
   address: string;
+  businessType: number;
   createdAt: Date;
+  id: number;
+  ip: string;
+  module: string;
+  title: string;
+  username: string;
 }
