@@ -7,7 +7,9 @@
     "axios",
     "commitlint",
     "dotenv",
+    "dotenvx",
     "esbuild",
+    "idcard",
     "kamil",
     "lefthook",
     "nestjs",
@@ -39,6 +41,7 @@
     "**/__tests__/**",
     "**/dist/**",
     "**/node_modules/**",
+    "**/seed.data.ts",
     "pnpm-lock.yaml"
   ]
 }

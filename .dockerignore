@@ -21,6 +21,7 @@ test-results
 
 # Docker configs (not needed in build context)
 docker/
+!docker/entrypoint.sh
 docker-compose*.yaml
 
 # Documentation

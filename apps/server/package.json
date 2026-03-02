@@ -24,9 +24,8 @@
     "prisma:dev": "prisma migrate dev",
     "prisma:pull": "npx prisma db pull",
     "prisma:reset": "prisma migrate reset",
-    "prisma:seed": "prisma db seed",
     "prisma:studio": "prisma studio",
-    "postinstall": "test -f prisma/schema.prisma && prisma generate || echo 'No Prisma schema found, skipping generate.'"
+    "postinstall": "test -d prisma/models && prisma generate || echo 'No Prisma schema found, skipping generate.'"
   },
   "dependencies": {
     "@dotenvx/dotenvx": "catalog:",
