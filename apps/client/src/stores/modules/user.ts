@@ -62,7 +62,7 @@ export const useUserStore = defineStore('user-store', () => {
     path = path.replace(/\/\d+$/, '/:id');
     // 如果是根路径，直接返回 true
     if (path === '/') return true;
-    return accessMenus.value.some((menu) => menu.path === path);
+    return accessMenus.value.some((menu: MenuInfo) => menu.path === path);
   };
 
   const getUserInfoAction = async () => {
@@ -112,8 +112,10 @@ export const useUserStore = defineStore('user-store', () => {
 
   const fetchMenuList = async (router: Router) => {
     const { data = [] } = await getMenuList();
-    const menus = data.filter((menu) => menu.status && menu.type !== 'button');
-    menus.forEach((menu) => {
+    const menus = data.filter(
+      (menu: MenuInfo) => menu.status && menu.type !== 'button',
+    );
+    menus.forEach((menu: MenuInfo) => {
       const { path, redirect, ...rest } = menu;
       // 更新原始路由数据
       router.getRoutes().forEach((item) => {
