@@ -1,6 +1,7 @@
 import type { PrismaService } from '@/common/database/prisma.extension';
 
 import { Inject, Injectable } from '@nestjs/common';
+import { EventEmitter2 } from '@nestjs/event-emitter';
 
 import { ActiveUserData } from '@/modules/auth/interfaces/active-user-data.interface';
 
@@ -10,14 +11,16 @@ import { CreateMenuDto, QueryMenuDto, UpdateMenuDto } from './menu.dto';
 export class MenuService {
   constructor(
     @Inject('PrismaService') private readonly prisma: PrismaService,
+    @Inject(EventEmitter2) private readonly eventEmitter: EventEmitter2,
   ) {}
   async create(createMenuDto: CreateMenuDto) {
+    let result;
     if (createMenuDto.path && createMenuDto.type !== 'button') {
       const suffix = createMenuDto.path
         .replace(/:id$/, '')
         .replace(/^\//, '')
         .replaceAll('/', ':');
-      return await this.prisma.client.menu.create({
+      result = await this.prisma.client.menu.create({
         data: {
           ...createMenuDto,
           children: {
@@ -45,14 +48,30 @@ export class MenuService {
         },
       });
     } else {
-      return await this.prisma.client.menu.create({
+      result = await this.prisma.client.menu.create({
         data: { ...createMenuDto },
       });
     }
+    this.eventEmitter.emit('operation.log', {
+      title: `创建菜单: ${createMenuDto.name}`,
+      businessType: 1,
+      module: '菜单管理',
+      username: '',
+      ip: '',
+    });
+    return result;
   }
 
   async delete(id: number) {
-    return await this.prisma.client.menu.delete({ where: { id } });
+    const result = await this.prisma.client.menu.delete({ where: { id } });
+    this.eventEmitter.emit('operation.log', {
+      title: `删除菜单ID: ${id}`,
+      businessType: 3,
+      module: '菜单管理',
+      username: '',
+      ip: '',
+    });
+    return result;
   }
 
   async findAll(user: ActiveUserData, queryMenuDto: QueryMenuDto) {
@@ -83,9 +102,17 @@ export class MenuService {
   }
 
   async update(id: number, updateMenuDto: UpdateMenuDto) {
-    return await this.prisma.client.menu.update({
+    const result = await this.prisma.client.menu.update({
       where: { id },
       data: { ...updateMenuDto },
     });
+    this.eventEmitter.emit('operation.log', {
+      title: `更新菜单ID: ${id}`,
+      businessType: 2,
+      module: '菜单管理',
+      username: '',
+      ip: '',
+    });
+    return result;
   }
 }

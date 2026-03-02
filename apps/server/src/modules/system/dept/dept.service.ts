@@ -1,6 +1,7 @@
 import type { PrismaService } from '@/common/database/prisma.extension';
 
 import { Inject, Injectable } from '@nestjs/common';
+import { EventEmitter2 } from '@nestjs/event-emitter';
 
 import { transformationTree } from '@/common/utils';
 
@@ -11,6 +12,7 @@ import { DeptEntity } from './dept.entity';
 export class DeptService {
   constructor(
     @Inject('PrismaService') private readonly prisma: PrismaService,
+    @Inject(EventEmitter2) private readonly eventEmitter: EventEmitter2,
   ) {}
 
   async create(createDeptDto: CreateDeptDto) {
@@ -25,11 +27,26 @@ export class DeptService {
       where: { id: leaderId },
       data: { isDeptAdmin: true, deptId: dept.id },
     });
+    this.eventEmitter.emit('operation.log', {
+      title: `创建部门: ${createDeptDto.name}`,
+      businessType: 1,
+      module: '部门管理',
+      username: '',
+      ip: '',
+    });
     return dept;
   }
 
   async delete(id: number) {
-    return await this.prisma.client.dept.delete({ where: { id } });
+    const result = await this.prisma.client.dept.delete({ where: { id } });
+    this.eventEmitter.emit('operation.log', {
+      title: `删除部门ID: ${id}`,
+      businessType: 3,
+      module: '部门管理',
+      username: '',
+      ip: '',
+    });
+    return result;
   }
 
   async findAll(queryDeptDto: QueryDeptDto) {
@@ -48,9 +65,17 @@ export class DeptService {
   }
 
   async update(id: number, updateDeptDto: UpdateDeptDto) {
-    return await this.prisma.client.dept.update({
+    const result = await this.prisma.client.dept.update({
       where: { id },
       data: updateDeptDto,
     });
+    this.eventEmitter.emit('operation.log', {
+      title: `更新部门ID: ${id}`,
+      businessType: 2,
+      module: '部门管理',
+      username: '',
+      ip: '',
+    });
+    return result;
   }
 }

@@ -1,3 +1,4 @@
+import { EventEmitter2 } from '@nestjs/event-emitter';
 import { Test, TestingModule } from '@nestjs/testing';
 import { vi } from 'vitest';
 
@@ -39,6 +40,10 @@ describe('menuService', () => {
         {
           provide: 'PrismaService',
           useValue: mockPrismaService,
+        },
+        {
+          provide: EventEmitter2,
+          useValue: { emit: vi.fn() },
         },
       ],
     }).compile();
@@ -158,7 +163,6 @@ describe('menuService', () => {
   describe('update', () => {
     it('should update a menu', async () => {
       const updateMenuDto: UpdateMenuDto = {
-        id: 1,
         name: 'New Name',
         type: 'menu',
         path: '/new-path',

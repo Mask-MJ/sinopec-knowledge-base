@@ -1,3 +1,4 @@
+import { EventEmitter2 } from '@nestjs/event-emitter';
 import { Test, TestingModule } from '@nestjs/testing';
 import { vi } from 'vitest';
 
@@ -42,6 +43,10 @@ describe('dictService', () => {
         {
           provide: 'PrismaService',
           useValue: mockPrismaService,
+        },
+        {
+          provide: EventEmitter2,
+          useValue: { emit: vi.fn() },
         },
       ],
     }).compile();

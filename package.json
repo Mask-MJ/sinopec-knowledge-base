@@ -6,7 +6,7 @@
   "scripts": {
     "build": "turbo build",
     "changeset": "pnpm exec changeset",
-    "dev": "node ./scripts/turbo-run.mjs dev",
+    "dev": "turbo dev",
     "dev:client": "pnpm -F @sinopec-kb/client dev",
     "dev:server": "pnpm -F @sinopec-kb/server dev",
     "docker:dev": "docker compose -f docker-compose.dev.yaml up -d",

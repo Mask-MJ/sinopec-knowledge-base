@@ -34,10 +34,18 @@ export class UserService {
     if (!isPasswordValid) {
       throw new UnauthorizedException('原密码错误');
     }
-    return this.prisma.client.user.update({
+    const result = await this.prisma.client.user.update({
       where: { id },
       data: { password: await this.hashingService.hash(password) },
     });
+    this.eventEmitter.emit('operation.log', {
+      title: `用户修改密码, ID: ${id}`,
+      businessType: 2,
+      module: '用户管理',
+      username: '',
+      ip: '',
+    });
+    return result;
   }
 
   async create(createUserDto: CreateUserDto) {
@@ -49,13 +57,21 @@ export class UserService {
     }
     const { roleIds, password, ...rest } = createUserDto;
 
-    return this.prisma.client.user.create({
+    const result = await this.prisma.client.user.create({
       data: {
         ...rest,
         password: await this.hashingService.hash(password),
         roles: { connect: roleIds?.map((id) => ({ id })) },
       },
     });
+    this.eventEmitter.emit('operation.log', {
+      title: `创建用户: ${createUserDto.username}`,
+      businessType: 1,
+      module: '用户管理',
+      username: '',
+      ip: '',
+    });
+    return result;
   }
 
   async delete(user: ActiveUserData, id: number, ip: string = '') {
@@ -160,15 +176,23 @@ export class UserService {
    */
   async resetPassword(id: number, password: string) {
     await this.prisma.client.user.findUniqueOrThrow({ where: { id } });
-    return this.prisma.client.user.update({
+    const result = await this.prisma.client.user.update({
       where: { id },
       data: { password: await this.hashingService.hash(password) },
     });
+    this.eventEmitter.emit('operation.log', {
+      title: `管理员重置用户密码, 用户ID: ${id}`,
+      businessType: 2,
+      module: '用户管理',
+      username: '',
+      ip: '',
+    });
+    return result;
   }
 
   async update(id: number, updateUserDto: UpdateUserDto) {
     const { roleIds, ...rest } = updateUserDto;
-    return await this.prisma.client.user.update({
+    const result = await this.prisma.client.user.update({
       where: { id },
       data: {
         ...rest,
@@ -177,6 +201,14 @@ export class UserService {
         }),
       },
     });
+    this.eventEmitter.emit('operation.log', {
+      title: `更新用户ID: ${id}`,
+      businessType: 2,
+      module: '用户管理',
+      username: '',
+      ip: '',
+    });
+    return result;
   }
 
   async uploadAvatar(user: ActiveUserData, file: Express.Multer.File) {

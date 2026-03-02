@@ -20,7 +20,6 @@ async function main() {
     data: [
       { name: '超级管理员', value: 'admin', order: 1 },
       { name: '普通角色', value: 'common', order: 2 },
-      { name: '短视频部门角色', value: 'business', order: 3 },
     ],
   });
   await Promise.all(userJson.map((user) => prisma.user.create({ data: user })));

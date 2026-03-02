@@ -122,6 +122,16 @@ export const createMockPrismaService = (): Record<string, any> => ({
       delete: vi.fn(),
       paginate: vi.fn(),
     },
+    loginLog: {
+      findUniqueOrThrow: vi.fn(),
+      create: vi.fn(),
+      paginate: vi.fn(),
+    },
+    operationLog: {
+      findUniqueOrThrow: vi.fn(),
+      create: vi.fn(),
+      paginate: vi.fn(),
+    },
     // Transaction support
     $transaction: vi.fn((cb) => cb({})),
   },

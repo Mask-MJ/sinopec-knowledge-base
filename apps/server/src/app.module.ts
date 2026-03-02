@@ -12,6 +12,7 @@ import { extendedPrismaClient } from './common/database/prisma.extension';
 import { LogsModule } from './common/logger/logs.module';
 import { MinioModule } from './common/minio/minio.module';
 import { AuthModule } from './modules/auth/auth.module';
+import { MonitorModule } from './modules/monitor/monitor.module';
 import { SystemModule } from './modules/system/system.module';
 
 @Module({
@@ -44,9 +45,11 @@ import { SystemModule } from './modules/system/system.module';
     RouterModule.register([
       { path: 'auth', module: AuthModule },
       { path: 'system', module: SystemModule },
+      { path: 'monitor', module: MonitorModule },
     ]),
     AuthModule,
     SystemModule,
+    MonitorModule,
   ],
   controllers: [],
   providers: [],

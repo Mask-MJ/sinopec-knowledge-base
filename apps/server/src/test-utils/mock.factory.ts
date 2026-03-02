@@ -11,3 +11,11 @@ export {
   createMockPaginate,
   createMockPrismaService,
 } from './common.mock';
+
+// Monitor 模块
+export {
+  createMockCreateLoginLogDto,
+  createMockCreateOperationLogDto,
+  createMockLoginLog,
+  createMockOperationLog,
+} from './monitor.mock';
