@@ -13,6 +13,7 @@ import { LogsModule } from './common/logger/logs.module';
 import { MinioModule } from './common/minio/minio.module';
 import { AuthModule } from './modules/auth/auth.module';
 import { MonitorModule } from './modules/monitor/monitor.module';
+import { SeedModule } from './modules/seed/seed.module';
 import { SystemModule } from './modules/system/system.module';
 
 @Module({
@@ -50,6 +51,7 @@ import { SystemModule } from './modules/system/system.module';
     AuthModule,
     SystemModule,
     MonitorModule,
+    SeedModule,
   ],
   controllers: [],
   providers: [],

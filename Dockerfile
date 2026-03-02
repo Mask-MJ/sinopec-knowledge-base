@@ -32,7 +32,11 @@ RUN pnpm run postinstall \
     && pnpm --filter @sinopec-kb/client build-only
 
 # 生成精简的 server 生产依赖
-RUN pnpm --filter @sinopec-kb/server deploy --prod /app/deploy
+RUN pnpm --filter @sinopec-kb/server deploy --prod --legacy /app/deploy
+
+# 将 prisma CLI 复制出来（解析符号链接为真实文件）
+RUN mkdir -p /app/prisma-cli \
+    && cp -rL /app/apps/server/node_modules/prisma /app/prisma-cli/prisma
 
 # ===== Stage 3: Production =====
 FROM node:24-alpine AS production
@@ -42,16 +46,28 @@ WORKDIR /app
 COPY --from=builder /app/deploy/node_modules ./node_modules
 COPY --from=builder /app/deploy/package.json ./
 
+# prisma CLI 用于 migrate deploy（prisma 是 devDep，不在 prod 中）
+COPY --from=builder /app/prisma-cli/prisma ./node_modules/prisma
+
 # 拷贝后端构建产物
 COPY --from=builder /app/apps/server/dist ./dist
 
 # 拷贝 Prisma 生成文件（运行时需要）
 COPY --from=builder /app/apps/server/src/prisma/generated ./dist/prisma/generated
 
+# 拷贝 Prisma 迁移相关文件（migrate deploy 需要）
+COPY --from=builder /app/apps/server/prisma/migrations ./prisma/migrations
+COPY --from=builder /app/apps/server/prisma/models ./prisma/models
+COPY --from=builder /app/apps/server/prisma.config.ts ./prisma.config.ts
+
 # 前端构建产物 (后续通过 volume 共享给 Nginx)
 COPY --from=builder /app/apps/client/dist ./public
 
+# 入口脚本：先执行 migrate deploy + seed，再启动应用
+COPY docker/entrypoint.sh /app/entrypoint.sh
+RUN chmod +x /app/entrypoint.sh
+
 EXPOSE 3000
 
-CMD ["node", "dist/main.js"]
+ENTRYPOINT ["/app/entrypoint.sh"]
 
