@@ -37,6 +37,9 @@
     "vue-router": "catalog:"
   },
   "devDependencies": {
+    "@iconify-json/ant-design": "catalog:",
+    "@iconify-json/line-md": "catalog:",
+    "@iconify-json/lucide": "catalog:",
     "@playwright/test": "catalog:",
     "@sinopec-kb/eslint-config": "workspace:*",
     "@sinopec-kb/vite-config": "workspace:*",

@@ -6,6 +6,11 @@
     "lib": [],
     "types": ["node", "jsdom"]
   },
-  "include": ["src/**/__tests__/*", "env.d.ts"],
+  "include": [
+    "src/**/__tests__/*",
+    "src/**/*.test.ts",
+    "src/**/*.spec.ts",
+    "env.d.ts"
+  ],
   "exclude": []
 }
