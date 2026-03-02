@@ -57,7 +57,7 @@ const authMiddleware: Middleware = {
 
         // 登录接口返回 401（密码错误、用户名不存在等），直接显示错误，不刷新 token
         if (response.url.includes('/api/auth/authentication/sign-in')) {
-          window.$message.error(data.error.message);
+          window.$message.error(data.error);
           return response;
         }
 
