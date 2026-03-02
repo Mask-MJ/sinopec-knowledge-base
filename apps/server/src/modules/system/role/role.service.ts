@@ -1,6 +1,7 @@
 import type { PrismaService } from '@/common/database/prisma.extension';
 
 import { Inject, Injectable } from '@nestjs/common';
+import { EventEmitter2 } from '@nestjs/event-emitter';
 
 import { CreateRoleDto, QueryRoleDto, UpdateRoleDto } from './role.dto';
 
@@ -9,16 +10,33 @@ export class RoleService {
   constructor(
     @Inject('PrismaService')
     private readonly prisma: PrismaService,
+    @Inject(EventEmitter2) private readonly eventEmitter: EventEmitter2,
   ) {}
   async create(createRoleDto: CreateRoleDto) {
     const { menuIds, ...rest } = createRoleDto;
-    return await this.prisma.client.role.create({
+    const result = await this.prisma.client.role.create({
       data: { ...rest, menus: { connect: menuIds.map((id) => ({ id })) } },
     });
+    this.eventEmitter.emit('operation.log', {
+      title: `创建角色: ${createRoleDto.name}`,
+      businessType: 1,
+      module: '角色管理',
+      username: '',
+      ip: '',
+    });
+    return result;
   }
 
   async delete(id: number) {
-    return await this.prisma.client.role.delete({ where: { id } });
+    const result = await this.prisma.client.role.delete({ where: { id } });
+    this.eventEmitter.emit('operation.log', {
+      title: `删除角色ID: ${id}`,
+      businessType: 3,
+      module: '角色管理',
+      username: '',
+      ip: '',
+    });
+    return result;
   }
 
   async findOne(id: number) {
@@ -47,7 +65,7 @@ export class RoleService {
 
   async update(id: number, updateRoleDto: UpdateRoleDto) {
     const { menuIds, ...rest } = updateRoleDto;
-    return await this.prisma.client.role.update({
+    const result = await this.prisma.client.role.update({
       where: { id },
       data: {
         ...rest,
@@ -56,5 +74,13 @@ export class RoleService {
         }),
       },
     });
+    this.eventEmitter.emit('operation.log', {
+      title: `更新角色ID: ${id}`,
+      businessType: 2,
+      module: '角色管理',
+      username: '',
+      ip: '',
+    });
+    return result;
   }
 }

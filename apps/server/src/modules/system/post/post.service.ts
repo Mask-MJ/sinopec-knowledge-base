@@ -1,6 +1,7 @@
 import type { PrismaService } from '@/common/database/prisma.extension';
 
 import { Inject, Injectable } from '@nestjs/common';
+import { EventEmitter2 } from '@nestjs/event-emitter';
 
 import { CreatePostDto, QueryPostDto, UpdatePostDto } from './post.dto';
 
@@ -8,14 +9,33 @@ import { CreatePostDto, QueryPostDto, UpdatePostDto } from './post.dto';
 export class PostService {
   constructor(
     @Inject('PrismaService') private readonly prisma: PrismaService,
+    @Inject(EventEmitter2) private readonly eventEmitter: EventEmitter2,
   ) {}
 
   async create(createPostDto: CreatePostDto) {
-    return await this.prisma.client.post.create({ data: createPostDto });
+    const result = await this.prisma.client.post.create({
+      data: createPostDto,
+    });
+    this.eventEmitter.emit('operation.log', {
+      title: `创建岗位: ${createPostDto.name}`,
+      businessType: 1,
+      module: '岗位管理',
+      username: '',
+      ip: '',
+    });
+    return result;
   }
 
   async delete(id: number) {
-    return await this.prisma.client.post.delete({ where: { id } });
+    const result = await this.prisma.client.post.delete({ where: { id } });
+    this.eventEmitter.emit('operation.log', {
+      title: `删除岗位ID: ${id}`,
+      businessType: 3,
+      module: '岗位管理',
+      username: '',
+      ip: '',
+    });
+    return result;
   }
 
   async findOne(id: number) {
@@ -37,9 +57,17 @@ export class PostService {
   }
 
   async update(id: number, updatePostDto: UpdatePostDto) {
-    return await this.prisma.client.post.update({
+    const result = await this.prisma.client.post.update({
       where: { id },
       data: updatePostDto,
     });
+    this.eventEmitter.emit('operation.log', {
+      title: `更新岗位ID: ${id}`,
+      businessType: 2,
+      module: '岗位管理',
+      username: '',
+      ip: '',
+    });
+    return result;
   }
 }

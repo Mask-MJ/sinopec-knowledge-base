@@ -1,24 +1,26 @@
+import type { App } from 'vue';
+
+import { setupLayouts } from 'virtual:generated-layouts';
 import { createRouter, createWebHistory } from 'vue-router';
+import { routes } from 'vue-router/auto-routes';
 
-import HomeView from '../views/HomeView.vue';
+import { unmountGlobalLoading } from '@/utils';
 
-const router = createRouter({
-  history: createWebHistory(import.meta.env.BASE_URL),
-  routes: [
-    {
-      path: '/',
-      name: 'home',
-      component: HomeView,
-    },
-    {
-      path: '/about',
-      name: 'about',
-      // route level code-splitting
-      // this generates a separate chunk (About.[hash].js) for this route
-      // which is lazy-loaded when the route is visited.
-      component: () => import('../views/AboutView.vue'),
-    },
-  ],
+import { createRouterGuard } from './permissionGuard';
+
+export const router = createRouter({
+  history: createWebHistory(),
+  routes: setupLayouts(routes),
+  scrollBehavior: () => ({ left: 0, top: 0 }),
+  strict: true,
 });
 
-export default router;
+export function initRouter(app: App) {
+  app.use(router);
+  createRouterGuard(router);
+
+  // 路由准备就绪后，移除并销毁首屏 loading
+  router.isReady().then(() => {
+    unmountGlobalLoading();
+  });
+}

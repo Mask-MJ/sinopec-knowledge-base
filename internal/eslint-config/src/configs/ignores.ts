@@ -31,6 +31,7 @@ export async function ignores(): Promise<Linter.Config[]> {
         '**/__snapshots__',
         '**/*.snap',
         '**/fixtures/**',
+        '**/types/**',
         '**/auto-import?(s).d.ts',
         '**/components.d.ts',
         '**/*.sh',

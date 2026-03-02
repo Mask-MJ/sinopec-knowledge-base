@@ -15,26 +15,6 @@ import { HashingService } from '../hashing/hashing.service';
 import { RefreshTokenDto, SignInDto, SignUpDto } from './authentication.dto';
 import { AuthenticationService } from './authentication.service';
 
-// Mock the tiktop module
-vi.mock('tiktop', () => ({
-  AccessTokenTool: {
-    getAccessToken: vi.fn(),
-  },
-  ClientConfiguration: {
-    globalConfig: {
-      app_key: '',
-      app_secret: '',
-    },
-  },
-  TikTokShopNodeApiClient: vi.fn().mockImplementation(() => ({
-    api: {
-      AuthorizationV202309Api: {
-        ShopsGet: vi.fn(),
-      },
-    },
-  })),
-}));
-
 describe('authenticationService', () => {
   let service: AuthenticationService;
   let hashingService: HashingService;
@@ -59,9 +39,6 @@ describe('authenticationService', () => {
         findUnique: vi.fn(),
         findUniqueOrThrow: vi.fn(),
         create: vi.fn(),
-      },
-      shop: {
-        upsert: vi.fn(),
       },
     },
   };

@@ -1,6 +1,7 @@
 import type { PrismaService } from '@/common/database/prisma.extension';
 
 import { Inject, Injectable } from '@nestjs/common';
+import { EventEmitter2 } from '@nestjs/event-emitter';
 
 import {
   CreateDictDataDto,
@@ -15,12 +16,21 @@ import {
 export class DictService {
   constructor(
     @Inject('PrismaService') private readonly prisma: PrismaService,
+    @Inject(EventEmitter2) private readonly eventEmitter: EventEmitter2,
   ) {}
 
   async create(createDictDto: CreateDictDto) {
-    return await this.prisma.client.dict.create({
+    const result = await this.prisma.client.dict.create({
       data: createDictDto,
     });
+    this.eventEmitter.emit('operation.log', {
+      title: `创建字典: ${createDictDto.name}`,
+      businessType: 1,
+      module: '字典管理',
+      username: '',
+      ip: '',
+    });
+    return result;
   }
 
   async createData(createDictDataDto: CreateDictDataDto) {
@@ -30,7 +40,15 @@ export class DictService {
   }
 
   async delete(id: number) {
-    return await this.prisma.client.dict.delete({ where: { id } });
+    const result = await this.prisma.client.dict.delete({ where: { id } });
+    this.eventEmitter.emit('operation.log', {
+      title: `删除字典ID: ${id}`,
+      businessType: 3,
+      module: '字典管理',
+      username: '',
+      ip: '',
+    });
+    return result;
   }
 
   async deleteData(id: number) {
@@ -78,10 +96,18 @@ export class DictService {
   }
 
   async update(id: number, updateDictDto: UpdateDictDto) {
-    return await this.prisma.client.dict.update({
+    const result = await this.prisma.client.dict.update({
       where: { id },
       data: updateDictDto,
     });
+    this.eventEmitter.emit('operation.log', {
+      title: `更新字典ID: ${id}`,
+      businessType: 2,
+      module: '字典管理',
+      username: '',
+      ip: '',
+    });
+    return result;
   }
 
   async updateData(id: number, updateDictDataDto: UpdateDictDataDto) {
