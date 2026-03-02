@@ -25,6 +25,12 @@ export class OperationLogService {
     });
   }
 
+  async findOne(id: number) {
+    return await this.prisma.client.operationLog.findUniqueOrThrow({
+      where: { id },
+    });
+  }
+
   async findWithPagination(queryOperationLogDto: QueryOperationLogDto) {
     const { current, pageSize, username, businessType, createdAt } =
       queryOperationLogDto;
@@ -40,12 +46,6 @@ export class OperationLogService {
       .withPages({ limit: pageSize, page: current, includePageCount: true });
 
     return { list, ...meta };
-  }
-
-  async findOne(id: number) {
-    return await this.prisma.client.operationLog.findUniqueOrThrow({
-      where: { id },
-    });
   }
 
   @OnEvent('operation.log')

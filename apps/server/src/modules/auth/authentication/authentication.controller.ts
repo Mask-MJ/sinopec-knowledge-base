@@ -41,7 +41,7 @@ export class AuthenticationController {
   signIn(
     @Body() signInDto: SignInDto,
     @Request() request: ExpRequest,
-    @Headers() header: any,
+    @Headers() header: Record<string, string>,
     @Headers('X-Real-IP') ip?: string,
   ) {
     const clientIp = ip && isIP(ip) ? ip : request.ip;

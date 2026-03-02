@@ -22,7 +22,7 @@ export class AccessTokenGuard implements CanActivate {
   ) {}
 
   async canActivate(context: ExecutionContext): Promise<boolean> {
-    const request = context.switchToHttp().getRequest();
+    const request = context.switchToHttp().getRequest<Request>();
     const token = this.extractTokenFromHeader(request);
     if (!token) {
       throw new UnauthorizedException('请先登录');
@@ -36,7 +36,8 @@ export class AccessTokenGuard implements CanActivate {
         token,
         this.jwtConfiguration,
       );
-      request[REQUEST_USER_KEY] = payload;
+
+      (request as any)[REQUEST_USER_KEY] = payload;
     } catch (error) {
       throw new UnauthorizedException('请先登录', { cause: error });
     }

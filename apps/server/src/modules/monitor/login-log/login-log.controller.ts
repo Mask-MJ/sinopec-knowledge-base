@@ -7,27 +7,27 @@ import { QueryLoginLogDto } from './login-log.dto';
 import { LoginLogEntity } from './login-log.entity';
 import { LoginLogService } from './login-log.service';
 
-@ApiTags('登录日志管理')
 @ApiBearerAuth('bearer')
+@ApiTags('登录日志管理')
 @Controller('login-log')
 export class LoginLogController {
   constructor(private readonly loginLogService: LoginLogService) {}
 
   /**
-   * 获取登录日志列表
+   * 获取登录日志详情
    */
-  @Get()
-  @ApiPaginatedResponse(LoginLogEntity)
-  findWithPagination(@Query() queryLoginLogDto: QueryLoginLogDto) {
-    return this.loginLogService.findWithPagination(queryLoginLogDto);
+  @ApiOkResponse({ type: LoginLogEntity })
+  @Get(':id')
+  findOne(@Param('id') id: number) {
+    return this.loginLogService.findOne(id);
   }
 
   /**
-   * 获取登录日志详情
+   * 获取登录日志列表
    */
-  @Get(':id')
-  @ApiOkResponse({ type: LoginLogEntity })
-  findOne(@Param('id') id: number) {
-    return this.loginLogService.findOne(id);
+  @ApiPaginatedResponse(LoginLogEntity)
+  @Get()
+  findWithPagination(@Query() queryLoginLogDto: QueryLoginLogDto) {
+    return this.loginLogService.findWithPagination(queryLoginLogDto);
   }
 }

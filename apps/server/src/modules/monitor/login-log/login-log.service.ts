@@ -22,6 +22,12 @@ export class LoginLogService {
     });
   }
 
+  async findOne(id: number) {
+    return await this.prisma.client.loginLog.findUniqueOrThrow({
+      where: { id },
+    });
+  }
+
   async findWithPagination(queryLoginLogDto: QueryLoginLogDto) {
     const { current, pageSize, username, createdAt } = queryLoginLogDto;
     const [list, meta] = await this.prisma.client.loginLog
@@ -35,12 +41,6 @@ export class LoginLogService {
       .withPages({ limit: pageSize, page: current, includePageCount: true });
 
     return { list, ...meta };
-  }
-
-  async findOne(id: number) {
-    return await this.prisma.client.loginLog.findUniqueOrThrow({
-      where: { id },
-    });
   }
 
   @OnEvent('login.log')

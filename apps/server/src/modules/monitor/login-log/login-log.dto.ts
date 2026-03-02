@@ -5,11 +5,12 @@ import { BaseDto } from '@/common/dto/base.dto';
 
 export class CreateLoginLogDto {
   /**
-   * 用户名
-   * @example 'admin'
+   * 浏览器类型
+   * @example 'Chrome'
    */
+  @IsOptional()
   @IsString()
-  username: string;
+  browser: string;
 
   /**
    * 登录 IP 地址
@@ -17,14 +18,6 @@ export class CreateLoginLogDto {
    */
   @IsString()
   ip: string;
-
-  /**
-   * 浏览器类型
-   * @example 'Chrome'
-   */
-  @IsOptional()
-  @IsString()
-  browser: string;
 
   /**
    * 操作系统
@@ -41,6 +34,13 @@ export class CreateLoginLogDto {
   @IsBoolean()
   @IsOptional()
   status: boolean;
+
+  /**
+   * 用户名
+   * @example 'admin'
+   */
+  @IsString()
+  username: string;
 }
 
 export class QueryLoginLogDto extends PartialType(
