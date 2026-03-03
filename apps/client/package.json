@@ -33,6 +33,7 @@
     "theme-colors": "catalog:",
     "vue": "catalog:",
     "vue-echarts": "catalog:",
+    "vue-element-plus-x": "catalog:",
     "vue-i18n": "catalog:",
     "vue-router": "catalog:"
   },

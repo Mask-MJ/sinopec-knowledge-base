@@ -416,6 +416,315 @@ export interface paths {
         patch: operations["PostController_update"];
         trace?: never;
     };
+    "/api/monitor/info": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** 运行信息 */
+        get: operations["InfoController_systemInfo"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/monitor/login-log/{id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** 获取登录日志详情 */
+        get: operations["LoginLogController_findOne"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/monitor/login-log": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** 获取登录日志列表 */
+        get: operations["LoginLogController_findWithPagination"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/monitor/operation-log/{id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** 获取操作日志详情 */
+        get: operations["OperationLogController_findOne"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/monitor/operation-log": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** 获取操作日志列表 */
+        get: operations["OperationLogController_findWithPagination"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/knowledge-base/knowledge-base": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["KnowledgeBaseController_findAll"];
+        put?: never;
+        post: operations["KnowledgeBaseController_create"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/knowledge-base/knowledge-base/{id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["KnowledgeBaseController_findOne"];
+        put?: never;
+        post?: never;
+        delete: operations["KnowledgeBaseController_remove"];
+        options?: never;
+        head?: never;
+        patch: operations["KnowledgeBaseController_update"];
+        trace?: never;
+    };
+    "/api/knowledge-base/knowledge-base/{id}/documents": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["KnowledgeBaseController_findAllDocuments"];
+        put?: never;
+        post: operations["KnowledgeBaseController_uploadDocuments"];
+        delete: operations["KnowledgeBaseController_removeDocuments"];
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/knowledge-base/knowledge-base/{id}/documents/{documentId}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["KnowledgeBaseController_downloadDocument"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch: operations["KnowledgeBaseController_updateDocument"];
+        trace?: never;
+    };
+    "/api/knowledge-base/knowledge-base/{id}/parse": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: operations["KnowledgeBaseController_parseDocuments"];
+        delete: operations["KnowledgeBaseController_stopParseDocuments"];
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/knowledge-base/knowledge-base/{id}/documents/{documentId}/chunks": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["KnowledgeBaseController_findAllChunks"];
+        put?: never;
+        post: operations["KnowledgeBaseController_addChunk"];
+        delete: operations["KnowledgeBaseController_removeChunks"];
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/knowledge-base/knowledge-base/{id}/documents/{documentId}/chunks/{chunkId}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put: operations["KnowledgeBaseController_updateChunk"];
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/knowledge-base/knowledge-base/retrieval": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: operations["KnowledgeBaseController_retrieveChunks"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/knowledge-base/knowledge-base/{id}/metadata/summary": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["KnowledgeBaseController_getMetadataSummary"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/assistant/assistant/{id}/completions": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: operations["AssistantController_completions"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/assistant/assistant": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["AssistantController_findAll"];
+        put?: never;
+        post: operations["AssistantController_create"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/assistant/assistant/{id}/sessions": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["AssistantController_findAllSessions"];
+        put?: never;
+        post: operations["AssistantController_createSession"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/assistant/assistant/{id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["AssistantController_findOne"];
+        put?: never;
+        post?: never;
+        delete: operations["AssistantController_remove"];
+        options?: never;
+        head?: never;
+        patch: operations["AssistantController_update"];
+        trace?: never;
+    };
+    "/api/assistant/assistant/{id}/sessions/{sessionId}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        delete: operations["AssistantController_removeSession"];
+        options?: never;
+        head?: never;
+        patch: operations["AssistantController_updateSession"];
+        trace?: never;
+    };
 }
 export type webhooks = Record<string, never>;
 export interface components {
@@ -1341,6 +1650,289 @@ export interface components {
              */
             remark?: string;
         };
+        InfoEntity: {
+            cpu: {
+                brand: string;
+                cores: number;
+                manufacturer: string;
+                speed: string;
+            };
+            memory: {
+                free: string;
+                total: string;
+                usage: string;
+                used: string;
+            };
+            osInfo: {
+                arch: string;
+                hostname: string;
+                platform: string;
+                release: string;
+            };
+        };
+        LoginLogEntity: {
+            address: string;
+            browser: string;
+            /** Format: date-time */
+            createdAt: string;
+            id: number;
+            ip: string;
+            /** Format: date-time */
+            loginTime: string;
+            message: string;
+            os: string;
+            status: boolean;
+            username: string;
+        };
+        OperationLogEntity: {
+            address: string;
+            businessType: number;
+            /** Format: date-time */
+            createdAt: string;
+            id: number;
+            ip: string;
+            module: string;
+            title: string;
+            username: string;
+        };
+        CreateKnowledgeBaseDto: {
+            /**
+             * @description 知识库名称
+             * @example 知识库1
+             */
+            name: string;
+            /**
+             * @description 排序
+             * @example 1
+             */
+            order?: number;
+            /**
+             * @description 知识库头像
+             * @example https://example.com/avatar.png
+             */
+            avatar?: string;
+            /**
+             * @description 描述
+             * @default
+             * @example 这是一个知识库
+             */
+            description: string;
+            /**
+             * @description 嵌入模型
+             * @default text-embedding-v4@Tongyi-Qianwen
+             * @example text-embedding-v4@Tongyi-Qianwen
+             */
+            embedding_model: string;
+            /**
+             * @description 权限标识 "me" | "team"
+             * @example me
+             */
+            permission?: string;
+            /**
+             * @description 解析方法
+             * @default naive
+             * @example naive
+             */
+            chunk_method: string;
+        };
+        KnowledgeBaseEntity: Record<string, never>;
+        UpdateKnowledgeBaseDto: {
+            id: number;
+            /**
+             * @description 知识库名称
+             * @example 知识库1
+             */
+            name?: string;
+            /**
+             * @description 排序
+             * @example 1
+             */
+            order?: number;
+            /**
+             * @description 知识库头像
+             * @example https://example.com/avatar.png
+             */
+            avatar?: string;
+            /**
+             * @description 描述
+             * @default
+             * @example 这是一个知识库
+             */
+            description: string;
+            /**
+             * @description 嵌入模型
+             * @default text-embedding-v4@Tongyi-Qianwen
+             * @example text-embedding-v4@Tongyi-Qianwen
+             */
+            embedding_model: string;
+            /**
+             * @description 权限标识 "me" | "team"
+             * @example me
+             */
+            permission?: string;
+            /**
+             * @description 解析方法
+             * @default naive
+             * @example naive
+             */
+            chunk_method: string;
+        };
+        FilesUploadDto: {
+            /** @description 上传的文件列表 */
+            files: string[];
+            /**
+             * @description 文件类型
+             * @example images
+             * @enum {string}
+             */
+            type: "audios" | "images" | "videos";
+        };
+        UpdateDocumentDto: {
+            /**
+             * @description 文档名称
+             * @example 文档1
+             */
+            name?: string;
+            /**
+             * @description 解析方法
+             * @default naive
+             * @example naive
+             */
+            chunk_method: string;
+        };
+        DeleteDocumentDto: {
+            /**
+             * @description 文件ID列表
+             * @example [
+             *       "78e5ae6691db11f084d3fa341edb7c4d"
+             *     ]
+             */
+            document_ids: string[];
+        };
+        ParseDocumentDto: {
+            /**
+             * @description 文件ID列表
+             * @example [
+             *       "78e5ae6691db11f084d3fa341edb7c4d"
+             *     ]
+             */
+            document_ids: string[];
+        };
+        AddChunkDto: {
+            /**
+             * @description 分块内容
+             * @example 这是一段分块内容
+             */
+            content: string;
+            /**
+             * @description 关键词
+             * @example [
+             *       "关键词1",
+             *       "关键词2"
+             *     ]
+             */
+            important_keywords?: string[];
+            /**
+             * @description 问题列表
+             * @example [
+             *       "问题1"
+             *     ]
+             */
+            questions?: string[];
+        };
+        UpdateChunkDto: {
+            /**
+             * @description 分块内容
+             * @example 更新后的分块内容
+             */
+            content?: string;
+            /**
+             * @description 关键词
+             * @example [
+             *       "关键词1",
+             *       "关键词2"
+             *     ]
+             */
+            important_keywords?: string[];
+            /**
+             * @description 是否可用
+             * @example true
+             */
+            available?: boolean;
+        };
+        DeleteChunkDto: {
+            /**
+             * @description 分块ID列表
+             * @example [
+             *       "chunk_id_1",
+             *       "chunk_id_2"
+             *     ]
+             */
+            chunk_ids: string[];
+        };
+        RetrieveChunkDto: {
+            /**
+             * @description 检索问题
+             * @example 什么是RAGFlow?
+             */
+            question: string;
+            /**
+             * @description 数据集ID列表
+             * @example [
+             *       "dataset_id_1"
+             *     ]
+             */
+            dataset_ids?: string[];
+            /**
+             * @description 文档ID列表
+             * @example [
+             *       "document_id_1"
+             *     ]
+             */
+            document_ids?: string[];
+            /**
+             * @description 页码
+             * @example 1
+             */
+            page?: number;
+            /**
+             * @description 每页数量
+             * @example 30
+             */
+            page_size?: number;
+            /**
+             * @description 相似度阈值
+             * @example 0.2
+             */
+            similarity_threshold?: number;
+            /**
+             * @description 向量相似度权重
+             * @example 0.3
+             */
+            vector_similarity_weight?: number;
+            /**
+             * @description Top K
+             * @example 1024
+             */
+            top_k?: number;
+            /**
+             * @description 是否高亮
+             * @example false
+             */
+            highlight?: boolean;
+            /**
+             * @description 是否使用知识图谱
+             * @example false
+             */
+            use_kg?: boolean;
+        };
+        CreateCompletionsDto: Record<string, never>;
+        SessionEntity: Record<string, never>;
+        CreateAssistantDto: Record<string, never>;
+        AssistantEntity: Record<string, never>;
+        CreateSessionDto: Record<string, never>;
+        UpdateAssistantDto: Record<string, never>;
+        UpdateSessionDto: Record<string, never>;
     };
     responses: never;
     parameters: never;
@@ -2399,6 +2991,779 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["PostEntity"];
+                };
+            };
+        };
+    };
+    InfoController_systemInfo: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["InfoEntity"];
+                };
+            };
+        };
+    };
+    LoginLogController_findOne: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["LoginLogEntity"];
+                };
+            };
+        };
+    };
+    LoginLogController_findWithPagination: {
+        parameters: {
+            query?: {
+                /** @description 用户名 */
+                username?: string;
+                /** @description 页码 */
+                current?: number;
+                /** @description 每页数量 */
+                pageSize?: number;
+                createdAt?: string[];
+                /** @description 排序顺序 asc 正序, desc 倒序 */
+                order?: "asc" | "desc";
+                updatedAt?: string[];
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PaginateResponse"] & {
+                        /** @default 1 */
+                        currentPage: number;
+                        /** @default 0 */
+                        totalCount: number;
+                        /** @default 0 */
+                        pageCount: number;
+                        /** @default [] */
+                        list: components["schemas"]["LoginLogEntity"][];
+                    };
+                };
+            };
+        };
+    };
+    OperationLogController_findOne: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["OperationLogEntity"];
+                };
+            };
+        };
+    };
+    OperationLogController_findWithPagination: {
+        parameters: {
+            query?: {
+                username?: string;
+                businessType?: number;
+                module?: string;
+                /** @description 页码 */
+                current?: number;
+                /** @description 每页数量 */
+                pageSize?: number;
+                createdAt?: string[];
+                /** @description 排序顺序 asc 正序, desc 倒序 */
+                order?: "asc" | "desc";
+                updatedAt?: string[];
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PaginateResponse"] & {
+                        /** @default 1 */
+                        currentPage: number;
+                        /** @default 0 */
+                        totalCount: number;
+                        /** @default 0 */
+                        pageCount: number;
+                        /** @default [] */
+                        list: components["schemas"]["OperationLogEntity"][];
+                    };
+                };
+            };
+        };
+    };
+    KnowledgeBaseController_findAll: {
+        parameters: {
+            query?: {
+                /** @description 知识库名称 */
+                name?: string;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["KnowledgeBaseEntity"][];
+                };
+            };
+        };
+    };
+    KnowledgeBaseController_create: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["CreateKnowledgeBaseDto"];
+            };
+        };
+        responses: {
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["KnowledgeBaseEntity"];
+                };
+            };
+        };
+    };
+    KnowledgeBaseController_findOne: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["KnowledgeBaseEntity"];
+                };
+            };
+        };
+    };
+    KnowledgeBaseController_remove: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    KnowledgeBaseController_update: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["UpdateKnowledgeBaseDto"];
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["KnowledgeBaseEntity"];
+                };
+            };
+        };
+    };
+    KnowledgeBaseController_findAllDocuments: {
+        parameters: {
+            query?: {
+                /** @description 文档名称 */
+                name?: string;
+            };
+            header?: never;
+            path: {
+                id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    KnowledgeBaseController_uploadDocuments: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: number;
+            };
+            cookie?: never;
+        };
+        /** @description 上传文件 */
+        requestBody: {
+            content: {
+                "multipart/form-data": components["schemas"]["FilesUploadDto"];
+            };
+        };
+        responses: {
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    KnowledgeBaseController_removeDocuments: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: number;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["DeleteDocumentDto"];
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    KnowledgeBaseController_downloadDocument: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: number;
+                documentId: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    KnowledgeBaseController_updateDocument: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: number;
+                documentId: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["UpdateDocumentDto"];
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    KnowledgeBaseController_parseDocuments: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: number;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ParseDocumentDto"];
+            };
+        };
+        responses: {
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    KnowledgeBaseController_stopParseDocuments: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: number;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ParseDocumentDto"];
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    KnowledgeBaseController_findAllChunks: {
+        parameters: {
+            query?: {
+                /** @description 搜索关键词 */
+                keywords?: string;
+                /** @description 页码 */
+                page?: number;
+                /** @description 每页数量 */
+                page_size?: number;
+                /** @description 分块ID */
+                id?: string;
+            };
+            header?: never;
+            path: {
+                id: number;
+                documentId: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    KnowledgeBaseController_addChunk: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: number;
+                documentId: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["AddChunkDto"];
+            };
+        };
+        responses: {
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    KnowledgeBaseController_removeChunks: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: number;
+                documentId: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["DeleteChunkDto"];
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    KnowledgeBaseController_updateChunk: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: number;
+                documentId: string;
+                chunkId: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["UpdateChunkDto"];
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    KnowledgeBaseController_retrieveChunks: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["RetrieveChunkDto"];
+            };
+        };
+        responses: {
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    KnowledgeBaseController_getMetadataSummary: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    AssistantController_completions: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: number;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["CreateCompletionsDto"];
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SessionEntity"];
+                };
+            };
+        };
+    };
+    AssistantController_findAll: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AssistantEntity"][];
+                };
+            };
+        };
+    };
+    AssistantController_create: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["CreateAssistantDto"];
+            };
+        };
+        responses: {
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AssistantEntity"];
+                };
+            };
+        };
+    };
+    AssistantController_findAllSessions: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SessionEntity"][];
+                };
+            };
+        };
+    };
+    AssistantController_createSession: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: number;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["CreateSessionDto"];
+            };
+        };
+        responses: {
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SessionEntity"];
+                };
+            };
+        };
+    };
+    AssistantController_findOne: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AssistantEntity"];
+                };
+            };
+        };
+    };
+    AssistantController_remove: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    AssistantController_update: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["UpdateAssistantDto"];
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AssistantEntity"];
+                };
+            };
+        };
+    };
+    AssistantController_removeSession: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: number;
+                sessionId: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SessionEntity"];
+                };
+            };
+        };
+    };
+    AssistantController_updateSession: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: number;
+                sessionId: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["UpdateSessionDto"];
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SessionEntity"];
                 };
             };
         };
