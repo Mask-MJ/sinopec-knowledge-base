@@ -20,7 +20,7 @@ model Dept {
   updatedAt DateTime @updatedAt
   /// 父部门id
   parentId  Int?
-  parent    Dept?    @relation("DeptToDept", fields: [parentId], references: [id])
+  parent    Dept?    @relation("DeptToDept", fields: [parentId], references: [id], onDelete: Cascade)
   children  Dept[]   @relation("DeptToDept")
   users          User[]          @relation("DeptToUser")
   knowledgeBases KnowledgeBase[]

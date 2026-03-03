@@ -4,6 +4,7 @@ import type { AssistantInfo } from '@/api/assistant';
 import { createProModalForm } from 'pro-naive-ui';
 
 import { createAssistant, getAssistantList } from '@/api/assistant';
+import { $t } from '@/locales';
 
 const router = useRouter();
 const loading = ref(false);
@@ -21,10 +22,15 @@ const modalForm = createProModalForm({
 });
 
 const getData = async () => {
-  const { data } = await getAssistantList({
-    name: searchQuery.value,
-  });
-  assistantList.value = data || [];
+  loading.value = true;
+  try {
+    const { data } = await getAssistantList({
+      name: searchQuery.value,
+    });
+    assistantList.value = data || [];
+  } finally {
+    loading.value = false;
+  }
 };
 
 const goToChat = (id: number) => {
@@ -37,39 +43,63 @@ watchEffect(() => {
 </script>
 
 <template>
-  <n-card title="聊天助手">
+  <n-card :title="$t('page.assistant.title')">
     <template #header-extra>
-      <n-input v-model:value="searchQuery" placeholder="搜索" class="mr-4">
-        <template #prefix>
-          <i class="i-ant-design:search-outlined"></i>
-        </template>
-      </n-input>
-      <n-button
-        size="small"
-        type="primary"
-        @click="modalForm.show.value = true"
-      >
-        创建聊天助手
-      </n-button>
+      <n-flex align="center">
+        <n-input
+          v-model:value="searchQuery"
+          :placeholder="$t('common.search')"
+          clearable
+          class="w-60"
+        >
+          <template #prefix>
+            <i class="i-ant-design:search-outlined"></i>
+          </template>
+        </n-input>
+        <n-button type="primary" @click="modalForm.show.value = true">
+          <template #icon>
+            <i class="i-ant-design:plus-outlined"></i>
+          </template>
+          {{ $t('page.assistant.addAssistant') }}
+        </n-button>
+      </n-flex>
     </template>
 
-    <n-grid x-gap="12" :cols="4">
-      <n-gi v-for="item in assistantList" :key="item.id">
-        <n-card
-          :title="item.name"
-          hoverable
-          class="cursor-pointer"
-          @click="goToChat(item.id)"
-        >
-          <div>
-            {{ item.description || '无描述' }}
-          </div>
-          <div>
-            {{ item.createdAt }}
-          </div>
-        </n-card>
-      </n-gi>
-    </n-grid>
+    <n-spin :show="loading">
+      <n-empty
+        v-if="assistantList.length === 0 && !loading"
+        :description="$t('common.noData')"
+        class="py-16"
+      />
+      <n-grid v-else x-gap="16" y-gap="16" :cols="4">
+        <n-gi v-for="item in assistantList" :key="item.id">
+          <n-card
+            hoverable
+            class="cursor-pointer transition-shadow duration-200 hover:shadow-lg"
+            @click="goToChat(item.id)"
+          >
+            <template #header>
+              <n-flex align="center" :size="8">
+                <n-avatar :size="32" round class="bg-primary">
+                  <i class="i-ant-design:robot-outlined text-lg"></i>
+                </n-avatar>
+                <n-ellipsis :line-clamp="1" class="text-base font-medium">
+                  {{ item.name }}
+                </n-ellipsis>
+              </n-flex>
+            </template>
+            <n-ellipsis :line-clamp="2" class="min-h-10 text-sm text-gray-500">
+              {{ item.description || $t('common.noDescription') }}
+            </n-ellipsis>
+            <template #footer>
+              <n-text depth="3" class="text-xs">
+                {{ item.createdAt }}
+              </n-text>
+            </template>
+          </n-card>
+        </n-gi>
+      </n-grid>
+    </n-spin>
     <pro-modal-form
       :title="$t('page.assistant.addAssistant')"
       :form="modalForm"
@@ -79,6 +109,10 @@ watchEffect(() => {
       label-placement="left"
     >
       <pro-input :title="$t('page.assistant.name')" path="name" required />
+      <pro-textarea
+        :title="$t('page.assistant.description')"
+        path="description"
+      />
     </pro-modal-form>
   </n-card>
 </template>

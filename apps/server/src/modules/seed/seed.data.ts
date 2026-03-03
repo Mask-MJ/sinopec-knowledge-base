@@ -4,7 +4,6 @@ import type { Prisma } from '@prisma/generated/client';
 export const SEED_ROLES: Prisma.RoleCreateManyInput[] = [
   { name: '超级管理员', value: 'admin', order: 1 },
   { name: '普通角色', value: 'common', order: 2 },
-  { name: '业务角色', value: 'business', order: 3 },
 ];
 
 /** 用户种子数据 */
@@ -14,7 +13,7 @@ export const SEED_USERS: Prisma.UserCreateInput[] = [
     nickname: '管理员',
     isAdmin: true,
     roles: { connect: { value: 'admin' } },
-    password: '$2b$10$ikUfs9L3uJA5SdTge37tIO5BJMemtjkDM5y2klMGSdOv9qBX.bgue',
+    password: '$2b$10$kxYSbbQSzJ64r4EIcORm8umQB7GQRLNxWAKHmJalYMzkgRZbAaIDq',
   },
   {
     username: 'user',
@@ -22,48 +21,6 @@ export const SEED_USERS: Prisma.UserCreateInput[] = [
     isAdmin: false,
     roles: { connect: { value: 'common' } },
     password: '$2b$10$kxYSbbQSzJ64r4EIcORm8umQB7GQRLNxWAKHmJalYMzkgRZbAaIDq',
-  },
-  {
-    username: 'chenzhixiang',
-    nickname: '陈志翔',
-    isAdmin: false,
-    roles: { connect: { value: 'business' } },
-    password: '$2b$10$oWWmrsSdprSqtL5gC5nE7.TSn50VXXQeJakRjaj.BGyNYDTmNIPaC',
-  },
-  {
-    username: 'lidanchun',
-    nickname: '李丹纯',
-    isAdmin: false,
-    roles: { connect: { value: 'business' } },
-    password: '$2b$10$4jlOlUkB3UTH3xRarBwBAO2oNmpIGoFNIUqUWmgvbyhZ2BSkJ7guO',
-  },
-  {
-    username: 'yangcanshu',
-    nickname: '杨灿书',
-    isAdmin: false,
-    roles: { connect: { value: 'business' } },
-    password: '$2b$10$3kKduqr9wlS5uEVzFvzDzOziTf.3XKl0exrzuKq5axrhmylE1SMF.',
-  },
-  {
-    username: 'guoweilin',
-    nickname: '郭玮麟',
-    isAdmin: false,
-    roles: { connect: { value: 'business' } },
-    password: '$2b$10$ra9ku82k56AxlKxafmChZe.2ttMcCOdtWnnweKdsOFcUUgdJwzuKa',
-  },
-  {
-    username: 'ryan',
-    nickname: 'Ryan',
-    isAdmin: false,
-    roles: { connect: { value: 'business' } },
-    password: '$2b$10$fEuS/o0nxSGUtiNTAWWrNuxkEfiHlfhZ2zmqortMq8ytZo98rxSQe',
-  },
-  {
-    username: 'zhangzanheng',
-    nickname: '张赞桓',
-    isAdmin: false,
-    roles: { connect: { value: 'business' } },
-    password: '$2b$10$hOBNYI6qOxc3FshMmE66J.5KvXolK0JWpHLz.zE0maK0c2RUNp4Va',
   },
 ];
 
@@ -95,12 +52,12 @@ export const SEED_MENUS: Prisma.MenuCreateInput[] = [
           path: '/dashboard/workspace',
         },
         {
-          name: '地图',
-          title: 'dashboard.map',
+          name: '通用聊天',
+          title: 'dashboard.chat',
           type: 'menu',
-          icon: 'i-ant-design:environment-outlined',
+          icon: 'i-ant-design:message-outlined',
           order: 3,
-          path: '/dashboard/map',
+          path: '/dashboard/chat',
         },
       ],
     },
@@ -111,7 +68,6 @@ export const SEED_MENUS: Prisma.MenuCreateInput[] = [
     icon: 'i-ant-design:database-outlined',
     order: 2,
     type: 'menu',
-    status: false,
     path: '/knowledgeBase',
     hideChildrenInMenu: true,
     children: {
@@ -160,7 +116,6 @@ export const SEED_MENUS: Prisma.MenuCreateInput[] = [
     order: 2,
     type: 'menu',
     path: '/assistant',
-    status: false,
     hideChildrenInMenu: true,
     children: {
       create: [

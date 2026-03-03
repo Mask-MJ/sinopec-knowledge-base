@@ -72,6 +72,20 @@ declare module 'vue-router/auto-routes' {
       Record<never, never>,
       | never
     >,
+    '/dashboard/map/': RouteRecordInfo<
+      '/dashboard/map/',
+      '/dashboard/map',
+      Record<never, never>,
+      Record<never, never>,
+      | never
+    >,
+    '/dashboard/workspace/': RouteRecordInfo<
+      '/dashboard/workspace/',
+      '/dashboard/workspace',
+      Record<never, never>,
+      Record<never, never>,
+      | never
+    >,
     '/knowledgeBase/': RouteRecordInfo<
       '/knowledgeBase/',
       '/knowledgeBase',
@@ -89,6 +103,76 @@ declare module 'vue-router/auto-routes' {
     '/login/': RouteRecordInfo<
       '/login/',
       '/login',
+      Record<never, never>,
+      Record<never, never>,
+      | never
+    >,
+    '/monitor/info/': RouteRecordInfo<
+      '/monitor/info/',
+      '/monitor/info',
+      Record<never, never>,
+      Record<never, never>,
+      | never
+    >,
+    '/monitor/loginLog/': RouteRecordInfo<
+      '/monitor/loginLog/',
+      '/monitor/loginLog',
+      Record<never, never>,
+      Record<never, never>,
+      | never
+    >,
+    '/monitor/online/': RouteRecordInfo<
+      '/monitor/online/',
+      '/monitor/online',
+      Record<never, never>,
+      Record<never, never>,
+      | never
+    >,
+    '/monitor/operationLog/': RouteRecordInfo<
+      '/monitor/operationLog/',
+      '/monitor/operationLog',
+      Record<never, never>,
+      Record<never, never>,
+      | never
+    >,
+    '/system/dept/': RouteRecordInfo<
+      '/system/dept/',
+      '/system/dept',
+      Record<never, never>,
+      Record<never, never>,
+      | never
+    >,
+    '/system/dict/': RouteRecordInfo<
+      '/system/dict/',
+      '/system/dict',
+      Record<never, never>,
+      Record<never, never>,
+      | never
+    >,
+    '/system/menu/': RouteRecordInfo<
+      '/system/menu/',
+      '/system/menu',
+      Record<never, never>,
+      Record<never, never>,
+      | never
+    >,
+    '/system/post/': RouteRecordInfo<
+      '/system/post/',
+      '/system/post',
+      Record<never, never>,
+      Record<never, never>,
+      | never
+    >,
+    '/system/role/': RouteRecordInfo<
+      '/system/role/',
+      '/system/role',
+      Record<never, never>,
+      Record<never, never>,
+      | never
+    >,
+    '/system/user/': RouteRecordInfo<
+      '/system/user/',
+      '/system/user',
       Record<never, never>,
       Record<never, never>,
       | never
@@ -148,6 +232,18 @@ declare module 'vue-router/auto-routes' {
       views:
         | never
     }
+    'src/views/dashboard/map/index.page.vue': {
+      routes:
+        | '/dashboard/map/'
+      views:
+        | never
+    }
+    'src/views/dashboard/workspace/index.page.vue': {
+      routes:
+        | '/dashboard/workspace/'
+      views:
+        | never
+    }
     'src/views/knowledgeBase/index.page.vue': {
       routes:
         | '/knowledgeBase/'
@@ -163,6 +259,66 @@ declare module 'vue-router/auto-routes' {
     'src/views/login/index.page.vue': {
       routes:
         | '/login/'
+      views:
+        | never
+    }
+    'src/views/monitor/info/index.page.vue': {
+      routes:
+        | '/monitor/info/'
+      views:
+        | never
+    }
+    'src/views/monitor/loginLog/index.page.vue': {
+      routes:
+        | '/monitor/loginLog/'
+      views:
+        | never
+    }
+    'src/views/monitor/online/index.page.vue': {
+      routes:
+        | '/monitor/online/'
+      views:
+        | never
+    }
+    'src/views/monitor/operationLog/index.page.vue': {
+      routes:
+        | '/monitor/operationLog/'
+      views:
+        | never
+    }
+    'src/views/system/dept/index.page.vue': {
+      routes:
+        | '/system/dept/'
+      views:
+        | never
+    }
+    'src/views/system/dict/index.page.vue': {
+      routes:
+        | '/system/dict/'
+      views:
+        | never
+    }
+    'src/views/system/menu/index.page.vue': {
+      routes:
+        | '/system/menu/'
+      views:
+        | never
+    }
+    'src/views/system/post/index.page.vue': {
+      routes:
+        | '/system/post/'
+      views:
+        | never
+    }
+    'src/views/system/role/index.page.vue': {
+      routes:
+        | '/system/role/'
+      views:
+        | never
+    }
+    'src/views/system/user/index.page.vue': {
+      routes:
+        | '/system/user/'
       views:
         | never
     }
