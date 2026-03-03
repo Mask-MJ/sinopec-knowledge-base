@@ -107,7 +107,7 @@ export const useUserStore = defineStore('user-store', () => {
 
   const logout = () => {
     resetState();
-    router.push('/login');
+    void router.push('/login');
   };
 
   const fetchMenuList = async (router: Router) => {
@@ -152,7 +152,7 @@ export const useUserStore = defineStore('user-store', () => {
   const resetState = () => {
     accessCodes.value = [];
     accessMenus.value = [];
-    token.value = null;
+    token.value = { accessToken: '', refreshToken: '' };
     isAccessChecked.value = false;
     userInfo.value = null;
     userRoles.value = [];
