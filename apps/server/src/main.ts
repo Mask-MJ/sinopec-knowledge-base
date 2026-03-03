@@ -20,7 +20,7 @@ async function bootstrap() {
 
   const config = app.get(ConfigService);
   const appName = config.get<string>('APP_NAME', 'Sinopec KB');
-  const port = config.get<number>('APP_PORT', 3000);
+  const port = config.get<number>('APP_PORT', 3001);
   const prefix = config.get<string>('APP_PREFIX', 'api');
 
   setupApp(app, {

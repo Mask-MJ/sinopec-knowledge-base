@@ -32,7 +32,7 @@ services:
       minio:
         condition: service_started
     healthcheck:
-      test: ["CMD", "wget", "-q", "--spider", "http://localhost:3000/doc/"]
+      test: ["CMD", "wget", "-q", "--spider", "http://localhost:${APP_PORT:-3001}/doc/"]
       interval: 10s
       timeout: 5s
       retries: 3

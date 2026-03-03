@@ -6,7 +6,7 @@
 
     "paths": {
       "@/*": ["./src/*"],
-      "#/openapi": ["./types/openapi.d.ts"]
+      "#/*": ["./types/*"]
     }
   },
   "include": ["types/*", "src/**/*", "src/**/*.vue"],

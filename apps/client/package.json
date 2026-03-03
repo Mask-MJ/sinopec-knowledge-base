@@ -13,7 +13,7 @@
     "typecheck": "vue-tsc --build",
     "lint": "eslint . --fix --cache",
     "format": "prettier --write --experimental-cli src/",
-    "openapi": "openapi-typescript http://localhost:3001/doc-json -o ./types/openapi.d.ts"
+    "openapi": "openapi-typescript http://localhost:${APP_PORT:-3001}/doc-json -o ./types/openapi.d.ts"
   },
   "dependencies": {
     "@ctrl/tinycolor": "catalog:",
