@@ -8,7 +8,15 @@
   },
   "dashboard": {
     "title": "概览",
-    "analytics": "分析页",
+    "analytics": {
+      "title": "分析页",
+      "knowledgeBases": "知识库",
+      "documents": "文档数",
+      "assistants": "聊天助手",
+      "sessions": "会话数",
+      "overview": "数据概览",
+      "noData": "暂无统计数据"
+    },
     "workspace": "工作台",
     "chat": "通用聊天",
     "map": "用户分布地图",
@@ -53,7 +61,6 @@
     "tabCost": "成本结构",
     "tabAd": "广告投流",
     "tabProfit": "利润结算",
-    "skuOrders": "SKU订单数",
     "netSales": "净销售额",
     "refunds": "退款金额",
     "buyers": "买家数",

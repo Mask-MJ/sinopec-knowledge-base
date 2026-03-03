@@ -72,10 +72,14 @@ function createResponseWithMeta(body: any, original: Response): Response {
 /** ISO 8601 日期字符串正则（修正 `.` 为 `\.`） */
 const ISO_DATE_REGEX = /\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{3}Z/;
 
-const userStore = useUserStore();
+/** 延迟获取 userStore，避免在 Pinia 初始化前调用 */
+function getUserStore() {
+  return useUserStore();
+}
 
 const authMiddleware: Middleware = {
   async onRequest({ request, schemaPath }) {
+    const userStore = getUserStore();
     const { token } = storeToRefs(userStore);
     if (
       UNPROTECTED_ROUTES.some((pathname) => schemaPath.startsWith(pathname))
@@ -100,7 +104,7 @@ const authMiddleware: Middleware = {
         // 刷新令牌接口返回 401，说明刷新令牌也过期了
         if (response.url.includes('/api/auth/authentication/refresh-token')) {
           resetRefreshState();
-          userStore.$reset();
+          getUserStore().$reset();
           window.$message.error($t('authentication.loginAgainSubTitle'));
           setTimeout(() => {
             window.location.href = LOGIN_PATH;
@@ -122,7 +126,7 @@ const authMiddleware: Middleware = {
         // 开始刷新 token
         isRefreshing = true;
         try {
-          const newToken = await userStore.refreshToken();
+          const newToken = await getUserStore().refreshToken();
           if (newToken) {
             // 通知所有等待的请求
             onTokenRefreshed(newToken.accessToken);
