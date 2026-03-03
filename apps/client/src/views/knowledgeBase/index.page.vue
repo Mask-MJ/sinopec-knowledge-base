@@ -189,6 +189,11 @@ onMounted(async () => {
           ],
         }"
       />
+      <pro-input
+        :title="$t('page.knowledgeBase.embedding_model')"
+        path="embeddingModel"
+        :field-props="{ placeholder: 'BAAI/bge-large-zh-v1.5@BAAI' }"
+      />
       <pro-select
         :title="$t('page.knowledgeBase.chunk_method.title')"
         required

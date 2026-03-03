@@ -43,11 +43,11 @@ export class CreateKnowledgeBaseDto {
 
   /**
    * 嵌入模型
-   * @example 'text-embedding-v4@Tongyi-Qianwen'
+   * @example 'BAAI/bge-large-zh-v1.5@BAAI'
    */
   @IsOptional()
   @IsString()
-  embeddingModel: string = 'text-embedding-v4@Tongyi-Qianwen';
+  embeddingModel: string = 'BAAI/bge-large-zh-v1.5@BAAI';
 
   /**
    * 知识库名称
