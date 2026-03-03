@@ -1,11 +1,12 @@
 <script setup lang="ts">
 import type { SessionInfo } from '@/api/assistant';
-
 import type {
   ConversationItem,
   ConversationMenuCommand,
-} from 'vue-element-plus-x/./types/Conversations';
+} from 'vue-element-plus-x/types/Conversations';
 
+import { find } from 'lodash-es';
+import { createProDrawerForm, createProModalForm } from 'pro-naive-ui';
 import { Conversations } from 'vue-element-plus-x';
 
 import {
@@ -15,8 +16,6 @@ import {
   updateChatSession,
 } from '@/api/assistant';
 import ChatPanel from '@/components/chat/ChatPanel.vue';
-import { find } from 'lodash-es';
-import { createProDrawerForm, createProModalForm } from 'pro-naive-ui';
 
 const router = useRouter();
 const loading = ref(false);

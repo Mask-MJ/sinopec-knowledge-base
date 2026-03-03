@@ -1,7 +1,7 @@
 <script setup lang="ts">
-import type { BubbleProps } from 'vue-element-plus-x/./types/Bubble';
-import type { BubbleListInstance } from 'vue-element-plus-x/./types/BubbleList';
-import type { ThinkingStatus } from 'vue-element-plus-x/./types/Thinking';
+import type { BubbleProps } from 'vue-element-plus-x/types/Bubble';
+import type { BubbleListInstance } from 'vue-element-plus-x/types/BubbleList';
+import type { ThinkingStatus } from 'vue-element-plus-x/types/Thinking';
 
 import {
   BubbleList,
@@ -12,6 +12,7 @@ import {
 } from 'vue-element-plus-x';
 
 import { completions } from '@/api/assistant';
+import logoUrl from '@/assets/logo.png';
 
 type MessageItem = BubbleProps & {
   collapse?: boolean;
@@ -37,7 +38,7 @@ const bubbleItems = ref<MessageItem[]>([]);
 
 const avatar = computed(() => {
   const userInfo = userStore.userInfo;
-  return userInfo?.avatar || '/src/assets/logo.png';
+  return userInfo?.avatar || logoUrl;
 });
 
 // 添加消息 - 维护聊天记录

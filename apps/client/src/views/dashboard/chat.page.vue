@@ -1,11 +1,12 @@
 <script setup lang="ts">
 import type { SessionInfo } from '@/api/assistant';
-
 import type {
   ConversationItem,
   ConversationMenuCommand,
-} from 'vue-element-plus-x/./types/Conversations';
+} from 'vue-element-plus-x/types/Conversations';
 
+import { find } from 'lodash-es';
+import { createProModalForm } from 'pro-naive-ui';
 import { Conversations } from 'vue-element-plus-x';
 
 import {
@@ -15,10 +16,7 @@ import {
   updateChatSession,
 } from '@/api/assistant';
 import ChatPanel from '@/components/chat/ChatPanel.vue';
-import { find } from 'lodash-es';
-import { createProModalForm } from 'pro-naive-ui';
 
-const userStore = useUserStore();
 const loading = ref(false);
 const searchName = ref('');
 const activeId = ref<string>();

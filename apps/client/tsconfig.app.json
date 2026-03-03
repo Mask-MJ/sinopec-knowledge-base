@@ -5,7 +5,8 @@
     "baseUrl": ".",
 
     "paths": {
-      "@/*": ["./src/*"]
+      "@/*": ["./src/*"],
+      "#/openapi": ["./types/openapi.d.ts"]
     }
   },
   "include": ["types/*", "src/**/*", "src/**/*.vue"],
