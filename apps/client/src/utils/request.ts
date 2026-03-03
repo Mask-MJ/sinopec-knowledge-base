@@ -138,10 +138,23 @@ const authMiddleware: Middleware = {
             );
             return fetch(newRequest);
           }
+          // refreshToken 返回 null，视为刷新失败
+          resetRefreshState();
+          getUserStore().$reset();
+          window.$message.error($t('authentication.loginAgainSubTitle'));
+          setTimeout(() => {
+            window.location.href = LOGIN_PATH;
+          }, 1000);
+          return response;
         } catch (error) {
           onTokenRefreshFailed(error);
           resetRefreshState();
-          throw error;
+          getUserStore().$reset();
+          window.$message.error($t('authentication.loginAgainSubTitle'));
+          setTimeout(() => {
+            window.location.href = LOGIN_PATH;
+          }, 1000);
+          return response;
         } finally {
           isRefreshing = false;
         }
