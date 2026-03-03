@@ -30,79 +30,65 @@ declare module 'vue-router/auto-routes' {
       Record<never, never>,
       | never
     >,
-    '/[...all].page': RouteRecordInfo<
-      '/[...all].page',
-      '/:all(.*)/page',
+    '/[...all]': RouteRecordInfo<
+      '/[...all]',
+      '/:all(.*)',
       { all: ParamValue<true> },
       { all: ParamValue<false> },
       | never
     >,
-    '/403.page': RouteRecordInfo<
-      '/403.page',
-      '/403/page',
+    '/403': RouteRecordInfo<
+      '/403',
+      '/403',
       Record<never, never>,
       Record<never, never>,
       | never
     >,
-    '/assistant/chat/[id].page': RouteRecordInfo<
-      '/assistant/chat/[id].page',
-      '/assistant/chat/:id/page',
+    '/assistant/': RouteRecordInfo<
+      '/assistant/',
+      '/assistant',
+      Record<never, never>,
+      Record<never, never>,
+      | never
+    >,
+    '/assistant/chat/[id]': RouteRecordInfo<
+      '/assistant/chat/[id]',
+      '/assistant/chat/:id',
       { id: ParamValue<true> },
       { id: ParamValue<false> },
       | never
     >,
-    '/assistant/index.page': RouteRecordInfo<
-      '/assistant/index.page',
-      '/assistant/index/page',
+    '/dashboard/analytics': RouteRecordInfo<
+      '/dashboard/analytics',
+      '/dashboard/analytics',
       Record<never, never>,
       Record<never, never>,
       | never
     >,
-    '/dashboard/analytics.page': RouteRecordInfo<
-      '/dashboard/analytics.page',
-      '/dashboard/analytics/page',
+    '/dashboard/chat': RouteRecordInfo<
+      '/dashboard/chat',
+      '/dashboard/chat',
       Record<never, never>,
       Record<never, never>,
       | never
     >,
-    '/dashboard/chat.page': RouteRecordInfo<
-      '/dashboard/chat.page',
-      '/dashboard/chat/page',
+    '/knowledgeBase/': RouteRecordInfo<
+      '/knowledgeBase/',
+      '/knowledgeBase',
       Record<never, never>,
       Record<never, never>,
       | never
     >,
-    '/knowledgeBase/detail/[id].page': RouteRecordInfo<
-      '/knowledgeBase/detail/[id].page',
-      '/knowledgeBase/detail/:id/page',
+    '/knowledgeBase/detail/[id]': RouteRecordInfo<
+      '/knowledgeBase/detail/[id]',
+      '/knowledgeBase/detail/:id',
       { id: ParamValue<true> },
       { id: ParamValue<false> },
-      | never
-    >,
-    '/knowledgeBase/index.page': RouteRecordInfo<
-      '/knowledgeBase/index.page',
-      '/knowledgeBase/index/page',
-      Record<never, never>,
-      Record<never, never>,
       | never
     >,
     '/login/': RouteRecordInfo<
       '/login/',
       '/login',
-      Record<never, never>,
-      Record<never, never>,
-      | never
-    >,
-    '/login/form': RouteRecordInfo<
-      '/login/form',
-      '/login/form',
-      Record<never, never>,
-      Record<never, never>,
-      | never
-    >,
-    '/login/toolbar': RouteRecordInfo<
-      '/login/toolbar',
-      '/login/toolbar',
       Record<never, never>,
       Record<never, never>,
       | never
@@ -120,7 +106,7 @@ declare module 'vue-router/auto-routes' {
    * @internal
    */
   export interface _RouteFileInfoMap {
-    'src/views/index.vue': {
+    'src/views/index.page.vue': {
       routes:
         | '/'
       views:
@@ -128,67 +114,55 @@ declare module 'vue-router/auto-routes' {
     }
     'src/views/[...all].page.vue': {
       routes:
-        | '/[...all].page'
+        | '/[...all]'
       views:
         | never
     }
     'src/views/403.page.vue': {
       routes:
-        | '/403.page'
-      views:
-        | never
-    }
-    'src/views/assistant/chat/[id].page.vue': {
-      routes:
-        | '/assistant/chat/[id].page'
+        | '/403'
       views:
         | never
     }
     'src/views/assistant/index.page.vue': {
       routes:
-        | '/assistant/index.page'
+        | '/assistant/'
+      views:
+        | never
+    }
+    'src/views/assistant/chat/[id].page.vue': {
+      routes:
+        | '/assistant/chat/[id]'
       views:
         | never
     }
     'src/views/dashboard/analytics.page.vue': {
       routes:
-        | '/dashboard/analytics.page'
+        | '/dashboard/analytics'
       views:
         | never
     }
     'src/views/dashboard/chat.page.vue': {
       routes:
-        | '/dashboard/chat.page'
-      views:
-        | never
-    }
-    'src/views/knowledgeBase/detail/[id].page.vue': {
-      routes:
-        | '/knowledgeBase/detail/[id].page'
+        | '/dashboard/chat'
       views:
         | never
     }
     'src/views/knowledgeBase/index.page.vue': {
       routes:
-        | '/knowledgeBase/index.page'
+        | '/knowledgeBase/'
       views:
         | never
     }
-    'src/views/login/index.vue': {
+    'src/views/knowledgeBase/detail/[id].page.vue': {
+      routes:
+        | '/knowledgeBase/detail/[id]'
+      views:
+        | never
+    }
+    'src/views/login/index.page.vue': {
       routes:
         | '/login/'
-      views:
-        | never
-    }
-    'src/views/login/form.vue': {
-      routes:
-        | '/login/form'
-      views:
-        | never
-    }
-    'src/views/login/toolbar.vue': {
-      routes:
-        | '/login/toolbar'
       views:
         | never
     }
