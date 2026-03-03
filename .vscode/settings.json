@@ -137,7 +137,8 @@
     "node_modules": true,
     "CHANGELOG.md": true,
     "**/pnpm-lock.yaml": true,
-    "**/yarn.lock": true
+    "**/yarn.lock": true,
+    "**/.agent": true
   },
 
   "debug.onTaskErrors": "debugAnyway",
