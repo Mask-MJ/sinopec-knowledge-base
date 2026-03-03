@@ -501,6 +501,24 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/knowledge-base/knowledge-base/{id}/documents/{documentId}/chunks": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** 获取分块列表 */
+        get: operations["KnowledgeBaseController_findAllChunks"];
+        put?: never;
+        post: operations["KnowledgeBaseController_addChunk"];
+        /** 删除分块 */
+        delete: operations["KnowledgeBaseController_removeChunks"];
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/knowledge-base/knowledge-base": {
         parameters: {
             query?: never;
@@ -508,42 +526,12 @@ export interface paths {
             path?: never;
             cookie?: never;
         };
+        /** 获取知识库列表 */
         get: operations["KnowledgeBaseController_findAll"];
         put?: never;
+        /** 创建知识库 */
         post: operations["KnowledgeBaseController_create"];
         delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/api/knowledge-base/knowledge-base/{id}": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get: operations["KnowledgeBaseController_findOne"];
-        put?: never;
-        post?: never;
-        delete: operations["KnowledgeBaseController_remove"];
-        options?: never;
-        head?: never;
-        patch: operations["KnowledgeBaseController_update"];
-        trace?: never;
-    };
-    "/api/knowledge-base/knowledge-base/{id}/documents": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get: operations["KnowledgeBaseController_findAllDocuments"];
-        put?: never;
-        post: operations["KnowledgeBaseController_uploadDocuments"];
-        delete: operations["KnowledgeBaseController_removeDocuments"];
         options?: never;
         head?: never;
         patch?: never;
@@ -556,13 +544,69 @@ export interface paths {
             path?: never;
             cookie?: never;
         };
+        /** 下载知识库文件 */
         get: operations["KnowledgeBaseController_downloadDocument"];
         put?: never;
         post?: never;
         delete?: never;
         options?: never;
         head?: never;
+        /** 更新知识库文件 */
         patch: operations["KnowledgeBaseController_updateDocument"];
+        trace?: never;
+    };
+    "/api/knowledge-base/knowledge-base/{id}/documents": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["KnowledgeBaseController_findAllDocuments"];
+        put?: never;
+        /** 上传文件到指定知识库 */
+        post: operations["KnowledgeBaseController_uploadDocuments"];
+        /** 删除知识库文件 */
+        delete: operations["KnowledgeBaseController_removeDocuments"];
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/knowledge-base/knowledge-base/{id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** 获取知识库详情 */
+        get: operations["KnowledgeBaseController_findOne"];
+        put?: never;
+        post?: never;
+        /** 删除知识库 */
+        delete: operations["KnowledgeBaseController_remove"];
+        options?: never;
+        head?: never;
+        /** 更新知识库 */
+        patch: operations["KnowledgeBaseController_update"];
+        trace?: never;
+    };
+    "/api/knowledge-base/knowledge-base/{id}/metadata/summary": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** 获取知识库元数据摘要 */
+        get: operations["KnowledgeBaseController_getMetadataSummary"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
         trace?: never;
     };
     "/api/knowledge-base/knowledge-base/{id}/parse": {
@@ -574,40 +618,10 @@ export interface paths {
         };
         get?: never;
         put?: never;
+        /** 解析指定知识库中的文件 */
         post: operations["KnowledgeBaseController_parseDocuments"];
+        /** 停止解析指定知识库中的文件 */
         delete: operations["KnowledgeBaseController_stopParseDocuments"];
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/api/knowledge-base/knowledge-base/{id}/documents/{documentId}/chunks": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get: operations["KnowledgeBaseController_findAllChunks"];
-        put?: never;
-        post: operations["KnowledgeBaseController_addChunk"];
-        delete: operations["KnowledgeBaseController_removeChunks"];
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/api/knowledge-base/knowledge-base/{id}/documents/{documentId}/chunks/{chunkId}": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put: operations["KnowledgeBaseController_updateChunk"];
-        post?: never;
-        delete?: never;
         options?: never;
         head?: never;
         patch?: never;
@@ -629,15 +643,16 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/api/knowledge-base/knowledge-base/{id}/metadata/summary": {
+    "/api/knowledge-base/knowledge-base/{id}/documents/{documentId}/chunks/{chunkId}": {
         parameters: {
             query?: never;
             header?: never;
             path?: never;
             cookie?: never;
         };
-        get: operations["KnowledgeBaseController_getMetadataSummary"];
-        put?: never;
+        get?: never;
+        /** 更新分块 */
+        put: operations["KnowledgeBaseController_updateChunk"];
         post?: never;
         delete?: never;
         options?: never;
@@ -654,6 +669,7 @@ export interface paths {
         };
         get?: never;
         put?: never;
+        /** 向指定的聊天助手提问以开始 AI 驱动的对话（SSE 流式响应） */
         post: operations["AssistantController_completions"];
         delete?: never;
         options?: never;
@@ -668,8 +684,10 @@ export interface paths {
             path?: never;
             cookie?: never;
         };
+        /** 获取聊天助手列表 */
         get: operations["AssistantController_findAll"];
         put?: never;
+        /** 创建聊天助手 */
         post: operations["AssistantController_create"];
         delete?: never;
         options?: never;
@@ -684,8 +702,10 @@ export interface paths {
             path?: never;
             cookie?: never;
         };
+        /** 获取与聊天助手的会话列表 */
         get: operations["AssistantController_findAllSessions"];
         put?: never;
+        /** 创建与聊天助手的会话 */
         post: operations["AssistantController_createSession"];
         delete?: never;
         options?: never;
@@ -700,12 +720,15 @@ export interface paths {
             path?: never;
             cookie?: never;
         };
+        /** 获取聊天助手详情 */
         get: operations["AssistantController_findOne"];
         put?: never;
         post?: never;
+        /** 删除聊天助手 */
         delete: operations["AssistantController_remove"];
         options?: never;
         head?: never;
+        /** 更新聊天助手 */
         patch: operations["AssistantController_update"];
         trace?: never;
     };
@@ -719,9 +742,11 @@ export interface paths {
         get?: never;
         put?: never;
         post?: never;
+        /** 删除与聊天助手的会话 */
         delete: operations["AssistantController_removeSession"];
         options?: never;
         head?: never;
+        /** 更新与聊天助手的会话 */
         patch: operations["AssistantController_updateSession"];
         trace?: never;
     };
@@ -1695,129 +1720,6 @@ export interface components {
             title: string;
             username: string;
         };
-        CreateKnowledgeBaseDto: {
-            /**
-             * @description 知识库名称
-             * @example 知识库1
-             */
-            name: string;
-            /**
-             * @description 排序
-             * @example 1
-             */
-            order?: number;
-            /**
-             * @description 知识库头像
-             * @example https://example.com/avatar.png
-             */
-            avatar?: string;
-            /**
-             * @description 描述
-             * @default
-             * @example 这是一个知识库
-             */
-            description: string;
-            /**
-             * @description 嵌入模型
-             * @default text-embedding-v4@Tongyi-Qianwen
-             * @example text-embedding-v4@Tongyi-Qianwen
-             */
-            embedding_model: string;
-            /**
-             * @description 权限标识 "me" | "team"
-             * @example me
-             */
-            permission?: string;
-            /**
-             * @description 解析方法
-             * @default naive
-             * @example naive
-             */
-            chunk_method: string;
-        };
-        KnowledgeBaseEntity: Record<string, never>;
-        UpdateKnowledgeBaseDto: {
-            id: number;
-            /**
-             * @description 知识库名称
-             * @example 知识库1
-             */
-            name?: string;
-            /**
-             * @description 排序
-             * @example 1
-             */
-            order?: number;
-            /**
-             * @description 知识库头像
-             * @example https://example.com/avatar.png
-             */
-            avatar?: string;
-            /**
-             * @description 描述
-             * @default
-             * @example 这是一个知识库
-             */
-            description: string;
-            /**
-             * @description 嵌入模型
-             * @default text-embedding-v4@Tongyi-Qianwen
-             * @example text-embedding-v4@Tongyi-Qianwen
-             */
-            embedding_model: string;
-            /**
-             * @description 权限标识 "me" | "team"
-             * @example me
-             */
-            permission?: string;
-            /**
-             * @description 解析方法
-             * @default naive
-             * @example naive
-             */
-            chunk_method: string;
-        };
-        FilesUploadDto: {
-            /** @description 上传的文件列表 */
-            files: string[];
-            /**
-             * @description 文件类型
-             * @example images
-             * @enum {string}
-             */
-            type: "audios" | "images" | "videos";
-        };
-        UpdateDocumentDto: {
-            /**
-             * @description 文档名称
-             * @example 文档1
-             */
-            name?: string;
-            /**
-             * @description 解析方法
-             * @default naive
-             * @example naive
-             */
-            chunk_method: string;
-        };
-        DeleteDocumentDto: {
-            /**
-             * @description 文件ID列表
-             * @example [
-             *       "78e5ae6691db11f084d3fa341edb7c4d"
-             *     ]
-             */
-            document_ids: string[];
-        };
-        ParseDocumentDto: {
-            /**
-             * @description 文件ID列表
-             * @example [
-             *       "78e5ae6691db11f084d3fa341edb7c4d"
-             *     ]
-             */
-            document_ids: string[];
-        };
         AddChunkDto: {
             /**
              * @description 分块内容
@@ -1831,7 +1733,7 @@ export interface components {
              *       "关键词2"
              *     ]
              */
-            important_keywords?: string[];
+            importantKeywords?: string[];
             /**
              * @description 问题列表
              * @example [
@@ -1840,7 +1742,190 @@ export interface components {
              */
             questions?: string[];
         };
+        CreateKnowledgeBaseDto: {
+            /**
+             * @description 知识库头像（Base64）
+             * @example https://example.com/avatar.png
+             */
+            avatar?: string;
+            /**
+             * @description 解析方法
+             * @default naive
+             * @example naive
+             */
+            chunkMethod: string;
+            /**
+             * @description 描述
+             * @default
+             * @example 这是一个知识库
+             */
+            description: string;
+            /**
+             * @description 嵌入模型
+             * @default text-embedding-v4@Tongyi-Qianwen
+             * @example text-embedding-v4@Tongyi-Qianwen
+             */
+            embeddingModel: string;
+            /**
+             * @description 知识库名称
+             * @example 知识库1
+             */
+            name: string;
+            /**
+             * @description 排序
+             * @example 1
+             */
+            order?: number;
+            /**
+             * @description 权限标识 "me" | "team"
+             * @example me
+             */
+            permission?: string;
+        };
+        KnowledgeBaseEntity: {
+            avatar: string | null;
+            chunkMethod: string;
+            createBy: string;
+            /** Format: date-time */
+            createdAt: string;
+            datasetId: string | null;
+            deptId: number | null;
+            description: string | null;
+            embeddingModel: string;
+            id: number;
+            name: string;
+            order: number;
+            parserConfig: Record<string, never>;
+            permission: string | null;
+            updateBy: string | null;
+            /** Format: date-time */
+            updatedAt: string;
+        };
+        ParseDocumentDto: {
+            /**
+             * @description 文件ID列表
+             * @example [
+             *       "78e5ae6691db11f084d3fa341edb7c4d"
+             *     ]
+             */
+            documentIds: string[];
+        };
+        DeleteChunkDto: {
+            /**
+             * @description 分块ID列表
+             * @example [
+             *       "chunk_id_1",
+             *       "chunk_id_2"
+             *     ]
+             */
+            chunkIds: string[];
+        };
+        DeleteDocumentDto: {
+            /**
+             * @description 文件ID列表
+             * @example [
+             *       "78e5ae6691db11f084d3fa341edb7c4d"
+             *     ]
+             */
+            documentIds: string[];
+        };
+        RetrieveChunkDto: {
+            /**
+             * @description 数据集ID列表
+             * @example [
+             *       "dataset_id_1"
+             *     ]
+             */
+            datasetIds?: string[];
+            /**
+             * @description 文档ID列表
+             * @example [
+             *       "document_id_1"
+             *     ]
+             */
+            documentIds?: string[];
+            /**
+             * @description 是否高亮
+             * @example false
+             */
+            highlight?: boolean;
+            /**
+             * @description 页码
+             * @example 1
+             */
+            page?: number;
+            /**
+             * @description 每页数量
+             * @example 30
+             */
+            pageSize?: number;
+            /**
+             * @description 检索问题
+             * @example 什么是RAGFlow?
+             */
+            question: string;
+            /**
+             * @description 相似度阈值
+             * @example 0.2
+             */
+            similarityThreshold?: number;
+            /**
+             * @description Top K
+             * @example 1024
+             */
+            topK?: number;
+            /**
+             * @description 是否使用知识图谱
+             * @example false
+             */
+            useKg?: boolean;
+            /**
+             * @description 向量相似度权重
+             * @example 0.3
+             */
+            vectorSimilarityWeight?: number;
+        };
+        UpdateKnowledgeBaseDto: {
+            id: number;
+            /**
+             * @description 知识库头像（Base64）
+             * @example https://example.com/avatar.png
+             */
+            avatar?: string;
+            /**
+             * @description 解析方法
+             * @default naive
+             * @example naive
+             */
+            chunkMethod: string;
+            /**
+             * @description 描述
+             * @default
+             * @example 这是一个知识库
+             */
+            description: string;
+            /**
+             * @description 知识库名称
+             * @example 知识库1
+             */
+            name?: string;
+            /**
+             * @description 排序
+             * @example 1
+             */
+            order?: number;
+            /**
+             * @description 权限标识 "me" | "team"
+             * @example me
+             */
+            permission?: string;
+        };
         UpdateChunkDto: {
+            /**
+             * @description 是否可用
+             * @example true
+             */
+            available?: boolean;
             /**
              * @description 分块内容
              * @example 更新后的分块内容
@@ -1853,86 +1938,314 @@ export interface components {
              *       "关键词2"
              *     ]
              */
-            important_keywords?: string[];
-            /**
-             * @description 是否可用
-             * @example true
-             */
-            available?: boolean;
+            importantKeywords?: string[];
         };
-        DeleteChunkDto: {
+        UpdateDocumentDto: {
             /**
-             * @description 分块ID列表
-             * @example [
-             *       "chunk_id_1",
-             *       "chunk_id_2"
-             *     ]
+             * @description 解析方法
+             * @default naive
+             * @example naive
              */
-            chunk_ids: string[];
-        };
-        RetrieveChunkDto: {
+            chunkMethod: string;
             /**
-             * @description 检索问题
-             * @example 什么是RAGFlow?
+             * @description 文档名称
+             * @example 文档1
+             */
+            name?: string;
+        };
+        FilesUploadDto: {
+            /** @description 上传的文件列表 */
+            files: string[];
+            /**
+             * @description 文件类型
+             * @example images
+             * @enum {string}
+             */
+            type: "audios" | "images" | "videos";
+        };
+        CreateCompletionsDto: {
+            /**
+             * @description 开始人工智能对话的问题
+             * @example 你好
              */
             question: string;
             /**
-             * @description 数据集ID列表
-             * @example [
-             *       "dataset_id_1"
-             *     ]
+             * @description 会话ID
+             * @example session_id
              */
-            dataset_ids?: string[];
+            sessionId?: string;
             /**
-             * @description 文档ID列表
-             * @example [
-             *       "document_id_1"
-             *     ]
+             * @description 是否开启流式响应
+             * @example true
              */
-            document_ids?: string[];
+            stream?: boolean;
+        };
+        SessionEntity: {
+            /** @description 关联的助手聊天 ID */
+            chatId: string;
+            /** @description 创建日期 */
+            createDate: string;
+            /** @description 会话 ID */
+            id: string;
+            messages: {
+                content: string;
+                role: string;
+            }[];
+            /** @description 会话名称 */
+            name: string;
+            /** @description 更新日期 */
+            updateDate: string;
+        };
+        CreateAssistantDto: {
             /**
-             * @description 页码
-             * @example 1
+             * @description 助手头像
+             * @example https://example.com/avatar.png
              */
-            page?: number;
+            avatar?: string;
             /**
-             * @description 每页数量
-             * @example 30
+             * @description 助手描述
+             * @example 这是一个智能助手
              */
-            page_size?: number;
+            description?: string;
             /**
-             * @description 相似度阈值
+             * @description 空响应返回内容
+             * @example 无
+             */
+            emptyResponse?: string;
+            /**
+             * @description 频率惩罚
+             * @default 0.7
+             * @example 0.7
+             */
+            frequencyPenalty: number;
+            /**
+             * @description 关键词相似度权重
+             * @default 0.7
+             * @example 0.7
+             */
+            keywordsSimilarityWeight: number;
+            /**
+             * @description 最大生成长度
+             * @default 512
+             * @example 512
+             */
+            maxTokens: number;
+            /**
+             * @description 聊天模型名称
+             * @default deepseek-r1@Tongyi-Qianwen
+             * @example deepseek-r1@Tongyi-Qianwen
+             */
+            modelName: string;
+            /**
+             * @description 助手名称
+             * @example 助手1
+             */
+            name: string;
+            /**
+             * @description 开场问候语
+             * @example 你好，我是你的助手。
+             */
+            opener?: string;
+            /**
+             * @description 存在惩罚
+             * @default 0.4
+             * @example 0.4
+             */
+            presencePenalty: number;
+            /**
+             * @description 提示词模板
+             * @example <prompt>
+             */
+            prompt?: string;
+            /**
+             * @description 加权关键字相似度
+             * @default 0.2
              * @example 0.2
              */
-            similarity_threshold?: number;
+            similarityThreshold: number;
             /**
-             * @description 向量相似度权重
-             * @example 0.3
+             * @description 温度
+             * @default 0.1
+             * @example 0.1
              */
-            vector_similarity_weight?: number;
+            temperature: number;
             /**
-             * @description Top K
+             * @description 重新排序或选择前 k 个项目
+             * @default 1024
              * @example 1024
              */
-            top_k?: number;
+            topK: number;
             /**
-             * @description 是否高亮
-             * @example false
+             * @description 生成的回复数量
+             * @default 6
+             * @example 6
              */
-            highlight?: boolean;
+            topN: number;
             /**
-             * @description 是否使用知识图谱
-             * @example false
+             * @description 核心采样
+             * @default 0.3
+             * @example 0.3
              */
-            use_kg?: boolean;
+            topP: number;
         };
-        CreateCompletionsDto: Record<string, never>;
-        SessionEntity: Record<string, never>;
-        CreateAssistantDto: Record<string, never>;
-        AssistantEntity: Record<string, never>;
-        CreateSessionDto: Record<string, never>;
-        UpdateAssistantDto: Record<string, never>;
-        UpdateSessionDto: Record<string, never>;
+        AssistantEntity: {
+            /** @description 外部助手 ID */
+            assistantId: string | null;
+            /** @description 助手头像 URL */
+            avatar: string | null;
+            /**
+             * Format: date-time
+             * @description 创建时间
+             */
+            createdAt: string;
+            /** @description 助手描述 */
+            description: string | null;
+            /** @description 空响应返回内容 */
+            emptyResponse: string | null;
+            /** @description 频率惩罚 */
+            frequencyPenalty: number;
+            /** @description 主键 ID */
+            id: number;
+            /** @description 关键词相似度权重 */
+            keywordsSimilarityWeight: number;
+            /** @description 最大生成长度 */
+            maxTokens: number;
+            /** @description 聊天模型名称 */
+            modelName: string;
+            /** @description 助手名称 */
+            name: string;
+            /** @description 开场问候语 */
+            opener: string | null;
+            /** @description 存在惩罚 */
+            presencePenalty: number;
+            /** @description 提示词模板 */
+            prompt: string | null;
+            /** @description 加权关键字相似度 */
+            similarityThreshold: number;
+            /** @description 温度 */
+            temperature: number;
+            /** @description 重新排序或选择前 k 个项目 */
+            topK: number;
+            /** @description 生成的回复数量 */
+            topN: number;
+            /** @description 核心采样 */
+            topP: number;
+            /**
+             * Format: date-time
+             * @description 更新时间
+             */
+            updatedAt: string;
+            /** @description 所属用户 ID */
+            userId: number;
+        };
+        CreateSessionDto: {
+            /**
+             * @description 会话名称
+             * @example 会话1
+             */
+            name?: string;
+        };
+        UpdateAssistantDto: {
+            /**
+             * @description 助手头像
+             * @example https://example.com/avatar.png
+             */
+            avatar?: string;
+            /**
+             * @description 助手描述
+             * @example 这是一个智能助手
+             */
+            description?: string;
+            /**
+             * @description 空响应返回内容
+             * @example 无
+             */
+            emptyResponse?: string;
+            /**
+             * @description 频率惩罚
+             * @default 0.7
+             * @example 0.7
+             */
+            frequencyPenalty: number;
+            /**
+             * @description 关键词相似度权重
+             * @default 0.7
+             * @example 0.7
+             */
+            keywordsSimilarityWeight: number;
+            /**
+             * @description 最大生成长度
+             * @default 512
+             * @example 512
+             */
+            maxTokens: number;
+            /**
+             * @description 聊天模型名称
+             * @default deepseek-r1@Tongyi-Qianwen
+             * @example deepseek-r1@Tongyi-Qianwen
+             */
+            modelName: string;
+            /**
+             * @description 助手名称
+             * @example 助手1
+             */
+            name: string;
+            /**
+             * @description 开场问候语
+             * @example 你好，我是你的助手。
+             */
+            opener?: string;
+            /**
+             * @description 存在惩罚
+             * @default 0.4
+             * @example 0.4
+             */
+            presencePenalty: number;
+            /**
+             * @description 提示词模板
+             * @example <prompt>
+             */
+            prompt?: string;
+            /**
+             * @description 加权关键字相似度
+             * @default 0.2
+             * @example 0.2
+             */
+            similarityThreshold: number;
+            /**
+             * @description 温度
+             * @default 0.1
+             * @example 0.1
+             */
+            temperature: number;
+            /**
+             * @description 重新排序或选择前 k 个项目
+             * @default 1024
+             * @example 1024
+             */
+            topK: number;
+            /**
+             * @description 生成的回复数量
+             * @default 6
+             * @example 6
+             */
+            topN: number;
+            /**
+             * @description 核心采样
+             * @default 0.3
+             * @example 0.3
+             */
+            topP: number;
+            id: number;
+        };
+        UpdateSessionDto: {
+            /**
+             * @description 会话名称
+             * @example 会话1
+             */
+            name?: string;
+            id: string;
+        };
     };
     responses: never;
     parameters: never;
@@ -3135,6 +3448,89 @@ export interface operations {
             };
         };
     };
+    KnowledgeBaseController_findAllChunks: {
+        parameters: {
+            query?: {
+                /** @description 分块ID */
+                id?: string;
+                /** @description 搜索关键词 */
+                keywords?: string;
+                /** @description 页码 */
+                page?: number;
+                /** @description 每页数量 */
+                pageSize?: number;
+            };
+            header?: never;
+            path: {
+                id: number;
+                documentId: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": Record<string, never>;
+                };
+            };
+        };
+    };
+    KnowledgeBaseController_addChunk: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: number;
+                documentId: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["AddChunkDto"];
+            };
+        };
+        responses: {
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": Record<string, never>;
+                };
+            };
+        };
+    };
+    KnowledgeBaseController_removeChunks: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: number;
+                documentId: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["DeleteChunkDto"];
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": Record<string, never>;
+                };
+            };
+        };
+    };
     KnowledgeBaseController_findAll: {
         parameters: {
             query?: {
@@ -3176,6 +3572,127 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["KnowledgeBaseEntity"];
+                };
+            };
+        };
+    };
+    KnowledgeBaseController_downloadDocument: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: number;
+                documentId: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    KnowledgeBaseController_updateDocument: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: number;
+                documentId: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["UpdateDocumentDto"];
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": Record<string, never>;
+                };
+            };
+        };
+    };
+    KnowledgeBaseController_findAllDocuments: {
+        parameters: {
+            query?: {
+                /** @description 文档名称 */
+                name?: string;
+            };
+            header?: never;
+            path: {
+                id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": Record<string, never>;
+                };
+            };
+        };
+    };
+    KnowledgeBaseController_uploadDocuments: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: number;
+            };
+            cookie?: never;
+        };
+        /** @description 上传文件 */
+        requestBody: {
+            content: {
+                "multipart/form-data": components["schemas"]["FilesUploadDto"];
+            };
+        };
+        responses: {
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": Record<string, never>;
+                };
+            };
+        };
+    };
+    KnowledgeBaseController_removeDocuments: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: number;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["DeleteDocumentDto"];
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": Record<string, never>;
                 };
             };
         };
@@ -3243,12 +3760,9 @@ export interface operations {
             };
         };
     };
-    KnowledgeBaseController_findAllDocuments: {
+    KnowledgeBaseController_getMetadataSummary: {
         parameters: {
-            query?: {
-                /** @description 文档名称 */
-                name?: string;
-            };
+            query?: never;
             header?: never;
             path: {
                 id: number;
@@ -3261,98 +3775,9 @@ export interface operations {
                 headers: {
                     [name: string]: unknown;
                 };
-                content?: never;
-            };
-        };
-    };
-    KnowledgeBaseController_uploadDocuments: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                id: number;
-            };
-            cookie?: never;
-        };
-        /** @description 上传文件 */
-        requestBody: {
-            content: {
-                "multipart/form-data": components["schemas"]["FilesUploadDto"];
-            };
-        };
-        responses: {
-            201: {
-                headers: {
-                    [name: string]: unknown;
+                content: {
+                    "application/json": Record<string, never>;
                 };
-                content?: never;
-            };
-        };
-    };
-    KnowledgeBaseController_removeDocuments: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                id: number;
-            };
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                "application/json": components["schemas"]["DeleteDocumentDto"];
-            };
-        };
-        responses: {
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-        };
-    };
-    KnowledgeBaseController_downloadDocument: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                id: number;
-                documentId: string;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-        };
-    };
-    KnowledgeBaseController_updateDocument: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                id: number;
-                documentId: string;
-            };
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                "application/json": components["schemas"]["UpdateDocumentDto"];
-            };
-        };
-        responses: {
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
             };
         };
     };
@@ -3375,7 +3800,9 @@ export interface operations {
                 headers: {
                     [name: string]: unknown;
                 };
-                content?: never;
+                content: {
+                    "application/json": Record<string, never>;
+                };
             };
         };
     };
@@ -3398,52 +3825,22 @@ export interface operations {
                 headers: {
                     [name: string]: unknown;
                 };
-                content?: never;
-            };
-        };
-    };
-    KnowledgeBaseController_findAllChunks: {
-        parameters: {
-            query?: {
-                /** @description 搜索关键词 */
-                keywords?: string;
-                /** @description 页码 */
-                page?: number;
-                /** @description 每页数量 */
-                page_size?: number;
-                /** @description 分块ID */
-                id?: string;
-            };
-            header?: never;
-            path: {
-                id: number;
-                documentId: string;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            200: {
-                headers: {
-                    [name: string]: unknown;
+                content: {
+                    "application/json": Record<string, never>;
                 };
-                content?: never;
             };
         };
     };
-    KnowledgeBaseController_addChunk: {
+    KnowledgeBaseController_retrieveChunks: {
         parameters: {
             query?: never;
             header?: never;
-            path: {
-                id: number;
-                documentId: string;
-            };
+            path?: never;
             cookie?: never;
         };
         requestBody: {
             content: {
-                "application/json": components["schemas"]["AddChunkDto"];
+                "application/json": components["schemas"]["RetrieveChunkDto"];
             };
         };
         responses: {
@@ -3451,31 +3848,9 @@ export interface operations {
                 headers: {
                     [name: string]: unknown;
                 };
-                content?: never;
-            };
-        };
-    };
-    KnowledgeBaseController_removeChunks: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                id: number;
-                documentId: string;
-            };
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                "application/json": components["schemas"]["DeleteChunkDto"];
-            };
-        };
-        responses: {
-            200: {
-                headers: {
-                    [name: string]: unknown;
+                content: {
+                    "application/json": Record<string, never>;
                 };
-                content?: never;
             };
         };
     };
@@ -3500,47 +3875,9 @@ export interface operations {
                 headers: {
                     [name: string]: unknown;
                 };
-                content?: never;
-            };
-        };
-    };
-    KnowledgeBaseController_retrieveChunks: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                "application/json": components["schemas"]["RetrieveChunkDto"];
-            };
-        };
-        responses: {
-            201: {
-                headers: {
-                    [name: string]: unknown;
+                content: {
+                    "application/json": Record<string, never>;
                 };
-                content?: never;
-            };
-        };
-    };
-    KnowledgeBaseController_getMetadataSummary: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                id: number;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
             };
         };
     };
@@ -3571,7 +3908,10 @@ export interface operations {
     };
     AssistantController_findAll: {
         parameters: {
-            query?: never;
+            query?: {
+                /** @description 助手名称 */
+                name?: string;
+            };
             header?: never;
             path?: never;
             cookie?: never;
@@ -3613,7 +3953,10 @@ export interface operations {
     };
     AssistantController_findAllSessions: {
         parameters: {
-            query?: never;
+            query?: {
+                /** @description 会话名称 */
+                name?: string;
+            };
             header?: never;
             path: {
                 id: number;
