@@ -58,7 +58,7 @@ model Menu {
   order              Int     @default(1)
   /// 父级菜单ID
   parentId           Int?
-  parent             Menu?   @relation("MenuToMenu", fields: [parentId], references: [id])
+  parent             Menu?   @relation("MenuToMenu", fields: [parentId], references: [id], onDelete: Cascade)
   children           Menu[]  @relation("MenuToMenu")
   roles              Role[]  @relation("MenuToRole")
 }
