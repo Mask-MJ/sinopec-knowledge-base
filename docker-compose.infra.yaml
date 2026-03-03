@@ -35,6 +35,8 @@ services:
       - "${REDIS_PORT:-6379}:6379"
     networks:
       - sinopec-kb
+    environment:
+      REDIS_PASSWORD: ${REDIS_PASSWORD:-}
     command: >
       sh -c 'if [ -n "$$REDIS_PASSWORD" ]; then
         redis-server --requirepass "$$REDIS_PASSWORD" --appendonly yes;

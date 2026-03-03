@@ -21,7 +21,10 @@ services:
       DATABASE_HOST: postgres
       DATABASE_URL: postgresql://${DATABASE_USER:-postgres}:${DATABASE_PASSWORD:-changeme}@postgres:5432/${DATABASE_DB:-sinopec}
       REDIS_HOST: redis
+      REDIS_PORT: 6379
       MINIO_ENDPOINT: minio
+      MINIO_PORT: 9000
+      MINIO_CLIENT_PORT: 9001
     networks:
       - sinopec-kb
     depends_on:
