@@ -6,9 +6,11 @@
   "words": [
     "axios",
     "commitlint",
+    "docnm",
     "dotenv",
     "dotenvx",
     "esbuild",
+    "healthz",
     "idcard",
     "kamil",
     "lefthook",
@@ -18,9 +20,12 @@
     "plusplus",
     "prettier",
     "prisma",
+    "Qianwen",
+    "ragflow",
     "rollup",
     "sinopec",
     "taze",
+    "Tongyi",
     "turbo",
     "typecheck",
     "unbuild",
@@ -42,6 +47,7 @@
     "**/dist/**",
     "**/node_modules/**",
     "**/seed.data.ts",
+    "**/metadata.ts",
     "pnpm-lock.yaml"
   ]
 }

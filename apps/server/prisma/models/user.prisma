@@ -32,6 +32,7 @@ model User {
   dept        Dept?        @relation("DeptToUser", fields: [deptId], references: [id])
   posts       Post[]       @relation("PostToUser")
   roles       Role[]       @relation("RoleToUser")
+  assistants  Assistant[]
 
   @@index([deptId])
   @@index([status])

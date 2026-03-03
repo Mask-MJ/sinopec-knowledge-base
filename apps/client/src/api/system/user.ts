@@ -52,10 +52,13 @@ export function changePassword(
   return client.PATCH('/api/system/user/changePassword', { body });
 }
 // 修改用户信息
-export function updateUser(body: components['schemas']['UpdateUserDto']) {
+export function updateUser(
+  id: number,
+  body: components['schemas']['UpdateUserDto'],
+) {
   return client.PATCH('/api/system/user/{id}', {
     body,
-    params: { path: { id: body.id } },
+    params: { path: { id } },
   });
 }
 // 删除用户

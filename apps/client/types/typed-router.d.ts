@@ -44,6 +44,48 @@ declare module 'vue-router/auto-routes' {
       Record<never, never>,
       | never
     >,
+    '/assistant/chat/[id].page': RouteRecordInfo<
+      '/assistant/chat/[id].page',
+      '/assistant/chat/:id/page',
+      { id: ParamValue<true> },
+      { id: ParamValue<false> },
+      | never
+    >,
+    '/assistant/index.page': RouteRecordInfo<
+      '/assistant/index.page',
+      '/assistant/index/page',
+      Record<never, never>,
+      Record<never, never>,
+      | never
+    >,
+    '/dashboard/analytics.page': RouteRecordInfo<
+      '/dashboard/analytics.page',
+      '/dashboard/analytics/page',
+      Record<never, never>,
+      Record<never, never>,
+      | never
+    >,
+    '/dashboard/chat.page': RouteRecordInfo<
+      '/dashboard/chat.page',
+      '/dashboard/chat/page',
+      Record<never, never>,
+      Record<never, never>,
+      | never
+    >,
+    '/knowledgeBase/detail/[id].page': RouteRecordInfo<
+      '/knowledgeBase/detail/[id].page',
+      '/knowledgeBase/detail/:id/page',
+      { id: ParamValue<true> },
+      { id: ParamValue<false> },
+      | never
+    >,
+    '/knowledgeBase/index.page': RouteRecordInfo<
+      '/knowledgeBase/index.page',
+      '/knowledgeBase/index/page',
+      Record<never, never>,
+      Record<never, never>,
+      | never
+    >,
     '/login/': RouteRecordInfo<
       '/login/',
       '/login',
@@ -93,6 +135,42 @@ declare module 'vue-router/auto-routes' {
     'src/views/403.page.vue': {
       routes:
         | '/403.page'
+      views:
+        | never
+    }
+    'src/views/assistant/chat/[id].page.vue': {
+      routes:
+        | '/assistant/chat/[id].page'
+      views:
+        | never
+    }
+    'src/views/assistant/index.page.vue': {
+      routes:
+        | '/assistant/index.page'
+      views:
+        | never
+    }
+    'src/views/dashboard/analytics.page.vue': {
+      routes:
+        | '/dashboard/analytics.page'
+      views:
+        | never
+    }
+    'src/views/dashboard/chat.page.vue': {
+      routes:
+        | '/dashboard/chat.page'
+      views:
+        | never
+    }
+    'src/views/knowledgeBase/detail/[id].page.vue': {
+      routes:
+        | '/knowledgeBase/detail/[id].page'
+      views:
+        | never
+    }
+    'src/views/knowledgeBase/index.page.vue': {
+      routes:
+        | '/knowledgeBase/index.page'
       views:
         | never
     }

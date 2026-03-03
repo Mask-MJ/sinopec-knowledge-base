@@ -24,10 +24,13 @@ export function getDictDetail(id: number) {
   return client.GET('/api/system/dict/{id}', { params: { path: { id } } });
 }
 // 更新字典
-export function updateDict(body: components['schemas']['UpdateDictDto']) {
+export function updateDict(
+  id: number,
+  body: components['schemas']['UpdateDictDto'],
+) {
   return client.PATCH('/api/system/dict/{id}', {
     body,
-    params: { path: { id: body.id } },
+    params: { path: { id } },
   });
 }
 // 删除字典
@@ -51,11 +54,12 @@ export function getDictDataDetail(id: number) {
 }
 // 更新字典数据
 export function updateDictData(
+  id: number,
   body: components['schemas']['UpdateDictDataDto'],
 ) {
   return client.PATCH('/api/system/dict/data/{id}', {
     body,
-    params: { path: { id: body.id } },
+    params: { path: { id } },
   });
 }
 // 删除字典数据

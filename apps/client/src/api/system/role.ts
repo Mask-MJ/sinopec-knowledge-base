@@ -19,10 +19,13 @@ export function getRoleDetail(id: number) {
   return client.GET('/api/system/role/{id}', { params: { path: { id } } });
 }
 // 更新角色
-export function updateRole(body: components['schemas']['UpdateRoleDto']) {
+export function updateRole(
+  id: number,
+  body: components['schemas']['UpdateRoleDto'],
+) {
   return client.PATCH('/api/system/role/{id}', {
     body,
-    params: { path: { id: body.id } },
+    params: { path: { id } },
   });
 }
 // 删除角色
