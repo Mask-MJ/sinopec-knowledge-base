@@ -100,6 +100,8 @@ export class UserController {
 
   /**
    * 获取单个用户信息
+   * NOTE: `:id` 动态路由必须放在所有静态路由（'all', 'info', 'code'）之后，
+   * 否则静态路径会被动态参数捕获。
    */
   @ApiOkResponse({ type: UserEntity })
   @Get(':id')
