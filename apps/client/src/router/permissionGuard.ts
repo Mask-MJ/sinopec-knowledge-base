@@ -4,6 +4,14 @@ import { storeToRefs } from 'pinia';
 
 import { DEFAULT_HOME_PATH, LOGIN_PATH } from '@/config/constants';
 import { DEFAULT_PREFERENCES } from '@/config/preferences';
+
+/** 校验 redirect 路径是否为站内安全路径 */
+function isSafeRedirect(path: string): boolean {
+  return path.startsWith('/') && !path.startsWith('//');
+}
+
+/** 缓存进度条偏好（静态值，避免每次导航都读取） */
+const showProgress = DEFAULT_PREFERENCES.transition.progress;
 /**
  * 通用守卫配置
  * @param router
@@ -15,19 +23,18 @@ function setupCommonGuard(router: Router) {
     to.meta.loaded = loadedPaths.has(to.path);
 
     // 页面加载进度条
-    if (!to.meta.loaded && DEFAULT_PREFERENCES.transition.progress) {
+    if (!to.meta.loaded && showProgress) {
       window.$loadingBar?.start();
     }
     return true;
   });
 
   router.afterEach((to) => {
-    // 记录页面是否加载,如果已经加载，后续的页面切换动画等效果不在重复执行
-
+    // 记录页面是否加载，如果已经加载，后续的页面切换动画等效果不再重复执行
     loadedPaths.add(to.path);
 
     // 关闭页面加载进度条
-    if (DEFAULT_PREFERENCES.transition.progress) {
+    if (showProgress) {
       window.$loadingBar?.finish();
     }
   });
@@ -38,8 +45,9 @@ function setupCommonGuard(router: Router) {
  * @param router
  */
 function setupAccessGuard(router: Router) {
+  const userStore = useUserStore();
+
   router.beforeEach(async (to, from) => {
-    const userStore = useUserStore();
     const { getUserInfoAction, fetchMenuList, setIsAccessChecked } = userStore;
     const { token, isAccessChecked } = storeToRefs(userStore);
 
@@ -63,17 +71,31 @@ function setupAccessGuard(router: Router) {
       return true;
     }
 
+    // 已登录用户不应再访问登录页
+    if (to.path === LOGIN_PATH) {
+      return { path: DEFAULT_HOME_PATH, replace: true };
+    }
+
     // 是否已经初始化权限
     if (isAccessChecked.value) {
       return true;
     }
-    // 生成路由表
-    // 当前登录用户拥有的角色标识列表
-    if (!userStore.userInfo) {
-      await getUserInfoAction();
+
+    // 生成路由表 & 获取用户信息
+    try {
+      if (!userStore.userInfo) {
+        await getUserInfoAction();
+      }
+      await fetchMenuList(router);
+    } catch {
+      // 接口异常（网络错误、token 过期等），清除状态并跳转登录页
+      userStore.$reset();
+      return {
+        path: LOGIN_PATH,
+        query: { redirect: encodeURIComponent(to.fullPath) },
+        replace: true,
+      };
     }
-    await fetchMenuList(router);
-    setIsAccessChecked(true);
 
     if (to.path === '/') return { path: DEFAULT_HOME_PATH, replace: true };
 
@@ -82,18 +104,22 @@ function setupAccessGuard(router: Router) {
       return { path: '/403', replace: true };
     }
 
-    const redirectPath = (from.query.redirect ??
-      (to.path === DEFAULT_HOME_PATH
-        ? DEFAULT_HOME_PATH
-        : to.fullPath)) as string;
+    // 权限检查通过后再标记为已初始化，避免 403 状态被锁死
+    setIsAccessChecked(true);
 
-    if (decodeURIComponent(decodeURIComponent(redirectPath)) === '/') {
+    // 检查是否有来自登录页的 redirect 参数
+    const redirectPath = from.query.redirect as string | undefined;
+    if (redirectPath) {
+      const decodedPath = decodeURIComponent(redirectPath);
+      // 校验 redirect 必须是站内安全路径
+      if (isSafeRedirect(decodedPath) && decodedPath !== '/') {
+        return { path: decodedPath, replace: true };
+      }
       return { path: DEFAULT_HOME_PATH, replace: true };
     }
-    return {
-      ...router.resolve(decodeURIComponent(redirectPath)),
-      replace: true,
-    };
+
+    // 没有 redirect 参数，直接放行当前导航
+    return true;
   });
 }
 

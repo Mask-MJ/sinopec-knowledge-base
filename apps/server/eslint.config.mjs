@@ -6,6 +6,11 @@ export default defineConfig([
   },
   {
     files: ['*.config.{js,mjs,cjs}', '*.config.*.{js,mjs,cjs}'],
+    languageOptions: {
+      parserOptions: {
+        projectService: false,
+      },
+    },
     rules: {
       'unicorn/prefer-module': 'off',
     },
@@ -20,6 +25,11 @@ export default defineConfig([
     files: ['**/*.spec.ts', '**/*.test.ts'],
     rules: {
       '@typescript-eslint/no-unsafe-argument': 'off',
+    },
+  },
+  {
+    rules: {
+      'perfectionist/sort-classes': 'off',
     },
   },
 ]);

@@ -71,6 +71,7 @@ declare module 'vue' {
     RouterLink: typeof import('vue-router')['RouterLink']
     RouterView: typeof import('vue-router')['RouterView']
     TableAction: typeof import('./../src/components/common/TableAction.vue')['default']
+    UnderConstruction: typeof import('./../src/components/common/UnderConstruction.vue')['default']
     UserProfileAvatar: typeof import('./../src/components/common/UserProfileAvatar.vue')['default']
   }
 }
@@ -136,5 +137,6 @@ declare global {
   const RouterLink: typeof import('vue-router')['RouterLink']
   const RouterView: typeof import('vue-router')['RouterView']
   const TableAction: typeof import('./../src/components/common/TableAction.vue')['default']
+  const UnderConstruction: typeof import('./../src/components/common/UnderConstruction.vue')['default']
   const UserProfileAvatar: typeof import('./../src/components/common/UserProfileAvatar.vue')['default']
 }
