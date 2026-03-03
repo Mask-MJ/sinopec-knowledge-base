@@ -67,7 +67,7 @@ COPY --from=builder /app/apps/client/dist ./public
 COPY docker/entrypoint.sh /app/entrypoint.sh
 RUN chmod +x /app/entrypoint.sh
 
-EXPOSE 3000
+EXPOSE 3001
 
 ENTRYPOINT ["/app/entrypoint.sh"]
 

@@ -1,9 +1,19 @@
+import { existsSync } from 'node:fs';
 import { fileURLToPath, URL } from 'node:url';
 
 import { defineConfig } from '@sinopec-kb/vite-config';
 
+import dotenv from 'dotenv';
 import { ProNaiveUIResolver } from 'pro-naive-ui-resolver';
 import { NaiveUiResolver } from 'unplugin-vue-components/resolvers';
+
+// 从 monorepo 根目录加载 .env（读取 APP_PORT 等非 VITE_ 前缀变量）
+const rootEnvPath = fileURLToPath(new URL('../../.env', import.meta.url));
+if (existsSync(rootEnvPath)) {
+  dotenv.config({ path: rootEnvPath });
+}
+
+const backendPort = process.env.APP_PORT || 3001;
 
 export default defineConfig(() => {
   return Promise.resolve({
@@ -62,7 +72,7 @@ export default defineConfig(() => {
         proxy: {
           '/api': {
             changeOrigin: true,
-            target: 'http://localhost:3000',
+            target: `http://localhost:${backendPort}`,
           },
         },
       },
