@@ -21,10 +21,10 @@ export function getMenuDetail(id: number) {
   return client.GET('/api/system/menu/{id}', { params: { path: { id } } });
 }
 // 更新菜单
-export function updateMenu(body: UpdateMenuDto) {
+export function updateMenu(id: number, body: UpdateMenuDto) {
   return client.PATCH('/api/system/menu/{id}', {
     body,
-    params: { path: { id: body.id } },
+    params: { path: { id } },
   });
 }
 // 删除菜单

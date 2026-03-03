@@ -794,10 +794,44 @@ export interface components {
             oldPassword: string;
             password: string;
         };
+        MenuEntity: {
+            activeIcon: string | null;
+            activePath: string | null;
+            affixTab: boolean;
+            affixTabOrder: number;
+            badge: string | null;
+            badgeType: string;
+            badgeVariants: string;
+            children?: components["schemas"]["MenuEntity"][] | null;
+            hideChildrenInMenu: boolean;
+            hideInBreadcrumb: boolean;
+            hideInMenu: boolean;
+            hideInTab: boolean;
+            icon: string | null;
+            id: number;
+            iframeSrc: string | null;
+            keepAlive: boolean;
+            link: string | null;
+            maxNumOfOpenTabs: number | null;
+            name: string;
+            noBasicLayout: boolean;
+            openInNewWindow: boolean;
+            order: number;
+            parentId: number | null;
+            path: string;
+            permission: string;
+            query: string | null;
+            redirect: string | null;
+            status: boolean;
+            title: string | null;
+            type: string;
+        };
         RoleEntity: {
             /** Format: date-time */
             createdAt: string;
             id: number;
+            /** @description 关联的菜单列表 */
+            menus: components["schemas"]["MenuEntity"][];
             name: string;
             order: number;
             remark: string;
@@ -1372,38 +1406,6 @@ export interface components {
              */
             type: string;
         };
-        MenuEntity: {
-            activeIcon: string | null;
-            activePath: string | null;
-            affixTab: boolean;
-            affixTabOrder: number;
-            badge: string | null;
-            badgeType: string;
-            badgeVariants: string;
-            children?: components["schemas"]["MenuEntity"][] | null;
-            hideChildrenInMenu: boolean;
-            hideInBreadcrumb: boolean;
-            hideInMenu: boolean;
-            hideInTab: boolean;
-            icon: string | null;
-            id: number;
-            iframeSrc: string | null;
-            keepAlive: boolean;
-            link: string | null;
-            maxNumOfOpenTabs: number | null;
-            name: string;
-            noBasicLayout: boolean;
-            openInNewWindow: boolean;
-            order: number;
-            parentId: number | null;
-            path: string;
-            permission: string;
-            query: string | null;
-            redirect: string | null;
-            status: boolean;
-            title: string | null;
-            type: string;
-        };
         UpdateMenuDto: {
             /**
              * @description 激活菜单图标
@@ -1886,7 +1888,6 @@ export interface components {
             vectorSimilarityWeight?: number;
         };
         UpdateKnowledgeBaseDto: {
-            id: number;
             /**
              * @description 知识库头像（Base64）
              * @example https://example.com/avatar.png
@@ -2189,7 +2190,7 @@ export interface components {
              * @description 助手名称
              * @example 助手1
              */
-            name: string;
+            name?: string;
             /**
              * @description 开场问候语
              * @example 你好，我是你的助手。
@@ -2236,7 +2237,6 @@ export interface components {
              * @example 0.3
              */
             topP: number;
-            id: number;
         };
         UpdateSessionDto: {
             /**
@@ -2244,7 +2244,6 @@ export interface components {
              * @example 会话1
              */
             name?: string;
-            id: string;
         };
     };
     responses: never;
@@ -3741,7 +3740,9 @@ export interface operations {
         parameters: {
             query?: never;
             header?: never;
-            path?: never;
+            path: {
+                id: number;
+            };
             cookie?: never;
         };
         requestBody: {
@@ -4044,7 +4045,9 @@ export interface operations {
         parameters: {
             query?: never;
             header?: never;
-            path?: never;
+            path: {
+                id: number;
+            };
             cookie?: never;
         };
         requestBody: {

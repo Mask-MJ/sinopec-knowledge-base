@@ -31,11 +31,12 @@ export function getKnowledgeBaseDetail(id: number) {
 
 // 更新知识库
 export function updateKnowledgeBase(
+  id: number,
   body: components['schemas']['UpdateKnowledgeBaseDto'],
 ) {
   return client.PATCH('/api/knowledge-base/knowledge-base/{id}', {
     body,
-    params: { path: { id: body.id } },
+    params: { path: { id } },
   });
 }
 

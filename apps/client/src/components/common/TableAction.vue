@@ -1,24 +1,25 @@
 <script lang="ts" setup>
 import type { ButtonProps, PopconfirmProps, TooltipProps } from 'naive-ui';
 
-import { $t } from '@/locales';
-import { hasPermission } from '@/utils/permission';
 import { isBoolean, isFunction } from 'lodash-es';
 import { NButton, NPopconfirm, NSpace, NTooltip } from 'naive-ui';
 
+import { $t } from '@/locales';
+import { hasPermission } from '@/utils/permission';
+
 interface ActionItem {
-  label?: string;
-  popConfirmProps?: PopconfirmProps & { content: string };
-  tooltipProps?: TooltipProps & { content: string };
+  auth?: string;
   buttonProps?: ButtonProps;
   icon?: string;
-  auth?: string;
   // 业务控制是否显示
   ifShow?: ((action: ActionItem) => boolean) | boolean;
-  // 编辑和删除几乎每个表格都有，所以提取出来
-  type?: 'del' | 'edit';
+  label?: string;
   // 需要调用的事件
   onClick?: (...arg: any[]) => any;
+  popConfirmProps?: PopconfirmProps & { content: string };
+  tooltipProps?: TooltipProps & { content: string };
+  // 编辑和删除几乎每个表格都有，所以提取出来
+  type?: 'del' | 'edit';
 }
 const props = defineProps({
   actions: { type: Array as PropType<ActionItem[]>, default: () => [] },

@@ -32,7 +32,7 @@ const props = defineProps<{
 const userStore = useUserStore();
 
 const senderValue = ref('');
-const senderRef = ref();
+
 const bubbleListRef = ref<BubbleListInstance | null>(null);
 const bubbleItems = ref<MessageItem[]>([]);
 
@@ -187,7 +187,6 @@ watchEffect(() => {
         </template>
       </BubbleList>
       <Sender
-        ref="senderRef"
         v-model="senderValue"
         class="absolute bottom-0 w-full"
         :auto-size="{ maxRows: 6, minRows: 2 }"

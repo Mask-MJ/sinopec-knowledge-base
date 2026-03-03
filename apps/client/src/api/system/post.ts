@@ -24,10 +24,10 @@ export function getPostDetail(id: number) {
 }
 
 // 更新岗位
-export function updatePost(body: UpdatePostDto) {
+export function updatePost(id: number, body: UpdatePostDto) {
   return client.PATCH('/api/system/post/{id}', {
     body,
-    params: { path: { id: body.id } },
+    params: { path: { id } },
   });
 }
 

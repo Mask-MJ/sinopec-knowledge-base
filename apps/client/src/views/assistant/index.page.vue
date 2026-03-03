@@ -1,8 +1,9 @@
 <script setup lang="ts">
 import type { AssistantInfo } from '@/api/assistant';
 
-import { createAssistant, getAssistantList } from '@/api/assistant';
 import { createProModalForm } from 'pro-naive-ui';
+
+import { createAssistant, getAssistantList } from '@/api/assistant';
 
 const router = useRouter();
 const loading = ref(false);

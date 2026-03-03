@@ -3,6 +3,13 @@ import type { KnowledgeBaseInfo } from '@/api/knowledgeBase';
 import type { SearchParams } from '@/api/system/role';
 import type { ProDataTableColumns, ProSearchFormColumns } from 'pro-naive-ui';
 
+import { has } from 'lodash-es';
+import {
+  createProModalForm,
+  createProSearchForm,
+  useNDataTable,
+} from 'pro-naive-ui';
+
 import {
   createKnowledgeBase,
   deleteKnowledgeBase,
@@ -13,12 +20,6 @@ import {
 import { getAllUserList } from '@/api/system/user';
 import TableAction from '@/components/common/TableAction.vue';
 import { $t } from '@/locales';
-import { has } from 'lodash-es';
-import {
-  createProModalForm,
-  createProSearchForm,
-  useNDataTable,
-} from 'pro-naive-ui';
 
 const loading = ref(false);
 const router = useRouter();
@@ -27,10 +28,7 @@ const modalForm = createProModalForm({
     try {
       loading.value = true;
       modalForm.values.value.id
-        ? await updateKnowledgeBase({
-            ...values,
-            id: modalForm.values.value.id,
-          })
+        ? await updateKnowledgeBase(modalForm.values.value.id, values)
         : await createKnowledgeBase(values);
 
       modalForm.close();

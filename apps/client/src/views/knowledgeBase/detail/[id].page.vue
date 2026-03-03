@@ -6,6 +6,13 @@ import type {
 import type { SearchParams } from '@/api/system/role';
 import type { ProSearchFormColumns } from 'pro-naive-ui';
 
+import { NTag } from 'naive-ui';
+import {
+  createProModalForm,
+  createProSearchForm,
+  useNDataTable,
+} from 'pro-naive-ui';
+
 import {
   createKnowledgeBase,
   deleteKnowledgeBase,
@@ -17,12 +24,6 @@ import {
 import TableAction from '@/components/common/TableAction.vue';
 import { $t } from '@/locales';
 import { downloadFileFromBlobPart } from '@/utils';
-import { NTag } from 'naive-ui';
-import {
-  createProModalForm,
-  createProSearchForm,
-  useNDataTable,
-} from 'pro-naive-ui';
 
 const loading = ref(false);
 const router = useRouter();
@@ -35,10 +36,7 @@ const modalForm = createProModalForm({
     try {
       loading.value = true;
       modalForm.values.value.id
-        ? await updateKnowledgeBase({
-            ...values,
-            id: modalForm.values.value.id,
-          })
+        ? await updateKnowledgeBase(modalForm.values.value.id, values)
         : await createKnowledgeBase(values);
 
       modalForm.close();
@@ -130,7 +128,8 @@ const {
       knowledgeBaseId.value,
       formData as unknown as SearchParamsWithDocument,
     );
-    return { list: data || [], total: data?.length || 0 };
+    const list = (data ?? []) as any[];
+    return { list, total: list.length };
   },
   { form: searchForm },
 );

@@ -146,11 +146,7 @@ export class QueryAssistantDto extends PartialType(
   IntersectionType(PickType(CreateAssistantDto, ['name'])),
 ) {}
 
-export class UpdateAssistantDto extends CreateAssistantDto {
-  @IsNumber()
-  @Type(() => Number)
-  id: number;
-}
+export class UpdateAssistantDto extends PartialType(CreateAssistantDto) {}
 
 // ─── Session DTO ─────────────────────────────────
 
@@ -174,10 +170,7 @@ export class QuerySessionDto {
   name?: string;
 }
 
-export class UpdateSessionDto extends CreateSessionDto {
-  @IsString()
-  id: string;
-}
+export class UpdateSessionDto extends PartialType(CreateSessionDto) {}
 
 // ─── Completion DTO ──────────────────────────────
 

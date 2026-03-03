@@ -88,10 +88,7 @@ export class QueryKnowledgeBaseDto extends PartialType(
 
 export class UpdateKnowledgeBaseDto extends PartialType(
   OmitType(CreateKnowledgeBaseDto, ['embeddingModel']),
-) {
-  @IsNumber()
-  id: number;
-}
+) {}
 
 // ─── Document DTO ────────────────────────────────
 

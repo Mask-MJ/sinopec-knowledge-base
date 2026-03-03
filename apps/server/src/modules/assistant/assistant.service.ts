@@ -238,8 +238,7 @@ export class AssistantService {
     );
   }
 
-  async update(_user: ActiveUserData, dto: UpdateAssistantDto) {
-    const { id, ...rest } = dto;
+  async update(_user: ActiveUserData, id: number, dto: UpdateAssistantDto) {
     const assistant = await this.prisma.client.assistant.findUniqueOrThrow({
       where: { id },
     });
@@ -249,26 +248,26 @@ export class AssistantService {
         'PUT',
         `/api/v1/chats/${assistant.assistantId}`,
         {
-          name: rest.name,
-          avatar: rest.avatar,
-          description: rest.description,
+          name: dto.name,
+          avatar: dto.avatar,
+          description: dto.description,
           llm: {
-            model_name: rest.modelName,
-            frequency_penalty: rest.frequencyPenalty,
-            max_tokens: rest.maxTokens,
-            presence_penalty: rest.presencePenalty,
-            temperature: rest.temperature,
-            top_p: rest.topP,
+            model_name: dto.modelName,
+            frequency_penalty: dto.frequencyPenalty,
+            max_tokens: dto.maxTokens,
+            presence_penalty: dto.presencePenalty,
+            temperature: dto.temperature,
+            top_p: dto.topP,
           },
           prompt: {
-            empty_response: rest.emptyResponse,
-            keywords_similarity_weight: rest.keywordsSimilarityWeight,
-            opener: rest.opener,
-            prompt: rest.prompt,
-            similarity_threshold: rest.similarityThreshold,
-            top_n: rest.topN,
+            empty_response: dto.emptyResponse,
+            keywords_similarity_weight: dto.keywordsSimilarityWeight,
+            opener: dto.opener,
+            prompt: dto.prompt,
+            similarity_threshold: dto.similarityThreshold,
+            top_n: dto.topN,
           },
-          top_k: rest.topK,
+          top_k: dto.topK,
         },
       );
     }
@@ -276,22 +275,22 @@ export class AssistantService {
     return await this.prisma.client.assistant.update({
       where: { id },
       data: {
-        name: rest.name,
-        avatar: rest.avatar,
-        description: rest.description,
-        modelName: rest.modelName,
-        temperature: rest.temperature,
-        topP: rest.topP,
-        presencePenalty: rest.presencePenalty,
-        frequencyPenalty: rest.frequencyPenalty,
-        maxTokens: rest.maxTokens,
-        similarityThreshold: rest.similarityThreshold,
-        keywordsSimilarityWeight: rest.keywordsSimilarityWeight,
-        topN: rest.topN,
-        topK: rest.topK,
-        emptyResponse: rest.emptyResponse,
-        opener: rest.opener,
-        prompt: rest.prompt,
+        name: dto.name,
+        avatar: dto.avatar,
+        description: dto.description,
+        modelName: dto.modelName,
+        temperature: dto.temperature,
+        topP: dto.topP,
+        presencePenalty: dto.presencePenalty,
+        frequencyPenalty: dto.frequencyPenalty,
+        maxTokens: dto.maxTokens,
+        similarityThreshold: dto.similarityThreshold,
+        keywordsSimilarityWeight: dto.keywordsSimilarityWeight,
+        topN: dto.topN,
+        topK: dto.topK,
+        emptyResponse: dto.emptyResponse,
+        opener: dto.opener,
+        prompt: dto.prompt,
       },
     });
   }

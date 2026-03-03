@@ -138,8 +138,12 @@ export class AssistantController {
   @ApiOkResponse({ type: AssistantEntity })
   @AutoPermission()
   @Patch(':id')
-  update(@ActiveUser() user: ActiveUserData, @Body() dto: UpdateAssistantDto) {
-    return this.assistantService.update(user, dto);
+  update(
+    @ActiveUser() user: ActiveUserData,
+    @Param('id') id: number,
+    @Body() dto: UpdateAssistantDto,
+  ) {
+    return this.assistantService.update(user, id, dto);
   }
 
   /**

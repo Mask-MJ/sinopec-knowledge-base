@@ -267,20 +267,19 @@ export class KnowledgeBaseService {
     );
   }
 
-  async update(user: ActiveUserData, dto: UpdateKnowledgeBaseDto) {
-    const { id, ...rest } = dto;
+  async update(user: ActiveUserData, id: number, dto: UpdateKnowledgeBaseDto) {
     const kb = await this.prisma.client.knowledgeBase.findUniqueOrThrow({
       where: { id },
     });
 
     if (kb.datasetId) {
       await this.ragflow.request('PUT', `/api/v1/datasets/${kb.datasetId}`, {
-        name: rest.name,
-        chunk_method: rest.chunkMethod,
-        parser_config: rest.parserConfig,
-        description: rest.description,
-        permission: rest.permission,
-        avatar: rest.avatar,
+        name: dto.name,
+        chunk_method: dto.chunkMethod,
+        parser_config: dto.parserConfig,
+        description: dto.description,
+        permission: dto.permission,
+        avatar: dto.avatar,
       });
     }
 

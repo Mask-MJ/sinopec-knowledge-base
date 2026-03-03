@@ -208,9 +208,10 @@ export class KnowledgeBaseController {
   @Patch(':id')
   update(
     @ActiveUser() user: ActiveUserData,
+    @Param('id') id: number,
     @Body() dto: UpdateKnowledgeBaseDto,
   ) {
-    return this.knowledgeBaseService.update(user, dto);
+    return this.knowledgeBaseService.update(user, id, dto);
   }
 
   /**

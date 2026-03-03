@@ -30,11 +30,12 @@ export function getAssistantDetail(id: number) {
 
 // 更新助手
 export function updateAssistant(
+  id: number,
   body: components['schemas']['UpdateAssistantDto'],
 ) {
   return client.PATCH('/api/assistant/assistant/{id}', {
     body,
-    params: { path: { id: body.id } },
+    params: { path: { id } },
   });
 }
 

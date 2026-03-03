@@ -19,10 +19,13 @@ export function getDeptDetail(id: number) {
   return client.GET('/api/system/dept/{id}', { params: { path: { id } } });
 }
 // 更新部门
-export function updateDept(body: components['schemas']['UpdateDeptDto']) {
+export function updateDept(
+  id: number,
+  body: components['schemas']['UpdateDeptDto'],
+) {
   return client.PATCH('/api/system/dept/{id}', {
     body,
-    params: { path: { id: body.id } },
+    params: { path: { id } },
   });
 }
 // 删除部门
