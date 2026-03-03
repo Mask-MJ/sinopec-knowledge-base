@@ -28,6 +28,7 @@ RUN grep '^VITE_' .env > apps/client/.env 2>/dev/null || true
 # 有源码后再执行 postinstall (stub) 并构建
 # 客户端只做 build-only 跳过 type-check（type-check 应在 CI 中单独做）
 RUN pnpm run postinstall \
+    && pnpm --filter @sinopec-kb/server run prisma:generate \
     && pnpm --filter @sinopec-kb/server build \
     && pnpm --filter @sinopec-kb/client build-only
 
