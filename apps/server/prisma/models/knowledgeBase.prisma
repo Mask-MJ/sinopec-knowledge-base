@@ -1,0 +1,34 @@
+/// 知识库信息表
+model KnowledgeBase {
+  /// 知识库ID
+  id             Int      @id @default(autoincrement())
+  /// 知识库名称
+  name           String
+  /// 知识库图片
+  avatar         String?
+  /// 知识库简介
+  description    String?
+  /// 知识库向量模型 "BAAI/bge-large-zh-v1.5@BAAI"
+  embeddingModel String
+  /// 知识库访问权限 "me" | "team"
+  permission     String?
+  /// 知识库分块方式
+  chunkMethod    String   @default("naive")
+  /// 数据集分析器的配置设置
+  parserConfig   Json?
+  /// RAGFlow 关联数据集ID
+  datasetId      String?
+  /// 显示顺序
+  order          Int      @default(1)
+  /// 创建者
+  createBy       String
+  /// 更新者
+  updateBy       String?
+  /// 创建时间
+  createdAt      DateTime @default(now())
+  /// 更新时间
+  updatedAt      DateTime @updatedAt
+  /// 所属部门ID
+  deptId         Int?
+  dept           Dept?    @relation(fields: [deptId], references: [id], onDelete: Cascade)
+}

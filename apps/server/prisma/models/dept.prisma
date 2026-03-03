@@ -22,5 +22,6 @@ model Dept {
   parentId  Int?
   parent    Dept?    @relation("DeptToDept", fields: [parentId], references: [id])
   children  Dept[]   @relation("DeptToDept")
-  users     User[]   @relation("DeptToUser")
+  users          User[]          @relation("DeptToUser")
+  knowledgeBases KnowledgeBase[]
 }

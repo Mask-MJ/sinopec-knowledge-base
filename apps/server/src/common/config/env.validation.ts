@@ -98,6 +98,10 @@ class EnvironmentVariables {
   @IsString()
   RAGFLOW_API_KEY?: string;
 
+  @IsOptional()
+  @IsString()
+  RAGFLOW_HOST?: string;
+
   // ─── Redis ───────────────────────────────────────
 
   @IsString()

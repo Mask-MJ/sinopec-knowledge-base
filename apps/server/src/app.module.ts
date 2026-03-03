@@ -11,7 +11,10 @@ import { ConfigModule } from './common/config/config.module';
 import { extendedPrismaClient } from './common/database/prisma.extension';
 import { LogsModule } from './common/logger/logs.module';
 import { MinioModule } from './common/minio/minio.module';
+import { RagflowModule } from './common/ragflow/ragflow.module';
+import { AssistantModule } from './modules/assistant/assistant.module';
 import { AuthModule } from './modules/auth/auth.module';
+import { KnowledgeBaseModule } from './modules/knowledge-base/knowledge-base.module';
 import { MonitorModule } from './modules/monitor/monitor.module';
 import { SeedModule } from './modules/seed/seed.module';
 import { SystemModule } from './modules/system/system.module';
@@ -21,6 +24,7 @@ import { SystemModule } from './modules/system/system.module';
     ConfigModule,
     LogsModule,
     MinioModule,
+    RagflowModule,
     ScheduleModule.forRoot(),
     CacheModule.registerAsync({
       inject: [ConfigService],
@@ -47,10 +51,14 @@ import { SystemModule } from './modules/system/system.module';
       { path: 'auth', module: AuthModule },
       { path: 'system', module: SystemModule },
       { path: 'monitor', module: MonitorModule },
+      { path: 'knowledge-base', module: KnowledgeBaseModule },
+      { path: 'assistant', module: AssistantModule },
     ]),
     AuthModule,
     SystemModule,
     MonitorModule,
+    KnowledgeBaseModule,
+    AssistantModule,
     SeedModule,
   ],
   controllers: [],

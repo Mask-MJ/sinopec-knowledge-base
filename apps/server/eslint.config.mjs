@@ -2,7 +2,7 @@ import { defineConfig } from '@sinopec-kb/eslint-config';
 
 export default defineConfig([
   {
-    ignores: ['src/metadata.ts'],
+    ignores: ['**/metadata.ts'],
   },
   {
     files: ['*.config.{js,mjs,cjs}', '*.config.*.{js,mjs,cjs}'],
