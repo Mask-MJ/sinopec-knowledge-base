@@ -1,5 +1,6 @@
 {
   "$schema": "https://unpkg.com/knip@5/schema.json",
+  "exclude": ["exports", "types"],
   "workspaces": {
     ".": {
       "entry": [
@@ -9,16 +10,77 @@
 
         "scripts/*.mjs"
       ],
-      "ignoreDependencies": ["lefthook"],
       "ignoreBinaries": ["only-allow", "eslint", "prettier", "commitlint"]
     },
     "apps/client": {
-      "entry": ["eslint.config.mjs", "src/**/*.spec.ts"],
-      "ignoreDependencies": ["@vue/tsconfig", "@tsconfig/node24"]
+      "entry": [
+        "uno.config.ts",
+        "src/views/**/*.page.vue",
+        "src/layouts/**/*.vue"
+      ],
+      "project": ["src/**/*.{ts,tsx,vue}"],
+      "ignoreDependencies": [
+        "@vue/tsconfig",
+        "@tsconfig/node24",
+        "@unhead/vue",
+        "@vueuse/integrations",
+        "defu",
+        "nprogress",
+        "vue-echarts",
+        "@iconify-json/line-md",
+        "@sinopec-kb/eslint-config",
+        "@vue/test-utils",
+        "unocss",
+        "dotenv",
+        "unplugin-vue-components",
+        "uno.css",
+        "vite-plugin-app-loading",
+        "unplugin-vue-router",
+        "vite-plugin-vue-layouts-next"
+      ],
+      "ignore": [
+        "src/config/preferences/types.ts",
+        "src/config/preferences/config.ts",
+        "src/config/constants/**/*.ts",
+        "src/api/**/*.ts",
+        "src/utils/**/*.{ts,tsx,vue}",
+        "src/stores/modules/**/*.ts",
+        "src/composables/**/*.ts",
+        "src/constants/**/*.ts",
+        "src/locales/index.ts",
+        "src/components/index.ts",
+        "src/layouts/components/widgets/test_breadcrumb_logic.test.ts"
+      ]
     },
     "apps/server": {
       "entry": ["eslint.config.mjs", "src/main.ts", "src/**/*.spec.ts"],
-      "ignoreDependencies": ["source-map-support", "@vitest/coverage-v8"]
+      "project": ["src/**/*.ts"],
+      "ignoreDependencies": [
+        "source-map-support",
+        "@vitest/coverage-v8",
+        "dayjs",
+        "helmet",
+        "ioredis",
+        "lodash-es",
+        "p-limit",
+        "pg",
+        "xlsx",
+        "@onozaty/prisma-db-comments-generator",
+        "supertest",
+        "ts-node",
+        "tsconfig-paths",
+        "tsx",
+        "unplugin-swc",
+        "vite-tsconfig-paths"
+      ],
+      "ignore": [
+        "src/test-utils/**/*.ts",
+        "src/common/logger/logger.config.ts",
+        "src/common/bootstrap/app.setup.ts",
+        "src/common/bootstrap/index.ts",
+        "src/modules/knowledge-base/knowledge-base.entity.ts",
+        "src/modules/auth/authorization/decorators/roles.decorator.ts"
+      ]
     },
     "internal/commitlint-config": {
       "ignoreDependencies": [
@@ -40,14 +102,14 @@
     "internal/tsconfig": {
       "entry": [],
       "project": []
+    },
+    "internal/vite-config": {
+      "entry": ["src/**/*.ts", "build.config.ts"],
+      "project": ["src/**/*.ts"],
+      "ignoreDependencies": ["@sinopec-kb/tsconfig", "unbuild"],
+      "ignoreBinaries": ["unbuild"]
     }
   },
-  "ignoreDependencies": [
-    "@types/*",
-    "@commitlint/types",
-    "vitest",
-    "unplugin-swc",
-    "vue"
-  ],
+  "ignoreDependencies": ["@types/*", "@commitlint/types", "vue"],
   "ignoreUnresolved": ["vite/client"]
 }

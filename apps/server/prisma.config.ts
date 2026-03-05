@@ -1,9 +1,13 @@
+import { existsSync } from 'node:fs';
 import path from 'node:path';
 
 import { config } from '@dotenvx/dotenvx';
 import { defineConfig } from 'prisma/config';
 
-config({ path: path.resolve(process.cwd(), '../../.env') });
+const envPath = path.resolve(process.cwd(), '../../.env');
+if (existsSync(envPath)) {
+  config({ path: envPath });
+}
 
 export default defineConfig({
   schema: path.join('prisma', 'models'),
