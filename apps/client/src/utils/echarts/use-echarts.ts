@@ -18,7 +18,8 @@ function useEcharts(chartRef: Ref<EchartsUIType>) {
   const { isDarkTheme } = storeToRefs(preferencesStore);
 
   const { height, width } = useWindowSize();
-  const resizeHandler: () => void = useDebounceFn(resize, 200);
+  const _debouncedResize = useDebounceFn(resize, 200);
+  const resizeHandler = () => void _debouncedResize();
 
   const getChartEl = (): HTMLElement | null => {
     const refValue = chartRef?.value as unknown;
@@ -46,7 +47,7 @@ function useEcharts(chartRef: Ref<EchartsUIType>) {
   });
 
   const initCharts = (t?: EchartsThemeType) => {
-    const el = chartRef?.value?.$el;
+    const el = chartRef?.value?.$el as HTMLElement | undefined;
     if (!el) {
       return;
     }
@@ -82,7 +83,7 @@ function useEcharts(chartRef: Ref<EchartsUIType>) {
         }, 30);
         return;
       }
-      nextTick(() => {
+      void nextTick(() => {
         const el = getChartEl();
         if (isElHidden(el)) {
           useTimeoutFn(async () => {
@@ -126,7 +127,7 @@ function useEcharts(chartRef: Ref<EchartsUIType>) {
     if (chartInstance) {
       chartInstance.dispose();
       initCharts();
-      renderEcharts(cacheOptions);
+      void renderEcharts(cacheOptions);
       resize();
     }
   });

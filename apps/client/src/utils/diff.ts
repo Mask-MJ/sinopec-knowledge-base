@@ -8,12 +8,9 @@ export function diff<T extends Record<string, any>>(
   obj1: T,
   obj2: T,
 ): DiffResult<T> {
-  function findDifferences(o1: any, o2: any): any {
+  function findDifferences(o1: unknown, o2: unknown): unknown {
     if (Array.isArray(o1) && Array.isArray(o2)) {
-      if (!isEqual(o1, o2)) {
-        return o2;
-      }
-      return undefined;
+      return isEqual(o1, o2) ? undefined : o2;
     }
 
     if (
@@ -22,15 +19,17 @@ export function diff<T extends Record<string, any>>(
       o1 !== null &&
       o2 !== null
     ) {
-      const diffResult: any = {};
+      const rec1 = o1 as Record<string, unknown>;
+      const rec2 = o2 as Record<string, unknown>;
+      const diffResult: Record<string, unknown> = {};
 
-      const keys = new Set([...Object.keys(o1), ...Object.keys(o2)]);
-      keys.forEach((key) => {
-        const valueDiff = findDifferences(o1[key], o2[key]);
+      const keys = new Set([...Object.keys(rec1), ...Object.keys(rec2)]);
+      for (const key of keys) {
+        const valueDiff = findDifferences(rec1[key], rec2[key]);
         if (valueDiff !== undefined) {
           diffResult[key] = valueDiff;
         }
-      });
+      }
 
       return Object.keys(diffResult).length > 0 ? diffResult : undefined;
     }
@@ -38,5 +37,5 @@ export function diff<T extends Record<string, any>>(
     return o1 === o2 ? undefined : o2;
   }
 
-  return findDifferences(obj1, obj2);
+  return findDifferences(obj1, obj2) as DiffResult<T>;
 }

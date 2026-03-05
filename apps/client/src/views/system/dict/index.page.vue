@@ -2,6 +2,9 @@
 import type { DictDataInfo, DictInfo } from '@/api/system/dict';
 import type { ProDataTableColumns } from 'pro-naive-ui';
 
+import { NTag } from 'naive-ui';
+import { createProModalForm } from 'pro-naive-ui';
+
 import {
   createDict,
   createDictData,
@@ -16,8 +19,6 @@ import {
 } from '@/api/system/dict';
 import TableAction from '@/components/common/TableAction.vue';
 import { $t } from '@/locales';
-import { NTag } from 'naive-ui';
-import { createProModalForm } from 'pro-naive-ui';
 
 definePage({
   meta: {

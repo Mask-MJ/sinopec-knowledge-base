@@ -3,6 +3,10 @@ import type { CreateMenuDto, MenuInfo, UpdateMenuDto } from '@/api/system/menu';
 import type { TreeSelectOption } from 'naive-ui';
 import type { ProDataTableColumns } from 'pro-naive-ui';
 
+import { has } from 'lodash-es';
+import { NTag } from 'naive-ui';
+import { createProDrawerForm } from 'pro-naive-ui';
+
 import {
   createMenu,
   deleteMenu,
@@ -13,9 +17,6 @@ import {
 import TableAction from '@/components/common/TableAction.vue';
 import { $t } from '@/locales';
 import { transformationTree } from '@/utils';
-import { has } from 'lodash-es';
-import { NTag } from 'naive-ui';
-import { createProDrawerForm } from 'pro-naive-ui';
 
 definePage({
   meta: {
@@ -293,9 +294,9 @@ onMounted(() => {
           </n-gi>
           <template v-if="drawerForm.values.value.type === 'menu'">
             <n-gi span="2">
-              <n-divider>{{
-                $t('page.system.menu.advancedSettings')
-              }}</n-divider>
+              <n-divider>
+                {{ $t('page.system.menu.advancedSettings') }}
+              </n-divider>
             </n-gi>
             <n-gi>
               <pro-checkbox

@@ -1,7 +1,13 @@
 <script setup lang="ts">
-import type { DeptInfo } from '@/api/system/dept';
-import type { SearchParams } from '@/api/system/dept';
+import type { DeptInfo, SearchParams } from '@/api/system/dept';
 import type { ProDataTableColumns, ProSearchFormColumns } from 'pro-naive-ui';
+
+import { has } from 'lodash-es';
+import {
+  createProModalForm,
+  createProSearchForm,
+  useNDataTable,
+} from 'pro-naive-ui';
 
 import {
   createDept,
@@ -13,12 +19,6 @@ import {
 import { getAllUserList } from '@/api/system/user';
 import TableAction from '@/components/common/TableAction.vue';
 import { $t } from '@/locales';
-import { has } from 'lodash-es';
-import {
-  createProModalForm,
-  createProSearchForm,
-  useNDataTable,
-} from 'pro-naive-ui';
 
 definePage({
   meta: {

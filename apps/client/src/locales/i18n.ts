@@ -32,7 +32,7 @@ function loadLocalesMap(modules: Record<string, () => Promise<unknown>>) {
   const localesMap: Record<Locale, ImportLocaleFn> = {};
 
   for (const [path, loadLocale] of Object.entries(modules)) {
-    const key = path.match(/([\w-]*)\.(json)/)?.[1];
+    const key = path.match(/([\w-]*)\.json/)?.[1];
     if (key) {
       localesMap[key] = loadLocale as ImportLocaleFn;
     }
@@ -59,11 +59,10 @@ function loadLocalesMapFromDir(
     if (match) {
       const [_, locale, fileName] = match;
       if (locale && fileName) {
-        if (!localesRaw[locale]) {
-          localesRaw[locale] = {};
-        }
-        if (modules[path]) {
-          localesRaw[locale][fileName] = modules[path];
+        const localeBucket = (localesRaw[locale] ??= {});
+        const importFn = modules[path];
+        if (importFn) {
+          localeBucket[fileName] = importFn;
         }
       }
     }

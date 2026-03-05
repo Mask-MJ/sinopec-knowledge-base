@@ -20,7 +20,7 @@ export function initRouter(app: App) {
   createRouterGuard(router);
 
   // 路由准备就绪后，移除并销毁首屏 loading
-  router.isReady().then(() => {
+  void router.isReady().then(() => {
     unmountGlobalLoading();
   });
 }

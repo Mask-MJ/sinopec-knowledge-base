@@ -97,7 +97,9 @@ const authMiddleware: Middleware = {
 
         // 登录接口返回 401（密码错误、用户名不存在等），直接显示错误，不刷新 token
         if (response.url.includes('/api/auth/authentication/sign-in')) {
-          window.$message.error(data?.error ?? 'Authentication failed');
+          window.$message.error(
+            (data?.error as string) ?? 'Authentication failed',
+          );
           return response;
         }
 
@@ -201,28 +203,32 @@ const authMiddleware: Middleware = {
  * 时间格式化中间件
  * 递归遍历响应数据，将 ISO 8601 日期字符串转换为本地格式
  */
-function formatDateMiddleware(data: any): any {
+function formatDateMiddleware(data: unknown): unknown {
   const formatDateString = (dateString: string): string => {
     const date = dayjs(dateString);
-    if (date.isValid()) {
-      return date.format('YYYY-MM-DD HH:mm:ss');
-    }
-    return dateString;
+    return date.isValid() ? date.format('YYYY-MM-DD HH:mm:ss') : dateString;
   };
 
   if (Array.isArray(data)) {
-    return data.map((item) => formatDateMiddleware(item));
-  } else if (typeof data === 'object' && data !== null) {
-    Object.keys(data).forEach((key) => {
-      if (typeof data[key] === 'string' && ISO_DATE_REGEX.test(data[key])) {
-        data[key] = formatDateString(data[key]);
-      } else if (Array.isArray(data[key])) {
-        data[key] = data[key].map((item: any) => formatDateMiddleware(item));
-      } else if (typeof data[key] === 'object' && data[key] !== null) {
-        data[key] = formatDateMiddleware(data[key]);
-      }
-    });
+    return data.map((item: unknown) => formatDateMiddleware(item));
   }
+
+  if (typeof data === 'object' && data !== null) {
+    const record = data as Record<string, unknown>;
+    const result: Record<string, unknown> = {};
+    for (const key of Object.keys(record)) {
+      const value = record[key];
+      if (typeof value === 'string' && ISO_DATE_REGEX.test(value)) {
+        result[key] = formatDateString(value);
+      } else if (typeof value === 'object' || Array.isArray(value)) {
+        result[key] = formatDateMiddleware(value);
+      } else {
+        result[key] = value;
+      }
+    }
+    return result;
+  }
+
   return data;
 }
 

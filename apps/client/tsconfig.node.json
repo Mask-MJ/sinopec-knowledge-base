@@ -1,6 +1,7 @@
 {
   "extends": "@sinopec-kb/tsconfig/node.json",
   "compilerOptions": {
+    "incremental": true,
     "tsBuildInfoFile": "./node_modules/.tmp/tsconfig.node.tsbuildinfo",
 
     "module": "ESNext",
@@ -14,6 +15,7 @@
     "cypress.config.*",
     "nightwatch.conf.*",
     "playwright.config.*",
-    "eslint.config.*"
+    "eslint.config.*",
+    "uno.config.*"
   ]
 }

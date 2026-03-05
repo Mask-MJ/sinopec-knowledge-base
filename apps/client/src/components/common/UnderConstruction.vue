@@ -1,9 +1,9 @@
 <script setup lang="ts">
 defineProps<{
-  /** 模块名称 */
-  module: string;
   /** 模块简述 */
   description?: string;
+  /** 模块名称 */
+  module: string;
 }>();
 </script>
 

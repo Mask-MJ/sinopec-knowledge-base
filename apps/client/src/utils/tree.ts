@@ -35,7 +35,7 @@ function traverseTreeValues<T, V>(
     }
     if (children.length > 0) {
       for (const child of children) {
-        dfs(child);
+        dfs(child as T);
       }
     }
   };
@@ -66,7 +66,7 @@ function filterTree<T extends Record<string, any>>(
     return nodes.filter((node: Record<string, any>) => {
       if (filter(node as T)) {
         if (node[childProps]) {
-          node[childProps] = _filterTree(node[childProps]);
+          node[childProps] = _filterTree(node[childProps] as T[]);
         }
         return true;
       }
@@ -94,7 +94,11 @@ function mapTree<T, V extends Record<string, any>>(
   return tree.map((node) => {
     const mapperNode: Record<string, any> = mapper(node);
     if (mapperNode[childProps]) {
-      mapperNode[childProps] = mapTree(mapperNode[childProps], mapper, options);
+      mapperNode[childProps] = mapTree(
+        mapperNode[childProps] as T[],
+        mapper,
+        options,
+      );
     }
     return mapperNode as V;
   });

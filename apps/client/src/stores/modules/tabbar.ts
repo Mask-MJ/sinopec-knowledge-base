@@ -143,7 +143,7 @@ export const useTabbarStore = defineStore('tabbar-store', () => {
   }
   /**
    * 获取tab的路径
-   * @param tab
+   * @param route
    */
   function routeToTab(route: RouteRecordNormalized) {
     return {
@@ -255,7 +255,7 @@ export const useTabbarStore = defineStore('tabbar-store', () => {
       tab = mergedTab;
       tabs.value.splice(tabIndex, 1, mergedTab);
     }
-    updateCacheTabs();
+    void updateCacheTabs();
     return tab;
   }
   /**
@@ -265,7 +265,7 @@ export const useTabbarStore = defineStore('tabbar-store', () => {
     const newTabs = tabs.value.filter((tab) => isAffixTab(tab));
     tabs.value = newTabs.length > 0 ? newTabs : [...tabs.value].splice(0, 1);
     await _goToDefaultTab(router);
-    updateCacheTabs();
+    void updateCacheTabs();
   }
   /**
    * @zh_CN 关闭左侧标签页
@@ -339,7 +339,7 @@ export const useTabbarStore = defineStore('tabbar-store', () => {
     // 关闭不是激活选项卡
     if (getTabKey(currentRoute.value) !== getTabKeyFromTab(tab)) {
       _close(tab);
-      updateCacheTabs();
+      void updateCacheTabs();
       return;
     }
     const index = getTabs.value.findIndex(
