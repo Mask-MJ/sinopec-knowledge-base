@@ -197,7 +197,7 @@ export class KnowledgeBaseService {
 
     return await this.ragflow.request(
       'POST',
-      `/api/v1/datasets/${kb.datasetId}/documents/chunks`,
+      `/api/v1/datasets/${kb.datasetId}/chunks`,
       { document_ids: documentIds },
     );
   }
@@ -262,7 +262,7 @@ export class KnowledgeBaseService {
 
     return await this.ragflow.request(
       'DELETE',
-      `/api/v1/datasets/${kb.datasetId}/documents/chunks`,
+      `/api/v1/datasets/${kb.datasetId}/chunks`,
       { document_ids: documentIds },
     );
   }

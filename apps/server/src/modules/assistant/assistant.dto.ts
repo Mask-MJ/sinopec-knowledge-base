@@ -1,6 +1,12 @@
 import { IntersectionType, PartialType, PickType } from '@nestjs/swagger';
 import { Type } from 'class-transformer';
-import { IsBoolean, IsNumber, IsOptional, IsString } from 'class-validator';
+import {
+  IsArray,
+  IsBoolean,
+  IsNumber,
+  IsOptional,
+  IsString,
+} from 'class-validator';
 
 // ─── Assistant DTO ───────────────────────────────
 
@@ -12,6 +18,15 @@ export class CreateAssistantDto {
   @IsOptional()
   @IsString()
   avatar?: string;
+
+  /**
+   * 关联的知识库数据集 ID 列表（RAGFlow datasetId）
+   * @example ['dataset_id_1', 'dataset_id_2']
+   */
+  @IsArray()
+  @IsOptional()
+  @IsString({ each: true })
+  datasetIds?: string[];
 
   /**
    * 助手描述
@@ -168,6 +183,24 @@ export class QuerySessionDto {
   @IsOptional()
   @IsString()
   name?: string;
+
+  /**
+   * 页码
+   * @example 1
+   */
+  @IsNumber()
+  @IsOptional()
+  @Type(() => Number)
+  page?: number = 1;
+
+  /**
+   * 每页数量
+   * @example 30
+   */
+  @IsNumber()
+  @IsOptional()
+  @Type(() => Number)
+  pageSize?: number = 30;
 }
 
 export class UpdateSessionDto extends PartialType(CreateSessionDto) {}

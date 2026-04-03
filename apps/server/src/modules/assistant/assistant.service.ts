@@ -17,9 +17,6 @@ import { Inject, Injectable, Logger } from '@nestjs/common';
 
 import { RagflowService } from '@/common/ragflow/ragflow.service';
 
-/** 透传查询时默认最大页大小 */
-const MAX_PAGE_SIZE = 100_000;
-
 @Injectable()
 export class AssistantService {
   private readonly logger = new Logger(AssistantService.name);
@@ -125,11 +122,33 @@ export class AssistantService {
     });
 
     try {
-      // 再调 RAGFlow
+      // 再调 RAGFlow（传递完整参数）
       const ragflowData = await this.ragflow.request<{ id: string }>(
         'POST',
         '/api/v1/chats',
-        { name: dto.name },
+        {
+          name: dto.name,
+          avatar: dto.avatar,
+          description: dto.description,
+          dataset_ids: dto.datasetIds,
+          llm: {
+            model_name: dto.modelName,
+            temperature: dto.temperature,
+            top_p: dto.topP,
+            presence_penalty: dto.presencePenalty,
+            frequency_penalty: dto.frequencyPenalty,
+            max_tokens: dto.maxTokens,
+          },
+          prompt: {
+            opener: dto.opener,
+            prompt: dto.prompt,
+            empty_response: dto.emptyResponse,
+            similarity_threshold: dto.similarityThreshold,
+            keywords_similarity_weight: dto.keywordsSimilarityWeight,
+            top_n: dto.topN,
+          },
+          top_k: dto.topK,
+        },
       );
 
       // 回写 RAGFlow 返回的 assistantId
@@ -190,7 +209,6 @@ export class AssistantService {
     user: ActiveUserData,
     dto: QuerySessionDto,
   ) {
-    const { name: _name } = dto;
     const assistant = await this.prisma.client.assistant.findUniqueOrThrow({
       where: { id },
     });
@@ -199,9 +217,10 @@ export class AssistantService {
       'GET',
       `/api/v1/chats/${assistant.assistantId}/sessions`,
       {
-        page: 1,
-        page_size: MAX_PAGE_SIZE,
+        page: dto.page ?? 1,
+        page_size: dto.pageSize ?? 30,
         user_id: String(user.sub),
+        name: dto.name,
       },
     );
   }
@@ -251,6 +270,7 @@ export class AssistantService {
           name: dto.name,
           avatar: dto.avatar,
           description: dto.description,
+          dataset_ids: dto.datasetIds,
           llm: {
             model_name: dto.modelName,
             frequency_penalty: dto.frequencyPenalty,
