@@ -121,7 +121,6 @@ describe('postController', () => {
   describe('update', () => {
     it('should update a post', async () => {
       const updatePostDto: UpdatePostDto = {
-        id: 1,
         name: '高级开发工程师',
       };
       const updatedPost = { ...mockPost, name: '高级开发工程师' };

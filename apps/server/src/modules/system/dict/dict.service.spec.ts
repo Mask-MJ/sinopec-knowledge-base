@@ -123,7 +123,7 @@ describe('dictService', () => {
 
   describe('update', () => {
     it('should update a dict', async () => {
-      const updateDictDto: UpdateDictDto = { id: 1, name: 'New Name' };
+      const updateDictDto: UpdateDictDto = { name: 'New Name' };
       mockPrismaService.client.dict.update.mockResolvedValue(updateDictDto);
 
       const result = await service.update(1, updateDictDto);
@@ -215,7 +215,7 @@ describe('dictService', () => {
 
   describe('updateData', () => {
     it('should update dict data', async () => {
-      const updateDictDataDto: UpdateDictDataDto = { id: 1, name: 'Inactive' };
+      const updateDictDataDto: UpdateDictDataDto = { name: 'Inactive' };
       mockPrismaService.client.dictData.update.mockResolvedValue(
         updateDictDataDto,
       );

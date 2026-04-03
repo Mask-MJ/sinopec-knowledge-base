@@ -120,7 +120,6 @@ describe('dictController', () => {
   describe('update', () => {
     it('should update a dictionary', async () => {
       const updateDictDto: UpdateDictDto = {
-        id: 1,
         name: '更新后的字典',
       };
       const updatedDict = { ...mockDict, name: '更新后的字典' };
@@ -192,7 +191,6 @@ describe('dictController', () => {
   describe('updateData', () => {
     it('should update a dictionary data', async () => {
       const updateDictDataDto: UpdateDictDataDto = {
-        id: 1,
         name: '更新后的名称',
       };
       const updatedDictData = { ...mockDictData, name: '更新后的名称' };

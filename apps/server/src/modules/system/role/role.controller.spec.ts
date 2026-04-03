@@ -122,7 +122,6 @@ describe('roleController', () => {
   describe('update', () => {
     it('should update a role', async () => {
       const updateRoleDto: UpdateRoleDto = {
-        id: 1,
         name: '超级管理员',
       };
       const updatedRole = { ...mockRole, name: '超级管理员' };

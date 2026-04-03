@@ -106,7 +106,6 @@ describe('menuController', () => {
   describe('update', () => {
     it('should update a menu', async () => {
       const updateMenuDto: UpdateMenuDto = {
-        id: 1,
         name: '更新后的菜单',
         path: '/system',
         type: 'menu',

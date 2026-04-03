@@ -111,7 +111,6 @@ describe('deptController', () => {
   describe('update', () => {
     it('should update a department', async () => {
       const updateDeptDto: UpdateDeptDto = {
-        id: 1,
         name: '更新后的技术部',
       };
       const updatedDept = { ...mockDept, name: '更新后的技术部' };

@@ -103,7 +103,7 @@ describe('postService', () => {
 
   describe('update', () => {
     it('should update a post', async () => {
-      const updatePostDto: UpdatePostDto = { id: 1, name: 'New Dev' };
+      const updatePostDto: UpdatePostDto = { name: 'New Dev' };
       mockPrismaService.client.post.update.mockResolvedValue(updatePostDto);
 
       const result = await service.update(1, updatePostDto);

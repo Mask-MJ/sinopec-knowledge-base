@@ -137,7 +137,7 @@ describe('deptService', () => {
 
   describe('update', () => {
     it('should update a department', async () => {
-      const updateDeptDto: UpdateDeptDto = { id: 1, name: 'New Tech' };
+      const updateDeptDto: UpdateDeptDto = { name: 'New Tech' };
 
       mockPrismaService.client.dept.update.mockResolvedValue({
         id: 1,

@@ -125,7 +125,6 @@ describe('roleService', () => {
   describe('update', () => {
     it('should update a role', async () => {
       const updateRoleDto: UpdateRoleDto = {
-        id: 1,
         name: 'Super Admin',
         menuIds: [3],
       };
