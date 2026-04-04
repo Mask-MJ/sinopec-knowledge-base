@@ -8,6 +8,14 @@ x-logging: &default-logging
     max-file: "3"
 
 services:
+  # ── Override: 生产环境不暴露基础设施端口 ─────────
+  postgres:
+    ports: !override []
+  redis:
+    ports: !override []
+  minio:
+    ports: !override []
+
   # ── App (NestJS Backend) ────────────────────────
   app:
     build:
@@ -35,13 +43,13 @@ services:
       minio:
         condition: service_started
     healthcheck:
-      test: ["CMD", "wget", "-q", "--spider", "http://localhost:${APP_PORT:-3001}/doc/"]
+      test: ["CMD", "wget", "-q", "--spider", "http://localhost:${APP_PORT:-3001}/${APP_PREFIX:-api}/monitor/health"]
       interval: 10s
       timeout: 5s
       retries: 3
       start_period: 10s
     volumes:
-      - app_public:/app/public
+      - app_public:/app/public:ro
     logging: *default-logging
 
   # ── Nginx (Reverse Proxy + Static Files) ────────

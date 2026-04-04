@@ -9,7 +9,6 @@
       "@prisma/generated/*": ["src/prisma/generated/*"]
     },
     "types": ["node", "vitest/globals", "multer"],
-    "noFallthroughCasesInSwitch": false,
     "outDir": "./dist"
   },
   "exclude": [

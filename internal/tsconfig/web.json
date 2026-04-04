@@ -7,7 +7,6 @@
     "jsxImportSource": "vue",
     "lib": ["ESNext", "DOM", "DOM.Iterable"],
     "useDefineForClassFields": true,
-    "moduleResolution": "bundler",
     "types": ["vite/client"],
     "declaration": false
   }

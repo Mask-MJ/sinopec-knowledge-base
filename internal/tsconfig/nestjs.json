@@ -7,7 +7,6 @@
     "target": "ES2023",
     "module": "es2022",
     "moduleResolution": "bundler",
-    "strictBindCallApply": false,
     "strictPropertyInitialization": false,
     "removeComments": true,
     "declaration": true,

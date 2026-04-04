@@ -7,7 +7,7 @@
     "base.json",
     "library.json",
     "node.json",
-    "web-app.json",
+    "nestjs.json",
     "web.json"
   ]
 }

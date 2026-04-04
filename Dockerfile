@@ -1,5 +1,5 @@
 # ===== Stage 1: Base =====
-FROM node:24-alpine AS base
+FROM node:22-alpine AS base
 RUN corepack enable && corepack prepare pnpm@10.24.0 --activate
 WORKDIR /app
 
@@ -40,7 +40,7 @@ RUN mkdir -p /app/prisma-cli \
     && cp -rL /app/apps/server/node_modules/prisma /app/prisma-cli/prisma
 
 # ===== Stage 3: Production =====
-FROM node:24-alpine AS production
+FROM node:22-alpine AS production
 WORKDIR /app
 
 # 拷贝精简的生产部署目录
@@ -61,14 +61,13 @@ COPY --from=builder /app/apps/server/prisma/migrations ./prisma/migrations
 COPY --from=builder /app/apps/server/prisma/models ./prisma/models
 COPY --from=builder /app/apps/server/prisma.config.ts ./prisma.config.ts
 
-# 前端构建产物 (后续通过 volume 共享给 Nginx)
+# 前端构建产物（Nginx 通过 volume 只读挂载）
 COPY --from=builder /app/apps/client/dist ./public
 
-# 入口脚本：先执行 migrate deploy + seed，再启动应用
+# 入口脚本：先执行 migrate deploy，再启动应用
 COPY docker/entrypoint.sh /app/entrypoint.sh
 RUN chmod +x /app/entrypoint.sh
 
 EXPOSE 3001
 
 ENTRYPOINT ["/app/entrypoint.sh"]
-

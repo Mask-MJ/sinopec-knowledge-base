@@ -4,9 +4,8 @@
   "extends": "./base.json",
   "compilerOptions": {
     "lib": ["ESNext"],
-    "emitDecoratorMetadata": true,
-    "baseUrl": "./",
     "moduleResolution": "bundler",
+    "emitDecoratorMetadata": true,
     "types": ["node"]
   }
 }
