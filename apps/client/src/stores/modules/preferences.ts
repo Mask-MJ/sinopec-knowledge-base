@@ -6,10 +6,6 @@ import type {
   ThemeColor,
 } from '@/config/preferences';
 
-type DeepPartial<T> = {
-  [P in keyof T]?: T[P] extends object ? DeepPartial<T[P]> : T[P];
-};
-
 import { useStyleTag } from '@vueuse/core';
 import { merge } from 'lodash-es';
 import { defineStore } from 'pinia';
@@ -21,6 +17,10 @@ import {
   initPreferences,
 } from '@/config/preferences';
 import { loadLocaleMessages } from '@/locales';
+
+type DeepPartial<T> = {
+  [P in keyof T]?: T[P] extends object ? DeepPartial<T[P]> : T[P];
+};
 
 export const usePreferencesStore = defineStore('preferences-store', () => {
   const state = ref<Preferences>(initPreferences());

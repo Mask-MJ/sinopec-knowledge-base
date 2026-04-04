@@ -3,7 +3,6 @@ import type { KnowledgeBaseInfo } from '@/api/knowledgeBase';
 import type { SearchParams } from '@/api/system/role';
 import type { ProDataTableColumns, ProSearchFormColumns } from 'pro-naive-ui';
 
-import { PERMISSION } from '@/config/constants/permissionCodes';
 import { has } from 'lodash-es';
 import {
   createProModalForm,
@@ -20,6 +19,7 @@ import {
 } from '@/api/knowledgeBase';
 import { getAllUserList } from '@/api/system/user';
 import TableAction from '@/components/common/TableAction.vue';
+import { PERMISSION } from '@/config/constants/permissionCodes';
 import { $t } from '@/locales';
 
 const loading = ref(false);

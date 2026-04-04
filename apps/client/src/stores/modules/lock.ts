@@ -6,10 +6,7 @@ interface LockState {
   lockScreenSalt: string | undefined;
 }
 
-async function deriveKey(
-  password: string,
-  salt: Uint8Array,
-): Promise<string> {
+async function deriveKey(password: string, salt: Uint8Array): Promise<string> {
   const encoded = new TextEncoder().encode(password);
   const keyMaterial = await crypto.subtle.importKey(
     'raw',
@@ -37,7 +34,8 @@ function saltToHex(salt: Uint8Array): string {
 }
 
 function hexToSalt(hex: string): Uint8Array {
-  const bytes = hex.match(/.{2}/g)?.map((byte) => Number.parseInt(byte, 16)) ?? [];
+  const bytes =
+    hex.match(/.{2}/g)?.map((byte) => Number.parseInt(byte, 16)) ?? [];
   return new Uint8Array(bytes);
 }
 

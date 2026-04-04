@@ -59,11 +59,8 @@ export function getKnowledgeBaseFileList(
 
 // 下载知识库文件
 export function downloadKnowledgeBaseFile(id: number, documentId: string) {
-  return client.GET(
-    '/api/knowledge-base/{id}/documents/{documentId}',
-    {
-      params: { path: { id, documentId } },
-      parseAs: 'stream',
-    },
-  );
+  return client.GET('/api/knowledge-base/{id}/documents/{documentId}', {
+    params: { path: { id, documentId } },
+    parseAs: 'stream',
+  });
 }

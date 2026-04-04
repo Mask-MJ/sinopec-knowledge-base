@@ -9,7 +9,6 @@ import {
   useNDataTable,
 } from 'pro-naive-ui';
 
-import { PERMISSION } from '@/config/constants/permissionCodes';
 import { getDeptList } from '@/api/system/dept';
 import { getRoleList } from '@/api/system/role';
 import {
@@ -21,6 +20,7 @@ import {
   updateUser,
 } from '@/api/system/user';
 import TableAction from '@/components/common/TableAction.vue';
+import { PERMISSION } from '@/config/constants/permissionCodes';
 import { $t } from '@/locales';
 
 definePage({
@@ -74,14 +74,13 @@ const columns = computed<ProDataTableColumns<UserInfo>>(() => [
     title: $t('page.system.user.dept'),
     key: 'dept.name',
     render: (row) => {
-      const deptName = (row as unknown as { dept?: { name: string } }).dept?.name ?? '';
+      const deptName =
+        (row as unknown as { dept?: { name: string } }).dept?.name ?? '';
       if (row.isDeptAdmin) {
         return h('span', [
           deptName,
-          h(
-            NTag,
-            { type: 'warning', size: 'small', class: 'ml-2' },
-            () => $t('page.system.user.deptAdmin'),
+          h(NTag, { type: 'warning', size: 'small', class: 'ml-2' }, () =>
+            $t('page.system.user.deptAdmin'),
           ),
         ]);
       }

@@ -9,7 +9,6 @@ import {
   useNDataTable,
 } from 'pro-naive-ui';
 
-import { PERMISSION } from '@/config/constants/permissionCodes';
 import {
   createDept,
   deleteDept,
@@ -19,6 +18,7 @@ import {
 } from '@/api/system/dept';
 import { getAllUserList } from '@/api/system/user';
 import TableAction from '@/components/common/TableAction.vue';
+import { PERMISSION } from '@/config/constants/permissionCodes';
 import { $t } from '@/locales';
 
 definePage({

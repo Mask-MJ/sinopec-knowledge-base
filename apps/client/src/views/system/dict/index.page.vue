@@ -5,7 +5,6 @@ import type { ProDataTableColumns } from 'pro-naive-ui';
 import { NTag } from 'naive-ui';
 import { createProModalForm } from 'pro-naive-ui';
 
-import { PERMISSION } from '@/config/constants/permissionCodes';
 import {
   createDict,
   createDictData,
@@ -19,6 +18,7 @@ import {
   updateDictData,
 } from '@/api/system/dict';
 import TableAction from '@/components/common/TableAction.vue';
+import { PERMISSION } from '@/config/constants/permissionCodes';
 import { $t } from '@/locales';
 
 definePage({

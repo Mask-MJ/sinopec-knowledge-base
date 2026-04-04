@@ -7,7 +7,6 @@ import { has } from 'lodash-es';
 import { NTag } from 'naive-ui';
 import { createProDrawerForm } from 'pro-naive-ui';
 
-import { PERMISSION } from '@/config/constants/permissionCodes';
 import {
   createMenu,
   deleteMenu,
@@ -16,6 +15,7 @@ import {
   updateMenu,
 } from '@/api/system/menu';
 import TableAction from '@/components/common/TableAction.vue';
+import { PERMISSION } from '@/config/constants/permissionCodes';
 import { $t } from '@/locales';
 import { transformationTree } from '@/utils';
 

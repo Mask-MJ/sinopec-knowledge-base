@@ -11,7 +11,6 @@ import {
   useNDataTable,
 } from 'pro-naive-ui';
 
-import { PERMISSION } from '@/config/constants/permissionCodes';
 import { getMenuList } from '@/api/system/menu';
 import {
   createRole,
@@ -21,6 +20,7 @@ import {
   updateRole,
 } from '@/api/system/role';
 import TableAction from '@/components/common/TableAction.vue';
+import { PERMISSION } from '@/config/constants/permissionCodes';
 import { $t } from '@/locales';
 import { transformationTree } from '@/utils';
 

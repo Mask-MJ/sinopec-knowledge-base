@@ -9,7 +9,6 @@ import {
   useNDataTable,
 } from 'pro-naive-ui';
 
-import { PERMISSION } from '@/config/constants/permissionCodes';
 import {
   createPost,
   deletePost,
@@ -18,6 +17,7 @@ import {
   updatePost,
 } from '@/api/system/post';
 import TableAction from '@/components/common/TableAction.vue';
+import { PERMISSION } from '@/config/constants/permissionCodes';
 import { $t } from '@/locales';
 
 definePage({
