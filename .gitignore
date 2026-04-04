@@ -76,6 +76,12 @@ yarn.lock
 package-lock.json
 
 # ========================
+# Agent skills (installed globally)
+# ========================
+.agent/
+.claude/settings.local.json
+
+# ========================
 # IDE & Editor
 # ========================
 .idea/
