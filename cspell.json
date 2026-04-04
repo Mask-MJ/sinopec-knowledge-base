@@ -55,6 +55,7 @@
   ],
   "ignorePaths": [
     "**/*.log",
+    "docs/**",
     "**/dist/**",
     "**/node_modules/**",
     "**/prisma/generated/**",

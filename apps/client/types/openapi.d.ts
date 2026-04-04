@@ -4,4114 +4,4218 @@
  */
 
 export interface paths {
-    "/api/auth/authentication/refresh-token": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        /** 刷新令牌 */
-        post: operations["AuthenticationController_refreshTokens"];
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
+  '/api/auth/authentication/refresh-token': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
     };
-    "/api/auth/authentication/sign-in": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        /** 登录 */
-        post: operations["AuthenticationController_signIn"];
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
+    get?: never;
+    put?: never;
+    /** 刷新令牌 */
+    post: operations['AuthenticationController_refreshTokens'];
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  '/api/auth/authentication/sign-in': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
     };
-    "/api/auth/authentication/sign-up": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        /** 注册 */
-        post: operations["AuthenticationController_signUp"];
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
+    get?: never;
+    put?: never;
+    /** 登录 */
+    post: operations['AuthenticationController_signIn'];
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  '/api/auth/authentication/sign-up': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
     };
-    "/api/system/user/changePassword": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        /** 修改自身密码 */
-        patch: operations["UserController_changePassword"];
-        trace?: never;
+    get?: never;
+    put?: never;
+    /** 注册 */
+    post: operations['AuthenticationController_signUp'];
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  '/api/system/user/changePassword': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
     };
-    "/api/system/user": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /** 获取用户列表（分页） */
-        get: operations["UserController_findWithPagination"];
-        put?: never;
-        /** 创建用户 */
-        post: operations["UserController_create"];
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
+    get?: never;
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    /** 修改自身密码 */
+    patch: operations['UserController_changePassword'];
+    trace?: never;
+  };
+  '/api/system/user': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
     };
-    "/api/system/user/{id}": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /** 获取单个用户信息 */
-        get: operations["UserController_findOne"];
-        put?: never;
-        post?: never;
-        /** 删除用户 */
-        delete: operations["UserController_delete"];
-        options?: never;
-        head?: never;
-        /** 更新用户 */
-        patch: operations["UserController_update"];
-        trace?: never;
+    /** 获取用户列表（分页） */
+    get: operations['UserController_findWithPagination'];
+    put?: never;
+    /** 创建用户 */
+    post: operations['UserController_create'];
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  '/api/system/user/{id}': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
     };
-    "/api/system/user/all": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /** 获取所有用户列表 */
-        get: operations["UserController_findAll"];
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
+    /**
+     * 获取单个用户信息
+     *     NOTE: `:id` 动态路由必须放在所有静态路由（'all', 'info', 'code'）之后，
+     *     否则静态路径会被动态参数捕获。
+     */
+    get: operations['UserController_findOne'];
+    put?: never;
+    post?: never;
+    /** 删除用户 */
+    delete: operations['UserController_delete'];
+    options?: never;
+    head?: never;
+    /** 更新用户 */
+    patch: operations['UserController_update'];
+    trace?: never;
+  };
+  '/api/system/user/all': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
     };
-    "/api/system/user/info": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /** 获取当前登录用户信息 */
-        get: operations["UserController_findSelf"];
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
+    /** 获取所有用户列表 */
+    get: operations['UserController_findAll'];
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  '/api/system/user/info': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
     };
-    "/api/system/user/code": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /** 获取当前登录用户权限码 */
-        get: operations["UserController_findSelfCode"];
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
+    /** 获取当前登录用户信息 */
+    get: operations['UserController_findSelf'];
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  '/api/system/user/code': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
     };
-    "/api/system/user/resetPassword": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        /** 管理员修改用户密码 */
-        patch: operations["UserController_resetPassword"];
-        trace?: never;
+    /** 获取当前登录用户权限码 */
+    get: operations['UserController_findSelfCode'];
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  '/api/system/user/resetPassword': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
     };
-    "/api/system/user/uploadAvatar": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        /** 上传用户头像 */
-        post: operations["UserController_upload"];
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
+    get?: never;
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    /** 管理员修改用户密码 */
+    patch: operations['UserController_resetPassword'];
+    trace?: never;
+  };
+  '/api/system/user/uploadAvatar': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
     };
-    "/api/system/dept": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /** 获取部门列表 */
-        get: operations["DeptController_findAll"];
-        put?: never;
-        /** 创建部门 */
-        post: operations["DeptController_create"];
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
+    get?: never;
+    put?: never;
+    /** 上传用户头像 */
+    post: operations['UserController_upload'];
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  '/api/system/dept': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
     };
-    "/api/system/dept/{id}": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /** 获取部门详情 */
-        get: operations["DeptController_findOne"];
-        put?: never;
-        post?: never;
-        /** 删除部门 */
-        delete: operations["DeptController_delete"];
-        options?: never;
-        head?: never;
-        /** 更新部门 */
-        patch: operations["DeptController_update"];
-        trace?: never;
+    /** 获取部门列表 */
+    get: operations['DeptController_findAll'];
+    put?: never;
+    /** 创建部门 */
+    post: operations['DeptController_create'];
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  '/api/system/dept/{id}': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
     };
-    "/api/system/dict": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /** 获取字典列表 */
-        get: operations["DictController_findAll"];
-        put?: never;
-        /** 创建字典 */
-        post: operations["DictController_create"];
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
+    /** 获取部门详情 */
+    get: operations['DeptController_findOne'];
+    put?: never;
+    post?: never;
+    /** 删除部门 */
+    delete: operations['DeptController_delete'];
+    options?: never;
+    head?: never;
+    /** 更新部门 */
+    patch: operations['DeptController_update'];
+    trace?: never;
+  };
+  '/api/system/dict': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
     };
-    "/api/system/dict/data": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /** 获取字典数据列表 */
-        get: operations["DictController_findAllData"];
-        put?: never;
-        /** 创建字典数据 */
-        post: operations["DictController_createData"];
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
+    /** 获取字典列表 */
+    get: operations['DictController_findAll'];
+    put?: never;
+    /** 创建字典 */
+    post: operations['DictController_create'];
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  '/api/system/dict/data': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
     };
-    "/api/system/dict/{id}": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /** 获取字典详情 */
-        get: operations["DictController_findOne"];
-        put?: never;
-        post?: never;
-        /** 删除字典 */
-        delete: operations["DictController_delete"];
-        options?: never;
-        head?: never;
-        /** 更新字典 */
-        patch: operations["DictController_update"];
-        trace?: never;
+    /** 获取字典数据列表 */
+    get: operations['DictController_findAllData'];
+    put?: never;
+    /** 创建字典数据 */
+    post: operations['DictController_createData'];
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  '/api/system/dict/{id}': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
     };
-    "/api/system/dict/data/{id}": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /** 获取字典数据详情 */
-        get: operations["DictController_findOneData"];
-        put?: never;
-        post?: never;
-        /** 删除字典数据 */
-        delete: operations["DictController_deleteData"];
-        options?: never;
-        head?: never;
-        /** 更新字典数据 */
-        patch: operations["DictController_updateData"];
-        trace?: never;
+    /** 获取字典详情 */
+    get: operations['DictController_findOne'];
+    put?: never;
+    post?: never;
+    /** 删除字典 */
+    delete: operations['DictController_delete'];
+    options?: never;
+    head?: never;
+    /** 更新字典 */
+    patch: operations['DictController_update'];
+    trace?: never;
+  };
+  '/api/system/dict/data/{id}': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
     };
-    "/api/system/menu": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /** 获取菜单列表 */
-        get: operations["MenuController_findAll"];
-        put?: never;
-        /** 创建菜单 */
-        post: operations["MenuController_create"];
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
+    /** 获取字典数据详情 */
+    get: operations['DictController_findOneData'];
+    put?: never;
+    post?: never;
+    /** 删除字典数据 */
+    delete: operations['DictController_deleteData'];
+    options?: never;
+    head?: never;
+    /** 更新字典数据 */
+    patch: operations['DictController_updateData'];
+    trace?: never;
+  };
+  '/api/system/menu': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
     };
-    "/api/system/menu/{id}": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /** 获取菜单详情 */
-        get: operations["MenuController_findOne"];
-        put?: never;
-        post?: never;
-        /** 删除菜单 */
-        delete: operations["MenuController_delete"];
-        options?: never;
-        head?: never;
-        /** 更新菜单 */
-        patch: operations["MenuController_update"];
-        trace?: never;
+    /** 获取菜单列表 */
+    get: operations['MenuController_findAll'];
+    put?: never;
+    /** 创建菜单 */
+    post: operations['MenuController_create'];
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  '/api/system/menu/{id}': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
     };
-    "/api/system/role": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /** 获取权限列表 */
-        get: operations["RoleController_findWithPagination"];
-        put?: never;
-        /** 创建权限 */
-        post: operations["RoleController_create"];
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
+    /** 获取菜单详情 */
+    get: operations['MenuController_findOne'];
+    put?: never;
+    post?: never;
+    /** 删除菜单 */
+    delete: operations['MenuController_delete'];
+    options?: never;
+    head?: never;
+    /** 更新菜单 */
+    patch: operations['MenuController_update'];
+    trace?: never;
+  };
+  '/api/system/role': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
     };
-    "/api/system/role/{id}": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /** 获取权限详情 */
-        get: operations["RoleController_findOne"];
-        put?: never;
-        post?: never;
-        /** 删除权限 */
-        delete: operations["RoleController_delete"];
-        options?: never;
-        head?: never;
-        /** 更新权限 */
-        patch: operations["RoleController_update"];
-        trace?: never;
+    /** 获取权限列表 */
+    get: operations['RoleController_findWithPagination'];
+    put?: never;
+    /** 创建权限 */
+    post: operations['RoleController_create'];
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  '/api/system/role/{id}': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
     };
-    "/api/system/post": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /** 获取岗位列表 */
-        get: operations["PostController_findWithPagination"];
-        put?: never;
-        /** 创建岗位 */
-        post: operations["PostController_create"];
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
+    /** 获取权限详情 */
+    get: operations['RoleController_findOne'];
+    put?: never;
+    post?: never;
+    /** 删除权限 */
+    delete: operations['RoleController_delete'];
+    options?: never;
+    head?: never;
+    /** 更新权限 */
+    patch: operations['RoleController_update'];
+    trace?: never;
+  };
+  '/api/system/post': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
     };
-    "/api/system/post/{id}": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /** 获取岗位详情 */
-        get: operations["PostController_findOne"];
-        put?: never;
-        post?: never;
-        /** 删除岗位 */
-        delete: operations["PostController_delete"];
-        options?: never;
-        head?: never;
-        /** 更新岗位 */
-        patch: operations["PostController_update"];
-        trace?: never;
+    /** 获取岗位列表 */
+    get: operations['PostController_findWithPagination'];
+    put?: never;
+    /** 创建岗位 */
+    post: operations['PostController_create'];
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  '/api/system/post/{id}': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
     };
-    "/api/monitor/info": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /** 运行信息 */
-        get: operations["InfoController_systemInfo"];
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
+    /** 获取岗位详情 */
+    get: operations['PostController_findOne'];
+    put?: never;
+    post?: never;
+    /** 删除岗位 */
+    delete: operations['PostController_delete'];
+    options?: never;
+    head?: never;
+    /** 更新岗位 */
+    patch: operations['PostController_update'];
+    trace?: never;
+  };
+  '/api/monitor/health': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
     };
-    "/api/monitor/login-log/{id}": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /** 获取登录日志详情 */
-        get: operations["LoginLogController_findOne"];
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
+    /** 健康检查 */
+    get: operations['HealthController_check'];
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  '/api/monitor/info': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
     };
-    "/api/monitor/login-log": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /** 获取登录日志列表 */
-        get: operations["LoginLogController_findWithPagination"];
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
+    /** 运行信息 */
+    get: operations['InfoController_systemInfo'];
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  '/api/monitor/login-log/{id}': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
     };
-    "/api/monitor/operation-log/{id}": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /** 获取操作日志详情 */
-        get: operations["OperationLogController_findOne"];
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
+    /** 获取登录日志详情 */
+    get: operations['LoginLogController_findOne'];
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  '/api/monitor/login-log': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
     };
-    "/api/monitor/operation-log": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /** 获取操作日志列表 */
-        get: operations["OperationLogController_findWithPagination"];
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
+    /** 获取登录日志列表 */
+    get: operations['LoginLogController_findWithPagination'];
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  '/api/monitor/operation-log/{id}': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
     };
-    "/api/knowledge-base/knowledge-base/{id}/documents/{documentId}/chunks": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /** 获取分块列表 */
-        get: operations["KnowledgeBaseController_findAllChunks"];
-        put?: never;
-        post: operations["KnowledgeBaseController_addChunk"];
-        /** 删除分块 */
-        delete: operations["KnowledgeBaseController_removeChunks"];
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
+    /** 获取操作日志详情 */
+    get: operations['OperationLogController_findOne'];
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  '/api/monitor/operation-log': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
     };
-    "/api/knowledge-base/knowledge-base": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /** 获取知识库列表 */
-        get: operations["KnowledgeBaseController_findAll"];
-        put?: never;
-        /** 创建知识库 */
-        post: operations["KnowledgeBaseController_create"];
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
+    /** 获取操作日志列表 */
+    get: operations['OperationLogController_findWithPagination'];
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  '/api/knowledge-base/{id}/documents/{documentId}/chunks': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
     };
-    "/api/knowledge-base/knowledge-base/{id}/documents/{documentId}": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /** 下载知识库文件 */
-        get: operations["KnowledgeBaseController_downloadDocument"];
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        /** 更新知识库文件 */
-        patch: operations["KnowledgeBaseController_updateDocument"];
-        trace?: never;
+    /** 获取分块列表 */
+    get: operations['KnowledgeBaseController_findAllChunks'];
+    put?: never;
+    post: operations['KnowledgeBaseController_addChunk'];
+    /** 删除分块 */
+    delete: operations['KnowledgeBaseController_removeChunks'];
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  '/api/knowledge-base': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
     };
-    "/api/knowledge-base/knowledge-base/{id}/documents": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get: operations["KnowledgeBaseController_findAllDocuments"];
-        put?: never;
-        /** 上传文件到指定知识库 */
-        post: operations["KnowledgeBaseController_uploadDocuments"];
-        /** 删除知识库文件 */
-        delete: operations["KnowledgeBaseController_removeDocuments"];
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
+    /** 获取知识库列表 */
+    get: operations['KnowledgeBaseController_findAll'];
+    put?: never;
+    /** 创建知识库 */
+    post: operations['KnowledgeBaseController_create'];
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  '/api/knowledge-base/{id}/documents/{documentId}': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
     };
-    "/api/knowledge-base/knowledge-base/{id}": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /** 获取知识库详情 */
-        get: operations["KnowledgeBaseController_findOne"];
-        put?: never;
-        post?: never;
-        /** 删除知识库 */
-        delete: operations["KnowledgeBaseController_remove"];
-        options?: never;
-        head?: never;
-        /** 更新知识库 */
-        patch: operations["KnowledgeBaseController_update"];
-        trace?: never;
+    /** 下载知识库文件 */
+    get: operations['KnowledgeBaseController_downloadDocument'];
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    /** 更新知识库文件 */
+    patch: operations['KnowledgeBaseController_updateDocument'];
+    trace?: never;
+  };
+  '/api/knowledge-base/{id}/documents': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
     };
-    "/api/knowledge-base/knowledge-base/{id}/metadata/summary": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /** 获取知识库元数据摘要 */
-        get: operations["KnowledgeBaseController_getMetadataSummary"];
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
+    get: operations['KnowledgeBaseController_findAllDocuments'];
+    put?: never;
+    /** 上传文件到指定知识库 */
+    post: operations['KnowledgeBaseController_uploadDocuments'];
+    /** 删除知识库文件 */
+    delete: operations['KnowledgeBaseController_removeDocuments'];
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  '/api/knowledge-base/{id}': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
     };
-    "/api/knowledge-base/knowledge-base/{id}/parse": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        /** 解析指定知识库中的文件 */
-        post: operations["KnowledgeBaseController_parseDocuments"];
-        /** 停止解析指定知识库中的文件 */
-        delete: operations["KnowledgeBaseController_stopParseDocuments"];
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
+    /** 获取知识库详情 */
+    get: operations['KnowledgeBaseController_findOne'];
+    put?: never;
+    post?: never;
+    /** 删除知识库 */
+    delete: operations['KnowledgeBaseController_remove'];
+    options?: never;
+    head?: never;
+    /** 更新知识库 */
+    patch: operations['KnowledgeBaseController_update'];
+    trace?: never;
+  };
+  '/api/knowledge-base/{id}/metadata/summary': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
     };
-    "/api/knowledge-base/knowledge-base/retrieval": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        post: operations["KnowledgeBaseController_retrieveChunks"];
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
+    /** 获取知识库元数据摘要 */
+    get: operations['KnowledgeBaseController_getMetadataSummary'];
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  '/api/knowledge-base/{id}/parse': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
     };
-    "/api/knowledge-base/knowledge-base/{id}/documents/{documentId}/chunks/{chunkId}": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        /** 更新分块 */
-        put: operations["KnowledgeBaseController_updateChunk"];
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
+    get?: never;
+    put?: never;
+    /** 解析指定知识库中的文件 */
+    post: operations['KnowledgeBaseController_parseDocuments'];
+    /** 停止解析指定知识库中的文件 */
+    delete: operations['KnowledgeBaseController_stopParseDocuments'];
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  '/api/knowledge-base/retrieval': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
     };
-    "/api/assistant/assistant/{id}/completions": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        /** 向指定的聊天助手提问以开始 AI 驱动的对话（SSE 流式响应） */
-        post: operations["AssistantController_completions"];
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
+    get?: never;
+    put?: never;
+    post: operations['KnowledgeBaseController_retrieveChunks'];
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  '/api/knowledge-base/{id}/documents/{documentId}/chunks/{chunkId}': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
     };
-    "/api/assistant/assistant": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /** 获取聊天助手列表 */
-        get: operations["AssistantController_findAll"];
-        put?: never;
-        /** 创建聊天助手 */
-        post: operations["AssistantController_create"];
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
+    get?: never;
+    /** 更新分块 */
+    put: operations['KnowledgeBaseController_updateChunk'];
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  '/api/assistant/{id}/completions': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
     };
-    "/api/assistant/assistant/{id}/sessions": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /** 获取与聊天助手的会话列表 */
-        get: operations["AssistantController_findAllSessions"];
-        put?: never;
-        /** 创建与聊天助手的会话 */
-        post: operations["AssistantController_createSession"];
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
+    get?: never;
+    put?: never;
+    /** 向指定的聊天助手提问以开始 AI 驱动的对话（SSE 流式响应） */
+    post: operations['AssistantController_completions'];
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  '/api/assistant': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
     };
-    "/api/assistant/assistant/{id}": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /** 获取聊天助手详情 */
-        get: operations["AssistantController_findOne"];
-        put?: never;
-        post?: never;
-        /** 删除聊天助手 */
-        delete: operations["AssistantController_remove"];
-        options?: never;
-        head?: never;
-        /** 更新聊天助手 */
-        patch: operations["AssistantController_update"];
-        trace?: never;
+    /** 获取聊天助手列表 */
+    get: operations['AssistantController_findAll'];
+    put?: never;
+    /** 创建聊天助手 */
+    post: operations['AssistantController_create'];
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  '/api/assistant/{id}/sessions': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
     };
-    "/api/assistant/assistant/{id}/sessions/{sessionId}": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        post?: never;
-        /** 删除与聊天助手的会话 */
-        delete: operations["AssistantController_removeSession"];
-        options?: never;
-        head?: never;
-        /** 更新与聊天助手的会话 */
-        patch: operations["AssistantController_updateSession"];
-        trace?: never;
+    /** 获取与聊天助手的会话列表 */
+    get: operations['AssistantController_findAllSessions'];
+    put?: never;
+    /** 创建与聊天助手的会话 */
+    post: operations['AssistantController_createSession'];
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  '/api/assistant/{id}': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
     };
+    /** 获取聊天助手详情 */
+    get: operations['AssistantController_findOne'];
+    put?: never;
+    post?: never;
+    /** 删除聊天助手 */
+    delete: operations['AssistantController_remove'];
+    options?: never;
+    head?: never;
+    /** 更新聊天助手 */
+    patch: operations['AssistantController_update'];
+    trace?: never;
+  };
+  '/api/assistant/{id}/sessions/{sessionId}': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    put?: never;
+    post?: never;
+    /** 删除与聊天助手的会话 */
+    delete: operations['AssistantController_removeSession'];
+    options?: never;
+    head?: never;
+    /** 更新与聊天助手的会话 */
+    patch: operations['AssistantController_updateSession'];
+    trace?: never;
+  };
 }
 export type webhooks = Record<string, never>;
 export interface components {
-    schemas: {
-        RefreshTokenDto: {
-            refreshToken: string;
-        };
-        SignInEntity: {
-            accessToken: string;
-            refreshToken: string;
-        };
-        SignInDto: {
-            /**
-             * @description 密码
-             * @example 123456
-             */
-            password: string;
-            /**
-             * @description 账号
-             * @example admin
-             */
-            username: string;
-        };
-        SignUpDto: {
-            /**
-             * @description 账号
-             * @example admin
-             */
-            username: string;
-            /**
-             * @description 昵称
-             * @example 管理员
-             */
-            nickname?: string;
-            /**
-             * @description 密码
-             * @example 123456
-             */
-            password: string;
-        };
-        ChangePasswordDto: {
-            oldPassword: string;
-            password: string;
-        };
-        MenuEntity: {
-            activeIcon: string | null;
-            activePath: string | null;
-            affixTab: boolean;
-            affixTabOrder: number;
-            badge: string | null;
-            badgeType: string;
-            badgeVariants: string;
-            children?: components["schemas"]["MenuEntity"][] | null;
-            hideChildrenInMenu: boolean;
-            hideInBreadcrumb: boolean;
-            hideInMenu: boolean;
-            hideInTab: boolean;
-            icon: string | null;
-            id: number;
-            iframeSrc: string | null;
-            keepAlive: boolean;
-            link: string | null;
-            maxNumOfOpenTabs: number | null;
-            name: string;
-            noBasicLayout: boolean;
-            openInNewWindow: boolean;
-            order: number;
-            parentId: number | null;
-            path: string;
-            permission: string;
-            query: string | null;
-            redirect: string | null;
-            status: boolean;
-            title: string | null;
-            type: string;
-        };
-        RoleEntity: {
-            /** Format: date-time */
-            createdAt: string;
-            id: number;
-            /** @description 关联的菜单列表 */
-            menus: components["schemas"]["MenuEntity"][];
-            name: string;
-            order: number;
-            remark: string;
-            status: boolean;
-            /** Format: date-time */
-            updatedAt: string;
-            value: string;
-        };
-        UserEntity: {
-            avatar: string;
-            /** Format: date-time */
-            createdAt: string;
-            deptId: number | null;
-            email: string;
-            id: number;
-            isAdmin: boolean;
-            isDeptAdmin: boolean;
-            nickname: string;
-            phoneNumber: string;
-            remark: string;
-            roleIds: number[];
-            roles: components["schemas"]["RoleEntity"][];
-            sex: string;
-            status: boolean;
-            /** Format: date-time */
-            updatedAt: string;
-            username: string;
-        };
-        CreateUserDto: {
-            /**
-             * Format: uri
-             * @description 头像
-             * @example http://xxx.com/xxx.jpg
-             */
-            avatar?: string;
-            /**
-             * @description 部门ID
-             * @example 1
-             */
-            deptId?: number;
-            /**
-             * Format: email
-             * @description 邮箱
-             * @example xxx@qq.com
-             */
-            email?: string;
-            /**
-             * @description 是否是部门管理员
-             * @default false
-             * @example true
-             */
-            isDeptAdmin: boolean;
-            /**
-             * @description 菜单ID
-             * @example [
-             *       1,
-             *       2
-             *     ]
-             */
-            menuIds?: number[];
-            /**
-             * @description 昵称
-             * @example 管理员
-             */
-            nickname?: string;
-            /**
-             * @description 密码
-             * @example 123456
-             */
-            password: string;
-            /**
-             * @description 手机号
-             * @example 18888888888
-             */
-            phoneNumber?: string;
-            /**
-             * @description 岗位ID
-             * @example 1
-             */
-            postId?: number;
-            /**
-             * @description 备注
-             * @example 备注
-             */
-            remark?: string;
-            /**
-             * @description 角色ID
-             * @example [
-             *       1,
-             *       2
-             *     ]
-             */
-            roleIds?: number[];
-            /**
-             * @description 性别 0: 女 1: 男 2: 未知
-             * @default 1
-             * @example 1
-             */
-            sex: string;
-            /**
-             * @description 状态 false: 禁用 true: 启用
-             * @default true
-             * @example true
-             */
-            status: boolean;
-            /**
-             * @description 账号
-             * @example admin
-             */
-            username: string;
-        };
-        PaginateResponse: {
-            /**
-             * @description 页码
-             * @default 1
-             * @example 1
-             */
-            current: number;
-            /**
-             * @description 每页数量
-             * @default 10
-             * @example 10
-             */
-            pageSize: number;
-        };
-        AdminChangePasswordDto: {
-            id: number;
-            password: string;
-        };
-        UpdateUserDto: {
-            /**
-             * Format: uri
-             * @description 头像
-             * @example http://xxx.com/xxx.jpg
-             */
-            avatar?: string;
-            /**
-             * @description 部门ID
-             * @example 1
-             */
-            deptId?: number;
-            /**
-             * Format: email
-             * @description 邮箱
-             * @example xxx@qq.com
-             */
-            email?: string;
-            /**
-             * @description 是否是部门管理员
-             * @default false
-             * @example true
-             */
-            isDeptAdmin: boolean;
-            /**
-             * @description 菜单ID
-             * @example [
-             *       1,
-             *       2
-             *     ]
-             */
-            menuIds?: number[];
-            /**
-             * @description 昵称
-             * @example 管理员
-             */
-            nickname?: string;
-            /**
-             * @description 密码
-             * @example 123456
-             */
-            password?: string;
-            /**
-             * @description 手机号
-             * @example 18888888888
-             */
-            phoneNumber?: string;
-            /**
-             * @description 岗位ID
-             * @example 1
-             */
-            postId?: number;
-            /**
-             * @description 备注
-             * @example 备注
-             */
-            remark?: string;
-            /**
-             * @description 角色ID
-             * @example [
-             *       1,
-             *       2
-             *     ]
-             */
-            roleIds?: number[];
-            /**
-             * @description 性别 0: 女 1: 男 2: 未知
-             * @default 1
-             * @example 1
-             */
-            sex: string;
-            /**
-             * @description 状态 false: 禁用 true: 启用
-             * @default true
-             * @example true
-             */
-            status: boolean;
-            /**
-             * @description 账号
-             * @example admin
-             */
-            username?: string;
-        };
-        CreateDeptDto: {
-            /**
-             * @description 邮箱
-             * @example xxx@qq.com
-             */
-            email?: string;
-            /**
-             * @description 负责人id
-             * @example 1
-             */
-            leaderId: number;
-            /**
-             * @description 部门名称
-             * @example 技术部
-             */
-            name: string;
-            /**
-             * @description 排序
-             * @example 1
-             */
-            order?: number;
-            /** @description 上级部门ID */
-            parentId?: number;
-            /**
-             * @description 负责人电话
-             * @example 13000000000
-             */
-            phone?: string;
-        };
-        DeptEntity: {
-            children?: components["schemas"]["DeptEntity"][] | null;
-            /** Format: date-time */
-            createdAt: string;
-            email: string;
-            id: number;
-            leader: string | null;
-            leaderId: number | null;
-            name: string;
-            order: number;
-            parentId: number | null;
-            phone: string;
-            /** Format: date-time */
-            updatedAt: string;
-        };
-        UpdateDeptDto: {
-            /**
-             * @description 邮箱
-             * @example xxx@qq.com
-             */
-            email?: string;
-            /**
-             * @description 负责人id
-             * @example 1
-             */
-            leaderId?: number;
-            /**
-             * @description 部门名称
-             * @example 技术部
-             */
-            name?: string;
-            /**
-             * @description 排序
-             * @example 1
-             */
-            order?: number;
-            /** @description 上级部门ID */
-            parentId?: number;
-            /**
-             * @description 负责人电话
-             * @example 13000000000
-             */
-            phone?: string;
-        };
-        CreateDictDto: {
-            /**
-             * @description 字典名称
-             * @example 性别
-             */
-            name: string;
-            /**
-             * @description 备注
-             * @example 备注
-             */
-            remark?: string;
-            /**
-             * @description 状态
-             * @example true
-             */
-            status?: boolean;
-            /**
-             * @description 字典值
-             * @example 1
-             */
-            value: string;
-        };
-        DictEntity: {
-            /** Format: date-time */
-            createdAt: string;
-            id: number;
-            name: string;
-            remark: string;
-            status: boolean;
-            /** Format: date-time */
-            updatedAt: string;
-            value: string;
-        };
-        CreateDictDataDto: {
-            /**
-             * @description 字典ID
-             * @example 1
-             */
-            dictId: number;
-            /**
-             * @description 字典数据名称
-             * @example 性别
-             */
-            name: string;
-            /**
-             * @description 排序
-             * @example 1
-             */
-            order?: number;
-            /**
-             * @description 备注
-             * @example 备注
-             */
-            remark?: string;
-            /**
-             * @description 状态 false: 禁用 true: 启用
-             * @default true
-             * @example true
-             */
-            status: boolean;
-            /**
-             * @description 字典数据值
-             * @example 1
-             */
-            value: string;
-        };
-        DictDataEntity: {
-            /** Format: date-time */
-            createdAt: string;
-            dictId: number;
-            id: number;
-            name: string;
-            order: number;
-            remark: string;
-            status: boolean;
-            updateBy: string | null;
-            /** Format: date-time */
-            updatedAt: string;
-            value: string;
-        };
-        UpdateDictDto: {
-            /**
-             * @description 字典名称
-             * @example 性别
-             */
-            name?: string;
-            /**
-             * @description 备注
-             * @example 备注
-             */
-            remark?: string;
-            /**
-             * @description 状态
-             * @example true
-             */
-            status?: boolean;
-            /**
-             * @description 字典值
-             * @example 1
-             */
-            value?: string;
-        };
-        UpdateDictDataDto: {
-            /**
-             * @description 字典ID
-             * @example 1
-             */
-            dictId?: number;
-            /**
-             * @description 字典数据名称
-             * @example 性别
-             */
-            name?: string;
-            /**
-             * @description 排序
-             * @example 1
-             */
-            order?: number;
-            /**
-             * @description 备注
-             * @example 备注
-             */
-            remark?: string;
-            /**
-             * @description 状态 false: 禁用 true: 启用
-             * @default true
-             * @example true
-             */
-            status: boolean;
-            /**
-             * @description 字典数据值
-             * @example 1
-             */
-            value?: string;
-        };
-        CreateMenuDto: {
-            /**
-             * @description 激活菜单图标
-             * @example i-line-md:external-link
-             */
-            activeIcon?: string;
-            /**
-             * @description 作为路由时，需要激活的菜单的Path
-             * @example /system
-             */
-            activePath?: string;
-            /**
-             * @description 固定在标签栏
-             * @default true
-             * @example true
-             */
-            affixTab: boolean;
-            /**
-             * @description 在标签栏固定的顺序
-             * @default 1
-             * @example 1
-             */
-            affixTabOrder: number;
-            /**
-             * @description 徽标内容 (当徽标类型为normal时有效)
-             * @example new
-             */
-            badge?: string;
-            /**
-             * @description 徽标类型
-             * @example dot
-             */
-            badgeType?: string;
-            /**
-             * @description 徽标颜色
-             * @example default
-             */
-            badgeVariants?: string;
-            /**
-             * @description 在菜单中隐藏下级
-             * @default false
-             * @example false
-             */
-            hideChildrenInMenu: boolean;
-            /**
-             * @description 在面包屑中隐藏
-             * @default false
-             * @example false
-             */
-            hideInBreadcrumb: boolean;
-            /**
-             * @description 在菜单中隐藏
-             * @default false
-             * @example false
-             */
-            hideInMenu: boolean;
-            /**
-             * @description 在标签栏中隐藏
-             * @default false
-             * @example false
-             */
-            hideInTab: boolean;
-            /**
-             * @description 菜单图标
-             * @example i-line-md:external-link
-             */
-            icon?: string;
-            /**
-             * @description 内嵌Iframe的URL
-             * @example www.example.com
-             */
-            iframeSrc?: string;
-            /**
-             * @description 是否缓存页面
-             * @default false
-             * @example false
-             */
-            keepAlive: boolean;
-            /**
-             * @description 外链页面的URL
-             * @example www.example.com
-             */
-            link?: string;
-            /**
-             * @description 同一个路由最大打开的标签数
-             * @default 1
-             * @example 1
-             */
-            maxNumOfOpenTabs: number;
-            /**
-             * @description 菜单名称
-             * @example 系统管理
-             */
-            name: string;
-            /**
-             * @description 无需基础布局
-             * @default false
-             * @example false
-             */
-            noBasicLayout: boolean;
-            /**
-             * @description 是否在新窗口打开
-             * @default false
-             * @example false
-             */
-            openInNewWindow: boolean;
-            /**
-             * @description 排序
-             * @default 1
-             * @example 1
-             */
-            order: number;
-            /**
-             * @description 父级菜单id
-             * @example 0
-             */
-            parentId?: number;
-            /**
-             * @description 菜单路径
-             * @example /system
-             */
-            path?: string;
-            /**
-             * @description 权限标识
-             * @example system:menu:list
-             */
-            permission?: string;
-            /**
-             * @description 额外的路由参数
-             * @example /:id
-             */
-            query?: string;
-            /**
-             * @description 重定向
-             * @example /system
-             */
-            redirect?: string;
-            /**
-             * @description 状态 false: 禁用 true: 启用
-             * @default true
-             * @example true
-             */
-            status: boolean;
-            /**
-             * @description 菜单标题 (配置页面的标题,配合国际化使用)
-             * @example "system.title
-             */
-            title?: string;
-            /**
-             * @description 菜单类别
-             * @example menu
-             */
-            type: string;
-        };
-        UpdateMenuDto: {
-            /**
-             * @description 激活菜单图标
-             * @example i-line-md:external-link
-             */
-            activeIcon?: string;
-            /**
-             * @description 作为路由时，需要激活的菜单的Path
-             * @example /system
-             */
-            activePath?: string;
-            /**
-             * @description 固定在标签栏
-             * @default true
-             * @example true
-             */
-            affixTab: boolean;
-            /**
-             * @description 在标签栏固定的顺序
-             * @default 1
-             * @example 1
-             */
-            affixTabOrder: number;
-            /**
-             * @description 徽标内容 (当徽标类型为normal时有效)
-             * @example new
-             */
-            badge?: string;
-            /**
-             * @description 徽标类型
-             * @example dot
-             */
-            badgeType?: string;
-            /**
-             * @description 徽标颜色
-             * @example default
-             */
-            badgeVariants?: string;
-            /**
-             * @description 在菜单中隐藏下级
-             * @default false
-             * @example false
-             */
-            hideChildrenInMenu: boolean;
-            /**
-             * @description 在面包屑中隐藏
-             * @default false
-             * @example false
-             */
-            hideInBreadcrumb: boolean;
-            /**
-             * @description 在菜单中隐藏
-             * @default false
-             * @example false
-             */
-            hideInMenu: boolean;
-            /**
-             * @description 在标签栏中隐藏
-             * @default false
-             * @example false
-             */
-            hideInTab: boolean;
-            /**
-             * @description 菜单图标
-             * @example i-line-md:external-link
-             */
-            icon?: string;
-            /**
-             * @description 内嵌Iframe的URL
-             * @example www.example.com
-             */
-            iframeSrc?: string;
-            /**
-             * @description 是否缓存页面
-             * @default false
-             * @example false
-             */
-            keepAlive: boolean;
-            /**
-             * @description 外链页面的URL
-             * @example www.example.com
-             */
-            link?: string;
-            /**
-             * @description 同一个路由最大打开的标签数
-             * @default 1
-             * @example 1
-             */
-            maxNumOfOpenTabs: number;
-            /**
-             * @description 菜单名称
-             * @example 系统管理
-             */
-            name: string;
-            /**
-             * @description 无需基础布局
-             * @default false
-             * @example false
-             */
-            noBasicLayout: boolean;
-            /**
-             * @description 是否在新窗口打开
-             * @default false
-             * @example false
-             */
-            openInNewWindow: boolean;
-            /**
-             * @description 排序
-             * @default 1
-             * @example 1
-             */
-            order: number;
-            /**
-             * @description 父级菜单id
-             * @example 0
-             */
-            parentId?: number;
-            /**
-             * @description 菜单路径
-             * @example /system
-             */
-            path?: string;
-            /**
-             * @description 权限标识
-             * @example system:menu:list
-             */
-            permission?: string;
-            /**
-             * @description 额外的路由参数
-             * @example /:id
-             */
-            query?: string;
-            /**
-             * @description 重定向
-             * @example /system
-             */
-            redirect?: string;
-            /**
-             * @description 状态 false: 禁用 true: 启用
-             * @default true
-             * @example true
-             */
-            status: boolean;
-            /**
-             * @description 菜单标题 (配置页面的标题,配合国际化使用)
-             * @example "system.title
-             */
-            title?: string;
-            /**
-             * @description 菜单类别
-             * @example menu
-             */
-            type: string;
-        };
-        CreateRoleDto: {
-            /**
-             * @description 菜单ID
-             * @example [
-             *       1,
-             *       2
-             *     ]
-             */
-            menuIds: number[];
-            /**
-             * @description 权限名称
-             * @example 管理员
-             */
-            name: string;
-            /**
-             * @description 排序
-             * @default 0
-             * @example 0
-             */
-            order: number;
-            /**
-             * @description 备注
-             * @example 备注
-             */
-            remark?: string;
-            /**
-             * @description 权限值
-             * @example admin
-             */
-            value: string;
-        };
-        UpdateRoleDto: {
-            /**
-             * @description 菜单ID
-             * @example [
-             *       1,
-             *       2
-             *     ]
-             */
-            menuIds?: number[];
-            /**
-             * @description 权限名称
-             * @example 管理员
-             */
-            name?: string;
-            /**
-             * @description 排序
-             * @default 0
-             * @example 0
-             */
-            order: number;
-            /**
-             * @description 备注
-             * @example 备注
-             */
-            remark?: string;
-            /**
-             * @description 权限值
-             * @example admin
-             */
-            value?: string;
-        };
-        CreatePostDto: {
-            /**
-             * @description 岗位编码
-             * @example tech
-             */
-            code: string;
-            /**
-             * @description 岗位名称
-             * @example 技术部
-             */
-            name: string;
-            /**
-             * @description 排序
-             * @example 1
-             */
-            order?: number;
-            /**
-             * @description 备注
-             * @example 这是一个技术部
-             */
-            remark?: string;
-        };
-        PostEntity: {
-            code: string;
-            /** Format: date-time */
-            createdAt: string;
-            id: number;
-            name: string;
-            order: number;
-            remark: string;
-            /** Format: date-time */
-            updatedAt: string;
-        };
-        UpdatePostDto: {
-            /**
-             * @description 岗位编码
-             * @example tech
-             */
-            code?: string;
-            /**
-             * @description 岗位名称
-             * @example 技术部
-             */
-            name?: string;
-            /**
-             * @description 排序
-             * @example 1
-             */
-            order?: number;
-            /**
-             * @description 备注
-             * @example 这是一个技术部
-             */
-            remark?: string;
-        };
-        InfoEntity: {
-            cpu: {
-                brand: string;
-                cores: number;
-                manufacturer: string;
-                speed: string;
-            };
-            memory: {
-                free: string;
-                total: string;
-                usage: string;
-                used: string;
-            };
-            osInfo: {
-                arch: string;
-                hostname: string;
-                platform: string;
-                release: string;
-            };
-        };
-        LoginLogEntity: {
-            address: string;
-            browser: string;
-            /** Format: date-time */
-            createdAt: string;
-            id: number;
-            ip: string;
-            /** Format: date-time */
-            loginTime: string;
-            message: string;
-            os: string;
-            status: boolean;
-            username: string;
-        };
-        OperationLogEntity: {
-            address: string;
-            businessType: number;
-            /** Format: date-time */
-            createdAt: string;
-            id: number;
-            ip: string;
-            module: string;
-            title: string;
-            username: string;
-        };
-        AddChunkDto: {
-            /**
-             * @description 分块内容
-             * @example 这是一段分块内容
-             */
-            content: string;
-            /**
-             * @description 关键词
-             * @example [
-             *       "关键词1",
-             *       "关键词2"
-             *     ]
-             */
-            importantKeywords?: string[];
-            /**
-             * @description 问题列表
-             * @example [
-             *       "问题1"
-             *     ]
-             */
-            questions?: string[];
-        };
-        CreateKnowledgeBaseDto: {
-            /**
-             * @description 知识库头像（Base64）
-             * @example https://example.com/avatar.png
-             */
-            avatar?: string;
-            /**
-             * @description 解析方法
-             * @default naive
-             * @example naive
-             */
-            chunkMethod: string;
-            /**
-             * @description 描述
-             * @default
-             * @example 这是一个知识库
-             */
-            description: string;
-            /**
-             * @description 嵌入模型
-             * @default text-embedding-v4@Tongyi-Qianwen
-             * @example text-embedding-v4@Tongyi-Qianwen
-             */
-            embeddingModel: string;
-            /**
-             * @description 知识库名称
-             * @example 知识库1
-             */
-            name: string;
-            /**
-             * @description 排序
-             * @example 1
-             */
-            order?: number;
-            /**
-             * @description 权限标识 "me" | "team"
-             * @example me
-             */
-            permission?: string;
-        };
-        KnowledgeBaseEntity: {
-            avatar: string | null;
-            chunkMethod: string;
-            createBy: string;
-            /** Format: date-time */
-            createdAt: string;
-            datasetId: string | null;
-            deptId: number | null;
-            description: string | null;
-            embeddingModel: string;
-            id: number;
-            name: string;
-            order: number;
-            parserConfig: Record<string, never>;
-            permission: string | null;
-            updateBy: string | null;
-            /** Format: date-time */
-            updatedAt: string;
-        };
-        ParseDocumentDto: {
-            /**
-             * @description 文件ID列表
-             * @example [
-             *       "78e5ae6691db11f084d3fa341edb7c4d"
-             *     ]
-             */
-            documentIds: string[];
-        };
-        DeleteChunkDto: {
-            /**
-             * @description 分块ID列表
-             * @example [
-             *       "chunk_id_1",
-             *       "chunk_id_2"
-             *     ]
-             */
-            chunkIds: string[];
-        };
-        DeleteDocumentDto: {
-            /**
-             * @description 文件ID列表
-             * @example [
-             *       "78e5ae6691db11f084d3fa341edb7c4d"
-             *     ]
-             */
-            documentIds: string[];
-        };
-        RetrieveChunkDto: {
-            /**
-             * @description 数据集ID列表
-             * @example [
-             *       "dataset_id_1"
-             *     ]
-             */
-            datasetIds?: string[];
-            /**
-             * @description 文档ID列表
-             * @example [
-             *       "document_id_1"
-             *     ]
-             */
-            documentIds?: string[];
-            /**
-             * @description 是否高亮
-             * @example false
-             */
-            highlight?: boolean;
-            /**
-             * @description 页码
-             * @example 1
-             */
-            page?: number;
-            /**
-             * @description 每页数量
-             * @example 30
-             */
-            pageSize?: number;
-            /**
-             * @description 检索问题
-             * @example 什么是RAGFlow?
-             */
-            question: string;
-            /**
-             * @description 相似度阈值
-             * @example 0.2
-             */
-            similarityThreshold?: number;
-            /**
-             * @description Top K
-             * @example 1024
-             */
-            topK?: number;
-            /**
-             * @description 是否使用知识图谱
-             * @example false
-             */
-            useKg?: boolean;
-            /**
-             * @description 向量相似度权重
-             * @example 0.3
-             */
-            vectorSimilarityWeight?: number;
-        };
-        UpdateKnowledgeBaseDto: {
-            /**
-             * @description 知识库头像（Base64）
-             * @example https://example.com/avatar.png
-             */
-            avatar?: string;
-            /**
-             * @description 解析方法
-             * @default naive
-             * @example naive
-             */
-            chunkMethod: string;
-            /**
-             * @description 描述
-             * @default
-             * @example 这是一个知识库
-             */
-            description: string;
-            /**
-             * @description 知识库名称
-             * @example 知识库1
-             */
-            name?: string;
-            /**
-             * @description 排序
-             * @example 1
-             */
-            order?: number;
-            /**
-             * @description 权限标识 "me" | "team"
-             * @example me
-             */
-            permission?: string;
-        };
-        UpdateChunkDto: {
-            /**
-             * @description 是否可用
-             * @example true
-             */
-            available?: boolean;
-            /**
-             * @description 分块内容
-             * @example 更新后的分块内容
-             */
-            content?: string;
-            /**
-             * @description 关键词
-             * @example [
-             *       "关键词1",
-             *       "关键词2"
-             *     ]
-             */
-            importantKeywords?: string[];
-        };
-        UpdateDocumentDto: {
-            /**
-             * @description 解析方法
-             * @default naive
-             * @example naive
-             */
-            chunkMethod: string;
-            /**
-             * @description 文档名称
-             * @example 文档1
-             */
-            name?: string;
-        };
-        FilesUploadDto: {
-            /** @description 上传的文件列表 */
-            files: string[];
-            /**
-             * @description 文件类型
-             * @example images
-             * @enum {string}
-             */
-            type: "audios" | "images" | "videos";
-        };
-        CreateCompletionsDto: {
-            /**
-             * @description 开始人工智能对话的问题
-             * @example 你好
-             */
-            question: string;
-            /**
-             * @description 会话ID
-             * @example session_id
-             */
-            sessionId?: string;
-            /**
-             * @description 是否开启流式响应
-             * @example true
-             */
-            stream?: boolean;
-        };
-        SessionEntity: {
-            /** @description 关联的助手聊天 ID */
-            chatId: string;
-            /** @description 创建日期 */
-            createDate: string;
-            /** @description 会话 ID */
-            id: string;
-            messages: {
-                content: string;
-                role: string;
-            }[];
-            /** @description 会话名称 */
-            name: string;
-            /** @description 更新日期 */
-            updateDate: string;
-        };
-        CreateAssistantDto: {
-            /**
-             * @description 助手头像
-             * @example https://example.com/avatar.png
-             */
-            avatar?: string;
-            /**
-             * @description 助手描述
-             * @example 这是一个智能助手
-             */
-            description?: string;
-            /**
-             * @description 空响应返回内容
-             * @example 无
-             */
-            emptyResponse?: string;
-            /**
-             * @description 频率惩罚
-             * @default 0.7
-             * @example 0.7
-             */
-            frequencyPenalty: number;
-            /**
-             * @description 关键词相似度权重
-             * @default 0.7
-             * @example 0.7
-             */
-            keywordsSimilarityWeight: number;
-            /**
-             * @description 最大生成长度
-             * @default 512
-             * @example 512
-             */
-            maxTokens: number;
-            /**
-             * @description 聊天模型名称
-             * @default deepseek-r1@Tongyi-Qianwen
-             * @example deepseek-r1@Tongyi-Qianwen
-             */
-            modelName: string;
-            /**
-             * @description 助手名称
-             * @example 助手1
-             */
-            name: string;
-            /**
-             * @description 开场问候语
-             * @example 你好，我是你的助手。
-             */
-            opener?: string;
-            /**
-             * @description 存在惩罚
-             * @default 0.4
-             * @example 0.4
-             */
-            presencePenalty: number;
-            /**
-             * @description 提示词模板
-             * @example <prompt>
-             */
-            prompt?: string;
-            /**
-             * @description 加权关键字相似度
-             * @default 0.2
-             * @example 0.2
-             */
-            similarityThreshold: number;
-            /**
-             * @description 温度
-             * @default 0.1
-             * @example 0.1
-             */
-            temperature: number;
-            /**
-             * @description 重新排序或选择前 k 个项目
-             * @default 1024
-             * @example 1024
-             */
-            topK: number;
-            /**
-             * @description 生成的回复数量
-             * @default 6
-             * @example 6
-             */
-            topN: number;
-            /**
-             * @description 核心采样
-             * @default 0.3
-             * @example 0.3
-             */
-            topP: number;
-        };
-        AssistantEntity: {
-            /** @description 外部助手 ID */
-            assistantId: string | null;
-            /** @description 助手头像 URL */
-            avatar: string | null;
-            /**
-             * Format: date-time
-             * @description 创建时间
-             */
-            createdAt: string;
-            /** @description 助手描述 */
-            description: string | null;
-            /** @description 空响应返回内容 */
-            emptyResponse: string | null;
-            /** @description 频率惩罚 */
-            frequencyPenalty: number;
-            /** @description 主键 ID */
-            id: number;
-            /** @description 关键词相似度权重 */
-            keywordsSimilarityWeight: number;
-            /** @description 最大生成长度 */
-            maxTokens: number;
-            /** @description 聊天模型名称 */
-            modelName: string;
-            /** @description 助手名称 */
-            name: string;
-            /** @description 开场问候语 */
-            opener: string | null;
-            /** @description 存在惩罚 */
-            presencePenalty: number;
-            /** @description 提示词模板 */
-            prompt: string | null;
-            /** @description 加权关键字相似度 */
-            similarityThreshold: number;
-            /** @description 温度 */
-            temperature: number;
-            /** @description 重新排序或选择前 k 个项目 */
-            topK: number;
-            /** @description 生成的回复数量 */
-            topN: number;
-            /** @description 核心采样 */
-            topP: number;
-            /**
-             * Format: date-time
-             * @description 更新时间
-             */
-            updatedAt: string;
-            /** @description 所属用户 ID */
-            userId: number;
-        };
-        CreateSessionDto: {
-            /**
-             * @description 会话名称
-             * @example 会话1
-             */
-            name?: string;
-        };
-        UpdateAssistantDto: {
-            /**
-             * @description 助手头像
-             * @example https://example.com/avatar.png
-             */
-            avatar?: string;
-            /**
-             * @description 助手描述
-             * @example 这是一个智能助手
-             */
-            description?: string;
-            /**
-             * @description 空响应返回内容
-             * @example 无
-             */
-            emptyResponse?: string;
-            /**
-             * @description 频率惩罚
-             * @default 0.7
-             * @example 0.7
-             */
-            frequencyPenalty: number;
-            /**
-             * @description 关键词相似度权重
-             * @default 0.7
-             * @example 0.7
-             */
-            keywordsSimilarityWeight: number;
-            /**
-             * @description 最大生成长度
-             * @default 512
-             * @example 512
-             */
-            maxTokens: number;
-            /**
-             * @description 聊天模型名称
-             * @default deepseek-r1@Tongyi-Qianwen
-             * @example deepseek-r1@Tongyi-Qianwen
-             */
-            modelName: string;
-            /**
-             * @description 助手名称
-             * @example 助手1
-             */
-            name?: string;
-            /**
-             * @description 开场问候语
-             * @example 你好，我是你的助手。
-             */
-            opener?: string;
-            /**
-             * @description 存在惩罚
-             * @default 0.4
-             * @example 0.4
-             */
-            presencePenalty: number;
-            /**
-             * @description 提示词模板
-             * @example <prompt>
-             */
-            prompt?: string;
-            /**
-             * @description 加权关键字相似度
-             * @default 0.2
-             * @example 0.2
-             */
-            similarityThreshold: number;
-            /**
-             * @description 温度
-             * @default 0.1
-             * @example 0.1
-             */
-            temperature: number;
-            /**
-             * @description 重新排序或选择前 k 个项目
-             * @default 1024
-             * @example 1024
-             */
-            topK: number;
-            /**
-             * @description 生成的回复数量
-             * @default 6
-             * @example 6
-             */
-            topN: number;
-            /**
-             * @description 核心采样
-             * @default 0.3
-             * @example 0.3
-             */
-            topP: number;
-        };
-        UpdateSessionDto: {
-            /**
-             * @description 会话名称
-             * @example 会话1
-             */
-            name?: string;
-        };
+  schemas: {
+    RefreshTokenDto: {
+      refreshToken: string;
     };
-    responses: never;
-    parameters: never;
-    requestBodies: never;
-    headers: never;
-    pathItems: never;
+    SignInEntity: {
+      accessToken: string;
+      refreshToken: string;
+    };
+    SignInDto: {
+      /**
+       * @description 密码
+       * @example 123456
+       */
+      password: string;
+      /**
+       * @description 账号
+       * @example admin
+       */
+      username: string;
+    };
+    SignUpDto: {
+      /**
+       * @description 账号
+       * @example admin
+       */
+      username: string;
+      /**
+       * @description 昵称
+       * @example 管理员
+       */
+      nickname?: string;
+      /**
+       * @description 密码
+       * @example 123456
+       */
+      password: string;
+    };
+    ChangePasswordDto: {
+      oldPassword: string;
+      password: string;
+    };
+    MenuEntity: {
+      activeIcon: string | null;
+      activePath: string | null;
+      affixTab: boolean;
+      affixTabOrder: number;
+      badge: string | null;
+      badgeType: string;
+      badgeVariants: string;
+      children?: components['schemas']['MenuEntity'][] | null;
+      hideChildrenInMenu: boolean;
+      hideInBreadcrumb: boolean;
+      hideInMenu: boolean;
+      hideInTab: boolean;
+      icon: string | null;
+      id: number;
+      iframeSrc: string | null;
+      keepAlive: boolean;
+      link: string | null;
+      maxNumOfOpenTabs: number | null;
+      name: string;
+      noBasicLayout: boolean;
+      openInNewWindow: boolean;
+      order: number;
+      parentId: number | null;
+      path: string;
+      permission: string;
+      query: string | null;
+      redirect: string | null;
+      status: boolean;
+      title: string | null;
+      type: string;
+    };
+    RoleEntity: {
+      /** Format: date-time */
+      createdAt: string;
+      id: number;
+      /** @description 关联的菜单列表 */
+      menus: components['schemas']['MenuEntity'][];
+      name: string;
+      order: number;
+      remark: string;
+      status: boolean;
+      /** Format: date-time */
+      updatedAt: string;
+      value: string;
+    };
+    UserEntity: {
+      avatar: string;
+      /** Format: date-time */
+      createdAt: string;
+      deptId: number | null;
+      email: string;
+      id: number;
+      isAdmin: boolean;
+      isDeptAdmin: boolean;
+      nickname: string;
+      phoneNumber: string;
+      remark: string;
+      roleIds: number[];
+      roles: components['schemas']['RoleEntity'][];
+      sex: string;
+      status: boolean;
+      /** Format: date-time */
+      updatedAt: string;
+      username: string;
+    };
+    CreateUserDto: {
+      /**
+       * Format: uri
+       * @description 头像
+       * @example http://xxx.com/xxx.jpg
+       */
+      avatar?: string;
+      /**
+       * @description 部门ID
+       * @example 1
+       */
+      deptId?: number;
+      /**
+       * Format: email
+       * @description 邮箱
+       * @example xxx@qq.com
+       */
+      email?: string;
+      /**
+       * @description 是否是部门管理员
+       * @default false
+       * @example true
+       */
+      isDeptAdmin: boolean;
+      /**
+       * @description 菜单ID
+       * @example [
+       *       1,
+       *       2
+       *     ]
+       */
+      menuIds?: number[];
+      /**
+       * @description 昵称
+       * @example 管理员
+       */
+      nickname?: string;
+      /**
+       * @description 密码
+       * @example 123456
+       */
+      password: string;
+      /**
+       * @description 手机号
+       * @example 18888888888
+       */
+      phoneNumber?: string;
+      /**
+       * @description 岗位ID
+       * @example 1
+       */
+      postId?: number;
+      /**
+       * @description 备注
+       * @example 备注
+       */
+      remark?: string;
+      /**
+       * @description 角色ID
+       * @example [
+       *       1,
+       *       2
+       *     ]
+       */
+      roleIds?: number[];
+      /**
+       * @description 性别 0: 女 1: 男 2: 未知
+       * @default 1
+       * @example 1
+       */
+      sex: string;
+      /**
+       * @description 状态 false: 禁用 true: 启用
+       * @default true
+       * @example true
+       */
+      status: boolean;
+      /**
+       * @description 账号
+       * @example admin
+       */
+      username: string;
+    };
+    PaginateResponse: {
+      /**
+       * @description 页码
+       * @default 1
+       * @example 1
+       */
+      current: number;
+      /**
+       * @description 每页数量
+       * @default 10
+       * @example 10
+       */
+      pageSize: number;
+    };
+    AdminChangePasswordDto: {
+      id: number;
+      password: string;
+    };
+    UpdateUserDto: {
+      /**
+       * Format: uri
+       * @description 头像
+       * @example http://xxx.com/xxx.jpg
+       */
+      avatar?: string;
+      /**
+       * @description 部门ID
+       * @example 1
+       */
+      deptId?: number;
+      /**
+       * Format: email
+       * @description 邮箱
+       * @example xxx@qq.com
+       */
+      email?: string;
+      /**
+       * @description 是否是部门管理员
+       * @default false
+       * @example true
+       */
+      isDeptAdmin: boolean;
+      /**
+       * @description 菜单ID
+       * @example [
+       *       1,
+       *       2
+       *     ]
+       */
+      menuIds?: number[];
+      /**
+       * @description 昵称
+       * @example 管理员
+       */
+      nickname?: string;
+      /**
+       * @description 密码
+       * @example 123456
+       */
+      password?: string;
+      /**
+       * @description 手机号
+       * @example 18888888888
+       */
+      phoneNumber?: string;
+      /**
+       * @description 岗位ID
+       * @example 1
+       */
+      postId?: number;
+      /**
+       * @description 备注
+       * @example 备注
+       */
+      remark?: string;
+      /**
+       * @description 角色ID
+       * @example [
+       *       1,
+       *       2
+       *     ]
+       */
+      roleIds?: number[];
+      /**
+       * @description 性别 0: 女 1: 男 2: 未知
+       * @default 1
+       * @example 1
+       */
+      sex: string;
+      /**
+       * @description 状态 false: 禁用 true: 启用
+       * @default true
+       * @example true
+       */
+      status: boolean;
+      /**
+       * @description 账号
+       * @example admin
+       */
+      username?: string;
+    };
+    CreateDeptDto: {
+      /**
+       * @description 邮箱
+       * @example xxx@qq.com
+       */
+      email?: string;
+      /**
+       * @description 负责人id
+       * @example 1
+       */
+      leaderId: number;
+      /**
+       * @description 部门名称
+       * @example 技术部
+       */
+      name: string;
+      /**
+       * @description 排序
+       * @example 1
+       */
+      order?: number;
+      /** @description 上级部门ID */
+      parentId?: number;
+      /**
+       * @description 负责人电话
+       * @example 13000000000
+       */
+      phone?: string;
+    };
+    DeptEntity: {
+      children?: components['schemas']['DeptEntity'][] | null;
+      /** Format: date-time */
+      createdAt: string;
+      email: string;
+      id: number;
+      leader: string | null;
+      leaderId: number | null;
+      name: string;
+      order: number;
+      parentId: number | null;
+      phone: string;
+      /** Format: date-time */
+      updatedAt: string;
+    };
+    UpdateDeptDto: {
+      /**
+       * @description 邮箱
+       * @example xxx@qq.com
+       */
+      email?: string;
+      /**
+       * @description 负责人id
+       * @example 1
+       */
+      leaderId?: number;
+      /**
+       * @description 部门名称
+       * @example 技术部
+       */
+      name?: string;
+      /**
+       * @description 排序
+       * @example 1
+       */
+      order?: number;
+      /** @description 上级部门ID */
+      parentId?: number;
+      /**
+       * @description 负责人电话
+       * @example 13000000000
+       */
+      phone?: string;
+    };
+    CreateDictDto: {
+      /**
+       * @description 字典名称
+       * @example 性别
+       */
+      name: string;
+      /**
+       * @description 备注
+       * @example 备注
+       */
+      remark?: string;
+      /**
+       * @description 状态
+       * @example true
+       */
+      status?: boolean;
+      /**
+       * @description 字典值
+       * @example 1
+       */
+      value: string;
+    };
+    DictEntity: {
+      /** Format: date-time */
+      createdAt: string;
+      id: number;
+      name: string;
+      remark: string;
+      status: boolean;
+      /** Format: date-time */
+      updatedAt: string;
+      value: string;
+    };
+    CreateDictDataDto: {
+      /**
+       * @description 字典ID
+       * @example 1
+       */
+      dictId: number;
+      /**
+       * @description 字典数据名称
+       * @example 性别
+       */
+      name: string;
+      /**
+       * @description 排序
+       * @example 1
+       */
+      order?: number;
+      /**
+       * @description 备注
+       * @example 备注
+       */
+      remark?: string;
+      /**
+       * @description 状态 false: 禁用 true: 启用
+       * @default true
+       * @example true
+       */
+      status: boolean;
+      /**
+       * @description 字典数据值
+       * @example 1
+       */
+      value: string;
+    };
+    DictDataEntity: {
+      /** Format: date-time */
+      createdAt: string;
+      dictId: number;
+      id: number;
+      name: string;
+      order: number;
+      remark: string;
+      status: boolean;
+      updateBy: string | null;
+      /** Format: date-time */
+      updatedAt: string;
+      value: string;
+    };
+    UpdateDictDto: {
+      /**
+       * @description 字典名称
+       * @example 性别
+       */
+      name?: string;
+      /**
+       * @description 备注
+       * @example 备注
+       */
+      remark?: string;
+      /**
+       * @description 状态
+       * @example true
+       */
+      status?: boolean;
+      /**
+       * @description 字典值
+       * @example 1
+       */
+      value?: string;
+    };
+    UpdateDictDataDto: {
+      /**
+       * @description 字典ID
+       * @example 1
+       */
+      dictId?: number;
+      /**
+       * @description 字典数据名称
+       * @example 性别
+       */
+      name?: string;
+      /**
+       * @description 排序
+       * @example 1
+       */
+      order?: number;
+      /**
+       * @description 备注
+       * @example 备注
+       */
+      remark?: string;
+      /**
+       * @description 状态 false: 禁用 true: 启用
+       * @default true
+       * @example true
+       */
+      status: boolean;
+      /**
+       * @description 字典数据值
+       * @example 1
+       */
+      value?: string;
+    };
+    CreateMenuDto: {
+      /**
+       * @description 激活菜单图标
+       * @example i-line-md:external-link
+       */
+      activeIcon?: string;
+      /**
+       * @description 作为路由时，需要激活的菜单的Path
+       * @example /system
+       */
+      activePath?: string;
+      /**
+       * @description 固定在标签栏
+       * @default true
+       * @example true
+       */
+      affixTab: boolean;
+      /**
+       * @description 在标签栏固定的顺序
+       * @default 1
+       * @example 1
+       */
+      affixTabOrder: number;
+      /**
+       * @description 徽标内容 (当徽标类型为normal时有效)
+       * @example new
+       */
+      badge?: string;
+      /**
+       * @description 徽标类型
+       * @example dot
+       */
+      badgeType?: string;
+      /**
+       * @description 徽标颜色
+       * @example default
+       */
+      badgeVariants?: string;
+      /**
+       * @description 在菜单中隐藏下级
+       * @default false
+       * @example false
+       */
+      hideChildrenInMenu: boolean;
+      /**
+       * @description 在面包屑中隐藏
+       * @default false
+       * @example false
+       */
+      hideInBreadcrumb: boolean;
+      /**
+       * @description 在菜单中隐藏
+       * @default false
+       * @example false
+       */
+      hideInMenu: boolean;
+      /**
+       * @description 在标签栏中隐藏
+       * @default false
+       * @example false
+       */
+      hideInTab: boolean;
+      /**
+       * @description 菜单图标
+       * @example i-line-md:external-link
+       */
+      icon?: string;
+      /**
+       * @description 内嵌Iframe的URL
+       * @example www.example.com
+       */
+      iframeSrc?: string;
+      /**
+       * @description 是否缓存页面
+       * @default false
+       * @example false
+       */
+      keepAlive: boolean;
+      /**
+       * @description 外链页面的URL
+       * @example www.example.com
+       */
+      link?: string;
+      /**
+       * @description 同一个路由最大打开的标签数
+       * @default 1
+       * @example 1
+       */
+      maxNumOfOpenTabs: number;
+      /**
+       * @description 菜单名称
+       * @example 系统管理
+       */
+      name: string;
+      /**
+       * @description 无需基础布局
+       * @default false
+       * @example false
+       */
+      noBasicLayout: boolean;
+      /**
+       * @description 是否在新窗口打开
+       * @default false
+       * @example false
+       */
+      openInNewWindow: boolean;
+      /**
+       * @description 排序
+       * @default 1
+       * @example 1
+       */
+      order: number;
+      /**
+       * @description 父级菜单id
+       * @example 0
+       */
+      parentId?: number;
+      /**
+       * @description 菜单路径
+       * @example /system
+       */
+      path?: string;
+      /**
+       * @description 权限标识
+       * @example system:menu:list
+       */
+      permission?: string;
+      /**
+       * @description 额外的路由参数
+       * @example /:id
+       */
+      query?: string;
+      /**
+       * @description 重定向
+       * @example /system
+       */
+      redirect?: string;
+      /**
+       * @description 状态 false: 禁用 true: 启用
+       * @default true
+       * @example true
+       */
+      status: boolean;
+      /**
+       * @description 菜单标题 (配置页面的标题,配合国际化使用)
+       * @example "system.title
+       */
+      title?: string;
+      /**
+       * @description 菜单类别
+       * @example menu
+       */
+      type: string;
+    };
+    UpdateMenuDto: {
+      /**
+       * @description 激活菜单图标
+       * @example i-line-md:external-link
+       */
+      activeIcon?: string;
+      /**
+       * @description 作为路由时，需要激活的菜单的Path
+       * @example /system
+       */
+      activePath?: string;
+      /**
+       * @description 固定在标签栏
+       * @default true
+       * @example true
+       */
+      affixTab: boolean;
+      /**
+       * @description 在标签栏固定的顺序
+       * @default 1
+       * @example 1
+       */
+      affixTabOrder: number;
+      /**
+       * @description 徽标内容 (当徽标类型为normal时有效)
+       * @example new
+       */
+      badge?: string;
+      /**
+       * @description 徽标类型
+       * @example dot
+       */
+      badgeType?: string;
+      /**
+       * @description 徽标颜色
+       * @example default
+       */
+      badgeVariants?: string;
+      /**
+       * @description 在菜单中隐藏下级
+       * @default false
+       * @example false
+       */
+      hideChildrenInMenu: boolean;
+      /**
+       * @description 在面包屑中隐藏
+       * @default false
+       * @example false
+       */
+      hideInBreadcrumb: boolean;
+      /**
+       * @description 在菜单中隐藏
+       * @default false
+       * @example false
+       */
+      hideInMenu: boolean;
+      /**
+       * @description 在标签栏中隐藏
+       * @default false
+       * @example false
+       */
+      hideInTab: boolean;
+      /**
+       * @description 菜单图标
+       * @example i-line-md:external-link
+       */
+      icon?: string;
+      /**
+       * @description 内嵌Iframe的URL
+       * @example www.example.com
+       */
+      iframeSrc?: string;
+      /**
+       * @description 是否缓存页面
+       * @default false
+       * @example false
+       */
+      keepAlive: boolean;
+      /**
+       * @description 外链页面的URL
+       * @example www.example.com
+       */
+      link?: string;
+      /**
+       * @description 同一个路由最大打开的标签数
+       * @default 1
+       * @example 1
+       */
+      maxNumOfOpenTabs: number;
+      /**
+       * @description 菜单名称
+       * @example 系统管理
+       */
+      name: string;
+      /**
+       * @description 无需基础布局
+       * @default false
+       * @example false
+       */
+      noBasicLayout: boolean;
+      /**
+       * @description 是否在新窗口打开
+       * @default false
+       * @example false
+       */
+      openInNewWindow: boolean;
+      /**
+       * @description 排序
+       * @default 1
+       * @example 1
+       */
+      order: number;
+      /**
+       * @description 父级菜单id
+       * @example 0
+       */
+      parentId?: number;
+      /**
+       * @description 菜单路径
+       * @example /system
+       */
+      path?: string;
+      /**
+       * @description 权限标识
+       * @example system:menu:list
+       */
+      permission?: string;
+      /**
+       * @description 额外的路由参数
+       * @example /:id
+       */
+      query?: string;
+      /**
+       * @description 重定向
+       * @example /system
+       */
+      redirect?: string;
+      /**
+       * @description 状态 false: 禁用 true: 启用
+       * @default true
+       * @example true
+       */
+      status: boolean;
+      /**
+       * @description 菜单标题 (配置页面的标题,配合国际化使用)
+       * @example "system.title
+       */
+      title?: string;
+      /**
+       * @description 菜单类别
+       * @example menu
+       */
+      type: string;
+    };
+    CreateRoleDto: {
+      /**
+       * @description 菜单ID
+       * @example [
+       *       1,
+       *       2
+       *     ]
+       */
+      menuIds: number[];
+      /**
+       * @description 权限名称
+       * @example 管理员
+       */
+      name: string;
+      /**
+       * @description 排序
+       * @default 0
+       * @example 0
+       */
+      order: number;
+      /**
+       * @description 备注
+       * @example 备注
+       */
+      remark?: string;
+      /**
+       * @description 权限值
+       * @example admin
+       */
+      value: string;
+    };
+    UpdateRoleDto: {
+      /**
+       * @description 菜单ID
+       * @example [
+       *       1,
+       *       2
+       *     ]
+       */
+      menuIds?: number[];
+      /**
+       * @description 权限名称
+       * @example 管理员
+       */
+      name?: string;
+      /**
+       * @description 排序
+       * @default 0
+       * @example 0
+       */
+      order: number;
+      /**
+       * @description 备注
+       * @example 备注
+       */
+      remark?: string;
+      /**
+       * @description 权限值
+       * @example admin
+       */
+      value?: string;
+    };
+    CreatePostDto: {
+      /**
+       * @description 岗位编码
+       * @example tech
+       */
+      code: string;
+      /**
+       * @description 岗位名称
+       * @example 技术部
+       */
+      name: string;
+      /**
+       * @description 排序
+       * @example 1
+       */
+      order?: number;
+      /**
+       * @description 备注
+       * @example 这是一个技术部
+       */
+      remark?: string;
+    };
+    PostEntity: {
+      code: string;
+      /** Format: date-time */
+      createdAt: string;
+      id: number;
+      name: string;
+      order: number;
+      remark: string;
+      /** Format: date-time */
+      updatedAt: string;
+    };
+    UpdatePostDto: {
+      /**
+       * @description 岗位编码
+       * @example tech
+       */
+      code?: string;
+      /**
+       * @description 岗位名称
+       * @example 技术部
+       */
+      name?: string;
+      /**
+       * @description 排序
+       * @example 1
+       */
+      order?: number;
+      /**
+       * @description 备注
+       * @example 这是一个技术部
+       */
+      remark?: string;
+    };
+    HealthEntity: {
+      /**
+       * @description 服务状态
+       * @example ok
+       */
+      status: string;
+      /**
+       * @description 后端版本号
+       * @example 0.1.0
+       */
+      version: string;
+      /**
+       * @description 时间戳
+       * @example 2026-04-04T10:00:00.000Z
+       */
+      timestamp: string;
+    };
+    InfoEntity: {
+      cpu: {
+        brand: string;
+        cores: number;
+        manufacturer: string;
+        speed: string;
+      };
+      memory: {
+        free: string;
+        total: string;
+        usage: string;
+        used: string;
+      };
+      osInfo: {
+        arch: string;
+        hostname: string;
+        platform: string;
+        release: string;
+      };
+    };
+    LoginLogEntity: {
+      address: string;
+      browser: string;
+      /** Format: date-time */
+      createdAt: string;
+      id: number;
+      ip: string;
+      /** Format: date-time */
+      loginTime: string;
+      message: string;
+      os: string;
+      status: boolean;
+      username: string;
+    };
+    OperationLogEntity: {
+      address: string;
+      businessType: number;
+      /** Format: date-time */
+      createdAt: string;
+      id: number;
+      ip: string;
+      module: string;
+      title: string;
+      username: string;
+    };
+    AddChunkDto: {
+      /**
+       * @description 分块内容
+       * @example 这是一段分块内容
+       */
+      content: string;
+      /**
+       * @description 关键词
+       * @example [
+       *       "关键词1",
+       *       "关键词2"
+       *     ]
+       */
+      importantKeywords?: string[];
+      /**
+       * @description 问题列表
+       * @example [
+       *       "问题1"
+       *     ]
+       */
+      questions?: string[];
+    };
+    CreateKnowledgeBaseDto: {
+      /**
+       * @description 知识库头像（Base64）
+       * @example https://example.com/avatar.png
+       */
+      avatar?: string;
+      /**
+       * @description 解析方法
+       * @default naive
+       * @example naive
+       */
+      chunkMethod: string;
+      /**
+       * @description 描述
+       * @example 这是一个知识库
+       */
+      description?: string;
+      /**
+       * @description 嵌入模型（格式: model_name@provider）
+       * @example bge-large-zh-v1.5@Xinference
+       */
+      embeddingModel: string;
+      /**
+       * @description 知识库名称
+       * @example 知识库1
+       */
+      name: string;
+      /**
+       * @description 排序
+       * @example 1
+       */
+      order?: number;
+      /**
+       * @description 权限标识
+       * @example me
+       */
+      permission?: Record<string, never>;
+    };
+    KnowledgeBaseEntity: {
+      avatar: string | null;
+      chunkMethod: string;
+      createBy: string;
+      /** Format: date-time */
+      createdAt: string;
+      datasetId: string | null;
+      deptId: number | null;
+      description: string | null;
+      embeddingModel: string;
+      id: number;
+      name: string;
+      order: number;
+      parserConfig: Record<string, never>;
+      permission: string | null;
+      updateBy: string | null;
+      /** Format: date-time */
+      updatedAt: string;
+    };
+    ParseDocumentDto: {
+      /**
+       * @description 文件ID列表
+       * @example [
+       *       "78e5ae6691db11f084d3fa341edb7c4d"
+       *     ]
+       */
+      documentIds: string[];
+    };
+    DeleteChunkDto: {
+      /**
+       * @description 分块ID列表
+       * @example [
+       *       "chunk_id_1",
+       *       "chunk_id_2"
+       *     ]
+       */
+      chunkIds: string[];
+    };
+    DeleteDocumentDto: {
+      /**
+       * @description 文件ID列表
+       * @example [
+       *       "78e5ae6691db11f084d3fa341edb7c4d"
+       *     ]
+       */
+      documentIds: string[];
+    };
+    RetrieveChunkDto: {
+      /**
+       * @description 数据集ID列表
+       * @example [
+       *       "dataset_id_1"
+       *     ]
+       */
+      datasetIds?: string[];
+      /**
+       * @description 文档ID列表
+       * @example [
+       *       "document_id_1"
+       *     ]
+       */
+      documentIds?: string[];
+      /**
+       * @description 是否高亮
+       * @example false
+       */
+      highlight?: boolean;
+      /**
+       * @description 页码
+       * @example 1
+       */
+      page?: number;
+      /**
+       * @description 每页数量
+       * @example 30
+       */
+      pageSize?: number;
+      /**
+       * @description 检索问题
+       * @example 什么是RAGFlow?
+       */
+      question: string;
+      /**
+       * @description 相似度阈值
+       * @example 0.2
+       */
+      similarityThreshold?: number;
+      /**
+       * @description Top K
+       * @example 1024
+       */
+      topK?: number;
+      /**
+       * @description 是否使用知识图谱
+       * @example false
+       */
+      useKg?: boolean;
+      /**
+       * @description 向量相似度权重
+       * @example 0.3
+       */
+      vectorSimilarityWeight?: number;
+    };
+    UpdateKnowledgeBaseDto: {
+      /**
+       * @description 知识库头像（Base64）
+       * @example https://example.com/avatar.png
+       */
+      avatar?: string;
+      /**
+       * @description 解析方法
+       * @default naive
+       * @example naive
+       */
+      chunkMethod: string;
+      /**
+       * @description 描述
+       * @example 这是一个知识库
+       */
+      description?: string;
+      /**
+       * @description 知识库名称
+       * @example 知识库1
+       */
+      name?: string;
+      /**
+       * @description 排序
+       * @example 1
+       */
+      order?: number;
+      /**
+       * @description 权限标识
+       * @example me
+       */
+      permission?: Record<string, never>;
+    };
+    UpdateChunkDto: {
+      /**
+       * @description 是否可用
+       * @example true
+       */
+      available?: boolean;
+      /**
+       * @description 分块内容
+       * @example 更新后的分块内容
+       */
+      content?: string;
+      /**
+       * @description 关键词
+       * @example [
+       *       "关键词1",
+       *       "关键词2"
+       *     ]
+       */
+      importantKeywords?: string[];
+    };
+    UpdateDocumentDto: {
+      /**
+       * @description 解析方法
+       * @default naive
+       * @example naive
+       */
+      chunkMethod: string;
+      /**
+       * @description 文档名称
+       * @example 文档1
+       */
+      name?: string;
+    };
+    FilesUploadDto: {
+      /** @description 上传的文件列表 */
+      files: string[];
+      /**
+       * @description 文件类型
+       * @example images
+       * @enum {string}
+       */
+      type: 'audios' | 'images' | 'videos';
+    };
+    CreateCompletionsDto: {
+      /**
+       * @description 开始人工智能对话的问题
+       * @example 你好
+       */
+      question: string;
+      /**
+       * @description 会话ID
+       * @example session_id
+       */
+      sessionId?: string;
+      /**
+       * @description 是否开启流式响应
+       * @example true
+       */
+      stream?: boolean;
+    };
+    SessionEntity: {
+      /** @description 关联的助手聊天 ID */
+      chatId: string;
+      /** @description 创建日期 */
+      createDate: string;
+      /** @description 会话 ID */
+      id: string;
+      messages: {
+        content: string;
+        role: string;
+      }[];
+      /** @description 会话名称 */
+      name: string;
+      /** @description 更新日期 */
+      updateDate: string;
+    };
+    CreateAssistantDto: {
+      /**
+       * @description 助手头像
+       * @example https://example.com/avatar.png
+       */
+      avatar?: string;
+      /**
+       * @description 关联的知识库数据集 ID 列表（RAGFlow datasetId）
+       * @example [
+       *       "dataset_id_1",
+       *       "dataset_id_2"
+       *     ]
+       */
+      datasetIds?: string[];
+      /**
+       * @description 助手描述
+       * @example 这是一个智能助手
+       */
+      description?: string;
+      /**
+       * @description 空响应返回内容
+       * @example 无
+       */
+      emptyResponse?: string;
+      /**
+       * @description 频率惩罚
+       * @default 0.7
+       * @example 0.7
+       */
+      frequencyPenalty: number;
+      /**
+       * @description 关键词相似度权重
+       * @default 0.7
+       * @example 0.7
+       */
+      keywordsSimilarityWeight: number;
+      /**
+       * @description 最大生成长度
+       * @default 512
+       * @example 512
+       */
+      maxTokens: number;
+      /**
+       * @description 聊天模型名称（格式: model_name@provider）
+       * @example deepseek-r1@Xinference
+       */
+      modelName: string;
+      /**
+       * @description 助手名称
+       * @example 助手1
+       */
+      name: string;
+      /**
+       * @description 开场问候语
+       * @example 你好，我是你的助手。
+       */
+      opener?: string;
+      /**
+       * @description 存在惩罚
+       * @default 0.4
+       * @example 0.4
+       */
+      presencePenalty: number;
+      /**
+       * @description 提示词模板
+       * @example <prompt>
+       */
+      prompt?: string;
+      /**
+       * @description 加权关键字相似度
+       * @default 0.2
+       * @example 0.2
+       */
+      similarityThreshold: number;
+      /**
+       * @description 温度
+       * @default 0.1
+       * @example 0.1
+       */
+      temperature: number;
+      /**
+       * @description 重新排序或选择前 k 个项目
+       * @default 1024
+       * @example 1024
+       */
+      topK: number;
+      /**
+       * @description 生成的回复数量
+       * @default 6
+       * @example 6
+       */
+      topN: number;
+      /**
+       * @description 核心采样
+       * @default 0.3
+       * @example 0.3
+       */
+      topP: number;
+    };
+    AssistantEntity: {
+      /** @description 外部助手 ID */
+      assistantId: string | null;
+      /** @description 助手头像 URL */
+      avatar: string | null;
+      /**
+       * Format: date-time
+       * @description 创建时间
+       */
+      createdAt: string;
+      /** @description RAGFlow 关联的数据集ID列表 */
+      datasetIds: string[];
+      /** @description 助手描述 */
+      description: string | null;
+      /** @description 空响应返回内容 */
+      emptyResponse: string | null;
+      /** @description 频率惩罚 */
+      frequencyPenalty: number;
+      /** @description 主键 ID */
+      id: number;
+      /** @description 关键词相似度权重 */
+      keywordsSimilarityWeight: number;
+      /** @description 最大生成长度 */
+      maxTokens: number;
+      /** @description 聊天模型名称 */
+      modelName: string;
+      /** @description 助手名称 */
+      name: string;
+      /** @description 开场问候语 */
+      opener: string | null;
+      /** @description 存在惩罚 */
+      presencePenalty: number;
+      /** @description 提示词模板 */
+      prompt: string | null;
+      /** @description 加权关键字相似度 */
+      similarityThreshold: number;
+      /** @description 温度 */
+      temperature: number;
+      /** @description 重新排序或选择前 k 个项目 */
+      topK: number;
+      /** @description 生成的回复数量 */
+      topN: number;
+      /** @description 核心采样 */
+      topP: number;
+      /**
+       * Format: date-time
+       * @description 更新时间
+       */
+      updatedAt: string;
+      /** @description 所属用户 ID */
+      userId: number;
+    };
+    CreateSessionDto: {
+      /**
+       * @description 会话名称
+       * @example 会话1
+       */
+      name?: string;
+    };
+    UpdateAssistantDto: {
+      /**
+       * @description 助手头像
+       * @example https://example.com/avatar.png
+       */
+      avatar?: string;
+      /**
+       * @description 关联的知识库数据集 ID 列表（RAGFlow datasetId）
+       * @example [
+       *       "dataset_id_1",
+       *       "dataset_id_2"
+       *     ]
+       */
+      datasetIds?: string[];
+      /**
+       * @description 助手描述
+       * @example 这是一个智能助手
+       */
+      description?: string;
+      /**
+       * @description 空响应返回内容
+       * @example 无
+       */
+      emptyResponse?: string;
+      /**
+       * @description 频率惩罚
+       * @default 0.7
+       * @example 0.7
+       */
+      frequencyPenalty: number;
+      /**
+       * @description 关键词相似度权重
+       * @default 0.7
+       * @example 0.7
+       */
+      keywordsSimilarityWeight: number;
+      /**
+       * @description 最大生成长度
+       * @default 512
+       * @example 512
+       */
+      maxTokens: number;
+      /**
+       * @description 聊天模型名称（格式: model_name@provider）
+       * @example deepseek-r1@Xinference
+       */
+      modelName?: string;
+      /**
+       * @description 助手名称
+       * @example 助手1
+       */
+      name?: string;
+      /**
+       * @description 开场问候语
+       * @example 你好，我是你的助手。
+       */
+      opener?: string;
+      /**
+       * @description 存在惩罚
+       * @default 0.4
+       * @example 0.4
+       */
+      presencePenalty: number;
+      /**
+       * @description 提示词模板
+       * @example <prompt>
+       */
+      prompt?: string;
+      /**
+       * @description 加权关键字相似度
+       * @default 0.2
+       * @example 0.2
+       */
+      similarityThreshold: number;
+      /**
+       * @description 温度
+       * @default 0.1
+       * @example 0.1
+       */
+      temperature: number;
+      /**
+       * @description 重新排序或选择前 k 个项目
+       * @default 1024
+       * @example 1024
+       */
+      topK: number;
+      /**
+       * @description 生成的回复数量
+       * @default 6
+       * @example 6
+       */
+      topN: number;
+      /**
+       * @description 核心采样
+       * @default 0.3
+       * @example 0.3
+       */
+      topP: number;
+    };
+    UpdateSessionDto: {
+      /**
+       * @description 会话名称
+       * @example 会话1
+       */
+      name?: string;
+    };
+  };
+  responses: never;
+  parameters: never;
+  requestBodies: never;
+  headers: never;
+  pathItems: never;
 }
 export type $defs = Record<string, never>;
 export interface operations {
-    AuthenticationController_refreshTokens: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                "application/json": components["schemas"]["RefreshTokenDto"];
-            };
-        };
-        responses: {
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["SignInEntity"];
-                };
-            };
-        };
-    };
-    AuthenticationController_signIn: {
-        parameters: {
-            query?: never;
-            header?: {
-                "X-Real-IP"?: string;
-                "User-Agent"?: string;
-            };
-            path?: never;
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                "application/json": components["schemas"]["SignInDto"];
-            };
-        };
-        responses: {
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["SignInEntity"];
-                };
-            };
-        };
-    };
-    AuthenticationController_signUp: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                "application/json": components["schemas"]["SignUpDto"];
-            };
-        };
-        responses: {
-            /** @description 用户注册成功 */
-            201: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-        };
-    };
-    UserController_changePassword: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                "application/json": components["schemas"]["ChangePasswordDto"];
-            };
-        };
-        responses: {
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["UserEntity"];
-                };
-            };
-        };
-    };
-    UserController_findWithPagination: {
-        parameters: {
-            query?: {
-                /** @description 账号 */
-                username?: string;
-                /** @description 昵称 */
-                nickname?: string;
-                /** @description 邮箱 */
-                email?: string;
-                /** @description 手机号 */
-                phoneNumber?: string;
-                /** @description 页码 */
-                current?: number;
-                /** @description 每页数量 */
-                pageSize?: number;
-                createdAt?: string[];
-                /** @description 排序顺序 asc 正序, desc 倒序 */
-                order?: "asc" | "desc";
-                updatedAt?: string[];
-            };
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["PaginateResponse"] & {
-                        /** @default 1 */
-                        currentPage: number;
-                        /** @default 0 */
-                        totalCount: number;
-                        /** @default 0 */
-                        pageCount: number;
-                        /** @default [] */
-                        list: components["schemas"]["UserEntity"][];
-                    };
-                };
-            };
-        };
-    };
-    UserController_create: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                "application/json": components["schemas"]["CreateUserDto"];
-            };
-        };
-        responses: {
-            201: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["UserEntity"];
-                };
-            };
-        };
-    };
-    UserController_findOne: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                id: number;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["UserEntity"];
-                };
-            };
-        };
-    };
-    UserController_delete: {
-        parameters: {
-            query?: never;
-            header?: {
-                "X-Real-IP"?: string;
-            };
-            path: {
-                id: number;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-        };
-    };
-    UserController_update: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                id: number;
-            };
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                "application/json": components["schemas"]["UpdateUserDto"];
-            };
-        };
-        responses: {
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["UserEntity"];
-                };
-            };
-        };
-    };
-    UserController_findAll: {
-        parameters: {
-            query?: {
-                /** @description 账号 */
-                username?: string;
-                /** @description 昵称 */
-                nickname?: string;
-                /** @description 邮箱 */
-                email?: string;
-                /** @description 手机号 */
-                phoneNumber?: string;
-                /** @description 页码 */
-                current?: number;
-                /** @description 每页数量 */
-                pageSize?: number;
-                createdAt?: string[];
-                /** @description 排序顺序 asc 正序, desc 倒序 */
-                order?: "asc" | "desc";
-                updatedAt?: string[];
-            };
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["UserEntity"][];
-                };
-            };
-        };
-    };
-    UserController_findSelf: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["UserEntity"];
-                };
-            };
-        };
-    };
-    UserController_findSelfCode: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": string[];
-                };
-            };
-        };
-    };
-    UserController_resetPassword: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                "application/json": components["schemas"]["AdminChangePasswordDto"];
-            };
-        };
-        responses: {
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["UserEntity"];
-                };
-            };
-        };
-    };
-    UserController_upload: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            201: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-        };
-    };
-    DeptController_findAll: {
-        parameters: {
-            query?: {
-                /** @description 部门名称 */
-                name?: string;
-            };
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["DeptEntity"][];
-                };
-            };
-        };
-    };
-    DeptController_create: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                "application/json": components["schemas"]["CreateDeptDto"];
-            };
-        };
-        responses: {
-            201: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["DeptEntity"];
-                };
-            };
-        };
-    };
-    DeptController_findOne: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                id: number;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["DeptEntity"];
-                };
-            };
-        };
-    };
-    DeptController_delete: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                id: number;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-        };
-    };
-    DeptController_update: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                id: number;
-            };
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                "application/json": components["schemas"]["UpdateDeptDto"];
-            };
-        };
-        responses: {
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["DeptEntity"];
-                };
-            };
-        };
-    };
-    DictController_findAll: {
-        parameters: {
-            query?: {
-                /** @description 字典名称 */
-                name?: string;
-                /** @description 字典值 */
-                value?: string;
-            };
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["DictEntity"][];
-                };
-            };
-        };
-    };
-    DictController_create: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                "application/json": components["schemas"]["CreateDictDto"];
-            };
-        };
-        responses: {
-            201: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["DictEntity"];
-                };
-            };
-        };
-    };
-    DictController_findAllData: {
-        parameters: {
-            query?: {
-                /** @description 字典名称 */
-                dictName?: string;
-                /** @description 字典名称值 */
-                dictValue?: string;
-                /** @description 字典数据名称 */
-                name?: string;
-                /** @description 字典数据值 */
-                value?: string;
-                /** @description 字典ID */
-                dictId?: number;
-            };
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["DictDataEntity"][];
-                };
-            };
-        };
-    };
-    DictController_createData: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                "application/json": components["schemas"]["CreateDictDataDto"];
-            };
-        };
-        responses: {
-            201: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["DictDataEntity"];
-                };
-            };
-        };
-    };
-    DictController_findOne: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                id: number;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["DictEntity"];
-                };
-            };
-        };
-    };
-    DictController_delete: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                id: number;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-        };
-    };
-    DictController_update: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                id: number;
-            };
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                "application/json": components["schemas"]["UpdateDictDto"];
-            };
-        };
-        responses: {
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["DictEntity"];
-                };
-            };
-        };
-    };
-    DictController_findOneData: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                id: number;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["DictDataEntity"];
-                };
-            };
-        };
-    };
-    DictController_deleteData: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                id: number;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-        };
-    };
-    DictController_updateData: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                id: number;
-            };
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                "application/json": components["schemas"]["UpdateDictDataDto"];
-            };
-        };
-        responses: {
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["DictDataEntity"];
-                };
-            };
-        };
-    };
-    MenuController_findAll: {
-        parameters: {
-            query?: {
-                /** @description 菜单名称 */
-                name?: string;
-                /** @description 菜单路径 */
-                path?: string;
-            };
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["MenuEntity"][];
-                };
-            };
-        };
-    };
-    MenuController_create: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                "application/json": components["schemas"]["CreateMenuDto"];
-            };
-        };
-        responses: {
-            201: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["MenuEntity"];
-                };
-            };
-        };
-    };
-    MenuController_findOne: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                id: number;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["MenuEntity"];
-                };
-            };
-        };
-    };
-    MenuController_delete: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                id: number;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-        };
-    };
-    MenuController_update: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                id: number;
-            };
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                "application/json": components["schemas"]["UpdateMenuDto"];
-            };
-        };
-        responses: {
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["MenuEntity"];
-                };
-            };
-        };
-    };
-    RoleController_findWithPagination: {
-        parameters: {
-            query?: {
-                /** @description 权限名称 */
-                name?: string;
-                /** @description 权限值 */
-                value?: string;
-                /** @description 页码 */
-                current?: number;
-                /** @description 每页数量 */
-                pageSize?: number;
-                createdAt?: string[];
-                /** @description 排序顺序 asc 正序, desc 倒序 */
-                order?: "asc" | "desc";
-                updatedAt?: string[];
-            };
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["PaginateResponse"] & {
-                        /** @default 1 */
-                        currentPage: number;
-                        /** @default 0 */
-                        totalCount: number;
-                        /** @default 0 */
-                        pageCount: number;
-                        /** @default [] */
-                        list: components["schemas"]["RoleEntity"][];
-                    };
-                };
-            };
-        };
-    };
-    RoleController_create: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                "application/json": components["schemas"]["CreateRoleDto"];
-            };
-        };
-        responses: {
-            201: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["RoleEntity"];
-                };
-            };
-        };
-    };
-    RoleController_findOne: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                id: number;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["RoleEntity"];
-                };
-            };
-        };
-    };
-    RoleController_delete: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                id: number;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-        };
-    };
-    RoleController_update: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                id: number;
-            };
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                "application/json": components["schemas"]["UpdateRoleDto"];
-            };
-        };
-        responses: {
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["RoleEntity"];
-                };
-            };
-        };
-    };
-    PostController_findWithPagination: {
-        parameters: {
-            query?: {
-                /** @description 岗位名称 */
-                name?: string;
-                /** @description 岗位编码 */
-                code?: string;
-                /** @description 页码 */
-                current?: number;
-                /** @description 每页数量 */
-                pageSize?: number;
-                createdAt?: string[];
-                /** @description 排序顺序 asc 正序, desc 倒序 */
-                order?: "asc" | "desc";
-                updatedAt?: string[];
-            };
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["PaginateResponse"] & {
-                        /** @default 1 */
-                        currentPage: number;
-                        /** @default 0 */
-                        totalCount: number;
-                        /** @default 0 */
-                        pageCount: number;
-                        /** @default [] */
-                        list: components["schemas"]["PostEntity"][];
-                    };
-                };
-            };
-        };
-    };
-    PostController_create: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                "application/json": components["schemas"]["CreatePostDto"];
-            };
-        };
-        responses: {
-            201: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["PostEntity"];
-                };
-            };
-        };
-    };
-    PostController_findOne: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                id: number;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["PostEntity"];
-                };
-            };
-        };
-    };
-    PostController_delete: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                id: number;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-        };
-    };
-    PostController_update: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                id: number;
-            };
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                "application/json": components["schemas"]["UpdatePostDto"];
-            };
-        };
-        responses: {
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["PostEntity"];
-                };
-            };
-        };
-    };
-    InfoController_systemInfo: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["InfoEntity"];
-                };
-            };
-        };
-    };
-    LoginLogController_findOne: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                id: number;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["LoginLogEntity"];
-                };
-            };
-        };
-    };
-    LoginLogController_findWithPagination: {
-        parameters: {
-            query?: {
-                /** @description 用户名 */
-                username?: string;
-                /** @description 页码 */
-                current?: number;
-                /** @description 每页数量 */
-                pageSize?: number;
-                createdAt?: string[];
-                /** @description 排序顺序 asc 正序, desc 倒序 */
-                order?: "asc" | "desc";
-                updatedAt?: string[];
-            };
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["PaginateResponse"] & {
-                        /** @default 1 */
-                        currentPage: number;
-                        /** @default 0 */
-                        totalCount: number;
-                        /** @default 0 */
-                        pageCount: number;
-                        /** @default [] */
-                        list: components["schemas"]["LoginLogEntity"][];
-                    };
-                };
-            };
-        };
-    };
-    OperationLogController_findOne: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                id: number;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["OperationLogEntity"];
-                };
-            };
-        };
-    };
-    OperationLogController_findWithPagination: {
-        parameters: {
-            query?: {
-                username?: string;
-                businessType?: number;
-                module?: string;
-                /** @description 页码 */
-                current?: number;
-                /** @description 每页数量 */
-                pageSize?: number;
-                createdAt?: string[];
-                /** @description 排序顺序 asc 正序, desc 倒序 */
-                order?: "asc" | "desc";
-                updatedAt?: string[];
-            };
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["PaginateResponse"] & {
-                        /** @default 1 */
-                        currentPage: number;
-                        /** @default 0 */
-                        totalCount: number;
-                        /** @default 0 */
-                        pageCount: number;
-                        /** @default [] */
-                        list: components["schemas"]["OperationLogEntity"][];
-                    };
-                };
-            };
-        };
-    };
-    KnowledgeBaseController_findAllChunks: {
-        parameters: {
-            query?: {
-                /** @description 分块ID */
-                id?: string;
-                /** @description 搜索关键词 */
-                keywords?: string;
-                /** @description 页码 */
-                page?: number;
-                /** @description 每页数量 */
-                pageSize?: number;
-            };
-            header?: never;
-            path: {
-                id: number;
-                documentId: string;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": Record<string, never>;
-                };
-            };
-        };
-    };
-    KnowledgeBaseController_addChunk: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                id: number;
-                documentId: string;
-            };
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                "application/json": components["schemas"]["AddChunkDto"];
-            };
-        };
-        responses: {
-            201: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": Record<string, never>;
-                };
-            };
-        };
-    };
-    KnowledgeBaseController_removeChunks: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                id: number;
-                documentId: string;
-            };
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                "application/json": components["schemas"]["DeleteChunkDto"];
-            };
-        };
-        responses: {
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": Record<string, never>;
-                };
-            };
-        };
-    };
-    KnowledgeBaseController_findAll: {
-        parameters: {
-            query?: {
-                /** @description 知识库名称 */
-                name?: string;
-            };
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["KnowledgeBaseEntity"][];
-                };
-            };
-        };
-    };
-    KnowledgeBaseController_create: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                "application/json": components["schemas"]["CreateKnowledgeBaseDto"];
-            };
-        };
-        responses: {
-            201: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["KnowledgeBaseEntity"];
-                };
-            };
-        };
-    };
-    KnowledgeBaseController_downloadDocument: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                id: number;
-                documentId: string;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-        };
-    };
-    KnowledgeBaseController_updateDocument: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                id: number;
-                documentId: string;
-            };
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                "application/json": components["schemas"]["UpdateDocumentDto"];
-            };
-        };
-        responses: {
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": Record<string, never>;
-                };
-            };
-        };
-    };
-    KnowledgeBaseController_findAllDocuments: {
-        parameters: {
-            query?: {
-                /** @description 文档名称 */
-                name?: string;
-            };
-            header?: never;
-            path: {
-                id: number;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": Record<string, never>;
-                };
-            };
-        };
-    };
-    KnowledgeBaseController_uploadDocuments: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                id: number;
-            };
-            cookie?: never;
-        };
-        /** @description 上传文件 */
-        requestBody: {
-            content: {
-                "multipart/form-data": components["schemas"]["FilesUploadDto"];
-            };
-        };
-        responses: {
-            201: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": Record<string, never>;
-                };
-            };
-        };
-    };
-    KnowledgeBaseController_removeDocuments: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                id: number;
-            };
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                "application/json": components["schemas"]["DeleteDocumentDto"];
-            };
-        };
-        responses: {
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": Record<string, never>;
-                };
-            };
-        };
-    };
-    KnowledgeBaseController_findOne: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                id: number;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["KnowledgeBaseEntity"];
-                };
-            };
-        };
-    };
-    KnowledgeBaseController_remove: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                id: number;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-        };
-    };
-    KnowledgeBaseController_update: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                id: number;
-            };
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                "application/json": components["schemas"]["UpdateKnowledgeBaseDto"];
-            };
-        };
-        responses: {
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["KnowledgeBaseEntity"];
-                };
-            };
-        };
-    };
-    KnowledgeBaseController_getMetadataSummary: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                id: number;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": Record<string, never>;
-                };
-            };
-        };
-    };
-    KnowledgeBaseController_parseDocuments: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                id: number;
-            };
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                "application/json": components["schemas"]["ParseDocumentDto"];
-            };
-        };
-        responses: {
-            201: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": Record<string, never>;
-                };
-            };
-        };
-    };
-    KnowledgeBaseController_stopParseDocuments: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                id: number;
-            };
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                "application/json": components["schemas"]["ParseDocumentDto"];
-            };
-        };
-        responses: {
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": Record<string, never>;
-                };
-            };
-        };
-    };
-    KnowledgeBaseController_retrieveChunks: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                "application/json": components["schemas"]["RetrieveChunkDto"];
-            };
-        };
-        responses: {
-            201: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": Record<string, never>;
-                };
-            };
-        };
-    };
-    KnowledgeBaseController_updateChunk: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                id: number;
-                documentId: string;
-                chunkId: string;
-            };
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                "application/json": components["schemas"]["UpdateChunkDto"];
-            };
-        };
-        responses: {
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": Record<string, never>;
-                };
-            };
-        };
-    };
-    AssistantController_completions: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                id: number;
-            };
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                "application/json": components["schemas"]["CreateCompletionsDto"];
-            };
-        };
-        responses: {
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["SessionEntity"];
-                };
-            };
-        };
-    };
-    AssistantController_findAll: {
-        parameters: {
-            query?: {
-                /** @description 助手名称 */
-                name?: string;
-            };
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["AssistantEntity"][];
-                };
-            };
-        };
-    };
-    AssistantController_create: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                "application/json": components["schemas"]["CreateAssistantDto"];
-            };
-        };
-        responses: {
-            201: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["AssistantEntity"];
-                };
-            };
-        };
-    };
-    AssistantController_findAllSessions: {
-        parameters: {
-            query?: {
-                /** @description 会话名称 */
-                name?: string;
-            };
-            header?: never;
-            path: {
-                id: number;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["SessionEntity"][];
-                };
-            };
-        };
-    };
-    AssistantController_createSession: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                id: number;
-            };
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                "application/json": components["schemas"]["CreateSessionDto"];
-            };
-        };
-        responses: {
-            201: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["SessionEntity"];
-                };
-            };
-        };
-    };
-    AssistantController_findOne: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                id: number;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["AssistantEntity"];
-                };
-            };
-        };
-    };
-    AssistantController_remove: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                id: number;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-        };
-    };
-    AssistantController_update: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                id: number;
-            };
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                "application/json": components["schemas"]["UpdateAssistantDto"];
-            };
-        };
-        responses: {
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["AssistantEntity"];
-                };
-            };
-        };
-    };
-    AssistantController_removeSession: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                id: number;
-                sessionId: string;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["SessionEntity"];
-                };
-            };
-        };
-    };
-    AssistantController_updateSession: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                id: number;
-                sessionId: string;
-            };
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                "application/json": components["schemas"]["UpdateSessionDto"];
-            };
-        };
-        responses: {
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["SessionEntity"];
-                };
-            };
-        };
-    };
+  AuthenticationController_refreshTokens: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        'application/json': components['schemas']['RefreshTokenDto'];
+      };
+    };
+    responses: {
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['SignInEntity'];
+        };
+      };
+    };
+  };
+  AuthenticationController_signIn: {
+    parameters: {
+      query?: never;
+      header?: {
+        'X-Real-IP'?: string;
+        'User-Agent'?: string;
+      };
+      path?: never;
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        'application/json': components['schemas']['SignInDto'];
+      };
+    };
+    responses: {
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['SignInEntity'];
+        };
+      };
+    };
+  };
+  AuthenticationController_signUp: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        'application/json': components['schemas']['SignUpDto'];
+      };
+    };
+    responses: {
+      /** @description 用户注册成功 */
+      201: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+    };
+  };
+  UserController_changePassword: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        'application/json': components['schemas']['ChangePasswordDto'];
+      };
+    };
+    responses: {
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['UserEntity'];
+        };
+      };
+    };
+  };
+  UserController_findWithPagination: {
+    parameters: {
+      query?: {
+        /** @description 账号 */
+        username?: string;
+        /** @description 昵称 */
+        nickname?: string;
+        /** @description 邮箱 */
+        email?: string;
+        /** @description 手机号 */
+        phoneNumber?: string;
+        /** @description 页码 */
+        current?: number;
+        /** @description 每页数量 */
+        pageSize?: number;
+        createdAt?: string[];
+        /** @description 排序顺序 asc 正序, desc 倒序 */
+        order?: 'asc' | 'desc';
+        updatedAt?: string[];
+      };
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['PaginateResponse'] & {
+            /** @default 1 */
+            currentPage: number;
+            /** @default 0 */
+            totalCount: number;
+            /** @default 0 */
+            pageCount: number;
+            /** @default [] */
+            list: components['schemas']['UserEntity'][];
+          };
+        };
+      };
+    };
+  };
+  UserController_create: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        'application/json': components['schemas']['CreateUserDto'];
+      };
+    };
+    responses: {
+      201: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['UserEntity'];
+        };
+      };
+    };
+  };
+  UserController_findOne: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        id: number;
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['UserEntity'];
+        };
+      };
+    };
+  };
+  UserController_delete: {
+    parameters: {
+      query?: never;
+      header?: {
+        'X-Real-IP'?: string;
+      };
+      path: {
+        id: number;
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+    };
+  };
+  UserController_update: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        id: number;
+      };
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        'application/json': components['schemas']['UpdateUserDto'];
+      };
+    };
+    responses: {
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['UserEntity'];
+        };
+      };
+    };
+  };
+  UserController_findAll: {
+    parameters: {
+      query?: {
+        /** @description 账号 */
+        username?: string;
+        /** @description 昵称 */
+        nickname?: string;
+        /** @description 邮箱 */
+        email?: string;
+        /** @description 手机号 */
+        phoneNumber?: string;
+        /** @description 页码 */
+        current?: number;
+        /** @description 每页数量 */
+        pageSize?: number;
+        createdAt?: string[];
+        /** @description 排序顺序 asc 正序, desc 倒序 */
+        order?: 'asc' | 'desc';
+        updatedAt?: string[];
+      };
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['UserEntity'][];
+        };
+      };
+    };
+  };
+  UserController_findSelf: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['UserEntity'];
+        };
+      };
+    };
+  };
+  UserController_findSelfCode: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': string[];
+        };
+      };
+    };
+  };
+  UserController_resetPassword: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        'application/json': components['schemas']['AdminChangePasswordDto'];
+      };
+    };
+    responses: {
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['UserEntity'];
+        };
+      };
+    };
+  };
+  UserController_upload: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      201: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+    };
+  };
+  DeptController_findAll: {
+    parameters: {
+      query?: {
+        /** @description 部门名称 */
+        name?: string;
+      };
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['DeptEntity'][];
+        };
+      };
+    };
+  };
+  DeptController_create: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        'application/json': components['schemas']['CreateDeptDto'];
+      };
+    };
+    responses: {
+      201: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['DeptEntity'];
+        };
+      };
+    };
+  };
+  DeptController_findOne: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        id: number;
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['DeptEntity'];
+        };
+      };
+    };
+  };
+  DeptController_delete: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        id: number;
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+    };
+  };
+  DeptController_update: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        id: number;
+      };
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        'application/json': components['schemas']['UpdateDeptDto'];
+      };
+    };
+    responses: {
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['DeptEntity'];
+        };
+      };
+    };
+  };
+  DictController_findAll: {
+    parameters: {
+      query?: {
+        /** @description 字典名称 */
+        name?: string;
+        /** @description 字典值 */
+        value?: string;
+      };
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['DictEntity'][];
+        };
+      };
+    };
+  };
+  DictController_create: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        'application/json': components['schemas']['CreateDictDto'];
+      };
+    };
+    responses: {
+      201: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['DictEntity'];
+        };
+      };
+    };
+  };
+  DictController_findAllData: {
+    parameters: {
+      query?: {
+        /** @description 字典名称 */
+        dictName?: string;
+        /** @description 字典名称值 */
+        dictValue?: string;
+        /** @description 字典数据名称 */
+        name?: string;
+        /** @description 字典数据值 */
+        value?: string;
+        /** @description 字典ID */
+        dictId?: number;
+      };
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['DictDataEntity'][];
+        };
+      };
+    };
+  };
+  DictController_createData: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        'application/json': components['schemas']['CreateDictDataDto'];
+      };
+    };
+    responses: {
+      201: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['DictDataEntity'];
+        };
+      };
+    };
+  };
+  DictController_findOne: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        id: number;
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['DictEntity'];
+        };
+      };
+    };
+  };
+  DictController_delete: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        id: number;
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+    };
+  };
+  DictController_update: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        id: number;
+      };
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        'application/json': components['schemas']['UpdateDictDto'];
+      };
+    };
+    responses: {
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['DictEntity'];
+        };
+      };
+    };
+  };
+  DictController_findOneData: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        id: number;
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['DictDataEntity'];
+        };
+      };
+    };
+  };
+  DictController_deleteData: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        id: number;
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+    };
+  };
+  DictController_updateData: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        id: number;
+      };
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        'application/json': components['schemas']['UpdateDictDataDto'];
+      };
+    };
+    responses: {
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['DictDataEntity'];
+        };
+      };
+    };
+  };
+  MenuController_findAll: {
+    parameters: {
+      query?: {
+        /** @description 菜单名称 */
+        name?: string;
+        /** @description 菜单路径 */
+        path?: string;
+      };
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['MenuEntity'][];
+        };
+      };
+    };
+  };
+  MenuController_create: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        'application/json': components['schemas']['CreateMenuDto'];
+      };
+    };
+    responses: {
+      201: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['MenuEntity'];
+        };
+      };
+    };
+  };
+  MenuController_findOne: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        id: number;
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['MenuEntity'];
+        };
+      };
+    };
+  };
+  MenuController_delete: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        id: number;
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+    };
+  };
+  MenuController_update: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        id: number;
+      };
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        'application/json': components['schemas']['UpdateMenuDto'];
+      };
+    };
+    responses: {
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['MenuEntity'];
+        };
+      };
+    };
+  };
+  RoleController_findWithPagination: {
+    parameters: {
+      query?: {
+        /** @description 权限名称 */
+        name?: string;
+        /** @description 权限值 */
+        value?: string;
+        /** @description 页码 */
+        current?: number;
+        /** @description 每页数量 */
+        pageSize?: number;
+        createdAt?: string[];
+        /** @description 排序顺序 asc 正序, desc 倒序 */
+        order?: 'asc' | 'desc';
+        updatedAt?: string[];
+      };
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['PaginateResponse'] & {
+            /** @default 1 */
+            currentPage: number;
+            /** @default 0 */
+            totalCount: number;
+            /** @default 0 */
+            pageCount: number;
+            /** @default [] */
+            list: components['schemas']['RoleEntity'][];
+          };
+        };
+      };
+    };
+  };
+  RoleController_create: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        'application/json': components['schemas']['CreateRoleDto'];
+      };
+    };
+    responses: {
+      201: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['RoleEntity'];
+        };
+      };
+    };
+  };
+  RoleController_findOne: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        id: number;
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['RoleEntity'];
+        };
+      };
+    };
+  };
+  RoleController_delete: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        id: number;
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+    };
+  };
+  RoleController_update: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        id: number;
+      };
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        'application/json': components['schemas']['UpdateRoleDto'];
+      };
+    };
+    responses: {
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['RoleEntity'];
+        };
+      };
+    };
+  };
+  PostController_findWithPagination: {
+    parameters: {
+      query?: {
+        /** @description 岗位名称 */
+        name?: string;
+        /** @description 岗位编码 */
+        code?: string;
+        /** @description 页码 */
+        current?: number;
+        /** @description 每页数量 */
+        pageSize?: number;
+        createdAt?: string[];
+        /** @description 排序顺序 asc 正序, desc 倒序 */
+        order?: 'asc' | 'desc';
+        updatedAt?: string[];
+      };
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['PaginateResponse'] & {
+            /** @default 1 */
+            currentPage: number;
+            /** @default 0 */
+            totalCount: number;
+            /** @default 0 */
+            pageCount: number;
+            /** @default [] */
+            list: components['schemas']['PostEntity'][];
+          };
+        };
+      };
+    };
+  };
+  PostController_create: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        'application/json': components['schemas']['CreatePostDto'];
+      };
+    };
+    responses: {
+      201: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['PostEntity'];
+        };
+      };
+    };
+  };
+  PostController_findOne: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        id: number;
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['PostEntity'];
+        };
+      };
+    };
+  };
+  PostController_delete: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        id: number;
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+    };
+  };
+  PostController_update: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        id: number;
+      };
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        'application/json': components['schemas']['UpdatePostDto'];
+      };
+    };
+    responses: {
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['PostEntity'];
+        };
+      };
+    };
+  };
+  HealthController_check: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['HealthEntity'];
+        };
+      };
+    };
+  };
+  InfoController_systemInfo: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['InfoEntity'];
+        };
+      };
+    };
+  };
+  LoginLogController_findOne: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        id: number;
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['LoginLogEntity'];
+        };
+      };
+    };
+  };
+  LoginLogController_findWithPagination: {
+    parameters: {
+      query?: {
+        /** @description 用户名 */
+        username?: string;
+        /** @description 页码 */
+        current?: number;
+        /** @description 每页数量 */
+        pageSize?: number;
+        createdAt?: string[];
+        /** @description 排序顺序 asc 正序, desc 倒序 */
+        order?: 'asc' | 'desc';
+        updatedAt?: string[];
+      };
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['PaginateResponse'] & {
+            /** @default 1 */
+            currentPage: number;
+            /** @default 0 */
+            totalCount: number;
+            /** @default 0 */
+            pageCount: number;
+            /** @default [] */
+            list: components['schemas']['LoginLogEntity'][];
+          };
+        };
+      };
+    };
+  };
+  OperationLogController_findOne: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        id: number;
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['OperationLogEntity'];
+        };
+      };
+    };
+  };
+  OperationLogController_findWithPagination: {
+    parameters: {
+      query?: {
+        username?: string;
+        businessType?: number;
+        module?: string;
+        /** @description 页码 */
+        current?: number;
+        /** @description 每页数量 */
+        pageSize?: number;
+        createdAt?: string[];
+        /** @description 排序顺序 asc 正序, desc 倒序 */
+        order?: 'asc' | 'desc';
+        updatedAt?: string[];
+      };
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['PaginateResponse'] & {
+            /** @default 1 */
+            currentPage: number;
+            /** @default 0 */
+            totalCount: number;
+            /** @default 0 */
+            pageCount: number;
+            /** @default [] */
+            list: components['schemas']['OperationLogEntity'][];
+          };
+        };
+      };
+    };
+  };
+  KnowledgeBaseController_findAllChunks: {
+    parameters: {
+      query?: {
+        /** @description 分块ID */
+        id?: string;
+        /** @description 搜索关键词 */
+        keywords?: string;
+        /** @description 页码 */
+        page?: number;
+        /** @description 每页数量 */
+        pageSize?: number;
+      };
+      header?: never;
+      path: {
+        id: number;
+        documentId: string;
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': Record<string, never>;
+        };
+      };
+    };
+  };
+  KnowledgeBaseController_addChunk: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        id: number;
+        documentId: string;
+      };
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        'application/json': components['schemas']['AddChunkDto'];
+      };
+    };
+    responses: {
+      201: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': Record<string, never>;
+        };
+      };
+    };
+  };
+  KnowledgeBaseController_removeChunks: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        id: number;
+        documentId: string;
+      };
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        'application/json': components['schemas']['DeleteChunkDto'];
+      };
+    };
+    responses: {
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': Record<string, never>;
+        };
+      };
+    };
+  };
+  KnowledgeBaseController_findAll: {
+    parameters: {
+      query: {
+        /** @description 页码 */
+        current: number;
+        /** @description 每页数量 */
+        pageSize: number;
+        /** @description 知识库名称 */
+        name?: string;
+      };
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['PaginateResponse'] & {
+            /** @default 1 */
+            currentPage: number;
+            /** @default 0 */
+            totalCount: number;
+            /** @default 0 */
+            pageCount: number;
+            /** @default [] */
+            list: components['schemas']['KnowledgeBaseEntity'][];
+          };
+        };
+      };
+    };
+  };
+  KnowledgeBaseController_create: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        'application/json': components['schemas']['CreateKnowledgeBaseDto'];
+      };
+    };
+    responses: {
+      201: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['KnowledgeBaseEntity'];
+        };
+      };
+    };
+  };
+  KnowledgeBaseController_downloadDocument: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        id: number;
+        documentId: string;
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+    };
+  };
+  KnowledgeBaseController_updateDocument: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        id: number;
+        documentId: string;
+      };
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        'application/json': components['schemas']['UpdateDocumentDto'];
+      };
+    };
+    responses: {
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': Record<string, never>;
+        };
+      };
+    };
+  };
+  KnowledgeBaseController_findAllDocuments: {
+    parameters: {
+      query?: {
+        /** @description 文档名称 */
+        name?: string;
+        /** @description 页码 */
+        page?: number;
+        /** @description 每页数量 */
+        pageSize?: number;
+      };
+      header?: never;
+      path: {
+        id: number;
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': Record<string, never>;
+        };
+      };
+    };
+  };
+  KnowledgeBaseController_uploadDocuments: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        id: number;
+      };
+      cookie?: never;
+    };
+    /** @description 上传文件 */
+    requestBody: {
+      content: {
+        'multipart/form-data': components['schemas']['FilesUploadDto'];
+      };
+    };
+    responses: {
+      201: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': Record<string, never>;
+        };
+      };
+    };
+  };
+  KnowledgeBaseController_removeDocuments: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        id: number;
+      };
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        'application/json': components['schemas']['DeleteDocumentDto'];
+      };
+    };
+    responses: {
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': Record<string, never>;
+        };
+      };
+    };
+  };
+  KnowledgeBaseController_findOne: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        id: number;
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['KnowledgeBaseEntity'];
+        };
+      };
+    };
+  };
+  KnowledgeBaseController_remove: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        id: number;
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+    };
+  };
+  KnowledgeBaseController_update: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        id: number;
+      };
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        'application/json': components['schemas']['UpdateKnowledgeBaseDto'];
+      };
+    };
+    responses: {
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['KnowledgeBaseEntity'];
+        };
+      };
+    };
+  };
+  KnowledgeBaseController_getMetadataSummary: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        id: number;
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': Record<string, never>;
+        };
+      };
+    };
+  };
+  KnowledgeBaseController_parseDocuments: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        id: number;
+      };
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        'application/json': components['schemas']['ParseDocumentDto'];
+      };
+    };
+    responses: {
+      201: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': Record<string, never>;
+        };
+      };
+    };
+  };
+  KnowledgeBaseController_stopParseDocuments: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        id: number;
+      };
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        'application/json': components['schemas']['ParseDocumentDto'];
+      };
+    };
+    responses: {
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': Record<string, never>;
+        };
+      };
+    };
+  };
+  KnowledgeBaseController_retrieveChunks: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        'application/json': components['schemas']['RetrieveChunkDto'];
+      };
+    };
+    responses: {
+      201: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': Record<string, never>;
+        };
+      };
+    };
+  };
+  KnowledgeBaseController_updateChunk: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        id: number;
+        documentId: string;
+        chunkId: string;
+      };
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        'application/json': components['schemas']['UpdateChunkDto'];
+      };
+    };
+    responses: {
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': Record<string, never>;
+        };
+      };
+    };
+  };
+  AssistantController_completions: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        id: number;
+      };
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        'application/json': components['schemas']['CreateCompletionsDto'];
+      };
+    };
+    responses: {
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['SessionEntity'];
+        };
+      };
+    };
+  };
+  AssistantController_findAll: {
+    parameters: {
+      query: {
+        /** @description 页码 */
+        current: number;
+        /** @description 每页数量 */
+        pageSize: number;
+        /** @description 助手名称 */
+        name?: string;
+      };
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['PaginateResponse'] & {
+            /** @default 1 */
+            currentPage: number;
+            /** @default 0 */
+            totalCount: number;
+            /** @default 0 */
+            pageCount: number;
+            /** @default [] */
+            list: components['schemas']['AssistantEntity'][];
+          };
+        };
+      };
+    };
+  };
+  AssistantController_create: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        'application/json': components['schemas']['CreateAssistantDto'];
+      };
+    };
+    responses: {
+      201: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['AssistantEntity'];
+        };
+      };
+    };
+  };
+  AssistantController_findAllSessions: {
+    parameters: {
+      query?: {
+        /** @description 会话名称 */
+        name?: string;
+        /** @description 页码 */
+        page?: number;
+        /** @description 每页数量 */
+        pageSize?: number;
+      };
+      header?: never;
+      path: {
+        id: number;
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['SessionEntity'][];
+        };
+      };
+    };
+  };
+  AssistantController_createSession: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        id: number;
+      };
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        'application/json': components['schemas']['CreateSessionDto'];
+      };
+    };
+    responses: {
+      201: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['SessionEntity'];
+        };
+      };
+    };
+  };
+  AssistantController_findOne: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        id: number;
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['AssistantEntity'];
+        };
+      };
+    };
+  };
+  AssistantController_remove: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        id: number;
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+    };
+  };
+  AssistantController_update: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        id: number;
+      };
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        'application/json': components['schemas']['UpdateAssistantDto'];
+      };
+    };
+    responses: {
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['AssistantEntity'];
+        };
+      };
+    };
+  };
+  AssistantController_removeSession: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        id: number;
+        sessionId: string;
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['SessionEntity'];
+        };
+      };
+    };
+  };
+  AssistantController_updateSession: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        id: number;
+        sessionId: string;
+      };
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        'application/json': components['schemas']['UpdateSessionDto'];
+      };
+    };
+    responses: {
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['SessionEntity'];
+        };
+      };
+    };
+  };
 }
