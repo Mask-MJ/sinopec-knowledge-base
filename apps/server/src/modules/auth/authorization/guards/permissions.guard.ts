@@ -1,4 +1,5 @@
 import type { PrismaService } from '@/common/database/prisma.extension';
+import { PRISMA_SERVICE_TOKEN } from '@/common/database/prisma.extension';
 
 import {
   CanActivate,
@@ -28,7 +29,7 @@ const METHOD_ACTION_MAP: Record<string, string> = {
 export class PermissionsGuard implements CanActivate {
   constructor(
     private readonly reflector: Reflector,
-    @Inject('PrismaService')
+    @Inject(PRISMA_SERVICE_TOKEN)
     private readonly prisma: PrismaService,
   ) {}
 

@@ -8,7 +8,7 @@ model KnowledgeBase {
   avatar         String?
   /// 知识库简介
   description    String?
-  /// 知识库向量模型 "BAAI/bge-large-zh-v1.5@BAAI"
+  /// 知识库向量模型（格式: model_name@provider）
   embeddingModel String
   /// 知识库访问权限 "me" | "team"
   permission     String?

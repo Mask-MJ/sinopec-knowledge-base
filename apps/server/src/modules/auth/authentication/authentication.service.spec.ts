@@ -1,4 +1,5 @@
 import { CACHE_MANAGER } from '@nestjs/cache-manager';
+import { PRISMA_SERVICE_TOKEN } from '@/common/database/prisma.extension';
 import {
   ConflictException,
   Logger,
@@ -11,7 +12,7 @@ import { Test, TestingModule } from '@nestjs/testing';
 import { vi } from 'vitest';
 
 import jwtConfig from '../config/jwt.config';
-import { HashingService } from '../hashing/hashing.service';
+import { HashingService } from '@/common/hashing';
 import { RefreshTokenDto, SignInDto, SignUpDto } from './authentication.dto';
 import { AuthenticationService } from './authentication.service';
 
@@ -78,7 +79,7 @@ describe('authenticationService', () => {
       providers: [
         AuthenticationService,
         {
-          provide: 'PrismaService',
+          provide: PRISMA_SERVICE_TOKEN,
           useValue: mockPrismaService,
         },
         {
@@ -116,7 +117,7 @@ describe('authenticationService', () => {
     hashingService = module.get<HashingService>(HashingService);
     jwtService = module.get<JwtService>(JwtService);
     cacheManager = module.get(CACHE_MANAGER);
-    prismaService = module.get('PrismaService');
+    prismaService = module.get(PRISMA_SERVICE_TOKEN);
 
     vi.clearAllMocks();
   });

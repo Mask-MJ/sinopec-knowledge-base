@@ -8,10 +8,11 @@ import { ScheduleModule } from '@nestjs/schedule';
 import { CustomPrismaModule } from 'nestjs-prisma/dist/custom';
 
 import { ConfigModule } from './common/config/config.module';
-import { extendedPrismaClient } from './common/database/prisma.extension';
+import {
+  extendedPrismaClient,
+  PRISMA_SERVICE_TOKEN,
+} from './common/database/prisma.extension';
 import { LogsModule } from './common/logger/logs.module';
-import { MinioModule } from './common/minio/minio.module';
-import { RagflowModule } from './common/ragflow/ragflow.module';
 import { AssistantModule } from './modules/assistant/assistant.module';
 import { AuthModule } from './modules/auth/auth.module';
 import { KnowledgeBaseModule } from './modules/knowledge-base/knowledge-base.module';
@@ -23,8 +24,6 @@ import { SystemModule } from './modules/system/system.module';
   imports: [
     ConfigModule,
     LogsModule,
-    MinioModule,
-    RagflowModule,
     ScheduleModule.forRoot(),
     CacheModule.registerAsync({
       inject: [ConfigService],
@@ -39,11 +38,17 @@ import { SystemModule } from './modules/system/system.module';
     }),
     CustomPrismaModule.forRootAsync({
       isGlobal: true,
-      name: 'PrismaService',
+      name: PRISMA_SERVICE_TOKEN,
       inject: [ConfigService],
       useFactory: (configService: ConfigService) => {
         const DATABASE_URL = configService.get<string>('DATABASE_URL', '');
-        return extendedPrismaClient(DATABASE_URL);
+        return extendedPrismaClient(DATABASE_URL, {
+          max: configService.get<number>('DB_POOL_MAX'),
+          idleTimeoutMillis: configService.get<number>('DB_POOL_IDLE_TIMEOUT'),
+          connectionTimeoutMillis: configService.get<number>(
+            'DB_POOL_CONNECTION_TIMEOUT',
+          ),
+        });
       },
     }),
     EventEmitterModule.forRoot(),

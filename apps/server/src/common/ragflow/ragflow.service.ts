@@ -5,9 +5,11 @@ import { Buffer } from 'node:buffer';
 
 import { HttpService } from '@nestjs/axios';
 import {
+  BadRequestException,
   ConflictException,
   Injectable,
   Logger,
+  NotFoundException,
   ServiceUnavailableException,
 } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
@@ -41,7 +43,7 @@ export class RagflowService {
   ) {
     this.host = configService.get<string>('RAGFLOW_HOST', '');
     this.apiKey = configService.get<string>('RAGFLOW_API_KEY', '');
-    this.timeout = 30_000; // 30s 默认超时
+    this.timeout = 120_000; // 120s 默认超时
 
     if (!this.host) {
       this.logger.warn('RAGFLOW_HOST 未配置，RAGFlow 相关功能将不可用');
@@ -59,6 +61,7 @@ export class RagflowService {
     contentType?: string;
     data: Buffer;
   }> {
+    this.ensureConfigured();
     const url = `${this.host}${path}`;
     try {
       const response = await this.httpService.axiosRef.get(url, {
@@ -106,6 +109,7 @@ export class RagflowService {
     data?: unknown,
     config?: AxiosRequestConfig,
   ): Promise<T> {
+    this.ensureConfigured();
     const url = `${this.host}${path}`;
     try {
       const response = await this.httpService.axiosRef.request<
@@ -121,14 +125,21 @@ export class RagflowService {
       });
 
       if (response.data.code !== 0) {
-        throw new ConflictException(
-          `RAGFlow 请求失败: ${response.data.message ?? '未知错误'}`,
+        this.throwRagflowError(
+          response.data.message ?? '未知错误',
+          response.data.code,
         );
       }
 
       return response.data.data;
     } catch (error) {
-      if (error instanceof ConflictException) throw error;
+      if (
+        error instanceof BadRequestException ||
+        error instanceof ConflictException ||
+        error instanceof NotFoundException
+      ) {
+        throw error;
+      }
       this.logger.error(`RAGFlow 请求异常: ${method} ${path}`, error);
       throw new ServiceUnavailableException(
         'RAGFlow 服务暂时不可用，请稍后重试',
@@ -145,6 +156,7 @@ export class RagflowService {
     path: string,
     data?: unknown,
   ): Promise<Readable> {
+    this.ensureConfigured();
     const url = `${this.host}${path}`;
     try {
       const response = await this.httpService.axiosRef.request({
@@ -169,29 +181,50 @@ export class RagflowService {
    * 文件上传请求（multipart/form-data）
    */
   async uploadFile<T = unknown>(path: string, formData: FormData): Promise<T> {
+    this.ensureConfigured();
     const url = `${this.host}${path}`;
     try {
       const response = await this.httpService.axiosRef.post<RagflowResponse<T>>(
         url,
         formData,
         {
-          headers: this.getHeaders(),
+          headers: {
+            Authorization: `Bearer ${this.apiKey}`,
+          },
           timeout: 120_000, // 上传超时 2 分钟
         },
       );
 
       if (response.data.code !== 0) {
-        throw new ConflictException(
-          `RAGFlow 上传失败: ${response.data.message ?? '未知错误'}`,
+        this.throwRagflowError(
+          response.data.message ?? '未知错误',
+          response.data.code,
         );
       }
 
       return response.data.data;
     } catch (error) {
-      if (error instanceof ConflictException) throw error;
+      if (
+        error instanceof BadRequestException ||
+        error instanceof ConflictException ||
+        error instanceof NotFoundException
+      ) {
+        throw error;
+      }
       this.logger.error(`RAGFlow 上传异常: ${path}`, error);
       throw new ServiceUnavailableException(
         'RAGFlow 服务暂时不可用，请稍后重试',
+      );
+    }
+  }
+
+  /**
+   * 检查 RAGFlow 是否已配置
+   */
+  private ensureConfigured(): void {
+    if (!this.host || !this.apiKey) {
+      throw new ServiceUnavailableException(
+        'RAGFlow 服务未配置，相关功能暂不可用',
       );
     }
   }
@@ -204,5 +237,21 @@ export class RagflowService {
       Authorization: `Bearer ${this.apiKey}`,
       ...extra,
     };
+  }
+
+  /**
+   * 根据 RAGFlow 错误码抛出对应的 HTTP 异常
+   */
+  /** RAGFlow 业务错误码 */
+  private static readonly RAGFLOW_NOT_FOUND = 102;
+  private static readonly RAGFLOW_CONFLICT = 103;
+
+  private throwRagflowError(message: string, code: number): never {
+    const fullMessage = `RAGFlow: ${message}`;
+    if (code === RagflowService.RAGFLOW_NOT_FOUND)
+      throw new NotFoundException(fullMessage);
+    if (code === RagflowService.RAGFLOW_CONFLICT)
+      throw new ConflictException(fullMessage);
+    throw new BadRequestException(fullMessage);
   }
 }

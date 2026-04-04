@@ -15,21 +15,25 @@ export enum SortOrder {
 export class PaginateDto {
   /**
    * 页码
+   * @default 1
    * @example 1
    */
   @IsNumber()
+  @IsOptional()
   @IsPositive()
   @Type(() => Number)
-  current: number = 1;
+  current?: number = 1;
 
   /**
    * 每页数量
+   * @default 10
    * @example 10
    */
   @IsNumber()
+  @IsOptional()
   @IsPositive()
   @Type(() => Number)
-  pageSize: number = 10;
+  pageSize?: number = 10;
 }
 
 export class BaseDto extends PaginateDto {

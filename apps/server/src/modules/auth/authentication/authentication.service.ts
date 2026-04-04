@@ -1,5 +1,6 @@
 import type { ActiveUserData } from '../interfaces/active-user-data.interface';
 import type { PrismaService } from '@/common/database/prisma.extension';
+import { PRISMA_SERVICE_TOKEN } from '@/common/database/prisma.extension';
 import type { ConfigType } from '@nestjs/config';
 import type { Cache } from 'cache-manager';
 
@@ -18,13 +19,13 @@ import { JwtService } from '@nestjs/jwt';
 import { User } from '@prisma/generated/client';
 
 import jwtConfig from '../config/jwt.config';
-import { HashingService } from '../hashing/hashing.service';
+import { HashingService } from '@/common/hashing';
 import { RefreshTokenDto, SignInDto, SignUpDto } from './authentication.dto';
 
 @Injectable()
 export class AuthenticationService {
   constructor(
-    @Inject('PrismaService')
+    @Inject(PRISMA_SERVICE_TOKEN)
     private readonly prisma: PrismaService,
     private readonly hashingService: HashingService,
     private readonly jwtService: JwtService,

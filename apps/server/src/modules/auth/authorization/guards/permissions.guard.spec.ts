@@ -2,6 +2,7 @@ import { ExecutionContext } from '@nestjs/common';
 import { Reflector } from '@nestjs/core';
 import { Test, TestingModule } from '@nestjs/testing';
 import { vi } from 'vitest';
+import { PRISMA_SERVICE_TOKEN } from '@/common/database/prisma.extension';
 
 import { REQUEST_USER_KEY } from '../../auth.constants';
 import { PermissionsGuard } from './permissions.guard';
@@ -51,14 +52,14 @@ describe('permissionsGuard', () => {
           useValue: mockReflector,
         },
         {
-          provide: 'PrismaService',
+          provide: PRISMA_SERVICE_TOKEN,
           useValue: mockPrismaService,
         },
       ],
     }).compile();
 
     guard = module.get<PermissionsGuard>(PermissionsGuard);
-    prismaService = module.get('PrismaService');
+    prismaService = module.get(PRISMA_SERVICE_TOKEN);
 
     vi.clearAllMocks();
   });

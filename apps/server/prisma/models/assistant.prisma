@@ -8,7 +8,7 @@ model Assistant {
   avatar                   String?
   /// 助手描述
   description              String?
-  /// 聊天模型名称
+  /// 聊天模型名称（格式: model_name@provider）
   modelName                String
   /// 控制模型预测的随机性
   temperature              Float    @default(0.1)
@@ -34,6 +34,8 @@ model Assistant {
   opener                   String?
   /// 提示词模板
   prompt                   String?
+  /// RAGFlow 关联的数据集ID列表
+  datasetIds               String[] @default([])
   /// RAGFlow 关联助手ID
   assistantId              String?
   /// 创建时间

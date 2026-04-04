@@ -59,6 +59,21 @@ class EnvironmentVariables {
   @Min(0)
   DATABASE_PORT!: number;
 
+  @IsOptional()
+  @IsInt()
+  @Min(1)
+  DB_POOL_CONNECTION_TIMEOUT?: number;
+
+  @IsOptional()
+  @IsInt()
+  @Min(0)
+  DB_POOL_IDLE_TIMEOUT?: number;
+
+  @IsOptional()
+  @IsInt()
+  @Min(1)
+  DB_POOL_MAX?: number;
+
   @IsString()
   DATABASE_URL!: string;
 

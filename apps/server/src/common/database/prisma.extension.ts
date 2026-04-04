@@ -4,13 +4,24 @@ import { CustomPrismaService } from 'nestjs-prisma';
 import { pagination } from 'prisma-extension-pagination';
 // https://github.com/notiz-dev/nestjs-prisma/issues/77
 
-export const extendedPrismaClient = (url: string) =>
+export const PRISMA_SERVICE_TOKEN = 'PrismaService';
+
+export interface PrismaPoolOptions {
+  connectionTimeoutMillis?: number;
+  idleTimeoutMillis?: number;
+  max?: number;
+}
+
+export const extendedPrismaClient = (
+  url: string,
+  pool: PrismaPoolOptions = {},
+) =>
   new PrismaClient({
     adapter: new PrismaPg({
       connectionString: url,
-      max: 50,
-      idleTimeoutMillis: 30_000,
-      connectionTimeoutMillis: 2000,
+      max: pool.max ?? 50,
+      idleTimeoutMillis: pool.idleTimeoutMillis ?? 30_000,
+      connectionTimeoutMillis: pool.connectionTimeoutMillis ?? 2000,
     }),
   }).$extends(pagination({ pages: { limit: 10, includePageCount: true } }));
 
