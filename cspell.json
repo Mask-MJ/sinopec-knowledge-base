@@ -49,6 +49,8 @@
     "vitejs",
     "vitest",
     "vueuse",
+    "spreadsheetml",
+    "wordprocessingml",
     "Xinference"
   ],
   "ignorePaths": [

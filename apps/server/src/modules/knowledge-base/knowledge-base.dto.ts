@@ -8,11 +8,14 @@ import { Type } from 'class-transformer';
 import {
   IsArray,
   IsBoolean,
+  IsIn,
   IsNumber,
   IsObject,
   IsOptional,
   IsString,
 } from 'class-validator';
+
+import { PaginateDto } from '@/common/dto/base.dto';
 
 // ─── Dataset DTO ─────────────────────────────────
 
@@ -39,15 +42,14 @@ export class CreateKnowledgeBaseDto {
    */
   @IsOptional()
   @IsString()
-  description: string = '';
+  description?: string;
 
   /**
-   * 嵌入模型
-   * @example 'BAAI/bge-large-zh-v1.5@BAAI'
+   * 嵌入模型（格式: model_name@provider）
+   * @example 'bge-large-zh-v1.5@Xinference'
    */
-  @IsOptional()
   @IsString()
-  embeddingModel: string = 'BAAI/bge-large-zh-v1.5@BAAI';
+  embeddingModel: string;
 
   /**
    * 知识库名称
@@ -74,16 +76,17 @@ export class CreateKnowledgeBaseDto {
   parserConfig?: object;
 
   /**
-   * 权限标识 "me" | "team"
+   * 权限标识
    * @example 'me'
    */
+  @IsIn(['me', 'team'])
   @IsOptional()
-  @IsString()
-  permission?: string;
+  permission?: 'me' | 'team';
 }
 
-export class QueryKnowledgeBaseDto extends PartialType(
-  IntersectionType(PickType(CreateKnowledgeBaseDto, ['name'])),
+export class QueryKnowledgeBaseDto extends IntersectionType(
+  PaginateDto,
+  PartialType(PickType(CreateKnowledgeBaseDto, ['name'])),
 ) {}
 
 export class UpdateKnowledgeBaseDto extends PartialType(
@@ -100,6 +103,24 @@ export class QueryDocumentDto {
   @IsOptional()
   @IsString()
   name?: string;
+
+  /**
+   * 页码
+   * @example 1
+   */
+  @IsNumber()
+  @IsOptional()
+  @Type(() => Number)
+  page?: number = 1;
+
+  /**
+   * 每页数量
+   * @example 30
+   */
+  @IsNumber()
+  @IsOptional()
+  @Type(() => Number)
+  pageSize?: number = 30;
 }
 
 export class UpdateDocumentDto {

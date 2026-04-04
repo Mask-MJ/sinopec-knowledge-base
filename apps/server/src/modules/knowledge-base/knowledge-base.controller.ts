@@ -1,6 +1,7 @@
 import type { ActiveUserData } from '@/modules/auth/interfaces/active-user-data.interface';
 
 import {
+  BadRequestException,
   Body,
   Controller,
   Delete,
@@ -25,6 +26,7 @@ import {
 } from '@nestjs/swagger';
 
 import { FilesUploadDto } from '@/common/dto/upload.dto';
+import { ApiPaginatedResponse } from '@/common/response/paginated.response';
 import { AutoPermission } from '@/modules/auth/authorization/decorators/auto-permission.decorator';
 import { ActiveUser } from '@/modules/auth/decorators/active-user.decorator';
 
@@ -47,7 +49,7 @@ import { KnowledgeBaseService } from './knowledge-base.service';
 
 @ApiBearerAuth('bearer')
 @ApiTags('知识库管理')
-@Controller('knowledge-base')
+@Controller()
 export class KnowledgeBaseController {
   constructor(private readonly knowledgeBaseService: KnowledgeBaseService) {}
 
@@ -60,10 +62,11 @@ export class KnowledgeBaseController {
   @Post(':id/documents/:documentId/chunks')
   addChunk(
     @Param('id') id: number,
+    @ActiveUser() user: ActiveUserData,
     @Param('documentId') documentId: string,
     @Body() dto: AddChunkDto,
   ) {
-    return this.knowledgeBaseService.addChunk(id, documentId, dto);
+    return this.knowledgeBaseService.addChunk(id, user, documentId, dto);
   }
 
   /**
@@ -85,15 +88,16 @@ export class KnowledgeBaseController {
   @Get(':id/documents/:documentId')
   downloadDocument(
     @Param('id') id: number,
+    @ActiveUser() user: ActiveUserData,
     @Param('documentId') documentId: string,
   ): Promise<StreamableFile> {
-    return this.knowledgeBaseService.downloadDocument(id, documentId);
+    return this.knowledgeBaseService.downloadDocument(id, user, documentId);
   }
 
   /**
    * 获取知识库列表
    */
-  @ApiOkResponse({ type: KnowledgeBaseEntity, isArray: true })
+  @ApiPaginatedResponse(KnowledgeBaseEntity)
   @Get()
   findAll(
     @ActiveUser() user: ActiveUserData,
@@ -108,10 +112,11 @@ export class KnowledgeBaseController {
   @Get(':id/documents/:documentId/chunks')
   findAllChunks(
     @Param('id') id: number,
+    @ActiveUser() user: ActiveUserData,
     @Param('documentId') documentId: string,
     @Query() dto: QueryChunkDto,
   ) {
-    return this.knowledgeBaseService.findAllChunks(id, documentId, dto);
+    return this.knowledgeBaseService.findAllChunks(id, user, documentId, dto);
   }
 
   // ─── Document Management ──────────────────────────
@@ -120,8 +125,12 @@ export class KnowledgeBaseController {
    * 获取知识库文件列表
    */
   @Get(':id/documents')
-  findAllDocuments(@Param('id') id: number, @Query() dto: QueryDocumentDto) {
-    return this.knowledgeBaseService.findAllDocuments(id, dto);
+  findAllDocuments(
+    @Param('id') id: number,
+    @ActiveUser() user: ActiveUserData,
+    @Query() dto: QueryDocumentDto,
+  ) {
+    return this.knowledgeBaseService.findAllDocuments(id, user, dto);
   }
 
   /**
@@ -129,16 +138,19 @@ export class KnowledgeBaseController {
    */
   @ApiOkResponse({ type: KnowledgeBaseEntity })
   @Get(':id')
-  findOne(@Param('id') id: number) {
-    return this.knowledgeBaseService.findOne(id);
+  findOne(@Param('id') id: number, @ActiveUser() user: ActiveUserData) {
+    return this.knowledgeBaseService.findOne(id, user);
   }
 
   /**
    * 获取知识库元数据摘要
    */
   @Get(':id/metadata/summary')
-  getMetadataSummary(@Param('id') id: number) {
-    return this.knowledgeBaseService.getMetadataSummary(id);
+  getMetadataSummary(
+    @Param('id') id: number,
+    @ActiveUser() user: ActiveUserData,
+  ) {
+    return this.knowledgeBaseService.getMetadataSummary(id, user);
   }
 
   /**
@@ -146,8 +158,12 @@ export class KnowledgeBaseController {
    */
   @AutoPermission()
   @Post(':id/parse')
-  parseDocuments(@Param('id') id: number, @Body() dto: ParseDocumentDto) {
-    return this.knowledgeBaseService.parseDocuments(id, dto.documentIds);
+  parseDocuments(
+    @Param('id') id: number,
+    @ActiveUser() user: ActiveUserData,
+    @Body() dto: ParseDocumentDto,
+  ) {
+    return this.knowledgeBaseService.parseDocuments(id, user, dto.documentIds);
   }
 
   /**
@@ -155,8 +171,8 @@ export class KnowledgeBaseController {
    */
   @AutoPermission()
   @Delete(':id')
-  remove(@Param('id') id: number) {
-    return this.knowledgeBaseService.remove(id);
+  remove(@Param('id') id: number, @ActiveUser() user: ActiveUserData) {
+    return this.knowledgeBaseService.remove(id, user);
   }
 
   /**
@@ -166,10 +182,11 @@ export class KnowledgeBaseController {
   @Delete(':id/documents/:documentId/chunks')
   removeChunks(
     @Param('id') id: number,
+    @ActiveUser() user: ActiveUserData,
     @Param('documentId') documentId: string,
     @Body() dto: DeleteChunkDto,
   ) {
-    return this.knowledgeBaseService.removeChunks(id, documentId, dto);
+    return this.knowledgeBaseService.removeChunks(id, user, documentId, dto);
   }
 
   /**
@@ -177,8 +194,12 @@ export class KnowledgeBaseController {
    */
   @AutoPermission()
   @Delete(':id/documents')
-  removeDocuments(@Param('id') id: number, @Body() dto: DeleteDocumentDto) {
-    return this.knowledgeBaseService.removeDocuments(id, dto.documentIds);
+  removeDocuments(
+    @Param('id') id: number,
+    @ActiveUser() user: ActiveUserData,
+    @Body() dto: DeleteDocumentDto,
+  ) {
+    return this.knowledgeBaseService.removeDocuments(id, user, dto.documentIds);
   }
 
   // ─── Chunk Management ─────────────────────────────
@@ -187,8 +208,11 @@ export class KnowledgeBaseController {
    * 检索分块
    */
   @Post('retrieval')
-  retrieveChunks(@Body() dto: RetrieveChunkDto) {
-    return this.knowledgeBaseService.retrieveChunks(dto);
+  retrieveChunks(
+    @ActiveUser() user: ActiveUserData,
+    @Body() dto: RetrieveChunkDto,
+  ) {
+    return this.knowledgeBaseService.retrieveChunks(user, dto);
   }
 
   /**
@@ -196,8 +220,16 @@ export class KnowledgeBaseController {
    */
   @AutoPermission()
   @Delete(':id/parse')
-  stopParseDocuments(@Param('id') id: number, @Body() dto: ParseDocumentDto) {
-    return this.knowledgeBaseService.stopParseDocuments(id, dto.documentIds);
+  stopParseDocuments(
+    @Param('id') id: number,
+    @ActiveUser() user: ActiveUserData,
+    @Body() dto: ParseDocumentDto,
+  ) {
+    return this.knowledgeBaseService.stopParseDocuments(
+      id,
+      user,
+      dto.documentIds,
+    );
   }
 
   /**
@@ -221,11 +253,18 @@ export class KnowledgeBaseController {
   @Put(':id/documents/:documentId/chunks/:chunkId')
   updateChunk(
     @Param('id') id: number,
+    @ActiveUser() user: ActiveUserData,
     @Param('documentId') documentId: string,
     @Param('chunkId') chunkId: string,
     @Body() dto: UpdateChunkDto,
   ) {
-    return this.knowledgeBaseService.updateChunk(id, documentId, chunkId, dto);
+    return this.knowledgeBaseService.updateChunk(
+      id,
+      user,
+      documentId,
+      chunkId,
+      dto,
+    );
   }
 
   /**
@@ -235,10 +274,11 @@ export class KnowledgeBaseController {
   @Patch(':id/documents/:documentId')
   updateDocument(
     @Param('id') id: number,
+    @ActiveUser() user: ActiveUserData,
     @Param('documentId') documentId: string,
     @Body() dto: UpdateDocumentDto,
   ) {
-    return this.knowledgeBaseService.updateDocument(id, documentId, dto);
+    return this.knowledgeBaseService.updateDocument(id, user, documentId, dto);
   }
 
   /**
@@ -248,11 +288,36 @@ export class KnowledgeBaseController {
   @ApiConsumes('multipart/form-data')
   @AutoPermission()
   @Post(':id/documents')
-  @UseInterceptors(FilesInterceptor('files'))
+  @UseInterceptors(
+    FilesInterceptor('files', 10, {
+      limits: { fileSize: 50 * 1024 * 1024 },
+      fileFilter: (_req, file, cb) => {
+        const ALLOWED_MIMES = new Set([
+          'application/pdf',
+          'application/vnd.ms-excel',
+          'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+          'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+          'application/msword',
+          'text/csv',
+          'text/markdown',
+          'text/plain',
+        ]);
+        if (ALLOWED_MIMES.has(file.mimetype)) {
+          cb(null, true);
+        } else {
+          cb(
+            new BadRequestException(`不支持的文件类型: ${file.mimetype}`),
+            false,
+          );
+        }
+      },
+    }),
+  )
   uploadDocuments(
     @Param('id') id: number,
+    @ActiveUser() user: ActiveUserData,
     @UploadedFiles() files: Express.Multer.File[],
   ) {
-    return this.knowledgeBaseService.uploadDocuments(id, files);
+    return this.knowledgeBaseService.uploadDocuments(id, user, files);
   }
 }
