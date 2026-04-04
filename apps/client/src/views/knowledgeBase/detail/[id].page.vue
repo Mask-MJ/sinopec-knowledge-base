@@ -13,7 +13,6 @@ import {
   useNDataTable,
 } from 'pro-naive-ui';
 
-import { PERMISSION } from '@/config/constants/permissionCodes';
 import {
   createKnowledgeBase,
   deleteKnowledgeBase,
@@ -23,6 +22,7 @@ import {
   updateKnowledgeBase,
 } from '@/api/knowledgeBase';
 import TableAction from '@/components/common/TableAction.vue';
+import { PERMISSION } from '@/config/constants/permissionCodes';
 import { $t } from '@/locales';
 import { downloadFileFromBlobPart } from '@/utils';
 
@@ -99,7 +99,10 @@ const columns = computed(() => [
             buttonProps: {
               type: 'info',
               quaternary: true,
-              onClick: () => download(row),
+              onClick: () => {
+                // TODO: implement parse/stop-parse API call
+                window.$message.warning('解析功能暂未实现');
+              },
             },
           },
           {

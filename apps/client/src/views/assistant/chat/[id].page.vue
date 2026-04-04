@@ -26,7 +26,9 @@ const drawerForm = createProDrawerForm({
 </script>
 
 <template>
-  <n-card content-style="height: calc(100vh - 85px)">
+  <n-card
+    content-style="height: calc(100vh - 85px); display: flex; flex-direction: column;"
+  >
     <div class="h-full flex">
       <ChatSidebar
         ref="sidebarRef"
@@ -42,7 +44,7 @@ const drawerForm = createProDrawerForm({
 
       <div class="min-w-0 flex flex-1 flex-col">
         <div
-          class="shrink-0 flex items-center justify-between border-b border-gray-200/60 px-4 pb-3 dark:border-gray-700/40"
+          class="shrink-0 flex items-center justify-between border-b border-[var(--n-border-color)] px-4 pb-3"
         >
           <span class="truncate text-base font-medium">
             {{ activeSession?.name || '' }}
@@ -50,11 +52,13 @@ const drawerForm = createProDrawerForm({
         </div>
 
         <div class="min-h-0 flex-1 px-4">
-          <ChatPanel
-            :assistant-id="assistantId"
-            :session-id="activeId"
-            :messages="activeSession?.messages || []"
-          />
+          <div class="mx-auto h-full max-w-4xl">
+            <ChatPanel
+              :assistant-id="assistantId"
+              :session-id="activeId"
+              :messages="activeSession?.messages || []"
+            />
+          </div>
         </div>
       </div>
     </div>

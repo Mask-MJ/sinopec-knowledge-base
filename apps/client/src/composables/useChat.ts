@@ -1,38 +1,19 @@
-import type { BubbleProps } from 'vue-element-plus-x/types/Bubble';
-import type { ThinkingStatus } from 'vue-element-plus-x/types/Thinking';
-
-import { useXStream } from 'vue-element-plus-x';
-
 import { completions } from '@/api/assistant';
 
-export interface ChatMessage extends BubbleProps {
-  collapse?: boolean;
-  content?: string;
+import { useSSEStream } from './useSSEStream';
+
+export interface ChatMessage {
+  content: string;
   key: number;
-  reasoning_content?: string;
+  loading: boolean;
+  reasoning: string;
   role: 'assistant' | 'user';
-  thinkingStatus?: ThinkingStatus;
-}
-
-interface StreamChunkData {
-  answer: string;
-}
-
-function isStreamChunkData(data: unknown): data is StreamChunkData {
-  return typeof data === 'object' && data !== null && 'answer' in data;
-}
-
-function safeJsonParse(raw: string | undefined): unknown {
-  if (!raw) return null;
-  try {
-    return JSON.parse(raw);
-  } catch {
-    return null;
-  }
+  thinkingStatus: 'end' | 'start' | 'thinking';
 }
 
 /**
- * Parse think tags from text. Returns [reasoning, content] tuple.
+ * Parse `<think>...</think>` tags from text.
+ * Returns [reasoning, content] tuple.
  */
 export function parseThinkContent(text: string): [string, string] {
   const reasoning = [...text.matchAll(/<think>([\s\S]*?)<\/think>/g)]
@@ -51,7 +32,7 @@ export function useChat(
   const sending = ref(false);
   let activeAssistantIndex = -1;
 
-  const { startStream, data } = useXStream();
+  const sseStream = useSSEStream();
 
   function initMessages(
     history: ReadonlyArray<{ content?: string; role: string }>,
@@ -62,16 +43,9 @@ export function useChat(
         key: i,
         role: item.role as 'assistant' | 'user',
         content,
-        reasoning_content: reasoning,
-        placement: (item.role === 'assistant' ? 'start' : 'end') as
-          | 'end'
-          | 'start',
-        avatarSize: '32px',
-        avatarGap: '12px',
-        isMarkdown: item.role === 'assistant',
+        reasoning,
         loading: false,
         thinkingStatus: 'end' as const,
-        collapse: false,
       };
     });
     activeAssistantIndex = -1;
@@ -93,27 +67,17 @@ export function useChat(
       key: messages.value.length,
       role: 'user',
       content: question,
-      reasoning_content: '',
-      placement: 'end',
-      avatarSize: '32px',
-      avatarGap: '12px',
-      isMarkdown: false,
+      reasoning: '',
       loading: false,
       thinkingStatus: 'end',
-      collapse: false,
     };
     const assistantMsg: ChatMessage = {
       key: messages.value.length + 1,
       role: 'assistant',
       content: '',
-      reasoning_content: '',
-      placement: 'start',
-      avatarSize: '32px',
-      avatarGap: '12px',
-      isMarkdown: true,
+      reasoning: '',
       loading: true,
       thinkingStatus: 'start',
-      collapse: false,
     };
     messages.value = [...messages.value, userMsg, assistantMsg];
     activeAssistantIndex = messages.value.length - 1;
@@ -125,7 +89,7 @@ export function useChat(
         question,
       });
       if (!response.body) throw new Error('响应体为空');
-      await startStream({ readableStream: response.body });
+      await sseStream.startStream(response.body);
     } catch {
       updateAssistantMessage({
         content: '请求失败，请重试',
@@ -138,54 +102,31 @@ export function useChat(
     }
   }
 
-  watch(
-    data,
-    (chunks) => {
-      if (chunks.length === 0 || activeAssistantIndex < 0) return;
+  // Watch SSE stream content changes
+  watch(sseStream.content, (text) => {
+    if (activeAssistantIndex < 0 || !text) return;
+    const [reasoning, content] = parseThinkContent(text);
+    updateAssistantMessage({
+      content,
+      reasoning,
+      loading: true,
+      thinkingStatus: reasoning ? 'thinking' : 'start',
+    });
+  });
 
-      const lastRaw = safeJsonParse(
-        chunks[chunks.length - 1]?.data,
-      ) as null | Record<string, unknown>;
-      if (!lastRaw) return;
-
-      const payload = lastRaw.data;
-
-      // Stream end signal: data === true
-      if (payload === true) {
-        const prev =
-          chunks.length >= 2
-            ? (safeJsonParse(chunks[chunks.length - 2]?.data) as null | Record<
-                string,
-                unknown
-              >)
-            : null;
-        const prevPayload = prev?.data;
-        const text = isStreamChunkData(prevPayload) ? prevPayload.answer : '';
-        const [reasoning, content] = parseThinkContent(text);
+  // Watch stream end
+  watch(sseStream.isStreaming, (streaming) => {
+    if (!streaming && activeAssistantIndex >= 0) {
+      const current = messages.value[activeAssistantIndex];
+      if (current) {
         updateAssistantMessage({
-          content,
-          reasoning_content: reasoning,
           loading: false,
           thinkingStatus: 'end',
-          collapse: false,
-        });
-        return;
-      }
-
-      // Normal chunk
-      if (isStreamChunkData(payload)) {
-        const [reasoning, content] = parseThinkContent(payload.answer);
-        updateAssistantMessage({
-          content,
-          reasoning_content: reasoning,
-          loading: true,
-          thinkingStatus: 'thinking',
-          collapse: true,
         });
       }
-    },
-    { deep: true },
-  );
+      activeAssistantIndex = -1;
+    }
+  });
 
   return {
     messages,

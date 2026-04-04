@@ -25,6 +25,7 @@
     "defu": "catalog:",
     "echarts": "catalog:",
     "lodash-es": "catalog:",
+    "markstream-vue": "catalog:",
     "naive-ui": "catalog:",
     "nprogress": "catalog:",
     "openapi-fetch": "catalog:",
@@ -33,7 +34,6 @@
     "theme-colors": "catalog:",
     "vue": "catalog:",
     "vue-echarts": "catalog:",
-    "markstream-vue": "catalog:",
     "vue-i18n": "catalog:",
     "vue-router": "catalog:"
   },

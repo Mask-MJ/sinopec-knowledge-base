@@ -71,7 +71,13 @@ watchEffect(() => {
         :description="$t('common.noData')"
         class="py-16"
       />
-      <n-grid v-else x-gap="16" y-gap="16" :cols="4">
+      <n-grid
+        v-else
+        x-gap="16"
+        y-gap="16"
+        cols="1 s:2 m:3 l:4"
+        responsive="screen"
+      >
         <n-gi v-for="item in assistantList" :key="item.id">
           <n-card
             hoverable

@@ -9,7 +9,7 @@
 export function useSSEStream() {
   const content = ref('');
   const isStreaming = ref(false);
-  const error = ref<string | null>(null);
+  const error = ref<null | string>(null);
 
   let abortController: AbortController | null = null;
 
@@ -29,9 +29,8 @@ export function useSSEStream() {
     isStreaming.value = true;
     abortController = new AbortController();
 
-    const reader = stream
-      .pipeThrough(new TextDecoderStream())
-      .getReader();
+    const decoder = new TextDecoder();
+    const reader = stream.getReader();
 
     let buffer = '';
 
@@ -40,7 +39,7 @@ export function useSSEStream() {
         const { done, value } = await reader.read();
         if (done || abortController.signal.aborted) break;
 
-        buffer += value;
+        buffer += decoder.decode(value, { stream: true });
         const lines = buffer.split('\n');
         // Keep the last incomplete line in buffer
         buffer = lines.pop() ?? '';
@@ -53,7 +52,9 @@ export function useSSEStream() {
           if (!raw) continue;
 
           try {
-            const parsed = JSON.parse(raw) as { data: { answer: string } | true };
+            const parsed = JSON.parse(raw) as {
+              data: true | { answer: string };
+            };
             if (parsed.data === true) {
               // Stream end signal
               isStreaming.value = false;
@@ -71,9 +72,9 @@ export function useSSEStream() {
           }
         }
       }
-    } catch (e) {
+    } catch (error_) {
       if (!abortController?.signal.aborted) {
-        error.value = e instanceof Error ? e.message : '流式请求失败';
+        error.value = error_ instanceof Error ? error_.message : '流式请求失败';
       }
     } finally {
       isStreaming.value = false;
