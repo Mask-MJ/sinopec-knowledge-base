@@ -19,6 +19,8 @@ import {
   ApiTags,
 } from '@nestjs/swagger';
 
+import { ApiPaginatedResponse } from '@/common/response/paginated.response';
+
 import { AutoPermission } from '@/modules/auth/authorization/decorators/auto-permission.decorator';
 import { ActiveUser } from '@/modules/auth/decorators/active-user.decorator';
 
@@ -36,7 +38,7 @@ import { AssistantService } from './assistant.service';
 
 @ApiBearerAuth('bearer')
 @ApiTags('聊天助手管理')
-@Controller('assistant')
+@Controller()
 export class AssistantController {
   constructor(private readonly assistantService: AssistantService) {}
 
@@ -82,7 +84,7 @@ export class AssistantController {
   /**
    * 获取聊天助手列表
    */
-  @ApiOkResponse({ type: AssistantEntity, isArray: true })
+  @ApiPaginatedResponse(AssistantEntity)
   @Get()
   findAll(@ActiveUser() user: ActiveUserData, @Query() dto: QueryAssistantDto) {
     return this.assistantService.findAll(user, dto);
@@ -106,8 +108,8 @@ export class AssistantController {
    */
   @ApiOkResponse({ type: AssistantEntity })
   @Get(':id')
-  findOne(@Param('id') id: number) {
-    return this.assistantService.findOne(+id);
+  findOne(@Param('id') id: number, @ActiveUser() user: ActiveUserData) {
+    return this.assistantService.findOne(id, user);
   }
 
   /**
@@ -115,8 +117,8 @@ export class AssistantController {
    */
   @AutoPermission()
   @Delete(':id')
-  remove(@Param('id') id: number) {
-    return this.assistantService.remove(id);
+  remove(@Param('id') id: number, @ActiveUser() user: ActiveUserData) {
+    return this.assistantService.remove(id, user);
   }
 
   /**
@@ -127,9 +129,10 @@ export class AssistantController {
   @Delete(':id/sessions/:sessionId')
   removeSession(
     @Param('id') id: number,
+    @ActiveUser() user: ActiveUserData,
     @Param('sessionId') sessionId: string,
   ) {
-    return this.assistantService.removeSession(id, sessionId);
+    return this.assistantService.removeSession(id, user, sessionId);
   }
 
   /**

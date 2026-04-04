@@ -48,7 +48,8 @@
     "vite",
     "vitejs",
     "vitest",
-    "vueuse"
+    "vueuse",
+    "Xinference"
   ],
   "ignorePaths": [
     "**/*.log",

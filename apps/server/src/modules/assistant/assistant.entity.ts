@@ -10,6 +10,9 @@ export class AssistantEntity implements Assistant {
   /** 创建时间 */
   createdAt: Date;
 
+  /** RAGFlow 关联的数据集ID列表 */
+  datasetIds: string[];
+
   /** 助手描述 */
   description: null | string;
 

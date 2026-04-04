@@ -8,6 +8,8 @@ import {
   IsString,
 } from 'class-validator';
 
+import { PaginateDto } from '@/common/dto/base.dto';
+
 // ─── Assistant DTO ───────────────────────────────
 
 export class CreateAssistantDto {
@@ -72,12 +74,11 @@ export class CreateAssistantDto {
   maxTokens?: number = 512;
 
   /**
-   * 聊天模型名称
-   * @example 'deepseek-r1@Tongyi-Qianwen'
+   * 聊天模型名称（格式: model_name@provider）
+   * @example 'deepseek-r1@Xinference'
    */
-  @IsOptional()
   @IsString()
-  modelName: string = 'deepseek-r1@Tongyi-Qianwen';
+  modelName: string;
 
   /**
    * 助手名称
@@ -157,8 +158,9 @@ export class CreateAssistantDto {
   topP?: number = 0.3;
 }
 
-export class QueryAssistantDto extends PartialType(
-  IntersectionType(PickType(CreateAssistantDto, ['name'])),
+export class QueryAssistantDto extends IntersectionType(
+  PaginateDto,
+  PartialType(PickType(CreateAssistantDto, ['name'])),
 ) {}
 
 export class UpdateAssistantDto extends PartialType(CreateAssistantDto) {}
