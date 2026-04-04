@@ -9,6 +9,7 @@ import {
   useNDataTable,
 } from 'pro-naive-ui';
 
+import { PERMISSION } from '@/config/constants/permissionCodes';
 import { getDeptList } from '@/api/system/dept';
 import { getRoleList } from '@/api/system/role';
 import {
@@ -69,7 +70,24 @@ const columns = computed<ProDataTableColumns<UserInfo>>(() => [
     render: (row) => row.roles.map((role) => role.name).join(', '),
   },
   { title: $t('page.system.user.email'), key: 'email' },
-  { title: $t('page.system.user.dept'), key: 'dept.name' },
+  {
+    title: $t('page.system.user.dept'),
+    key: 'dept.name',
+    render: (row) => {
+      const deptName = (row as unknown as { dept?: { name: string } }).dept?.name ?? '';
+      if (row.isDeptAdmin) {
+        return h('span', [
+          deptName,
+          h(
+            NTag,
+            { type: 'warning', size: 'small', class: 'ml-2' },
+            () => $t('page.system.user.deptAdmin'),
+          ),
+        ]);
+      }
+      return deptName;
+    },
+  },
   {
     title: $t('common.status'),
     key: 'status',
@@ -90,12 +108,12 @@ const columns = computed<ProDataTableColumns<UserInfo>>(() => [
           : [
               {
                 type: 'edit',
-                auth: 'system:user:update',
+                auth: PERMISSION.SYSTEM.USER.UPDATE,
                 onClick: () => edit(row),
               },
               {
                 label: $t('page.system.user.resetPassword'),
-                auth: 'system:user:update',
+                auth: PERMISSION.SYSTEM.USER.UPDATE,
                 buttonProps: {
                   type: 'warning',
                   quaternary: true,
@@ -104,7 +122,7 @@ const columns = computed<ProDataTableColumns<UserInfo>>(() => [
               },
               {
                 type: 'del',
-                auth: 'system:user:delete',
+                auth: PERMISSION.SYSTEM.USER.DELETE,
                 onClick: async () => {
                   await deleteUser(row.id);
                   reset();

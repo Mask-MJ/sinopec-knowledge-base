@@ -7,6 +7,7 @@ import { has } from 'lodash-es';
 import { NTag } from 'naive-ui';
 import { createProDrawerForm } from 'pro-naive-ui';
 
+import { PERMISSION } from '@/config/constants/permissionCodes';
 import {
   createMenu,
   deleteMenu,
@@ -73,12 +74,12 @@ const columns = computed<ProDataTableColumns<MenuInfo>>(() => [
         actions: [
           {
             type: 'edit',
-            auth: 'system:menu:update',
+            auth: PERMISSION.SYSTEM.MENU.UPDATE,
             onClick: () => edit(row),
           },
           {
             type: 'del',
-            auth: 'system:menu:delete',
+            auth: PERMISSION.SYSTEM.MENU.DELETE,
             onClick: async () => {
               await deleteMenu(row.id);
               getTableData();

@@ -3,6 +3,7 @@ import type { KnowledgeBaseInfo } from '@/api/knowledgeBase';
 import type { SearchParams } from '@/api/system/role';
 import type { ProDataTableColumns, ProSearchFormColumns } from 'pro-naive-ui';
 
+import { PERMISSION } from '@/config/constants/permissionCodes';
 import { has } from 'lodash-es';
 import {
   createProModalForm,
@@ -67,7 +68,7 @@ const columns = computed<ProDataTableColumns<KnowledgeBaseInfo>>(() => [
         actions: [
           {
             type: 'edit',
-            auth: 'system:user:update',
+            auth: PERMISSION.KNOWLEDGE_BASE.UPDATE,
             onClick: () => edit(row),
           },
           {
@@ -82,7 +83,7 @@ const columns = computed<ProDataTableColumns<KnowledgeBaseInfo>>(() => [
           },
           {
             type: 'del',
-            auth: 'system:user:delete',
+            auth: PERMISSION.KNOWLEDGE_BASE.DELETE,
             onClick: async () => {
               await deleteKnowledgeBase(row.id);
               reset();
@@ -110,7 +111,7 @@ const {
 } = useNDataTable(
   async (_params, formData) => {
     const { data } = await getKnowledgeBaseList(formData);
-    return { list: data || [], total: data?.length || 0 };
+    return { list: data?.list || [], total: data?.totalCount || 0 };
   },
   { form: searchForm },
 );

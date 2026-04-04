@@ -2,6 +2,7 @@ import proNaive from 'pro-naive-ui';
 import { createApp } from 'vue';
 
 import { DEFAULT_PREFERENCES } from '@/config/preferences';
+import { setupDirectives } from '@/directives';
 import { $t, setupI18n } from '@/locales';
 import { initRouter, router } from '@/router';
 import { initStores } from '@/stores';
@@ -14,6 +15,8 @@ import './style';
 async function bootstrap() {
   const app = createApp(App);
   app.use(proNaive);
+  // 注册自定义指令
+  setupDirectives(app);
   // 国际化 i18n 配置
   await setupI18n(app);
   // 初始化全局状态管理

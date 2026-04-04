@@ -9,6 +9,7 @@ import {
   useNDataTable,
 } from 'pro-naive-ui';
 
+import { PERMISSION } from '@/config/constants/permissionCodes';
 import {
   createPost,
   deletePost,
@@ -61,12 +62,12 @@ const columns = computed<ProDataTableColumns<PostInfo>>(() => [
         actions: [
           {
             type: 'edit',
-            auth: 'system:post:update',
+            auth: PERMISSION.SYSTEM.POST.UPDATE,
             onClick: () => edit(row),
           },
           {
             type: 'del',
-            auth: 'system:post:delete',
+            auth: PERMISSION.SYSTEM.POST.DELETE,
             onClick: async () => {
               await deletePost(row.id);
               reset();

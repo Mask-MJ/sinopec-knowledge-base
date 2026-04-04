@@ -11,6 +11,7 @@ import {
   useNDataTable,
 } from 'pro-naive-ui';
 
+import { PERMISSION } from '@/config/constants/permissionCodes';
 import { getMenuList } from '@/api/system/menu';
 import {
   createRole,
@@ -70,12 +71,12 @@ const columns = computed<ProDataTableColumns<RoleInfo>>(() => [
         actions: [
           {
             type: 'edit',
-            auth: 'system:role:update',
+            auth: PERMISSION.SYSTEM.ROLE.UPDATE,
             onClick: () => edit(row),
           },
           {
             type: 'del',
-            auth: 'system:role:delete',
+            auth: PERMISSION.SYSTEM.ROLE.DELETE,
             onClick: async () => {
               await deleteRole(row.id);
               reset();

@@ -13,6 +13,7 @@ import {
   useNDataTable,
 } from 'pro-naive-ui';
 
+import { PERMISSION } from '@/config/constants/permissionCodes';
 import {
   createKnowledgeBase,
   deleteKnowledgeBase,
@@ -79,7 +80,7 @@ const columns = computed(() => [
         actions: [
           {
             type: 'edit',
-            auth: 'system:user:update',
+            auth: PERMISSION.KNOWLEDGE_BASE.UPDATE,
             onClick: () => edit(row),
           },
           {
@@ -103,7 +104,7 @@ const columns = computed(() => [
           },
           {
             type: 'del',
-            auth: 'system:user:delete',
+            auth: PERMISSION.KNOWLEDGE_BASE.DELETE,
             onClick: async () => {
               await deleteKnowledgeBase(row.id);
               reset();

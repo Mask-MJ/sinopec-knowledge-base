@@ -5,6 +5,7 @@ import type { ProDataTableColumns } from 'pro-naive-ui';
 import { NTag } from 'naive-ui';
 import { createProModalForm } from 'pro-naive-ui';
 
+import { PERMISSION } from '@/config/constants/permissionCodes';
 import {
   createDict,
   createDictData,
@@ -53,12 +54,12 @@ const columns = computed<ProDataTableColumns<DictDataInfo>>(() => [
         actions: [
           {
             type: 'edit',
-            auth: 'system:dict:update',
+            auth: PERMISSION.SYSTEM.DICT.UPDATE,
             onClick: () => editDictData(row),
           },
           {
             type: 'del',
-            auth: 'system:dict:delete',
+            auth: PERMISSION.SYSTEM.DICT.DELETE,
             onClick: async () => {
               await removeDictData(row);
             },

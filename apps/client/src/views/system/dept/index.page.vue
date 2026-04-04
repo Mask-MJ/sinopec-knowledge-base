@@ -9,6 +9,7 @@ import {
   useNDataTable,
 } from 'pro-naive-ui';
 
+import { PERMISSION } from '@/config/constants/permissionCodes';
 import {
   createDept,
   deleteDept,
@@ -59,12 +60,12 @@ const columns = computed<ProDataTableColumns<DeptInfo>>(() => [
         actions: [
           {
             type: 'edit',
-            auth: 'system:dept:update',
+            auth: PERMISSION.SYSTEM.DEPT.UPDATE,
             onClick: () => edit(row),
           },
           {
             type: 'del',
-            auth: 'system:dept:delete',
+            auth: PERMISSION.SYSTEM.DEPT.DELETE,
             onClick: async () => {
               await deleteDept(row.id);
               reset();
@@ -158,7 +159,6 @@ onMounted(async () => {
         required
         path="leaderId"
         :field-props="{ options: userOptions }"
-        :hidden="Boolean(modalForm.values.value.id)"
       />
       <pro-input :title="$t('page.system.dept.phone')" path="phone" />
       <pro-input :title="$t('page.system.dept.email')" path="email" />
