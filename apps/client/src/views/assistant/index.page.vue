@@ -27,7 +27,7 @@ const getData = async () => {
     const { data } = await getAssistantList({
       name: searchQuery.value,
     });
-    assistantList.value = data || [];
+    assistantList.value = data?.list ?? [];
   } finally {
     loading.value = false;
   }

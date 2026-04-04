@@ -10,20 +10,22 @@ export type SearchSessionParams =
   operations['AssistantController_findAllSessions']['parameters']['query'];
 
 // 获取助手列表
-export function getAssistantList(query?: SearchParams) {
-  return client.GET('/api/assistant/assistant', { params: { query } });
+export function getAssistantList(query?: Partial<SearchParams>) {
+  return client.GET('/api/assistant', {
+    params: { query: query as SearchParams },
+  });
 }
 
 // 创建助手
 export function createAssistant(
   body: components['schemas']['CreateAssistantDto'],
 ) {
-  return client.POST('/api/assistant/assistant', { body });
+  return client.POST('/api/assistant', { body });
 }
 
 // 获取单个助手信息
 export function getAssistantDetail(id: number) {
-  return client.GET('/api/assistant/assistant/{id}', {
+  return client.GET('/api/assistant/{id}', {
     params: { path: { id } },
   });
 }
@@ -33,7 +35,7 @@ export function updateAssistant(
   id: number,
   body: components['schemas']['UpdateAssistantDto'],
 ) {
-  return client.PATCH('/api/assistant/assistant/{id}', {
+  return client.PATCH('/api/assistant/{id}', {
     body,
     params: { path: { id } },
   });
@@ -41,7 +43,7 @@ export function updateAssistant(
 
 // 删除助手
 export function deleteAssistant(id: number) {
-  return client.DELETE('/api/assistant/assistant/{id}', {
+  return client.DELETE('/api/assistant/{id}', {
     params: { path: { id } },
   });
 }
@@ -51,7 +53,7 @@ export function createChatSession(
   id: number,
   body: components['schemas']['CreateSessionDto'],
 ) {
-  return client.POST('/api/assistant/assistant/{id}/sessions', {
+  return client.POST('/api/assistant/{id}/sessions', {
     params: { path: { id } },
     body,
   });
@@ -63,7 +65,7 @@ export function updateChatSession(
   sessionId: string,
   body: components['schemas']['UpdateSessionDto'],
 ) {
-  return client.PATCH('/api/assistant/assistant/{id}/sessions/{sessionId}', {
+  return client.PATCH('/api/assistant/{id}/sessions/{sessionId}', {
     params: { path: { id, sessionId } },
     body,
   });
@@ -71,14 +73,14 @@ export function updateChatSession(
 
 // 获取与聊天助手的会话列表
 export function getChatSessionList(id: number, query: SearchSessionParams) {
-  return client.GET('/api/assistant/assistant/{id}/sessions', {
+  return client.GET('/api/assistant/{id}/sessions', {
     params: { path: { id }, query },
   });
 }
 
 // 删除与聊天助手的会话
 export function deleteChatSession(id: number, sessionId: string) {
-  return client.DELETE('/api/assistant/assistant/{id}/sessions/{sessionId}', {
+  return client.DELETE('/api/assistant/{id}/sessions/{sessionId}', {
     params: { path: { id, sessionId } },
   });
 }
@@ -88,7 +90,7 @@ export function completions(
   id: number,
   body: components['schemas']['CreateCompletionsDto'],
 ) {
-  return client.POST('/api/assistant/assistant/{id}/completions', {
+  return client.POST('/api/assistant/{id}/completions', {
     params: { path: { id } },
     body,
     parseAs: 'stream',

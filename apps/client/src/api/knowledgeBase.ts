@@ -9,9 +9,9 @@ export type SearchParamsWithDocument =
   operations['KnowledgeBaseController_findAllDocuments']['parameters']['query'];
 
 // 获取知识库列表
-export function getKnowledgeBaseList(query?: SearchParams) {
-  return client.GET('/api/knowledge-base/knowledge-base', {
-    params: { query },
+export function getKnowledgeBaseList(query?: Partial<SearchParams>) {
+  return client.GET('/api/knowledge-base', {
+    params: { query: query as SearchParams },
   });
 }
 
@@ -19,12 +19,12 @@ export function getKnowledgeBaseList(query?: SearchParams) {
 export function createKnowledgeBase(
   body: components['schemas']['CreateKnowledgeBaseDto'],
 ) {
-  return client.POST('/api/knowledge-base/knowledge-base', { body });
+  return client.POST('/api/knowledge-base', { body });
 }
 
 // 获取单个知识库信息
 export function getKnowledgeBaseDetail(id: number) {
-  return client.GET('/api/knowledge-base/knowledge-base/{id}', {
+  return client.GET('/api/knowledge-base/{id}', {
     params: { path: { id } },
   });
 }
@@ -34,7 +34,7 @@ export function updateKnowledgeBase(
   id: number,
   body: components['schemas']['UpdateKnowledgeBaseDto'],
 ) {
-  return client.PATCH('/api/knowledge-base/knowledge-base/{id}', {
+  return client.PATCH('/api/knowledge-base/{id}', {
     body,
     params: { path: { id } },
   });
@@ -42,7 +42,7 @@ export function updateKnowledgeBase(
 
 // 删除知识库
 export function deleteKnowledgeBase(id: number) {
-  return client.DELETE('/api/knowledge-base/knowledge-base/{id}', {
+  return client.DELETE('/api/knowledge-base/{id}', {
     params: { path: { id } },
   });
 }
@@ -52,7 +52,7 @@ export function getKnowledgeBaseFileList(
   id: number,
   query?: SearchParamsWithDocument,
 ) {
-  return client.GET('/api/knowledge-base/knowledge-base/{id}/documents', {
+  return client.GET('/api/knowledge-base/{id}/documents', {
     params: { path: { id }, query },
   });
 }
@@ -60,7 +60,7 @@ export function getKnowledgeBaseFileList(
 // 下载知识库文件
 export function downloadKnowledgeBaseFile(id: number, documentId: string) {
   return client.GET(
-    '/api/knowledge-base/knowledge-base/{id}/documents/{documentId}',
+    '/api/knowledge-base/{id}/documents/{documentId}',
     {
       params: { path: { id, documentId } },
       parseAs: 'stream',

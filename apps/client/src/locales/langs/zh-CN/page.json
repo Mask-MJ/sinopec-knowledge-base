@@ -151,6 +151,17 @@
     "chat": {
       "title": "聊天列表",
       "newChat": "新建聊天",
+      "conversations": "会话列表",
+      "newSession": "新建会话",
+      "noSession": "暂无会话",
+      "noSessions": "暂无会话",
+      "createFirst": "创建第一个会话",
+      "searchPlaceholder": "搜索会话...",
+      "collapseSidebar": "收起侧边栏",
+      "expandSidebar": "展开侧边栏",
+      "settings": "聊天设置",
+      "welcomeTitle": "有什么可以帮到你？",
+      "welcomeHint": "输入问题开始对话",
       "temperature": "温度系数",
       "topP": "Top P",
       "presencePenalty": "存在惩罚",
@@ -319,6 +330,7 @@
       "dept": "所属部门",
       "addUser": "新增用户",
       "editUser": "编辑用户",
+      "deptAdmin": "主管",
       "invalidEmail": "请输入有效的邮箱地址"
     },
     "role": {

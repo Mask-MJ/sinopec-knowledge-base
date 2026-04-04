@@ -143,6 +143,17 @@
     "chat": {
       "title": "Chat List",
       "newChat": "New Chat",
+      "conversations": "Conversations",
+      "newSession": "New Session",
+      "noSession": "No Sessions",
+      "noSessions": "No Sessions",
+      "createFirst": "Create your first session",
+      "searchPlaceholder": "Search sessions...",
+      "collapseSidebar": "Collapse Sidebar",
+      "expandSidebar": "Expand Sidebar",
+      "settings": "Chat Settings",
+      "welcomeTitle": "How can I help you?",
+      "welcomeHint": "Type a question to start",
       "temperature": "Temperature",
       "topP": "Top P",
       "presencePenalty": "Presence Penalty",
@@ -311,6 +322,7 @@
       "dept": "Department",
       "addUser": "Add User",
       "editUser": "Edit User",
+      "deptAdmin": "Manager",
       "invalidEmail": "Please enter a valid email address"
     },
     "role": {
