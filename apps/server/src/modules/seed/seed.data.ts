@@ -401,4 +401,14 @@ export const SEED_DICTS: Prisma.DictCreateInput[] = [
       ],
     },
   },
+  {
+    name: '知识库权限',
+    value: 'knowledgeBase.permission',
+    dictData: {
+      create: [
+        { name: '个人', value: 'me', order: 1 },
+        { name: '部门', value: 'team', order: 2 },
+      ],
+    },
+  },
 ];

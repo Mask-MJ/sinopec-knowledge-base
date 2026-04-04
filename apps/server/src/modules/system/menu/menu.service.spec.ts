@@ -1,6 +1,7 @@
 import { EventEmitter2 } from '@nestjs/event-emitter';
 import { Test, TestingModule } from '@nestjs/testing';
 import { vi } from 'vitest';
+import { PRISMA_SERVICE_TOKEN } from '@/common/database/prisma.extension';
 
 import { ActiveUserData } from '@/modules/auth/interfaces/active-user-data.interface';
 
@@ -38,7 +39,7 @@ describe('menuService', () => {
       providers: [
         MenuService,
         {
-          provide: 'PrismaService',
+          provide: PRISMA_SERVICE_TOKEN,
           useValue: mockPrismaService,
         },
         {
@@ -49,7 +50,7 @@ describe('menuService', () => {
     }).compile();
 
     service = module.get<MenuService>(MenuService);
-    prismaService = module.get('PrismaService');
+    prismaService = module.get(PRISMA_SERVICE_TOKEN);
 
     vi.clearAllMocks();
   });

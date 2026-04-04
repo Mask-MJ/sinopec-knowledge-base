@@ -1,6 +1,7 @@
 import { EventEmitter2 } from '@nestjs/event-emitter';
 import { Test, TestingModule } from '@nestjs/testing';
 import { vi } from 'vitest';
+import { PRISMA_SERVICE_TOKEN } from '@/common/database/prisma.extension';
 
 import { CreateDeptDto, QueryDeptDto, UpdateDeptDto } from './dept.dto';
 import { DeptService } from './dept.service';
@@ -11,11 +12,16 @@ describe('deptService', () => {
 
   const mockPrismaService = {
     client: {
+      $transaction: vi.fn((fn: (tx: unknown) => Promise<unknown>) =>
+        fn(mockPrismaService.client),
+      ),
       user: {
         findUniqueOrThrow: vi.fn(),
         update: vi.fn(),
+        updateMany: vi.fn(),
       },
       dept: {
+        count: vi.fn().mockResolvedValue(0),
         create: vi.fn(),
         findMany: vi.fn(),
         findUniqueOrThrow: vi.fn(),
@@ -30,7 +36,7 @@ describe('deptService', () => {
       providers: [
         DeptService,
         {
-          provide: 'PrismaService',
+          provide: PRISMA_SERVICE_TOKEN,
           useValue: mockPrismaService,
         },
         {
@@ -41,7 +47,7 @@ describe('deptService', () => {
     }).compile();
 
     service = module.get<DeptService>(DeptService);
-    prismaService = module.get('PrismaService');
+    prismaService = module.get(PRISMA_SERVICE_TOKEN);
 
     vi.clearAllMocks();
   });
@@ -152,11 +158,17 @@ describe('deptService', () => {
 
   describe('delete', () => {
     it('should delete a department', async () => {
+      mockPrismaService.client.dept.findUniqueOrThrow.mockResolvedValue({
+        id: 1,
+        leaderId: null,
+      });
+      mockPrismaService.client.user.updateMany.mockResolvedValue({ count: 0 });
       mockPrismaService.client.dept.delete.mockResolvedValue({ id: 1 });
 
       const result = await service.delete(1);
 
       expect(result.id).toBe(1);
+      expect(mockPrismaService.client.$transaction).toHaveBeenCalled();
     });
   });
 });

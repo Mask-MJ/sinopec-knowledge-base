@@ -1,6 +1,7 @@
 import { EventEmitter2 } from '@nestjs/event-emitter';
 import { Test, TestingModule } from '@nestjs/testing';
 import { vi } from 'vitest';
+import { PRISMA_SERVICE_TOKEN } from '@/common/database/prisma.extension';
 
 import { CreateRoleDto, QueryRoleDto, UpdateRoleDto } from './role.dto';
 import { RoleService } from './role.service';
@@ -30,7 +31,7 @@ describe('roleService', () => {
       providers: [
         RoleService,
         {
-          provide: 'PrismaService',
+          provide: PRISMA_SERVICE_TOKEN,
           useValue: mockPrismaService,
         },
         {
@@ -41,11 +42,11 @@ describe('roleService', () => {
     }).compile();
 
     service = module.get<RoleService>(RoleService);
-    prismaService = module.get('PrismaService');
-
-    mockPrismaService.client.role.paginate.mockReturnValue(mockPaginate);
+    prismaService = module.get(PRISMA_SERVICE_TOKEN);
 
     vi.clearAllMocks();
+
+    mockPrismaService.client.role.paginate.mockReturnValue(mockPaginate);
   });
 
   it('should be defined', () => {

@@ -1,6 +1,7 @@
 import { EventEmitter2 } from '@nestjs/event-emitter';
 import { Test, TestingModule } from '@nestjs/testing';
 import { vi } from 'vitest';
+import { PRISMA_SERVICE_TOKEN } from '@/common/database/prisma.extension';
 
 import { CreatePostDto, QueryPostDto, UpdatePostDto } from './post.dto';
 import { PostService } from './post.service';
@@ -30,7 +31,7 @@ describe('postService', () => {
       providers: [
         PostService,
         {
-          provide: 'PrismaService',
+          provide: PRISMA_SERVICE_TOKEN,
           useValue: mockPrismaService,
         },
         {
@@ -41,12 +42,12 @@ describe('postService', () => {
     }).compile();
 
     service = module.get<PostService>(PostService);
-    prismaService = module.get('PrismaService');
+    prismaService = module.get(PRISMA_SERVICE_TOKEN);
+
+    vi.clearAllMocks();
 
     // Setup paginate mock
     mockPrismaService.client.post.paginate.mockReturnValue(mockPaginate);
-
-    vi.clearAllMocks();
   });
 
   it('should be defined', () => {

@@ -1,7 +1,9 @@
 import { HttpModule } from '@nestjs/axios';
 import { Module } from '@nestjs/common';
 
-import { AuthModule } from '../auth/auth.module';
+import { HashingModule } from '@/common/hashing';
+import { MinioModule } from '@/common/minio/minio.module';
+
 import { DeptController } from './dept/dept.controller';
 import { DeptService } from './dept/dept.service';
 import { DictController } from './dict/dict.controller';
@@ -16,7 +18,7 @@ import { UserController } from './user/user.controller';
 import { UserService } from './user/user.service';
 
 @Module({
-  imports: [HttpModule.register({}), AuthModule],
+  imports: [HttpModule.register({}), HashingModule, MinioModule],
   controllers: [
     UserController,
     DeptController,

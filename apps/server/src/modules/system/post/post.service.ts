@@ -1,4 +1,5 @@
 import type { PrismaService } from '@/common/database/prisma.extension';
+import { PRISMA_SERVICE_TOKEN } from '@/common/database/prisma.extension';
 
 import { Inject, Injectable } from '@nestjs/common';
 import { EventEmitter2 } from '@nestjs/event-emitter';
@@ -8,7 +9,7 @@ import { CreatePostDto, QueryPostDto, UpdatePostDto } from './post.dto';
 @Injectable()
 export class PostService {
   constructor(
-    @Inject('PrismaService') private readonly prisma: PrismaService,
+    @Inject(PRISMA_SERVICE_TOKEN) private readonly prisma: PrismaService,
     @Inject(EventEmitter2) private readonly eventEmitter: EventEmitter2,
   ) {}
 

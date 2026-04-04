@@ -1,4 +1,5 @@
 import { Buffer } from 'node:buffer';
+import { PRISMA_SERVICE_TOKEN } from '@/common/database/prisma.extension';
 
 import { ConflictException, UnauthorizedException } from '@nestjs/common';
 import { EventEmitter2 } from '@nestjs/event-emitter';
@@ -6,7 +7,7 @@ import { Test, TestingModule } from '@nestjs/testing';
 import { vi } from 'vitest';
 
 import { MinioService } from '@/common/minio/minio.service';
-import { HashingService } from '@/modules/auth/hashing/hashing.service';
+import { HashingService } from '@/common/hashing';
 import { ActiveUserData } from '@/modules/auth/interfaces/active-user-data.interface';
 
 import { CreateUserDto, QueryUserDto, UpdateUserDto } from './user.dto';
@@ -63,7 +64,7 @@ describe('userService', () => {
       providers: [
         UserService,
         {
-          provide: 'PrismaService',
+          provide: PRISMA_SERVICE_TOKEN,
           useValue: mockPrismaService,
         },
         {
@@ -82,14 +83,14 @@ describe('userService', () => {
     }).compile();
 
     service = module.get<UserService>(UserService);
-    prismaService = module.get('PrismaService');
+    prismaService = module.get(PRISMA_SERVICE_TOKEN);
     hashingService = module.get(HashingService);
     eventEmitter = module.get(EventEmitter2);
     minioService = module.get(MinioService);
 
-    mockPrismaService.client.user.paginate.mockReturnValue(mockPaginate);
-
     vi.clearAllMocks();
+
+    mockPrismaService.client.user.paginate.mockReturnValue(mockPaginate);
   });
 
   it('should be defined', () => {

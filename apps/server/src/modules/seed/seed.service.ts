@@ -1,4 +1,5 @@
 import type { PrismaService } from '@/common/database/prisma.extension';
+import { PRISMA_SERVICE_TOKEN } from '@/common/database/prisma.extension';
 import type { OnApplicationBootstrap } from '@nestjs/common';
 
 import { Inject, Injectable, Logger } from '@nestjs/common';
@@ -10,7 +11,7 @@ export class SeedService implements OnApplicationBootstrap {
   private readonly logger = new Logger(SeedService.name);
 
   constructor(
-    @Inject('PrismaService')
+    @Inject(PRISMA_SERVICE_TOKEN)
     private readonly prisma: PrismaService,
   ) {}
 

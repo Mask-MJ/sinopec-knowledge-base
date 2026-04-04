@@ -1,5 +1,6 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { vi } from 'vitest';
+import { PRISMA_SERVICE_TOKEN } from '@/common/database/prisma.extension';
 
 import {
   createMockCreateOperationLogDto,
@@ -32,18 +33,18 @@ describe('operationLogService', () => {
       providers: [
         OperationLogService,
         {
-          provide: 'PrismaService',
+          provide: PRISMA_SERVICE_TOKEN,
           useValue: mockPrismaService,
         },
       ],
     }).compile();
 
     service = module.get<OperationLogService>(OperationLogService);
-    prismaService = module.get('PrismaService');
-
-    prismaService.client.operationLog.paginate.mockReturnValue(mockPaginate);
+    prismaService = module.get(PRISMA_SERVICE_TOKEN);
 
     vi.clearAllMocks();
+
+    prismaService.client.operationLog.paginate.mockReturnValue(mockPaginate);
   });
 
   it('should be defined', () => {

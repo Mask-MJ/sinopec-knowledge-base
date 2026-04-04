@@ -1,4 +1,5 @@
 import type { PrismaService } from '@/common/database/prisma.extension';
+import { PRISMA_SERVICE_TOKEN } from '@/common/database/prisma.extension';
 
 import { Inject, Injectable } from '@nestjs/common';
 import { OnEvent } from '@nestjs/event-emitter';
@@ -9,7 +10,7 @@ import { CreateLoginLogDto, QueryLoginLogDto } from './login-log.dto';
 @Injectable()
 export class LoginLogService {
   constructor(
-    @Inject('PrismaService') private readonly prisma: PrismaService,
+    @Inject(PRISMA_SERVICE_TOKEN) private readonly prisma: PrismaService,
   ) {}
 
   async create(createLoginLogDto: CreateLoginLogDto) {

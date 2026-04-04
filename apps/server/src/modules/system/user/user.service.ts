@@ -1,4 +1,5 @@
 import type { PrismaService } from '@/common/database/prisma.extension';
+import { PRISMA_SERVICE_TOKEN } from '@/common/database/prisma.extension';
 
 import {
   ConflictException,
@@ -9,7 +10,7 @@ import {
 import { EventEmitter2 } from '@nestjs/event-emitter';
 
 import { MinioService } from '@/common/minio/minio.service';
-import { HashingService } from '@/modules/auth/hashing/hashing.service';
+import { HashingService } from '@/common/hashing';
 import { ActiveUserData } from '@/modules/auth/interfaces/active-user-data.interface';
 
 import { CreateUserDto, QueryUserDto, UpdateUserDto } from './user.dto';
@@ -17,7 +18,7 @@ import { CreateUserDto, QueryUserDto, UpdateUserDto } from './user.dto';
 @Injectable()
 export class UserService {
   constructor(
-    @Inject('PrismaService') private readonly prisma: PrismaService,
+    @Inject(PRISMA_SERVICE_TOKEN) private readonly prisma: PrismaService,
     private readonly hashingService: HashingService,
     @Inject(EventEmitter2) private readonly eventEmitter: EventEmitter2,
     private readonly minioClient: MinioService,

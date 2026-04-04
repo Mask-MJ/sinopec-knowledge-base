@@ -1,6 +1,7 @@
 import { EventEmitter2 } from '@nestjs/event-emitter';
 import { Test, TestingModule } from '@nestjs/testing';
 import { vi } from 'vitest';
+import { PRISMA_SERVICE_TOKEN } from '@/common/database/prisma.extension';
 
 import {
   CreateDictDataDto,
@@ -41,7 +42,7 @@ describe('dictService', () => {
       providers: [
         DictService,
         {
-          provide: 'PrismaService',
+          provide: PRISMA_SERVICE_TOKEN,
           useValue: mockPrismaService,
         },
         {
@@ -52,7 +53,7 @@ describe('dictService', () => {
     }).compile();
 
     service = module.get<DictService>(DictService);
-    prismaService = module.get('PrismaService');
+    prismaService = module.get(PRISMA_SERVICE_TOKEN);
 
     vi.clearAllMocks();
   });
