@@ -3,6 +3,9 @@
 
 pre-commit:
   parallel: true
+  # 禁用 unstaged patch 保存/恢复，避免 prettier/eslint --fix 修改暂存文件后
+  # 上下文行不匹配导致 git apply 失败、未暂存修改丢失
+  skip_unstaged: true
   commands:
     lint-md:
       run: pnpm prettier --cache --ignore-unknown --write {staged_files}
