@@ -21,8 +21,8 @@ describe('authenticationService', () => {
   let service: AuthenticationService;
   let hashingService: HashingService;
   let jwtService: JwtService;
-  let cacheManager: any;
-  let prismaService: any;
+  let cacheManager: typeof mockCacheManager;
+  let prismaService: typeof mockPrismaService;
 
   const mockUser = {
     id: 1,
@@ -171,7 +171,9 @@ describe('authenticationService', () => {
       await expect(service.signUp(signUpDto)).rejects.toThrow(
         ConflictException,
       );
-      await expect(service.signUp(signUpDto)).rejects.toThrow('用户名已存在');
+      await expect(service.signUp(signUpDto)).rejects.toThrow(
+        '注册失败，请检查输入信息',
+      );
     });
   });
 
@@ -245,7 +247,9 @@ describe('authenticationService', () => {
         .mockResolvedValueOnce('refresh-token');
       mockCacheManager.set.mockResolvedValue(undefined);
 
-      const result = await service.generateTokens(mockUser as any);
+      const result = await service.generateTokens(
+        mockUser as unknown as Parameters<typeof service.generateTokens>[0],
+      );
 
       expect(result).toEqual({
         accessToken: 'access-token',

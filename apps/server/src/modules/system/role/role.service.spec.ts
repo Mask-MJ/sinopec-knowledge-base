@@ -9,7 +9,7 @@ import { RoleService } from './role.service';
 
 describe('roleService', () => {
   let service: RoleService;
-  let prismaService: any;
+  let prismaService: typeof mockPrismaService;
 
   const mockPrismaService = {
     client: {
@@ -69,6 +69,7 @@ describe('roleService', () => {
 
       expect(prismaService.client.role.create).toHaveBeenCalledWith(
         expect.objectContaining({
+          // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
           data: expect.objectContaining({
             menus: { connect: [{ id: 1 }, { id: 2 }] },
           }),
@@ -136,6 +137,7 @@ describe('roleService', () => {
 
       expect(prismaService.client.role.update).toHaveBeenCalledWith(
         expect.objectContaining({
+          // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
           data: expect.objectContaining({
             menus: { set: [{ id: 3 }] },
           }),

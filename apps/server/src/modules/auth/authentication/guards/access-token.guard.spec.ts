@@ -9,7 +9,6 @@ import { AccessTokenGuard } from './access-token.guard';
 
 describe('accessTokenGuard', () => {
   let guard: AccessTokenGuard;
-  let jwtService: JwtService;
 
   const mockJwtService = {
     verifyAsync: vi.fn(),
@@ -53,7 +52,6 @@ describe('accessTokenGuard', () => {
     }).compile();
 
     guard = module.get<AccessTokenGuard>(AccessTokenGuard);
-    jwtService = module.get<JwtService>(JwtService);
 
     vi.clearAllMocks();
   });
@@ -94,11 +92,13 @@ describe('accessTokenGuard', () => {
       mockJwtService.verifyAsync.mockResolvedValue(mockPayload);
 
       const result = await guard.canActivate(context);
-      const request = context.switchToHttp().getRequest();
+      const request: Record<string, unknown> = context
+        .switchToHttp()
+        .getRequest();
 
       expect(result).toBe(true);
       expect(request[REQUEST_USER_KEY]).toEqual(mockPayload);
-      expect(jwtService.verifyAsync).toHaveBeenCalledWith(
+      expect(mockJwtService.verifyAsync).toHaveBeenCalledWith(
         'valid-token',
         mockJwtConfiguration,
       );

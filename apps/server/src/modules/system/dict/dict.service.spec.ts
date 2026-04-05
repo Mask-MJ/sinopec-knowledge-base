@@ -16,7 +16,7 @@ import { DictService } from './dict.service';
 
 describe('dictService', () => {
   let service: DictService;
-  let prismaService: any;
+  let prismaService: typeof mockPrismaService;
 
   const mockPrismaService = {
     client: {
@@ -94,12 +94,12 @@ describe('dictService', () => {
 
       await service.findAll(queryDictDto);
 
-      expect(prismaService.client.dict.findMany).toHaveBeenCalledWith(
+      const callArg = mockPrismaService.client.dict.findMany.mock
+        .calls[0]?.[0] as Record<string, Record<string, unknown>>;
+      expect(callArg.where).toEqual(
         expect.objectContaining({
-          where: expect.objectContaining({
-            name: { contains: 'status', mode: 'insensitive' },
-            value: { contains: 'active', mode: 'insensitive' },
-          }),
+          name: { contains: 'status', mode: 'insensitive' },
+          value: { contains: 'active', mode: 'insensitive' },
         }),
       );
     });
@@ -170,10 +170,10 @@ describe('dictService', () => {
       const result = await service.findAllData(queryDictDataDto);
 
       expect(result).toEqual([]);
-      expect(prismaService.client.dictData.findMany).toHaveBeenCalledWith(
-        expect.objectContaining({
-          where: expect.objectContaining({ dictId: 1 }),
-        }),
+      const findManyArg1 = mockPrismaService.client.dictData.findMany.mock
+        .calls[0]?.[0] as Record<string, Record<string, unknown>>;
+      expect(findManyArg1.where).toEqual(
+        expect.objectContaining({ dictId: 1 }),
       );
     });
 
@@ -188,10 +188,10 @@ describe('dictService', () => {
       expect(prismaService.client.dict.findFirst).toHaveBeenCalledWith({
         where: { value: { contains: 'status' } },
       });
-      expect(prismaService.client.dictData.findMany).toHaveBeenCalledWith(
-        expect.objectContaining({
-          where: expect.objectContaining({ dictId: 1 }),
-        }),
+      const findManyArg2 = mockPrismaService.client.dictData.findMany.mock
+        .calls[0]?.[0] as Record<string, Record<string, unknown>>;
+      expect(findManyArg2.where).toEqual(
+        expect.objectContaining({ dictId: 1 }),
       );
     });
 

@@ -9,7 +9,7 @@ import { DeptService } from './dept.service';
 
 describe('deptService', () => {
   let service: DeptService;
-  let prismaService: any;
+  let prismaService: typeof mockPrismaService;
 
   const mockPrismaService = {
     client: {
@@ -70,7 +70,9 @@ describe('deptService', () => {
       });
       mockPrismaService.client.dept.create.mockResolvedValue({
         id: 1,
-        ...createDeptDto,
+        name: createDeptDto.name,
+        leaderId: createDeptDto.leaderId,
+        order: createDeptDto.order,
         leader: 'leader',
       });
       mockPrismaService.client.user.update.mockResolvedValue({});

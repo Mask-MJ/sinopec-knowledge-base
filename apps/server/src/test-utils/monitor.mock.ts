@@ -20,7 +20,7 @@ export const createMockCreateLoginLogDto = (
 /**
  * 创建 LoginLog 实体 mock
  */
-export const createMockLoginLog = (overrides?: Record<string, any>) => ({
+export const createMockLoginLog = (overrides?: Record<string, unknown>) => ({
   id: 1,
   username: 'testuser',
   ip: '127.0.0.1',
@@ -51,7 +51,9 @@ export const createMockCreateOperationLogDto = (
 /**
  * 创建 OperationLog 实体 mock
  */
-export const createMockOperationLog = (overrides?: Record<string, any>) => ({
+export const createMockOperationLog = (
+  overrides?: Record<string, unknown>,
+) => ({
   id: 1,
   title: '删除用户',
   username: 'admin',

@@ -1,3 +1,5 @@
+import type { Systeminformation } from 'systeminformation';
+
 import { Test, TestingModule } from '@nestjs/testing';
 import systemInfo from 'systeminformation';
 import { vi } from 'vitest';
@@ -37,18 +39,18 @@ describe('infoService', () => {
         brand: 'Intel',
         manufacturer: 'Intel',
         speed: 2.5,
-      } as any);
+      } as Systeminformation.CpuData);
       vi.mocked(systemInfo.mem).mockResolvedValue({
         total: 17_179_869_184, // 16GB
         free: 8_589_934_592, // 8GB
         used: 8_589_934_592, // 8GB
-      } as any);
+      } as Systeminformation.MemData);
       vi.mocked(systemInfo.osInfo).mockResolvedValue({
         platform: 'darwin',
         release: '20.0.0',
         arch: 'x64',
         hostname: 'mac',
-      } as any);
+      } as Systeminformation.OsData);
 
       const result = await service.systemInfo();
 

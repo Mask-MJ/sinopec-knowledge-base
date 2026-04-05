@@ -10,7 +10,7 @@ import { PermissionsGuard } from './permissions.guard';
 
 describe('permissionsGuard', () => {
   let guard: PermissionsGuard;
-  let prismaService: any;
+  let prismaService: typeof mockPrismaService;
 
   const mockReflector = {
     getAllAndOverride: vi.fn(),
@@ -25,7 +25,7 @@ describe('permissionsGuard', () => {
   };
 
   const createMockExecutionContext = (
-    user: any,
+    user: Record<string, unknown>,
     options?: { method?: string; path?: string },
   ): ExecutionContext => {
     const mockRequest = {

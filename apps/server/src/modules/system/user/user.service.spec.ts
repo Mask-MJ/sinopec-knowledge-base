@@ -15,10 +15,10 @@ import { UserService } from './user.service';
 
 describe('userService', () => {
   let service: UserService;
-  let prismaService: any;
-  let hashingService: any;
-  let eventEmitter: any;
-  let minioService: any;
+  let prismaService: typeof mockPrismaService;
+  let hashingService: typeof mockHashingService;
+  let eventEmitter: typeof mockEventEmitter;
+  let minioService: typeof mockMinioService;
 
   const mockUser: ActiveUserData = {
     sub: 1,
@@ -194,7 +194,10 @@ describe('userService', () => {
 
   describe('uploadAvatar', () => {
     it('should upload avatar and update user', async () => {
-      const file = { originalname: 'test.jpg', buffer: Buffer.from('') } as any;
+      const file = {
+        originalname: 'test.jpg',
+        buffer: Buffer.from(''),
+      } as Express.Multer.File;
       await service.uploadAvatar(mockUser, file);
 
       expect(minioService.uploadFile).toHaveBeenCalled();

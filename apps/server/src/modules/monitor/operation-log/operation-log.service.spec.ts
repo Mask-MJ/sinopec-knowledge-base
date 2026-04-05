@@ -21,12 +21,13 @@ vi.mock('ip2region', () => ({
   },
 }));
 
+const mockPrismaService = createMockPrismaService();
+
 describe('operationLogService', () => {
   let service: OperationLogService;
-  let prismaService: ReturnType<typeof createMockPrismaService>;
+  let prismaService: typeof mockPrismaService;
 
   beforeEach(async () => {
-    const mockPrismaService = createMockPrismaService();
     const mockPaginate = createMockPaginate();
 
     const module: TestingModule = await Test.createTestingModule({
@@ -65,10 +66,12 @@ describe('operationLogService', () => {
       const result = await service.create(createDto);
 
       expect(prismaService.client.operationLog.create).toHaveBeenCalledWith({
-        data: expect.objectContaining({
-          ...createDto,
-          address: 'GuangdongShenzhen',
-        }),
+        // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+        data: expect.objectContaining(
+          Object.assign({}, createDto, {
+            address: 'GuangdongShenzhen',
+          }),
+        ),
       });
       expect(result.address).toBe('GuangdongShenzhen');
     });

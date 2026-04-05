@@ -9,7 +9,7 @@ import { PostService } from './post.service';
 
 describe('postService', () => {
   let service: PostService;
-  let prismaService: any;
+  let prismaService: typeof mockPrismaService;
 
   const mockPrismaService = {
     client: {

@@ -3,10 +3,10 @@
   "extends": "@sinopec-kb/tsconfig/nestjs.json",
   "compilerOptions": {
     "resolvePackageJsonExports": true,
-    "baseUrl": "./",
+    "declaration": false,
     "paths": {
-      "@/*": ["src/*"],
-      "@prisma/generated/*": ["src/prisma/generated/*"]
+      "@/*": ["./src/*"],
+      "@prisma/generated/*": ["./src/prisma/generated/*"]
     },
     "types": ["node", "vitest/globals", "multer"],
     "outDir": "./dist"

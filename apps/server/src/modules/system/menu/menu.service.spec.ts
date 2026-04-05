@@ -10,7 +10,7 @@ import { MenuService } from './menu.service';
 
 describe('menuService', () => {
   let service: MenuService;
-  let prismaService: any;
+  let prismaService: typeof mockPrismaService;
 
   const mockUser: ActiveUserData = {
     sub: 1,
@@ -74,10 +74,10 @@ describe('menuService', () => {
       const result = await service.create(createMenuDto);
 
       expect(prismaService.client.menu.create).toHaveBeenCalledWith({
-        data: {
-          ...createMenuDto,
+        data: Object.assign({}, createMenuDto, {
+          // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
           children: expect.any(Object),
-        },
+        }),
       });
       expect(result).toEqual(createMenuDto);
     });
@@ -95,7 +95,7 @@ describe('menuService', () => {
       await service.create(createMenuDto);
 
       expect(prismaService.client.menu.create).toHaveBeenCalledWith({
-        data: { ...createMenuDto },
+        data: Object.assign({}, createMenuDto),
       });
     });
   });
@@ -128,6 +128,7 @@ describe('menuService', () => {
 
       expect(prismaService.client.menu.findMany).toHaveBeenCalledWith(
         expect.objectContaining({
+          // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
           where: expect.objectContaining({
             roles: { some: { id: { in: [1] } } },
           }),
