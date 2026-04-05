@@ -1,13 +1,13 @@
 import { Buffer } from 'node:buffer';
-import { PRISMA_SERVICE_TOKEN } from '@/common/database/prisma.extension';
 
 import { ConflictException, UnauthorizedException } from '@nestjs/common';
 import { EventEmitter2 } from '@nestjs/event-emitter';
 import { Test, TestingModule } from '@nestjs/testing';
 import { vi } from 'vitest';
 
-import { MinioService } from '@/common/minio/minio.service';
+import { PRISMA_SERVICE_TOKEN } from '@/common/database/prisma.extension';
 import { HashingService } from '@/common/hashing';
+import { MinioService } from '@/common/minio/minio.service';
 import { ActiveUserData } from '@/modules/auth/interfaces/active-user-data.interface';
 
 import { CreateUserDto, QueryUserDto, UpdateUserDto } from './user.dto';

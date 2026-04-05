@@ -1,5 +1,4 @@
 import { CACHE_MANAGER } from '@nestjs/cache-manager';
-import { PRISMA_SERVICE_TOKEN } from '@/common/database/prisma.extension';
 import {
   ConflictException,
   Logger,
@@ -11,8 +10,10 @@ import { JwtService } from '@nestjs/jwt';
 import { Test, TestingModule } from '@nestjs/testing';
 import { vi } from 'vitest';
 
-import jwtConfig from '../config/jwt.config';
+import { PRISMA_SERVICE_TOKEN } from '@/common/database/prisma.extension';
 import { HashingService } from '@/common/hashing';
+
+import jwtConfig from '../config/jwt.config';
 import { RefreshTokenDto, SignInDto, SignUpDto } from './authentication.dto';
 import { AuthenticationService } from './authentication.service';
 
@@ -213,7 +214,7 @@ describe('authenticationService', () => {
       expect(mockEventEmitter.emit).toHaveBeenCalledWith(
         'login.log',
         expect.objectContaining({
-          message: '用户名不存在',
+          message: '用户名或密码错误',
           status: false,
         }),
       );
@@ -230,7 +231,7 @@ describe('authenticationService', () => {
       expect(mockEventEmitter.emit).toHaveBeenCalledWith(
         'login.log',
         expect.objectContaining({
-          message: '密码错误',
+          message: '用户名或密码错误',
           status: false,
         }),
       );

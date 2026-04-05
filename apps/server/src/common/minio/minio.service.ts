@@ -42,7 +42,7 @@ export class MinioService {
     makeOpts: MakeBucketOpt = {},
   ) {
     try {
-      return await this.minioClient.makeBucket(bucketName, region, makeOpts);
+      await this.minioClient.makeBucket(bucketName, region, makeOpts);
     } catch (error) {
       this.logger.error(`创建存储桶失败: ${bucketName}`, error);
       throw new InternalServerErrorException('创建存储桶失败，请稍后重试');
@@ -81,16 +81,14 @@ export class MinioService {
       });
       stream.on('error', (err) => {
         this.logger.error(`列出对象失败: ${bucketName}/${prefix}`, err);
-        reject(
-          new InternalServerErrorException('列出文件失败，请稍后重试'),
-        );
+        reject(new InternalServerErrorException('列出文件失败，请稍后重试'));
       });
     });
   }
 
   async setBucketPolicy(bucketName: string, policy: string) {
     try {
-      return await this.minioClient.setBucketPolicy(bucketName, policy);
+      await this.minioClient.setBucketPolicy(bucketName, policy);
     } catch (error) {
       this.logger.error(`设置存储桶策略失败: ${bucketName}`, error);
       throw new InternalServerErrorException('设置存储桶策略失败');

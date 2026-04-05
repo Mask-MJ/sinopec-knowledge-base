@@ -1,8 +1,9 @@
 import type { PrismaService } from '@/common/database/prisma.extension';
-import { PRISMA_SERVICE_TOKEN } from '@/common/database/prisma.extension';
 
 import { Inject, Injectable } from '@nestjs/common';
 import { EventEmitter2 } from '@nestjs/event-emitter';
+
+import { PRISMA_SERVICE_TOKEN } from '@/common/database/prisma.extension';
 
 import { CreatePostDto, QueryPostDto, UpdatePostDto } from './post.dto';
 
@@ -40,7 +41,7 @@ export class PostService {
   }
 
   async findOne(id: number) {
-    return await this.prisma.client.post.findUnique({ where: { id } });
+    return this.prisma.client.post.findUnique({ where: { id } });
   }
 
   async findWithPagination(queryPostDto: QueryPostDto) {

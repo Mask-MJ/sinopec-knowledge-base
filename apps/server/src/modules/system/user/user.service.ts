@@ -1,5 +1,4 @@
 import type { PrismaService } from '@/common/database/prisma.extension';
-import { PRISMA_SERVICE_TOKEN } from '@/common/database/prisma.extension';
 
 import {
   ConflictException,
@@ -9,8 +8,9 @@ import {
 } from '@nestjs/common';
 import { EventEmitter2 } from '@nestjs/event-emitter';
 
-import { MinioService } from '@/common/minio/minio.service';
+import { PRISMA_SERVICE_TOKEN } from '@/common/database/prisma.extension';
 import { HashingService } from '@/common/hashing';
+import { MinioService } from '@/common/minio/minio.service';
 import { ActiveUserData } from '@/modules/auth/interfaces/active-user-data.interface';
 
 import { CreateUserDto, QueryUserDto, UpdateUserDto } from './user.dto';
@@ -96,7 +96,7 @@ export class UserService {
 
   async findAll(queryUserDto: QueryUserDto) {
     const { username, nickname, email, phoneNumber, createdAt } = queryUserDto;
-    return await this.prisma.client.user.findMany({
+    return this.prisma.client.user.findMany({
       where: {
         username: { contains: username, mode: 'insensitive' },
         nickname: { contains: nickname, mode: 'insensitive' },
@@ -113,7 +113,7 @@ export class UserService {
   }
 
   async findOne(id: number) {
-    return await this.prisma.client.user.findUniqueOrThrow({
+    return this.prisma.client.user.findUniqueOrThrow({
       where: { id },
       include: { roles: true, dept: true },
       omit: { password: true },
@@ -121,7 +121,7 @@ export class UserService {
   }
 
   async findSelf(id: number) {
-    return await this.prisma.client.user.findUniqueOrThrow({
+    return this.prisma.client.user.findUniqueOrThrow({
       where: { id },
       omit: { password: true },
       include: {

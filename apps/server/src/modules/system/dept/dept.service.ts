@@ -61,7 +61,7 @@ export class DeptService {
         }
       }
 
-      return await tx.dept.delete({ where: { id } });
+      return tx.dept.delete({ where: { id } });
     });
 
     this.eventEmitter.emit('operation.log', {
@@ -86,7 +86,7 @@ export class DeptService {
   }
 
   async findOne(id: number) {
-    return await this.prisma.client.dept.findUniqueOrThrow({ where: { id } });
+    return this.prisma.client.dept.findUniqueOrThrow({ where: { id } });
   }
 
   async update(id: number, updateDeptDto: UpdateDeptDto) {
@@ -123,7 +123,7 @@ export class DeptService {
               data: { isDeptAdmin: true, deptId: id },
             });
 
-            return await tx.dept.update({
+            return tx.dept.update({
               where: { id },
               data: { ...rest, leaderId, leader: newLeader.username },
             });

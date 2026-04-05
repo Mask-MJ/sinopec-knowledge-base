@@ -293,11 +293,11 @@ export class KnowledgeBaseController {
       limits: { fileSize: 50 * 1024 * 1024 },
       fileFilter: (_req, file, cb) => {
         const ALLOWED_MIMES = new Set([
+          'application/msword',
           'application/pdf',
           'application/vnd.ms-excel',
           'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
           'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
-          'application/msword',
           'text/csv',
           'text/markdown',
           'text/plain',

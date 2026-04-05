@@ -1,8 +1,9 @@
 import type { PrismaService } from '@/common/database/prisma.extension';
-import { PRISMA_SERVICE_TOKEN } from '@/common/database/prisma.extension';
 
 import { Inject, Injectable } from '@nestjs/common';
 import { EventEmitter2 } from '@nestjs/event-emitter';
+
+import { PRISMA_SERVICE_TOKEN } from '@/common/database/prisma.extension';
 
 import {
   CreateDictDataDto,
@@ -35,7 +36,7 @@ export class DictService {
   }
 
   async createData(createDictDataDto: CreateDictDataDto) {
-    return await this.prisma.client.dictData.create({
+    return this.prisma.client.dictData.create({
       data: createDictDataDto,
     });
   }
@@ -53,12 +54,12 @@ export class DictService {
   }
 
   async deleteData(id: number) {
-    return await this.prisma.client.dictData.delete({ where: { id } });
+    return this.prisma.client.dictData.delete({ where: { id } });
   }
 
   async findAll(queryDictDto: QueryDictDto) {
     const { name, value } = queryDictDto;
-    return await this.prisma.client.dict.findMany({
+    return this.prisma.client.dict.findMany({
       where: {
         name: { contains: name, mode: 'insensitive' },
         value: { contains: value, mode: 'insensitive' },
@@ -79,7 +80,7 @@ export class DictService {
       }
       dictId = dict.id;
     }
-    return await this.prisma.client.dictData.findMany({
+    return this.prisma.client.dictData.findMany({
       where: {
         name: { contains: name, mode: 'insensitive' },
         dictId,
@@ -89,11 +90,11 @@ export class DictService {
   }
 
   async findOne(id: number) {
-    return await this.prisma.client.dict.findUnique({ where: { id } });
+    return this.prisma.client.dict.findUnique({ where: { id } });
   }
 
   async findOneData(id: number) {
-    return await this.prisma.client.dictData.findUnique({ where: { id } });
+    return this.prisma.client.dictData.findUnique({ where: { id } });
   }
 
   async update(id: number, updateDictDto: UpdateDictDto) {
@@ -112,7 +113,7 @@ export class DictService {
   }
 
   async updateData(id: number, updateDictDataDto: UpdateDictDataDto) {
-    return await this.prisma.client.dictData.update({
+    return this.prisma.client.dictData.update({
       where: { id },
       data: updateDictDataDto,
     });

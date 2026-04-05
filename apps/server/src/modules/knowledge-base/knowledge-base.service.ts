@@ -46,7 +46,7 @@ export class KnowledgeBaseService {
     const kb = await this.assertOwnership(id, user);
     const datasetId = this.requireDatasetId(kb);
 
-    return await this.ragflow.request(
+    return this.ragflow.request(
       'POST',
       `/api/v1/datasets/${datasetId}/documents/${documentId}/chunks`,
       {
@@ -135,12 +135,13 @@ export class KnowledgeBaseService {
       `/api/v1/datasets/${datasetId}/documents/${documentId}`,
     );
 
-    const filename = result.contentDisposition
+    const rawFilename = result.contentDisposition
       ? decodeURIComponent(
           (result.contentDisposition.match(/filename\*?=(?:UTF-8'')?([^;]+)/) ??
             [])[1] ?? 'unknown',
         ).replaceAll(/['"]/g, '')
       : 'unknown';
+    const filename = rawFilename.replaceAll(/[^\w\s\-_.]/g, '_').slice(0, 255);
 
     return new StreamableFile(result.data, {
       disposition: `attachment; filename="${filename}"`,
@@ -189,7 +190,7 @@ export class KnowledgeBaseService {
     const kb = await this.assertOwnership(id, user);
     const datasetId = this.requireDatasetId(kb);
 
-    return await this.ragflow.request(
+    return this.ragflow.request(
       'GET',
       `/api/v1/datasets/${datasetId}/documents/${documentId}/chunks`,
       {
@@ -209,7 +210,7 @@ export class KnowledgeBaseService {
     const kb = await this.assertOwnership(id, user);
     const datasetId = this.requireDatasetId(kb);
 
-    return await this.ragflow.request(
+    return this.ragflow.request(
       'GET',
       `/api/v1/datasets/${datasetId}/documents`,
       {
@@ -221,14 +222,14 @@ export class KnowledgeBaseService {
   }
 
   async findOne(id: number, user: ActiveUserData) {
-    return await this.assertOwnership(id, user);
+    return this.assertOwnership(id, user);
   }
 
   async getMetadataSummary(id: number, user: ActiveUserData) {
     const kb = await this.assertOwnership(id, user);
     const datasetId = this.requireDatasetId(kb);
 
-    return await this.ragflow.request(
+    return this.ragflow.request(
       'GET',
       `/api/v1/datasets/${datasetId}/metadata/summary`,
     );
@@ -242,7 +243,7 @@ export class KnowledgeBaseService {
     const kb = await this.assertOwnership(id, user);
     const datasetId = this.requireDatasetId(kb);
 
-    return await this.ragflow.request(
+    return this.ragflow.request(
       'POST',
       `/api/v1/datasets/${datasetId}/chunks`,
       { document_ids: documentIds },
@@ -283,7 +284,7 @@ export class KnowledgeBaseService {
     const kb = await this.assertOwnership(id, user);
     const datasetId = this.requireDatasetId(kb);
 
-    return await this.ragflow.request(
+    return this.ragflow.request(
       'DELETE',
       `/api/v1/datasets/${datasetId}/documents/${documentId}/chunks`,
       { chunk_ids: dto.chunkIds },
@@ -298,7 +299,7 @@ export class KnowledgeBaseService {
     const kb = await this.assertOwnership(id, user);
     const datasetId = this.requireDatasetId(kb);
 
-    return await this.ragflow.request(
+    return this.ragflow.request(
       'DELETE',
       `/api/v1/datasets/${datasetId}/documents`,
       { ids: documentIds },
@@ -335,7 +336,7 @@ export class KnowledgeBaseService {
       }
     }
 
-    return await this.ragflow.request('POST', '/api/v1/retrieval', {
+    return this.ragflow.request('POST', '/api/v1/retrieval', {
       question: dto.question,
       dataset_ids: dto.datasetIds,
       document_ids: dto.documentIds,
@@ -357,7 +358,7 @@ export class KnowledgeBaseService {
     const kb = await this.assertOwnership(id, user);
     const datasetId = this.requireDatasetId(kb);
 
-    return await this.ragflow.request(
+    return this.ragflow.request(
       'DELETE',
       `/api/v1/datasets/${datasetId}/chunks`,
       { document_ids: documentIds },
@@ -434,7 +435,7 @@ export class KnowledgeBaseService {
     const kb = await this.assertOwnership(id, user);
     const datasetId = this.requireDatasetId(kb);
 
-    return await this.ragflow.request(
+    return this.ragflow.request(
       'PUT',
       `/api/v1/datasets/${datasetId}/documents/${documentId}/chunks/${chunkId}`,
       {
@@ -454,7 +455,7 @@ export class KnowledgeBaseService {
     const kb = await this.assertOwnership(id, user);
     const datasetId = this.requireDatasetId(kb);
 
-    return await this.ragflow.request(
+    return this.ragflow.request(
       'PUT',
       `/api/v1/datasets/${datasetId}/documents/${documentId}`,
       {
@@ -482,7 +483,7 @@ export class KnowledgeBaseService {
       );
     }
 
-    return await this.ragflow.uploadFile(
+    return this.ragflow.uploadFile(
       `/api/v1/datasets/${datasetId}/documents`,
       formData,
     );

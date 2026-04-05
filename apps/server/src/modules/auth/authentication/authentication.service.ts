@@ -1,6 +1,5 @@
 import type { ActiveUserData } from '../interfaces/active-user-data.interface';
 import type { PrismaService } from '@/common/database/prisma.extension';
-import { PRISMA_SERVICE_TOKEN } from '@/common/database/prisma.extension';
 import type { ConfigType } from '@nestjs/config';
 import type { Cache } from 'cache-manager';
 
@@ -18,8 +17,10 @@ import { EventEmitter2 } from '@nestjs/event-emitter';
 import { JwtService } from '@nestjs/jwt';
 import { User } from '@prisma/generated/client';
 
-import jwtConfig from '../config/jwt.config';
+import { PRISMA_SERVICE_TOKEN } from '@/common/database/prisma.extension';
 import { HashingService } from '@/common/hashing';
+
+import jwtConfig from '../config/jwt.config';
 import { RefreshTokenDto, SignInDto, SignUpDto } from './authentication.dto';
 
 @Injectable()
@@ -101,13 +102,13 @@ export class AuthenticationService {
       include: { roles: { include: { menus: true } } },
     });
     if (!user) {
-      this.emitLoginEvent('', ip, os, browser, '用户名不存在');
-      throw new UnauthorizedException('用户名不存在');
+      this.emitLoginEvent('', ip, os, browser, '用户名或密码错误');
+      throw new UnauthorizedException('用户名或密码错误');
     }
     const isEquals = await this.hashingService.compare(password, user.password);
     if (!isEquals) {
-      this.emitLoginEvent(user.username, ip, os, browser, '密码错误');
-      throw new UnauthorizedException('密码错误');
+      this.emitLoginEvent(user.username, ip, os, browser, '用户名或密码错误');
+      throw new UnauthorizedException('用户名或密码错误');
     }
 
     this.emitLoginEvent(user.username, ip, os, browser);

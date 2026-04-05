@@ -20,7 +20,6 @@ import {
 } from '@nestjs/swagger';
 
 import { ApiPaginatedResponse } from '@/common/response/paginated.response';
-
 import { AutoPermission } from '@/modules/auth/authorization/decorators/auto-permission.decorator';
 import { ActiveUser } from '@/modules/auth/decorators/active-user.decorator';
 

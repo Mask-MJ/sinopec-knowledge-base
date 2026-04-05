@@ -1,8 +1,8 @@
 import { EventEmitter2 } from '@nestjs/event-emitter';
 import { Test, TestingModule } from '@nestjs/testing';
 import { vi } from 'vitest';
-import { PRISMA_SERVICE_TOKEN } from '@/common/database/prisma.extension';
 
+import { PRISMA_SERVICE_TOKEN } from '@/common/database/prisma.extension';
 import { ActiveUserData } from '@/modules/auth/interfaces/active-user-data.interface';
 
 import { CreateMenuDto, QueryMenuDto, UpdateMenuDto } from './menu.dto';

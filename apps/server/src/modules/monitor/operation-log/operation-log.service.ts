@@ -1,9 +1,10 @@
 import type { PrismaService } from '@/common/database/prisma.extension';
-import { PRISMA_SERVICE_TOKEN } from '@/common/database/prisma.extension';
 
 import { Inject, Injectable } from '@nestjs/common';
 import { OnEvent } from '@nestjs/event-emitter';
 import IP2Region from 'ip2region';
+
+import { PRISMA_SERVICE_TOKEN } from '@/common/database/prisma.extension';
 
 import {
   CreateOperationLogDto,
@@ -21,13 +22,13 @@ export class OperationLogService {
     const addressInfo = query.search(createOperationLogDto.ip);
     const address = addressInfo ? addressInfo.province + addressInfo.city : '';
 
-    return await this.prisma.client.operationLog.create({
+    return this.prisma.client.operationLog.create({
       data: { ...createOperationLogDto, address },
     });
   }
 
   async findOne(id: number) {
-    return await this.prisma.client.operationLog.findUniqueOrThrow({
+    return this.prisma.client.operationLog.findUniqueOrThrow({
       where: { id },
     });
   }

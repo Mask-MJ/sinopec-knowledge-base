@@ -1,8 +1,9 @@
 import type { PrismaService } from '@/common/database/prisma.extension';
-import { PRISMA_SERVICE_TOKEN } from '@/common/database/prisma.extension';
 import type { OnApplicationBootstrap } from '@nestjs/common';
 
 import { Inject, Injectable, Logger } from '@nestjs/common';
+
+import { PRISMA_SERVICE_TOKEN } from '@/common/database/prisma.extension';
 
 import { SEED_DICTS, SEED_MENUS, SEED_ROLES, SEED_USERS } from './seed.data';
 
@@ -43,8 +44,12 @@ export class SeedService implements OnApplicationBootstrap {
       );
 
       this.logger.log('✅ Seed data injected successfully.');
-    } catch (error: any) {
-      if (error?.code === 'P2002') {
+    } catch (error: unknown) {
+      if (
+        error instanceof Object &&
+        'code' in error &&
+        error.code === 'P2002'
+      ) {
         this.logger.warn(
           '⚠️  Seed conflict detected (concurrent start), skipping.',
         );

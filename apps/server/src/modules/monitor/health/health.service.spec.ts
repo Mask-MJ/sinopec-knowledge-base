@@ -2,7 +2,7 @@ import { describe, expect, it } from 'vitest';
 
 import { HealthService } from './health.service';
 
-describe('HealthService', () => {
+describe('healthService', () => {
   it('should return health status with version and timestamp', () => {
     const service = new HealthService();
     const result = service.check();

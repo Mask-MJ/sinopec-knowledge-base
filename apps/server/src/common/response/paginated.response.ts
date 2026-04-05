@@ -8,9 +8,7 @@ class PaginateResponse<TData> extends PaginateDto {
   total: number;
 }
 
-export const ApiPaginatedResponse = <TModel extends Type<any>>(
-  model: TModel,
-) => {
+export const ApiPaginatedResponse = <TModel extends Type>(model: TModel) => {
   return applyDecorators(
     ApiExtraModels(PaginateResponse, model),
     ApiOkResponse({

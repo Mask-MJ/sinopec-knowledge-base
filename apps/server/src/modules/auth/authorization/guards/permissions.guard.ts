@@ -1,5 +1,4 @@
 import type { PrismaService } from '@/common/database/prisma.extension';
-import { PRISMA_SERVICE_TOKEN } from '@/common/database/prisma.extension';
 
 import {
   CanActivate,
@@ -8,6 +7,8 @@ import {
   Injectable,
 } from '@nestjs/common';
 import { Reflector } from '@nestjs/core';
+
+import { PRISMA_SERVICE_TOKEN } from '@/common/database/prisma.extension';
 
 import { REQUEST_USER_KEY } from '../../auth.constants';
 import { ActiveUserData } from '../../interfaces/active-user-data.interface';

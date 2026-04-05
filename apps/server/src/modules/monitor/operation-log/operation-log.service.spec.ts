@@ -1,7 +1,7 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { vi } from 'vitest';
-import { PRISMA_SERVICE_TOKEN } from '@/common/database/prisma.extension';
 
+import { PRISMA_SERVICE_TOKEN } from '@/common/database/prisma.extension';
 import {
   createMockCreateOperationLogDto,
   createMockOperationLog,

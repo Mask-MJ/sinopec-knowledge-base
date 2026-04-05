@@ -1,9 +1,9 @@
 import type { PrismaService } from '@/common/database/prisma.extension';
-import { PRISMA_SERVICE_TOKEN } from '@/common/database/prisma.extension';
 
 import { Inject, Injectable } from '@nestjs/common';
 import { EventEmitter2 } from '@nestjs/event-emitter';
 
+import { PRISMA_SERVICE_TOKEN } from '@/common/database/prisma.extension';
 import { ActiveUserData } from '@/modules/auth/interfaces/active-user-data.interface';
 
 import { CreateMenuDto, QueryMenuDto, UpdateMenuDto } from './menu.dto';
@@ -82,13 +82,13 @@ export class MenuService {
       include: { roles: true },
     });
     if (userData?.isAdmin) {
-      return await this.prisma.client.menu.findMany({
+      return this.prisma.client.menu.findMany({
         where: { name: { contains: name, mode: 'insensitive' } },
         orderBy: { order: 'asc' },
       });
     } else {
       const roleIds = userData?.roles.map((role) => role.id);
-      return await this.prisma.client.menu.findMany({
+      return this.prisma.client.menu.findMany({
         where: {
           name: { contains: name, mode: 'insensitive' },
           roles: { some: { id: { in: roleIds } } },
@@ -99,7 +99,7 @@ export class MenuService {
   }
 
   async findOne(id: number) {
-    return await this.prisma.client.menu.findUnique({ where: { id } });
+    return this.prisma.client.menu.findUnique({ where: { id } });
   }
 
   async update(id: number, updateMenuDto: UpdateMenuDto) {

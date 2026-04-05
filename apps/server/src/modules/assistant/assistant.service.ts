@@ -8,19 +8,14 @@ import type {
   UpdateSessionDto,
 } from './assistant.dto';
 import type { PrismaService } from '@/common/database/prisma.extension';
-import { PRISMA_SERVICE_TOKEN } from '@/common/database/prisma.extension';
 import type { ActiveUserData } from '@/modules/auth/interfaces/active-user-data.interface';
 import type { Response } from 'express';
 
 import { Transform } from 'node:stream';
 
-import {
-  ForbiddenException,
-  Inject,
-  Injectable,
-  Logger,
-} from '@nestjs/common';
+import { ForbiddenException, Inject, Injectable, Logger } from '@nestjs/common';
 
+import { PRISMA_SERVICE_TOKEN } from '@/common/database/prisma.extension';
 import { RagflowService } from '@/common/ragflow/ragflow.service';
 
 @Injectable()
@@ -199,7 +194,7 @@ export class AssistantService {
       where: { id },
     });
 
-    return await this.ragflow.request(
+    return this.ragflow.request(
       'POST',
       `/api/v1/chats/${assistant.assistantId}/sessions`,
       {
@@ -238,7 +233,7 @@ export class AssistantService {
       where: { id },
     });
 
-    return await this.ragflow.request(
+    return this.ragflow.request(
       'GET',
       `/api/v1/chats/${assistant.assistantId}/sessions`,
       {
@@ -251,7 +246,7 @@ export class AssistantService {
   }
 
   async findOne(id: number, user: ActiveUserData) {
-    return await this.assertOwnership(id, user);
+    return this.assertOwnership(id, user);
   }
 
   async remove(id: number, user: ActiveUserData) {
@@ -281,7 +276,7 @@ export class AssistantService {
   async removeSession(id: number, user: ActiveUserData, sessionId: string) {
     const assistant = await this.assertOwnership(id, user);
 
-    return await this.ragflow.request(
+    return this.ragflow.request(
       'DELETE',
       `/api/v1/chats/${assistant.assistantId}/sessions`,
       { ids: [sessionId] },
@@ -345,10 +340,7 @@ export class AssistantService {
           },
         );
       } catch (error) {
-        this.logger.error(
-          `RAGFlow 同步失败，回滚本地 DB (id: ${id})`,
-          error,
-        );
+        this.logger.error(`RAGFlow 同步失败，回滚本地 DB (id: ${id})`, error);
         await this.prisma.client.assistant.update({
           where: { id },
           data: {
