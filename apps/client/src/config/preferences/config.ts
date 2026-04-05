@@ -19,7 +19,7 @@ const DEFAULT_PREFERENCES: Preferences = {
     layout: 'sidebar-nav',
     locale: 'zh-CN',
     loginExpiredMode: 'page',
-    name: '中石化知识库',
+    name: import.meta.env.VITE_APP_TITLE || '中石化知识库',
     preferencesButtonPosition: 'auto',
     watermark: false,
   },

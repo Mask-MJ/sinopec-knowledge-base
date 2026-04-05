@@ -108,7 +108,8 @@ export function urlToBase64(url: string, mineType?: string): Promise<string> {
     img.crossOrigin = '';
     img.addEventListener('load', () => {
       if (!canvas || !ctx) {
-        return reject(new Error('Failed to create canvas.'));
+        reject(new Error('Failed to create canvas.'));
+        return;
       }
       canvas.height = img.height;
       canvas.width = img.width;
@@ -149,7 +150,9 @@ export function triggerDownload(
   link.remove();
 
   // 清理临时 URL 以释放内存
-  setTimeout(() => URL.revokeObjectURL(href), revokeDelay);
+  setTimeout(() => {
+    URL.revokeObjectURL(href);
+  }, revokeDelay);
 }
 
 function resolveFileName(url: string, fileName?: string): string {

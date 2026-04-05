@@ -30,12 +30,16 @@ function subscribeTokenRefresh(
 }
 
 function onTokenRefreshed(newToken: string) {
-  refreshSubscribers.forEach(({ resolve }) => resolve(newToken));
+  refreshSubscribers.forEach(({ resolve }) => {
+    resolve(newToken);
+  });
   refreshSubscribers = [];
 }
 
 function onTokenRefreshFailed(error: unknown) {
-  refreshSubscribers.forEach(({ reject }) => reject(error));
+  refreshSubscribers.forEach(({ reject }) => {
+    reject(error);
+  });
   refreshSubscribers = [];
 }
 
@@ -151,7 +155,7 @@ const authMiddleware: Middleware = {
               'Authorization',
               `Bearer ${newToken.accessToken}`,
             );
-            return fetch(newRequest);
+            return await fetch(newRequest);
           }
           handleAuthFailure();
           return response;

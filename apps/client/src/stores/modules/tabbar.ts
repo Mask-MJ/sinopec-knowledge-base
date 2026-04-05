@@ -46,8 +46,8 @@ export const useTabbarStore = defineStore('tabbar-store', () => {
     return tabs.value
       .filter((tab) => isAffixTab(tab))
       .sort((a, b) => {
-        const orderA = (a.meta?.affixTabOrder ?? 0) as number;
-        const orderB = (b.meta?.affixTabOrder ?? 0) as number;
+        const orderA = a.meta?.affixTabOrder ?? 0;
+        const orderB = b.meta?.affixTabOrder ?? 0;
         return orderA - orderB;
       });
   });
@@ -214,7 +214,7 @@ export const useTabbarStore = defineStore('tabbar-store', () => {
       const preferencesStore = usePreferencesStore();
       const maxCount = preferencesStore.state.tabbar.maxCount;
       // 获取动态路由打开数，超过 0 即代表需要控制打开数
-      const maxNumOfOpenTab = (routeTab?.meta?.maxNumOfOpenTab ?? -1) as number;
+      const maxNumOfOpenTab = routeTab?.meta?.maxNumOfOpenTab ?? -1;
       // 如果动态路由层级大于 0 了，那么就要限制该路由的打开数限制了
       // 获取到已经打开的动态路由数, 判断是否大于某一个值
       if (
@@ -419,7 +419,8 @@ export const useTabbarStore = defineStore('tabbar-store', () => {
     // 如果是Router路由，那么就根据当前路由刷新
     // 如果是string字符串，为路由名称，则定向刷新指定标签页，不能是当前路由名称，否则不会刷新
     if (typeof router === 'string') {
-      return await refreshByName(router);
+      await refreshByName(router);
+      return;
     }
     const { currentRoute } = router;
     const { name } = currentRoute.value;

@@ -22,7 +22,9 @@ export function unmountGlobalLoading() {
       'transitionend',
       () => {
         loadingElement.remove(); // 移除 loading 元素
-        injectLoadingElements.forEach((el) => el.remove()); // 移除所有注入的 loading 元素
+        injectLoadingElements.forEach((el) => {
+          el.remove();
+        }); // 移除所有注入的 loading 元素
       },
       { once: true },
     ); // 确保事件只触发一次

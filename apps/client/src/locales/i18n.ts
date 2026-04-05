@@ -115,7 +115,8 @@ async function setupI18n(app: App, options: LocaleSetupOptions = {}) {
  */
 async function loadLocaleMessages(lang: SupportedLanguagesType) {
   if (unref(i18n.global.locale) === lang) {
-    return setI18nLanguage(lang);
+    setI18nLanguage(lang);
+    return;
   }
 
   const message = await localesMap[lang]?.();
@@ -127,7 +128,7 @@ async function loadLocaleMessages(lang: SupportedLanguagesType) {
   const mergeMessage = await loadMessages(lang);
   i18n.global.mergeLocaleMessage(lang, mergeMessage);
 
-  return setI18nLanguage(lang);
+  setI18nLanguage(lang);
 }
 
 export {
