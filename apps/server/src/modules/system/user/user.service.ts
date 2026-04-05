@@ -11,6 +11,7 @@ import { EventEmitter2 } from '@nestjs/event-emitter';
 import { PRISMA_SERVICE_TOKEN } from '@/common/database/prisma.extension';
 import { HashingService } from '@/common/hashing';
 import { MinioService } from '@/common/minio/minio.service';
+import { sanitizeFilename } from '@/common/utils';
 import { ActiveUserData } from '@/modules/auth/interfaces/active-user-data.interface';
 
 import { CreateUserDto, QueryUserDto, UpdateUserDto } from './user.dto';
@@ -213,7 +214,7 @@ export class UserService {
   }
 
   async uploadAvatar(user: ActiveUserData, file: Express.Multer.File) {
-    const objectName = `${user.sub}-${file.originalname}`;
+    const objectName = `${user.sub}-${sanitizeFilename(file.originalname)}`;
     await this.minioClient.uploadFile('avatar', objectName, file.buffer);
     // 存储对象路径而非 presigned URL（presigned URL 会过期）
     return this.prisma.client.user.update({

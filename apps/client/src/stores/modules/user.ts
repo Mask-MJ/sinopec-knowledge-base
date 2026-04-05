@@ -87,7 +87,7 @@ export const useUserStore = defineStore('user-store', () => {
 
         setAccessCodes(accessCodesData);
         await (onSuccess ? onSuccess() : router.push(DEFAULT_HOME_PATH));
-        return getUserInfoAction();
+        return await getUserInfoAction();
       }
       return null;
     } finally {
@@ -117,16 +117,16 @@ export const useUserStore = defineStore('user-store', () => {
     );
     menus.forEach((menu: MenuInfo) => {
       const { path, redirect, ...rest } = menu;
-      // 更新原始路由数据
+      // Vue Router 路由记录的 meta/redirect 是 mutable by design，直接赋值是官方推荐的做法
       router.getRoutes().forEach((item) => {
         if (item.path === path) {
           item.redirect = redirect || item.redirect;
-          item.meta = { ...item.meta, ...(rest as unknown as RouteMeta) };
+          Object.assign(item.meta, rest as unknown as RouteMeta);
         }
       });
     });
     setAccessMenus(menus);
-    return data || [];
+    return data;
   };
 
   const getMenuByPath = (path: string) => {

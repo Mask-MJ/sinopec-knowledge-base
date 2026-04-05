@@ -5,9 +5,14 @@ import { storeToRefs } from 'pinia';
 import { DEFAULT_HOME_PATH, LOGIN_PATH } from '@/config/constants';
 import { DEFAULT_PREFERENCES } from '@/config/preferences';
 
-/** 校验 redirect 路径是否为站内安全路径 */
+/** 校验 redirect 路径是否为站内安全路径（防止开放重定向） */
 function isSafeRedirect(path: string): boolean {
-  return path.startsWith('/') && !path.startsWith('//');
+  try {
+    const url = new URL(path, 'http://localhost');
+    return url.origin === 'http://localhost';
+  } catch {
+    return false;
+  }
 }
 
 /** 缓存进度条偏好（静态值，避免每次导航都读取） */
@@ -19,12 +24,12 @@ const showProgress = DEFAULT_PREFERENCES.transition.progress;
 function setupCommonGuard(router: Router) {
   // 记录已经加载的页面
   const loadedPaths = new Set<string>();
-  router.beforeEach(async (to) => {
+  router.beforeEach((to) => {
     to.meta.loaded = loadedPaths.has(to.path);
 
     // 页面加载进度条
     if (!to.meta.loaded && showProgress) {
-      window.$loadingBar?.start();
+      window.$loadingBar.start();
     }
     return true;
   });
@@ -35,7 +40,7 @@ function setupCommonGuard(router: Router) {
 
     // 关闭页面加载进度条
     if (showProgress) {
-      window.$loadingBar?.finish();
+      window.$loadingBar.finish();
     }
   });
 }

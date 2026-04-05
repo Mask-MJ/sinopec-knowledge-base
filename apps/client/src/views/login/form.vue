@@ -9,11 +9,13 @@ const formRef = ref<FormInst | null>(null);
 const REMEMBER_ME_KEY = `REMEMBER_ME_USERNAME_${location.hostname}`;
 const localUsername = localStorage.getItem(REMEMBER_ME_KEY) || '';
 const rememberMe = ref(!!localUsername);
-const model = ref<SignInParams>(
-  import.meta.env.DEV
-    ? { username: 'admin', password: 'admin123' }
-    : { username: localUsername, password: '' },
-);
+const model = ref<SignInParams>({
+  username:
+    localUsername ||
+    (import.meta.env.VITE_DEV_USERNAME as string | undefined) ||
+    '',
+  password: (import.meta.env.VITE_DEV_PASSWORD as string | undefined) || '',
+});
 const loading = computed(() => userStore.loginLoading);
 
 async function handleSubmit(e: MouseEvent) {

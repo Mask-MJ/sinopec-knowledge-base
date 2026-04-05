@@ -112,6 +112,7 @@ const dictModalForm = createProModalForm({
       dictModalForm.close();
     } catch (error) {
       console.warn(error);
+      window.$message?.error('操作失败，请稍后重试');
     } finally {
       loading.value = false;
     }
@@ -134,6 +135,7 @@ const dictDataModalForm = createProModalForm({
       dictDataModalForm.close();
     } catch (error) {
       console.warn(error);
+      window.$message?.error('操作失败，请稍后重试');
     }
     loading.value = false;
   },
