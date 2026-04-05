@@ -4,7 +4,9 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "stub": "pnpm unbuild --stub"
+    "stub": "pnpm unbuild --stub",
+    "typecheck": "tsc --noEmit",
+    "lint": "eslint src/ --fix --cache"
   },
   "files": [
     "dist"
@@ -25,6 +27,10 @@
     "vite-plugin-vue-devtools": "catalog:"
   },
   "devDependencies": {
+    "@sinopec-kb/eslint-config": "workspace:*",
+    "@types/node": "catalog:",
+    "eslint": "catalog:",
+    "typescript": "catalog:",
     "@intlify/unplugin-vue-i18n": "catalog:",
     "@manypkg/get-packages": "catalog:",
     "@sinopec-kb/tsconfig": "workspace:*",

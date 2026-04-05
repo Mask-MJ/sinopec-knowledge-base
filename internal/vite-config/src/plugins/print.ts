@@ -10,7 +10,7 @@ export const vitePrintPlugin = (
 
   return {
     configureServer(server) {
-      const _printUrls = server.printUrls;
+      const _printUrls = server.printUrls.bind(server);
       server.printUrls = () => {
         _printUrls();
 

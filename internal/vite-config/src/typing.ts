@@ -31,7 +31,7 @@ interface CommonPluginOptions {
   /** 是否开启开发工具 */
   devtools?: boolean;
   /** 环境变量 */
-  env?: Record<string, any>;
+  env?: Record<string, unknown>;
   /** 是否注入元数据 */
   injectMetadata?: boolean;
   /** 是否为构建模式 */
@@ -46,14 +46,16 @@ interface CommonPluginOptions {
  * 应用插件配置选项
  */
 interface ApplicationPluginOptions extends CommonPluginOptions {
+  /** 应用标题，注入到 index.html 的 <title> */
+  appTitle?: string;
   /** 是否开启 AutoImport */
   autoImport?: boolean;
   /** AutoImport 插件配置 */
-  autoImportOptions?: Record<string, any>;
+  autoImportOptions?: Record<string, unknown>;
   /** 是否开启 Components 自动注册 */
   components?: boolean;
   /** Components 插件配置 */
-  componentsOptions?: Record<string, any>;
+  componentsOptions?: Record<string, unknown>;
   /** 是否抽离配置文件 */
   extraAppConfig?: boolean;
   /** 是否开启 HTML 插件 */
@@ -77,7 +79,7 @@ interface ApplicationPluginOptions extends CommonPluginOptions {
   /** 是否开启文件路由 (unplugin-vue-router) */
   vueRouter?: boolean;
   /** VueRouter 插件配置 */
-  vueRouterOptions?: Record<string, any>;
+  vueRouterOptions?: Record<string, unknown>;
 }
 
 /**

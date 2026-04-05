@@ -41,7 +41,7 @@ async function viteExtraAppConfigPlugin({
       publicPath = ensureTrailingSlash(config.base);
       source = await getConfigSource();
     },
-    async generateBundle() {
+    generateBundle() {
       try {
         this.emitFile({
           fileName: GLOBAL_CONFIG_FILE_NAME,
@@ -51,11 +51,13 @@ async function viteExtraAppConfigPlugin({
 
         console.log(pc.cyan(`✨ configuration file is built successfully!`));
       } catch (error) {
-        console.log(pc.red(`configuration file failed to package:\n${error}`));
+        console.log(
+          pc.red(`configuration file failed to package:\n${String(error)}`),
+        );
       }
     },
     name: 'vite:extra-app-config',
-    async transformIndexHtml(html) {
+    transformIndexHtml(html) {
       const hash = `v=${version}-${generatorContentHash(source, 8)}`;
 
       const appConfigSrc = `${publicPath}${GLOBAL_CONFIG_FILE_NAME}?${hash}`;

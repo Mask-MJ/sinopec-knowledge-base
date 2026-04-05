@@ -32,9 +32,7 @@ async function loadConditionPlugins(conditionPlugins: ConditionPlugin[]) {
 /**
  * 加载通用插件
  */
-async function loadCommonPlugins(
-  options: CommonPluginOptions,
-): Promise<ConditionPlugin[]> {
+function loadCommonPlugins(options: CommonPluginOptions): ConditionPlugin[] {
   const { devtools, injectMetadata, isBuild, visualizer } = options;
   return [
     {
@@ -77,6 +75,7 @@ async function loadApplicationPlugins(
   const isBuild = options.isBuild;
 
   const {
+    appTitle,
     autoImport,
     autoImportOptions,
     components,
@@ -95,9 +94,9 @@ async function loadApplicationPlugins(
     ...commonOptions
   } = options;
 
-  const commonPlugins = await loadCommonPlugins(commonOptions);
+  const commonPlugins = loadCommonPlugins(commonOptions);
 
-  return await loadConditionPlugins([
+  return loadConditionPlugins([
     // VueRouter 必须在 Vue() 之前加载
     {
       condition: !!vueRouter,
@@ -125,9 +124,7 @@ async function loadApplicationPlugins(
     },
     {
       condition: !!print,
-      plugins: async () => {
-        return [vitePrintPlugin({ infoMap: printInfoMap })];
-      },
+      plugins: () => [vitePrintPlugin({ infoMap: printInfoMap })],
     },
     {
       condition: !!injectAppLoading,
@@ -171,7 +168,14 @@ async function loadApplicationPlugins(
     },
     {
       condition: !!html,
-      plugins: () => [viteHtmlPlugin({ minify: true })],
+      plugins: () => [
+        viteHtmlPlugin({
+          inject: {
+            data: { title: appTitle || 'Sinopec Knowledge Base' },
+          },
+          minify: true,
+        }),
+      ],
     },
     {
       condition: isBuild && extraAppConfig,

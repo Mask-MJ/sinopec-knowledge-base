@@ -18,6 +18,7 @@ function defineApplicationConfig(userConfigPromise?: DefineApplicationOptions) {
     const env = loadEnv(mode, root);
 
     const plugins = await loadApplicationPlugins({
+      appTitle,
       devtools: true,
       env,
       html: true,
@@ -54,7 +55,7 @@ function defineApplicationConfig(userConfigPromise?: DefineApplicationOptions) {
     };
 
     const mergedCommonConfig = mergeConfig(
-      await getCommonConfig(),
+      getCommonConfig(),
       applicationConfig,
     );
     return mergeConfig(mergedCommonConfig, vite);

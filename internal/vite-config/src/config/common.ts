@@ -1,6 +1,6 @@
 import type { UserConfig } from 'vite';
 
-async function getCommonConfig(): Promise<UserConfig> {
+function getCommonConfig(): UserConfig {
   return {
     build: {
       chunkSizeWarningLimit: 2000,
