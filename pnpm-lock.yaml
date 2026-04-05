@@ -228,9 +228,6 @@ catalogs:
     eslint-plugin-perfectionist:
       specifier: ^5.6.0
       version: 5.6.0
-    eslint-plugin-playwright:
-      specifier: ^2.5.1
-      version: 2.7.1
     eslint-plugin-pnpm:
       specifier: ^1.5.0
       version: 1.5.0
@@ -865,9 +862,6 @@ importers:
       eslint-plugin-perfectionist:
         specifier: 'catalog:'
         version: 5.6.0(eslint@9.39.3(jiti@2.6.1))(typescript@5.9.3)
-      eslint-plugin-playwright:
-        specifier: 'catalog:'
-        version: 2.7.1(eslint@9.39.3(jiti@2.6.1))
       eslint-plugin-pnpm:
         specifier: 'catalog:'
         version: 1.5.0(eslint@9.39.3(jiti@2.6.1))
@@ -905,6 +899,9 @@ importers:
       '@types/eslint':
         specifier: 'catalog:'
         version: 9.6.1
+      '@types/node':
+        specifier: 'catalog:'
+        version: 24.10.13
       eslint:
         specifier: 'catalog:'
         version: 9.39.3(jiti@2.6.1)
@@ -941,9 +938,15 @@ importers:
       '@manypkg/get-packages':
         specifier: 'catalog:'
         version: 3.1.0
+      '@sinopec-kb/eslint-config':
+        specifier: workspace:*
+        version: link:../eslint-config
       '@sinopec-kb/tsconfig':
         specifier: workspace:*
         version: link:../tsconfig
+      '@types/node':
+        specifier: 'catalog:'
+        version: 24.10.13
       '@vitejs/plugin-vue':
         specifier: 'catalog:'
         version: 6.0.4(vite@7.3.1(@types/node@24.10.13)(jiti@2.6.1)(sass@1.97.3)(terser@5.46.0)(tsx@4.21.0)(yaml@2.8.2))(vue@3.5.28(typescript@5.9.3))
@@ -953,12 +956,18 @@ importers:
       dayjs:
         specifier: 'catalog:'
         version: 1.11.19
+      eslint:
+        specifier: 'catalog:'
+        version: 9.39.3(jiti@2.6.1)
       pkg-types:
         specifier: 'catalog:'
         version: 2.3.0
       rollup-plugin-visualizer:
         specifier: 'catalog:'
         version: 7.0.0(rollup@4.59.0)
+      typescript:
+        specifier: 'catalog:'
+        version: 5.9.3
       unocss:
         specifier: 'catalog:'
         version: 66.6.0(postcss@8.5.6)(vite@7.3.1(@types/node@24.10.13)(jiti@2.6.1)(sass@1.97.3)(terser@5.46.0)(tsx@4.21.0)(yaml@2.8.2))
@@ -5577,12 +5586,6 @@ packages:
     peerDependencies:
       eslint: ^8.45.0 || ^9.0.0 || ^10.0.0
 
-  eslint-plugin-playwright@2.7.1:
-    resolution: {integrity: sha512-IGwSjYN6N5E0I+xbRpmLXXRKQfiRaEEGEasMWKmIoiLFe+izb81EKBMGSjD/NzlXrWGx/Ys7zDOkgYEHQT2g6Q==}
-    engines: {node: '>=16.9.0'}
-    peerDependencies:
-      eslint: '>=8.40.0'
-
   eslint-plugin-pnpm@1.5.0:
     resolution: {integrity: sha512-ayMo1GvrQ/sF/bz1aOAiH0jv9eAqU2Z+a1ycoWz/uFFK5NxQDq49BDKQtBumcOUBf2VHyiTW4a8u+6KVqoIWzQ==}
     peerDependencies:
@@ -6094,10 +6097,6 @@ packages:
 
   globals@16.5.0:
     resolution: {integrity: sha512-c/c15i26VrJ4IRt5Z89DnIzCGDn9EcebibhAOjw5ibqEHsE1wLUgkPn9RDmNcUKyU87GeaL633nyJ+pplFR2ZQ==}
-    engines: {node: '>=18'}
-
-  globals@17.3.0:
-    resolution: {integrity: sha512-yMqGUQVVCkD4tqjOJf3TnrvaaHDMYp4VlUSObbkIiuCPe/ofdMBFIAcBbCSRFWOnos6qRiTVStDwqPLUclaxIw==}
     engines: {node: '>=18'}
 
   globby@11.1.0:
@@ -14466,11 +14465,6 @@ snapshots:
       - supports-color
       - typescript
 
-  eslint-plugin-playwright@2.7.1(eslint@9.39.3(jiti@2.6.1)):
-    dependencies:
-      eslint: 9.39.3(jiti@2.6.1)
-      globals: 17.3.0
-
   eslint-plugin-pnpm@1.5.0(eslint@9.39.3(jiti@2.6.1)):
     dependencies:
       empathic: 2.0.0
@@ -15088,8 +15082,6 @@ snapshots:
   globals@15.15.0: {}
 
   globals@16.5.0: {}
-
-  globals@17.3.0: {}
 
   globby@11.1.0:
     dependencies:
