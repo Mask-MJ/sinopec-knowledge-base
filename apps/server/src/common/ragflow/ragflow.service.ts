@@ -64,15 +64,17 @@ export class RagflowService {
     this.ensureConfigured();
     const url = `${this.host}${path}`;
     try {
-      const response = await this.httpService.axiosRef.get(url, {
+      const response = await this.httpService.axiosRef.get<Buffer>(url, {
         headers: this.getHeaders(),
         responseType: 'arraybuffer',
         timeout: 120_000,
       });
 
       return {
-        contentDisposition: response.headers['content-disposition'],
-        contentType: response.headers['content-type'],
+        contentDisposition: response.headers['content-disposition'] as
+          | string
+          | undefined,
+        contentType: response.headers['content-type'] as string | undefined,
         data: response.data,
       };
     } catch (error) {
@@ -118,7 +120,10 @@ export class RagflowService {
         method,
         url,
         data: method === 'GET' ? undefined : data,
-        params: method === 'GET' ? data : config?.params,
+        params:
+          method === 'GET'
+            ? data
+            : (config?.params as Record<string, unknown> | undefined),
         headers: this.getHeaders(config?.headers as Record<string, string>),
         timeout: this.timeout,
         ...config,
@@ -159,7 +164,7 @@ export class RagflowService {
     this.ensureConfigured();
     const url = `${this.host}${path}`;
     try {
-      const response = await this.httpService.axiosRef.request({
+      const response = await this.httpService.axiosRef.request<Readable>({
         method,
         url,
         data,
@@ -168,7 +173,7 @@ export class RagflowService {
         timeout: 0, // 流式请求不设超时
       });
 
-      return response.data as Readable;
+      return response.data;
     } catch (error) {
       this.logger.error(`RAGFlow 流式请求异常: ${path}`, error);
       throw new ServiceUnavailableException(

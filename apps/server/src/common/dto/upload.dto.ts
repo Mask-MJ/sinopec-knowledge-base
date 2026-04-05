@@ -20,7 +20,7 @@ export class FilesUploadDto {
    * 上传的文件列表
    */
   @ApiProperty({ type: 'array', items: { type: 'string', format: 'binary' } })
-  files: any[];
+  files: Express.Multer.File[];
 
   /**
    * 文件类型

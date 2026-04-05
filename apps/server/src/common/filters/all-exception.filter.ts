@@ -67,8 +67,10 @@ export class AllExceptionFilter implements ExceptionFilter {
     if (exception instanceof HttpException) {
       const response = exception.getResponse();
       if (typeof response === 'string') return response;
-      const msg = (response as any).message;
-      return Array.isArray(msg) ? msg.join(', ') : msg || exception.message;
+      const msg = (response as Record<string, unknown>).message;
+      return Array.isArray(msg)
+        ? (msg as string[]).join(', ')
+        : (msg as string) || exception.message;
     }
     if (this.isPrismaKnownError(exception)) {
       return this.formatPrismaMessage(exception);
@@ -113,7 +115,7 @@ export class AllExceptionFilter implements ExceptionFilter {
       url: request.url,
       params: request.params,
       query: request.query,
-      body: request.body,
+      body: request.body as unknown,
     };
 
     if (exception instanceof Error) {

@@ -66,7 +66,6 @@ export const usePreferencesStore = defineStore('preferences-store', () => {
   };
 
   const setLanguage = async (value: SupportedLanguagesType) => {
-    if (!value) return;
     updatePreferences({ app: { locale: value } });
     await loadLocaleMessages(value);
   };

@@ -4,7 +4,7 @@ import { Inject, Injectable } from '@nestjs/common';
 import { EventEmitter2 } from '@nestjs/event-emitter';
 
 import { PRISMA_SERVICE_TOKEN } from '@/common/database/prisma.extension';
-import { transformationTree } from '@/common/utils';
+import { toPlainObject, transformationTree } from '@/common/utils';
 
 import { CreateDeptDto, QueryDeptDto, UpdateDeptDto } from './dept.dto';
 import { DeptEntity } from './dept.entity';
@@ -22,7 +22,7 @@ export class DeptService {
       where: { id: leaderId },
     });
     const dept = await this.prisma.client.dept.create({
-      data: { ...createDeptDto, leader: userInfo.username },
+      data: { ...toPlainObject(createDeptDto), leader: userInfo.username },
     });
     await this.prisma.client.user.update({
       where: { id: leaderId },
@@ -93,7 +93,7 @@ export class DeptService {
     const { leaderId, ...rest } = updateDeptDto;
 
     const result =
-      leaderId === undefined || leaderId === null
+      leaderId === undefined
         ? await this.prisma.client.dept.update({
             where: { id },
             data: rest,

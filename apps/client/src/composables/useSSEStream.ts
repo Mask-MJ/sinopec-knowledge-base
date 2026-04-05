@@ -35,7 +35,7 @@ export function useSSEStream() {
     let buffer = '';
 
     try {
-      while (true) {
+      for (;;) {
         const { done, value } = await reader.read();
         if (done || abortController.signal.aborted) break;
 
@@ -60,11 +60,7 @@ export function useSSEStream() {
               isStreaming.value = false;
               return;
             }
-            if (
-              typeof parsed.data === 'object' &&
-              parsed.data !== null &&
-              'answer' in parsed.data
-            ) {
+            if (typeof parsed.data === 'object' && 'answer' in parsed.data) {
               content.value = parsed.data.answer;
             }
           } catch {
@@ -73,7 +69,7 @@ export function useSSEStream() {
         }
       }
     } catch (error_) {
-      if (!abortController?.signal.aborted) {
+      if (!abortController.signal.aborted) {
         error.value = error_ instanceof Error ? error_.message : '流式请求失败';
       }
     } finally {

@@ -7,6 +7,7 @@ import {
   Injectable,
 } from '@nestjs/common';
 import { Reflector } from '@nestjs/core';
+import { Request } from 'express';
 
 import { PRISMA_SERVICE_TOKEN } from '@/common/database/prisma.extension';
 
@@ -36,16 +37,14 @@ export class PermissionsGuard implements CanActivate {
 
   async canActivate(context: ExecutionContext) {
     // 获取显式定义的权限
-    const explicitPermissions = this.reflector.getAllAndOverride<string[]>(
-      PERMISSIONS_KEY,
-      [context.getHandler(), context.getClass()],
-    );
+    const explicitPermissions = this.reflector.getAllAndOverride<
+      string[] | undefined
+    >(PERMISSIONS_KEY, [context.getHandler(), context.getClass()]);
 
     // 获取自动权限标记
-    const autoPermission = this.reflector.getAllAndOverride<boolean>(
-      AUTO_PERMISSION_KEY,
-      [context.getHandler(), context.getClass()],
-    );
+    const autoPermission = this.reflector.getAllAndOverride<
+      boolean | undefined
+    >(AUTO_PERMISSION_KEY, [context.getHandler(), context.getClass()]);
 
     // 计算最终需要检查的权限
     let contextPermissions: string[] | undefined = explicitPermissions;
@@ -59,7 +58,8 @@ export class PermissionsGuard implements CanActivate {
       }
     }
 
-    if (!contextPermissions || contextPermissions.length === 0) return true;
+    if (contextPermissions === undefined || contextPermissions.length === 0)
+      return true;
 
     const request = context
       .switchToHttp()
@@ -88,16 +88,17 @@ export class PermissionsGuard implements CanActivate {
    * 格式: module:controller:action
    */
   private generatePermissionCode(context: ExecutionContext): null | string {
-    const request = context.switchToHttp().getRequest();
-    const method = request.method;
-    const url = request.route?.path || request.url;
+    const request = context.switchToHttp().getRequest<Request>();
+    const method: string = request.method;
+    const url: string =
+      (request.route as undefined | { path?: string })?.path || request.url;
 
     // 获取操作类型
     const action = METHOD_ACTION_MAP[method];
     if (!action) return null;
 
     // 解析路由路径: /api/system/dept/:id -> ['api', 'system', 'dept']
-    let pathSegments = url
+    let pathSegments: string[] = url
       .split('/')
       .filter((segment: string) => segment && !segment.startsWith(':'));
 

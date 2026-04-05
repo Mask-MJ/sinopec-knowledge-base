@@ -5,6 +5,7 @@ import { OnEvent } from '@nestjs/event-emitter';
 import IP2Region from 'ip2region';
 
 import { PRISMA_SERVICE_TOKEN } from '@/common/database/prisma.extension';
+import { toPlainObject } from '@/common/utils';
 
 import { CreateLoginLogDto, QueryLoginLogDto } from './login-log.dto';
 
@@ -20,7 +21,7 @@ export class LoginLogService {
     const address = addressInfo ? addressInfo.province + addressInfo.city : '';
 
     return this.prisma.client.loginLog.create({
-      data: { ...createLoginLogDto, address },
+      data: { ...toPlainObject(createLoginLogDto), address },
     });
   }
 

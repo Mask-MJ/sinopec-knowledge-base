@@ -4,7 +4,7 @@ type DiffResult<T> = Partial<{
   [K in keyof T]: T[K] extends object ? DiffResult<T[K]> : T[K];
 }>;
 
-export function diff<T extends Record<string, any>>(
+export function diff<T extends Record<string, unknown>>(
   obj1: T,
   obj2: T,
 ): DiffResult<T> {

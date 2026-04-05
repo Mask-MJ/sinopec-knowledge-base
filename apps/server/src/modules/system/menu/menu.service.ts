@@ -4,6 +4,7 @@ import { Inject, Injectable } from '@nestjs/common';
 import { EventEmitter2 } from '@nestjs/event-emitter';
 
 import { PRISMA_SERVICE_TOKEN } from '@/common/database/prisma.extension';
+import { toPlainObject } from '@/common/utils';
 import { ActiveUserData } from '@/modules/auth/interfaces/active-user-data.interface';
 
 import { CreateMenuDto, QueryMenuDto, UpdateMenuDto } from './menu.dto';
@@ -23,7 +24,7 @@ export class MenuService {
         .replaceAll('/', ':');
       result = await this.prisma.client.menu.create({
         data: {
-          ...createMenuDto,
+          ...toPlainObject(createMenuDto),
           children: {
             createMany: {
               data: [
@@ -50,7 +51,7 @@ export class MenuService {
       });
     } else {
       result = await this.prisma.client.menu.create({
-        data: { ...createMenuDto },
+        data: { ...toPlainObject(createMenuDto) },
       });
     }
     this.eventEmitter.emit('operation.log', {
@@ -105,7 +106,7 @@ export class MenuService {
   async update(id: number, updateMenuDto: UpdateMenuDto) {
     const result = await this.prisma.client.menu.update({
       where: { id },
-      data: { ...updateMenuDto },
+      data: { ...toPlainObject(updateMenuDto) },
     });
     this.eventEmitter.emit('operation.log', {
       title: `更新菜单ID: ${id}`,

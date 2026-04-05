@@ -11,6 +11,7 @@ import type { PrismaService } from '@/common/database/prisma.extension';
 import type { ActiveUserData } from '@/modules/auth/interfaces/active-user-data.interface';
 import type { Response } from 'express';
 
+import { Buffer } from 'node:buffer';
 import { Transform } from 'node:stream';
 
 import { ForbiddenException, Inject, Injectable, Logger } from '@nestjs/common';
@@ -67,7 +68,7 @@ export class AssistantService {
     );
 
     const transformStream = new Transform({
-      transform(chunk, _encoding, callback) {
+      transform(chunk: Buffer | string, _encoding, callback) {
         this.push(chunk.toString());
         callback();
       },

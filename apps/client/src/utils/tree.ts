@@ -4,7 +4,7 @@ interface TreeConfigOptions {
 }
 
 type TransformationTreeData = {
-  [key: string]: any;
+  [key: string]: unknown;
   id: number;
   parentId: null | number;
 };
@@ -29,11 +29,11 @@ function traverseTreeValues<T, V>(
   const dfs = (treeNode: T) => {
     const value = getValue(treeNode);
     result.push(value);
-    const children = (treeNode as Record<string, any>)?.[childProps];
+    const children = (treeNode as Record<string, unknown>)[childProps];
     if (!children) {
       return;
     }
-    if (children.length > 0) {
+    if (Array.isArray(children) && children.length > 0) {
       for (const child of children) {
         dfs(child as T);
       }
@@ -53,7 +53,7 @@ function traverseTreeValues<T, V>(
  * @param options 作为子节点数组的可选属性名称。
  * @returns 包含所有匹配节点的数组。
  */
-function filterTree<T extends Record<string, any>>(
+function filterTree<T extends Record<string, unknown>>(
   tree: T[],
   filter: (node: T) => boolean,
   options?: TreeConfigOptions,
@@ -63,7 +63,7 @@ function filterTree<T extends Record<string, any>>(
   };
 
   const _filterTree = (nodes: T[]): T[] => {
-    return nodes.filter((node: Record<string, any>) => {
+    return nodes.filter((node: Record<string, unknown>) => {
       if (filter(node as T)) {
         if (node[childProps]) {
           node[childProps] = _filterTree(node[childProps] as T[]);
@@ -83,7 +83,7 @@ function filterTree<T extends Record<string, any>>(
  * @param mapper 用于map每个节点的条件。
  * @param options 作为子节点数组的可选属性名称。
  */
-function mapTree<T, V extends Record<string, any>>(
+function mapTree<T, V extends Record<string, unknown>>(
   tree: T[],
   mapper: (node: T) => V,
   options?: TreeConfigOptions,
@@ -92,7 +92,7 @@ function mapTree<T, V extends Record<string, any>>(
     childProps: 'children',
   };
   return tree.map((node) => {
-    const mapperNode: Record<string, any> = mapper(node);
+    const mapperNode: Record<string, unknown> = mapper(node);
     if (mapperNode[childProps]) {
       mapperNode[childProps] = mapTree(
         mapperNode[childProps] as T[],
@@ -110,7 +110,11 @@ function transformationTree<T extends TransformationTreeData>(
 ): (T & { children: T[] | undefined })[] {
   return data
     .filter((dept) => dept.parentId === parentId)
-    .sort((a, b) => (a.sort ?? 0) - (b.sort ?? 0))
+    .sort(
+      (a, b) =>
+        ((a.sort as number | undefined) ?? 0) -
+        ((b.sort as number | undefined) ?? 0),
+    )
     .map((dept) => {
       const children = transformationTree(data, dept.id);
       return {

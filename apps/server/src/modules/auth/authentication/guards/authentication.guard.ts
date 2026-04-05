@@ -33,7 +33,7 @@ export class AuthenticationGuard implements CanActivate {
   async canActivate(context: ExecutionContext): Promise<boolean> {
     // 获取元数据
     // 第二个参数传入由两个目标组成的数组，第一个是处理程序，第二个是类
-    const authTypes = this.reflector.getAllAndOverride<AuthType[]>(
+    const authTypes = this.reflector.getAllAndOverride<AuthType[] | undefined>(
       AUTH_TYPE_KEY,
       [context.getHandler(), context.getClass()],
     ) ?? [AuthenticationGuard.defaultAuthType];
@@ -49,8 +49,11 @@ export class AuthenticationGuard implements CanActivate {
     for (const instance of guards) {
       const canActivate = await Promise.resolve(
         instance.canActivate(context),
-      ).catch((error_) => {
-        error = error_;
+      ).catch((error_: unknown) => {
+        error =
+          error_ instanceof UnauthorizedException
+            ? error_
+            : new UnauthorizedException();
       });
       if (canActivate) {
         return true;

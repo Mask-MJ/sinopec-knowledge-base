@@ -29,9 +29,9 @@ import { SystemModule } from './modules/system/system.module';
       inject: [ConfigService],
       isGlobal: true,
       useFactory: (configService: ConfigService) => {
-        const host = configService.get('REDIS_HOST', 'localhost');
-        const port = configService.get('REDIS_PORT', 6379);
-        const password = configService.get('REDIS_PASSWORD', '');
+        const host = configService.get<string>('REDIS_HOST', 'localhost');
+        const port = configService.get<number>('REDIS_PORT', 6379);
+        const password = configService.get<string>('REDIS_PASSWORD', '');
         const redisUrl = `redis://:${password}@${host}:${port}`;
         return { stores: new KeyvRedis(redisUrl), namespace: 'sinopec-kb' };
       },

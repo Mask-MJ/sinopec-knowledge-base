@@ -26,8 +26,8 @@ async function bootstrap() {
   // 动态更新标题
   watchEffect(() => {
     if (DEFAULT_PREFERENCES.app.dynamicTitle) {
-      const routeTitle = router.currentRoute.value.meta?.title
-        ? `${$t(`page.${router.currentRoute.value.meta?.title}`)}-`
+      const routeTitle = router.currentRoute.value.meta.title
+        ? `${$t(`page.${router.currentRoute.value.meta.title}`)}-`
         : '';
       const pageTitle = routeTitle + DEFAULT_PREFERENCES.app.name;
       useTitle(pageTitle);

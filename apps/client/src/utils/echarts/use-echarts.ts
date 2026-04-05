@@ -22,7 +22,7 @@ function useEcharts(chartRef: Ref<EchartsUIType>) {
   const resizeHandler = () => void _debouncedResize();
 
   const getChartEl = (): HTMLElement | null => {
-    const refValue = chartRef?.value as unknown;
+    const refValue = chartRef.value as unknown;
     if (!refValue) return null;
     if (refValue instanceof HTMLElement) {
       return refValue;
@@ -47,7 +47,7 @@ function useEcharts(chartRef: Ref<EchartsUIType>) {
   });
 
   const initCharts = (t?: EchartsThemeType) => {
-    const el = chartRef?.value?.$el as HTMLElement | undefined;
+    const el = chartRef.value?.$el as HTMLElement | undefined;
     if (!el) {
       return;
     }
@@ -118,7 +118,7 @@ function useEcharts(chartRef: Ref<EchartsUIType>) {
   }
 
   watch([width, height], () => {
-    resizeHandler?.();
+    resizeHandler();
   });
 
   useResizeObserver(chartRef as never, resizeHandler);

@@ -71,9 +71,10 @@ function loadLocalesMapFromDir(
   // Convert raw locale data into async import functions
   for (const [locale, files] of Object.entries(localesRaw)) {
     localesMap[locale] = async () => {
-      const messages: Record<string, any> = {};
+      const messages: Record<string, string> = {};
       for (const [fileName, importFn] of Object.entries(files)) {
-        messages[fileName] = ((await importFn()) as any)?.default;
+        const mod = (await importFn()) as { default: string };
+        messages[fileName] = mod.default;
       }
       return { default: messages };
     };
@@ -89,13 +90,13 @@ function loadLocalesMapFromDir(
 function setI18nLanguage(locale: Locale) {
   i18n.global.locale.value = locale;
 
-  document?.querySelector('html')?.setAttribute('lang', locale);
+  document.querySelector('html')?.setAttribute('lang', locale);
 }
 
 async function setupI18n(app: App, options: LocaleSetupOptions = {}) {
   const { defaultLocale = 'zh-CN' } = options;
   // app可以自行扩展一些第三方库和组件库的国际化
-  loadMessages = options.loadMessages || (async () => ({}));
+  loadMessages = options.loadMessages || (() => Promise.resolve({}));
   app.use(i18n);
   await loadLocaleMessages(defaultLocale);
 

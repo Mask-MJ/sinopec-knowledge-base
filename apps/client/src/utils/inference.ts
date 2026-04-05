@@ -19,9 +19,12 @@ function isHttpUrl(url?: string): boolean {
  * @param {any} value 要检查的值。
  * @returns {boolean} 如果值是window对象，返回true，否则返回false。
  */
-function isWindow(value: any): value is Window {
+function isWindow(value: unknown): value is Window {
   return (
-    typeof window !== 'undefined' && value !== null && value === value.window
+    typeof window !== 'undefined' &&
+    value !== null &&
+    typeof value === 'object' &&
+    (value as Window).window === value
   );
 }
 
@@ -51,13 +54,14 @@ function isWindowsOs(): boolean {
   return windowsRegex.test(navigator.userAgent);
 }
 
-function bindMethods<T extends object>(instance: T): void {
-  const prototype = Object.getPrototypeOf(instance);
+function bindMethods(instance: object): void {
+  const prototype = Object.getPrototypeOf(instance) as Record<string, unknown>;
   const propertyNames = Object.getOwnPropertyNames(prototype);
+  const rec = instance as Record<string, unknown>;
 
   propertyNames.forEach((propertyName) => {
     const descriptor = Object.getOwnPropertyDescriptor(prototype, propertyName);
-    const propertyValue = instance[propertyName as keyof T];
+    const propertyValue = rec[propertyName];
 
     if (
       typeof propertyValue === 'function' &&
@@ -66,7 +70,9 @@ function bindMethods<T extends object>(instance: T): void {
       !descriptor.get &&
       !descriptor.set
     ) {
-      instance[propertyName as keyof T] = propertyValue.bind(instance);
+      rec[propertyName] = (
+        propertyValue as (...args: unknown[]) => unknown
+      ).bind(instance);
     }
   });
 }

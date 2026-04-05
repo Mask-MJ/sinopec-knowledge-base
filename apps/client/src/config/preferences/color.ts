@@ -55,7 +55,6 @@ function getNaiveThemeColors(colors: ThemeColor) {
  * Get naive theme
  *
  * @param colors Theme colors
- * @param [recommended] Use recommended color. Default is `false`
  */
 export function getNaiveTheme(colors: ThemeColor) {
   const { primary: colorLoading } = colors;
@@ -80,7 +79,6 @@ export function getNaiveTheme(colors: ThemeColor) {
  * Create theme palette colors
  *
  * @param colors Theme colors
- * @param [recommended] Use recommended color. Default is `false`
  */
 function createThemePaletteColors(colors: ThemeColor) {
   const colorKeys = Object.keys(colors) as ThemeColorKey[];
@@ -103,8 +101,6 @@ function createThemePaletteColors(colors: ThemeColor) {
  * create theme token css vars value by theme settings
  *
  * @param colors Theme colors
- * @param tokens Theme setting tokens
- * @param [recommended] Use recommended color. Default is `false`
  */
 export function createThemeToken(colors: ThemeColor) {
   const paletteColors = createThemePaletteColors(colors);

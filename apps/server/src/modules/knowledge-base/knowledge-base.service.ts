@@ -25,6 +25,7 @@ import {
 
 import { PRISMA_SERVICE_TOKEN } from '@/common/database/prisma.extension';
 import { RagflowService } from '@/common/ragflow/ragflow.service';
+import { sanitizeFilename } from '@/common/utils';
 
 @Injectable()
 export class KnowledgeBaseService {
@@ -479,7 +480,9 @@ export class KnowledgeBaseService {
     for (const file of files) {
       formData.append(
         'file',
-        new File([file.buffer], file.originalname, { type: file.mimetype }),
+        new File([file.buffer], sanitizeFilename(file.originalname), {
+          type: file.mimetype,
+        }),
       );
     }
 

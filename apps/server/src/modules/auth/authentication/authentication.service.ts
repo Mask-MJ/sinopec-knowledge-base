@@ -41,11 +41,10 @@ export class AuthenticationService {
     // 生成随机 id
     const refreshTokenId = randomUUID();
     const [accessToken, refreshToken] = await Promise.all([
-      this.signToken<Partial<ActiveUserData>>(
-        user.id,
-        this.jwtConfiguration.accessTokenTtl,
-        { username: user.username, nickname: user.nickname || '' },
-      ),
+      this.signToken(user.id, this.jwtConfiguration.accessTokenTtl, {
+        username: user.username,
+        nickname: user.nickname || '',
+      }),
       this.signToken(user.id, this.jwtConfiguration.refreshTokenTtl, {
         refreshTokenId,
       }),
@@ -84,7 +83,7 @@ export class AuthenticationService {
       } else {
         throw new Error('Refresh token 已过期');
       }
-      return this.generateTokens(user);
+      return await this.generateTokens(user);
     } catch (error) {
       this.logger.error('Refresh token 验证失败', error);
       throw new UnauthorizedException('Refresh token 验证失败');
@@ -121,7 +120,7 @@ export class AuthenticationService {
       where: { username },
     });
     if (user) {
-      throw new ConflictException('用户名已存在');
+      throw new ConflictException('注册失败，请检查输入信息');
     }
     return this.prisma.client.user.create({
       data: {
@@ -158,7 +157,11 @@ export class AuthenticationService {
   }
 
   // 生成 access token 传入 用户 id, 过期时间, payload
-  private signToken<T>(userId: number, expiresIn: number, payload?: T) {
+  private signToken(
+    userId: number,
+    expiresIn: number,
+    payload?: Record<string, unknown>,
+  ) {
     return this.jwtService.signAsync(
       { sub: userId, ...payload },
       { secret: this.jwtConfiguration.secret, expiresIn },

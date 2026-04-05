@@ -103,7 +103,7 @@ function handleAuthFailure(error?: unknown) {
 }
 
 const authMiddleware: Middleware = {
-  async onRequest({ request, schemaPath }) {
+  onRequest({ request, schemaPath }) {
     const userStore = getUserStore();
     const { token } = storeToRefs(userStore);
     if (
@@ -125,7 +125,7 @@ const authMiddleware: Middleware = {
 
         if (response.url.includes('/api/auth/authentication/sign-in')) {
           window.$message.error(
-            (data?.error as string) ?? 'Authentication failed',
+            (data?.error as string | undefined) ?? 'Authentication failed',
           );
           return response;
         }

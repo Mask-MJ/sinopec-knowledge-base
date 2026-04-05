@@ -32,12 +32,12 @@ export class AccessTokenGuard implements CanActivate {
     // 将其包装在try catch块中并重新抛出unauthorizedException
     try {
       // 验证 access token 并解析出 payload
-      const payload = await this.jwtService.verifyAsync(
-        token,
-        this.jwtConfiguration,
-      );
+      const payload = await this.jwtService.verifyAsync<
+        Record<string, unknown>
+      >(token, this.jwtConfiguration);
 
-      (request as any)[REQUEST_USER_KEY] = payload;
+      (request as unknown as Record<string, unknown>)[REQUEST_USER_KEY] =
+        payload;
     } catch (error) {
       throw new UnauthorizedException('请先登录', { cause: error });
     }

@@ -12,11 +12,11 @@ const DEFAULT_FILENAME = 'downloaded_file';
  * 通过 URL 下载文件，支持跨域
  * @throws {Error} - 当下载失败时抛出错误
  */
-export async function downloadFileFromUrl({
+export function downloadFileFromUrl({
   fileName,
   source,
   target = '_blank',
-}: DownloadOptions): Promise<void> {
+}: DownloadOptions): void {
   if (!source || typeof source !== 'string') {
     throw new Error('Invalid URL.');
   }
@@ -140,10 +140,6 @@ export function triggerDownload(
   link.href = href;
   link.download = finalFileName;
   link.style.display = 'none';
-
-  if (link.download === undefined) {
-    link.setAttribute('target', '_blank');
-  }
 
   document.body.append(link);
   link.click();

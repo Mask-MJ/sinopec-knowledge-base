@@ -4,7 +4,7 @@ export function hasPermission(requiredPermission: string): boolean {
   // 如果是管理员，直接返回true
   if (userStore.userInfo.isAdmin) return true;
   const userPermissions = userStore.userInfo.roles
-    .flatMap((role) => role.menus ?? [])
+    .flatMap((role) => role.menus)
     .filter((menu) => menu.type === 'button')
     .map((menu) => menu.permission)
     .filter(Boolean);

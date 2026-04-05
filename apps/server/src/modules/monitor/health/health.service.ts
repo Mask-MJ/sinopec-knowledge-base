@@ -12,7 +12,7 @@ export class HealthService {
   constructor() {
     const pkg = JSON.parse(
       readFileSync(join(process.cwd(), 'package.json'), 'utf8'),
-    );
+    ) as { version: string };
     this.version = pkg.version;
   }
 

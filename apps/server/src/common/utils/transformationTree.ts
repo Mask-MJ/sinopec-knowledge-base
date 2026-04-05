@@ -1,9 +1,8 @@
-type TransformationTreeData = {
-  [key: string]: any;
+interface TransformationTreeData {
   id: number;
   order?: number;
   parentId: null | number;
-};
+}
 
 export function transformationTree<T extends TransformationTreeData>(
   data: T[],
