@@ -32,9 +32,17 @@ interface HealthStatus {
 
 @Injectable()
 export class RagflowService {
+  private static readonly RAGFLOW_CONFLICT = 103;
+  /**
+   * 根据 RAGFlow 错误码抛出对应的 HTTP 异常
+   */
+  /** RAGFlow 业务错误码 */
+  private static readonly RAGFLOW_NOT_FOUND = 102;
   private readonly apiKey: string;
   private readonly host: string;
+
   private readonly logger = new Logger(RagflowService.name);
+
   private readonly timeout: number;
 
   constructor(
@@ -233,7 +241,6 @@ export class RagflowService {
       );
     }
   }
-
   /**
    * 构建请求头（含 Authorization）
    */
@@ -243,13 +250,6 @@ export class RagflowService {
       ...extra,
     };
   }
-
-  /**
-   * 根据 RAGFlow 错误码抛出对应的 HTTP 异常
-   */
-  /** RAGFlow 业务错误码 */
-  private static readonly RAGFLOW_NOT_FOUND = 102;
-  private static readonly RAGFLOW_CONFLICT = 103;
 
   private throwRagflowError(message: string, code: number): never {
     const fullMessage = `RAGFlow: ${message}`;
