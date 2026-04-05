@@ -106,8 +106,8 @@ export const useTabbarStore = defineStore('tabbar-store', () => {
     const {
       fullPath,
       path,
-      meta: { fullPathKey } = {},
-      query = {},
+      meta: { fullPathKey },
+      query,
     } = tab as RouteLocationNormalized;
     // pageKey可能是数组（查询参数重复时可能出现）
     const pageKey = Array.isArray(query.pageKey)

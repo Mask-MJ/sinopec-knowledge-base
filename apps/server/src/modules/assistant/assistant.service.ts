@@ -29,22 +29,6 @@ export class AssistantService {
 
   // ─── Private Helpers ──────────────────────────────
 
-  private async assertOwnership(id: number, user: ActiveUserData) {
-    const assistant = await this.prisma.client.assistant.findUniqueOrThrow({
-      where: { id },
-    });
-    const userData = await this.prisma.client.user.findUniqueOrThrow({
-      where: { id: user.sub },
-    });
-    if (userData.isAdmin) return assistant;
-    if (assistant.userId !== user.sub) {
-      throw new ForbiddenException('无权操作此助手');
-    }
-    return assistant;
-  }
-
-  // ─── Completion (SSE 中间层) ──────────────────────
-
   async completions(
     id: number,
     user: ActiveUserData,
@@ -114,7 +98,7 @@ export class AssistantService {
     ragflowStream.pipe(transformStream).pipe(res);
   }
 
-  // ─── Assistant CRUD ──────────────────────────────
+  // ─── Completion (SSE 中间层) ──────────────────────
 
   async create(user: ActiveUserData, dto: CreateAssistantDto) {
     const ragflowData = await this.ragflow.request<{ id: string }>(
@@ -188,6 +172,8 @@ export class AssistantService {
       throw error;
     }
   }
+
+  // ─── Assistant CRUD ──────────────────────────────
 
   async createSession(id: number, user: ActiveUserData, dto: CreateSessionDto) {
     const assistant = await this.prisma.client.assistant.findUniqueOrThrow({
@@ -382,5 +368,19 @@ export class AssistantService {
     );
 
     return { message: '更新会话成功' };
+  }
+
+  private async assertOwnership(id: number, user: ActiveUserData) {
+    const assistant = await this.prisma.client.assistant.findUniqueOrThrow({
+      where: { id },
+    });
+    const userData = await this.prisma.client.user.findUniqueOrThrow({
+      where: { id: user.sub },
+    });
+    if (userData.isAdmin) return assistant;
+    if (assistant.userId !== user.sub) {
+      throw new ForbiddenException('无权操作此助手');
+    }
+    return assistant;
   }
 }

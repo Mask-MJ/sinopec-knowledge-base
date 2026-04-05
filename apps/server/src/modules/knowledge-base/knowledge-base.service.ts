@@ -141,7 +141,7 @@ export class KnowledgeBaseService {
             [])[1] ?? 'unknown',
         ).replaceAll(/['"]/g, '')
       : 'unknown';
-    const filename = rawFilename.replaceAll(/[^\w\s\-_.]/g, '_').slice(0, 255);
+    const filename = rawFilename.replaceAll(/[^\w\s\-.]/g, '_').slice(0, 255);
 
     return new StreamableFile(result.data, {
       disposition: `attachment; filename="${filename}"`,

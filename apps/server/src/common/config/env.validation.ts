@@ -59,6 +59,12 @@ class EnvironmentVariables {
   @Min(0)
   DATABASE_PORT!: number;
 
+  @IsString()
+  DATABASE_URL!: string;
+
+  @IsString()
+  DATABASE_USER!: string;
+
   @IsInt()
   @IsOptional()
   @Min(1)
@@ -73,12 +79,6 @@ class EnvironmentVariables {
   @IsOptional()
   @Min(1)
   DB_POOL_MAX?: number;
-
-  @IsString()
-  DATABASE_URL!: string;
-
-  @IsString()
-  DATABASE_USER!: string;
 
   // ─── Minio (Object Storage) ──────────────────────
 
