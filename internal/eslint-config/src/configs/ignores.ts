@@ -1,6 +1,6 @@
 import type { Linter } from 'eslint';
 
-export async function ignores(): Promise<Linter.Config[]> {
+export function ignores(): Linter.Config[] {
   return [
     {
       ignores: [
@@ -31,10 +31,11 @@ export async function ignores(): Promise<Linter.Config[]> {
         '**/__snapshots__',
         '**/*.snap',
         '**/fixtures/**',
-        '**/types/**',
         '**/generated/**',
         '**/auto-import?(s).d.ts',
         '**/components.d.ts',
+        '**/typed-router.d.ts',
+        '**/openapi.d.ts',
         '**/*.sh',
         '**/*.ttf',
         '**/*.woff',

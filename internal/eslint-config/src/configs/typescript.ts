@@ -1,18 +1,39 @@
 import type { Linter } from 'eslint';
 
-import { interopDefault } from '../util';
+import tseslint from 'typescript-eslint';
 
-export async function typescript(): Promise<Linter.Config[]> {
-  const [pluginTs, parserTs] = await Promise.all([
-    interopDefault(import('@typescript-eslint/eslint-plugin' as any)),
-    interopDefault(import('@typescript-eslint/parser' as any)),
-  ] as const);
+const TS_JS_FILES = ['**/*.?([cm])[jt]s?(x)'];
 
+/** Extract and merge all rules from one or more eslint config objects. */
+function extractRules(
+  source: Linter.Config | Linter.Config[],
+): Linter.RulesRecord {
+  const configs = Array.isArray(source) ? source : [source];
+  const merged: Record<string, Linter.RuleEntry> = {};
+  for (const config of configs) {
+    if (config.rules) {
+      for (const [key, value] of Object.entries(config.rules)) {
+        if (value !== undefined) {
+          merged[key] = value as Linter.RuleEntry;
+        }
+      }
+    }
+  }
+  return merged;
+}
+
+export function typescript(): Linter.Config[] {
   return [
     {
-      files: ['**/*.?([cm])[jt]s?(x)'],
+      files: TS_JS_FILES,
+      plugins: {
+        '@typescript-eslint': tseslint.plugin as unknown as Record<
+          string,
+          unknown
+        >,
+      },
       languageOptions: {
-        parser: parserTs as any,
+        parser: tseslint.parser as Linter.Parser,
         parserOptions: {
           createDefaultProgram: false,
           ecmaFeatures: { jsx: true },
@@ -22,13 +43,12 @@ export async function typescript(): Promise<Linter.Config[]> {
           sourceType: 'module',
         },
       },
-      plugins: {
-        '@typescript-eslint': pluginTs as any,
-      },
       rules: {
-        ...(pluginTs as any).configs?.['eslint-recommended']?.overrides?.[0]
-          ?.rules,
-        ...(pluginTs as any).configs?.strict?.rules,
+        // --- Base: strictTypeChecked rules (extracted and scoped to TS/JS files) ---
+        ...extractRules(tseslint.configs.eslintRecommended as Linter.Config),
+        ...extractRules(tseslint.configs.strictTypeChecked as Linter.Config[]),
+
+        // --- Project overrides ---
         '@typescript-eslint/ban-ts-comment': [
           'error',
           {
@@ -45,26 +65,47 @@ export async function typescript(): Promise<Linter.Config[]> {
           'error',
           { allow: ['arrowFunctions', 'functions', 'methods'] },
         ],
-        '@typescript-eslint/no-explicit-any': 'off',
         '@typescript-eslint/no-extraneous-class': 'off',
         '@typescript-eslint/no-floating-promises': 'error',
         '@typescript-eslint/no-misused-promises': 'error',
         '@typescript-eslint/no-namespace': 'off',
         '@typescript-eslint/no-non-null-assertion': 'error',
-        '@typescript-eslint/no-unsafe-argument': 'warn',
-        '@typescript-eslint/no-unsafe-assignment': 'off',
-        '@typescript-eslint/no-unsafe-call': 'off',
-        '@typescript-eslint/no-unsafe-member-access': 'off',
-        '@typescript-eslint/no-unsafe-return': 'off',
         '@typescript-eslint/no-unused-expressions': 'off',
         '@typescript-eslint/no-unused-vars': [
           'error',
           { argsIgnorePattern: '^_', varsIgnorePattern: '^_' },
         ],
         '@typescript-eslint/no-use-before-define': 'off',
-        '@typescript-eslint/no-var-requires': 'error',
-        '@typescript-eslint/require-await': 'off',
+
+        // Gradual tightening: off → warn (promote to error once warnings are cleared)
+        '@typescript-eslint/no-explicit-any': 'warn',
+        '@typescript-eslint/no-unsafe-argument': 'warn',
+        '@typescript-eslint/no-unsafe-assignment': 'warn',
+        '@typescript-eslint/no-unsafe-call': 'warn',
+        '@typescript-eslint/no-unsafe-member-access': 'warn',
+        '@typescript-eslint/no-unsafe-return': 'warn',
+        '@typescript-eslint/require-await': 'warn',
+
+        // New strictTypeChecked rules — warn initially, promote to error later
+        '@typescript-eslint/no-unnecessary-condition': 'warn',
+        '@typescript-eslint/no-redundant-type-constituents': 'warn',
+        '@typescript-eslint/restrict-template-expressions': 'warn',
+        '@typescript-eslint/return-await': 'warn',
+        '@typescript-eslint/no-confusing-void-expression': 'warn',
+        '@typescript-eslint/no-unnecessary-type-parameters': 'warn',
+        '@typescript-eslint/unified-signatures': 'warn',
+        '@typescript-eslint/prefer-reduce-type-parameter': 'warn',
+        '@typescript-eslint/no-unsafe-function-type': 'warn',
+        '@typescript-eslint/no-misused-spread': 'warn',
+        '@typescript-eslint/use-unknown-in-catch-callback-variable': 'warn',
+        '@typescript-eslint/unbound-method': 'warn',
       },
+    },
+
+    // Disable type-checked rules for plain JS files (config files, scripts, etc.)
+    {
+      files: ['**/*.{js,mjs,cjs}'],
+      ...(tseslint.configs.disableTypeChecked as Linter.Config),
     },
   ];
 }

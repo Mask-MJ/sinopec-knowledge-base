@@ -4,7 +4,9 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "stub": "pnpm unbuild --stub"
+    "stub": "pnpm unbuild --stub",
+    "typecheck": "tsc --noEmit",
+    "lint": "eslint src/ --fix --cache"
   },
   "files": [
     "dist"
@@ -29,7 +31,6 @@
     "eslint-plugin-jsonc": "catalog:",
     "eslint-plugin-n": "catalog:",
     "eslint-plugin-perfectionist": "catalog:",
-    "eslint-plugin-playwright": "catalog:",
     "eslint-plugin-pnpm": "catalog:",
     "eslint-plugin-prettier": "catalog:",
     "eslint-plugin-regexp": "catalog:",
@@ -44,6 +45,7 @@
   },
   "devDependencies": {
     "@types/eslint": "catalog:",
+    "@types/node": "catalog:",
     "eslint": "catalog:",
     "unbuild": "catalog:"
   }

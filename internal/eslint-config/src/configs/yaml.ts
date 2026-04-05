@@ -12,7 +12,7 @@ export async function yaml(): Promise<Linter.Config[]> {
     {
       files: ['**/*.y?(a)ml'],
       plugins: {
-        yaml: pluginYaml as any,
+        yaml: pluginYaml as Record<string, unknown>,
       },
       languageOptions: {
         parser: parserYaml,

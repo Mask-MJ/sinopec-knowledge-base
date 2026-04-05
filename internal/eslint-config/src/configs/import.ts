@@ -2,11 +2,11 @@ import type { Linter } from 'eslint';
 
 import * as pluginImport from 'eslint-plugin-import-x';
 
-export async function importPluginConfig(): Promise<Linter.Config[]> {
+export function importPluginConfig(): Linter.Config[] {
   return [
     {
       plugins: {
-        // @ts-expect-error - This is a dynamic import
+        // @ts-expect-error - eslint-plugin-import-x types are incompatible
         import: pluginImport,
       },
       rules: {

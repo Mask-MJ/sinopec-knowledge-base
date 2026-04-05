@@ -12,10 +12,10 @@ export async function jsonc(): Promise<Linter.Config[]> {
     {
       files: ['**/*.json', '**/*.json5', '**/*.jsonc', '*.code-workspace'],
       languageOptions: {
-        parser: parserJsonc as any,
+        parser: parserJsonc as Linter.Parser,
       },
       plugins: {
-        jsonc: pluginJsonc as any,
+        jsonc: pluginJsonc as Record<string, unknown>,
       },
       rules: {
         'jsonc/no-bigint-literals': 'error',
@@ -109,6 +109,7 @@ function sortPackageJson(): Linter.Config {
         },
         {
           order: { type: 'asc' },
+          // cspell:ignore ependencies
           pathPattern: '^(?:dev|peer|optional|bundled)?[Dd]ependencies(Meta)?$',
         },
         {

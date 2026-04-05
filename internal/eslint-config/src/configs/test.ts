@@ -22,7 +22,7 @@ export async function test(): Promise<Linter.Config[]> {
           rules: {
             ...pluginTest.rules,
           },
-        } as any,
+        } as Record<string, unknown>,
       },
       rules: {
         'no-console': 'off',
