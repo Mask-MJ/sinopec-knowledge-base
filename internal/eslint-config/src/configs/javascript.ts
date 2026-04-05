@@ -4,14 +4,14 @@ import js from '@eslint/js';
 import pluginUnusedImports from 'eslint-plugin-unused-imports';
 import globals from 'globals';
 
-export async function javascript(): Promise<Linter.Config[]> {
+export function javascript(): Linter.Config[] {
   return [
     {
       languageOptions: {
         ecmaVersion: 'latest',
         globals: {
           ...globals.browser,
-          ...globals.es2021,
+          ...globals.es2025,
           ...globals.node,
           document: 'readonly',
           navigator: 'readonly',

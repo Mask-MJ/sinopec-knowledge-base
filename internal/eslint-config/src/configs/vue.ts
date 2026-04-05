@@ -1,40 +1,39 @@
 import type { Linter } from 'eslint';
 
+import tseslint from 'typescript-eslint';
+
 import { interopDefault } from '../util';
 
 export async function vue(): Promise<Linter.Config[]> {
-  const [pluginVue, parserVue, parserTs] = await Promise.all([
-    interopDefault(import('eslint-plugin-vue')),
-    interopDefault(import('vue-eslint-parser' as any)),
-    interopDefault(import('@typescript-eslint/parser' as any)),
-  ] as const);
+  const pluginVue = await interopDefault(import('eslint-plugin-vue'));
+  // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment -- vue-eslint-parser has no type declarations
+  const parserVue: Linter.Parser = await interopDefault(
+    // @ts-expect-error - vue-eslint-parser has no type declarations
+    import('vue-eslint-parser'),
+  );
 
-  const flatEssential = pluginVue.configs?.['flat/essential'] || [];
-  const flatStronglyRecommended =
-    pluginVue.configs?.['flat/strongly-recommended'] || [];
-  const flatRecommended = pluginVue.configs?.['flat/recommended'] || [];
+  const flatRecommended = pluginVue.configs['flat/recommended'];
 
   return [
-    ...flatEssential,
-    ...flatStronglyRecommended,
     ...flatRecommended,
     {
       files: ['**/*.vue'],
       languageOptions: {
-        parser: parserVue as any,
+        parser: parserVue,
         parserOptions: {
           ecmaFeatures: { jsx: true },
           extraFileExtensions: ['.vue'],
-          parser: parserTs as any,
+          parser: tseslint.parser,
           sourceType: 'module',
         },
       },
       plugins: {
-        vue: pluginVue as any,
+        vue: pluginVue as Record<string, unknown>,
       },
-      processor: pluginVue.processors?.['.vue'],
+      // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment -- eslint-plugin-vue processor type mismatch
+      processor: pluginVue.processors['.vue'],
       rules: {
-        ...pluginVue.configs?.base?.rules,
+        ...pluginVue.configs.base.rules,
         'vue/attribute-hyphenation': ['error', 'always', { ignore: [] }],
         'vue/attributes-order': 'off',
         'vue/block-order': [
@@ -57,6 +56,7 @@ export async function vue(): Promise<Linter.Config[]> {
         ],
         'vue/dot-location': ['error', 'property'],
         'vue/dot-notation': ['error', { allowKeywords: true }],
+        // 'smart' allows == for null checks (value == null), which is idiomatic in Vue templates
         'vue/eqeqeq': ['error', 'smart'],
         'vue/html-closing-bracket-newline': 'off',
         'vue/html-indent': 'off',
@@ -82,6 +82,8 @@ export async function vue(): Promise<Linter.Config[]> {
           'DebuggerStatement',
           'LabeledStatement',
           'WithStatement',
+          'TSEnumDeclaration[const=true]',
+          'TSExportAssignment',
         ],
         'vue/no-restricted-v-bind': ['error', '/^v-/'],
         'vue/no-sparse-arrays': 'error',

@@ -28,14 +28,5 @@ export async function node(): Promise<Linter.Config[]> {
         'n/process-exit-as-throw': 'error',
       },
     },
-    {
-      files: [
-        'scripts/**/*.?([cm])[jt]s?(x)',
-        'internal/**/*.?([cm])[jt]s?(x)',
-      ],
-      rules: {
-        'n/prefer-global/process': 'off',
-      },
-    },
   ];
 }
