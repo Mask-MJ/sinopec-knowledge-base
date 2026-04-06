@@ -81,6 +81,11 @@ function setupAccessGuard(router: Router) {
       return { path: DEFAULT_HOME_PATH, replace: true };
     }
 
+    // 明确声明忽略权限的路由（如 403、404），直接放行
+    if (to.meta.ignoreAccess) {
+      return true;
+    }
+
     // 是否已经初始化权限
     if (isAccessChecked.value) {
       return true;
