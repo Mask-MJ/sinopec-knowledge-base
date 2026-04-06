@@ -37,6 +37,7 @@ playwright-report/
 blob-report/
 test-results/
 playwright/.cache/
+.playwright-mcp/
 
 # ========================
 # Logs
