@@ -3,7 +3,7 @@ import { $t } from '@/locales';
 
 definePage({
   meta: {
-    title: 'dashboard.analytics',
+    title: 'dashboard.analytics.title',
     type: 'menu',
   },
 });
