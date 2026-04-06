@@ -48,8 +48,9 @@ export class CreateKnowledgeBaseDto {
    * 嵌入模型（格式: model_name@provider）
    * @example 'bge-large-zh-v1.5@Xinference'
    */
+  @IsOptional()
   @IsString()
-  embeddingModel: string;
+  embeddingModel?: string = 'bge-large-zh-v1.5@Xinference';
 
   /**
    * 知识库名称

@@ -128,7 +128,7 @@ export class AssistantService {
           avatar: dto.avatar,
           description: dto.description,
           assistantId: ragflowData.id,
-          modelName: dto.modelName,
+          modelName: dto.modelName as string,
           temperature: dto.temperature,
           topP: dto.topP,
           presencePenalty: dto.presencePenalty,

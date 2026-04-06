@@ -92,7 +92,7 @@ export class KnowledgeBaseService {
           name: dto.name,
           avatar: dto.avatar,
           description: dto.description,
-          embeddingModel: dto.embeddingModel,
+          embeddingModel: dto.embeddingModel as string,
           permission: dto.permission,
           chunkMethod: dto.chunkMethod,
           parserConfig: dto.parserConfig,

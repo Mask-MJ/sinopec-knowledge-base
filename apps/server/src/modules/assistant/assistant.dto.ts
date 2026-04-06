@@ -77,8 +77,9 @@ export class CreateAssistantDto {
    * 聊天模型名称（格式: model_name@provider）
    * @example 'deepseek-r1@Xinference'
    */
+  @IsOptional()
   @IsString()
-  modelName: string;
+  modelName?: string = 'gpt-oss@Xinference';
 
   /**
    * 助手名称
