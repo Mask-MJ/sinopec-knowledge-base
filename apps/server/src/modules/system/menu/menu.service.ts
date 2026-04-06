@@ -1,6 +1,6 @@
 import type { PrismaService } from '@/common/database/prisma.extension';
 
-import { Inject, Injectable } from '@nestjs/common';
+import { BadRequestException, Inject, Injectable } from '@nestjs/common';
 import { EventEmitter2 } from '@nestjs/event-emitter';
 
 import { PRISMA_SERVICE_TOKEN } from '@/common/database/prisma.extension';
@@ -16,6 +16,11 @@ export class MenuService {
     @Inject(EventEmitter2) private readonly eventEmitter: EventEmitter2,
   ) {}
   async create(createMenuDto: CreateMenuDto) {
+    if (createMenuDto.type !== 'button' && !createMenuDto.title) {
+      throw new BadRequestException(
+        '非按钮类型的菜单必须提供 title（i18n key）',
+      );
+    }
     let result;
     if (createMenuDto.path && createMenuDto.type !== 'button') {
       const suffix = createMenuDto.path
