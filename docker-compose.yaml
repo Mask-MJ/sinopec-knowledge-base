@@ -41,7 +41,7 @@ services:
       retries: 3
       start_period: 10s
     volumes:
-      - app_public:/app/public:ro
+      - app_public:/app/public
     logging: *default-logging
 
   # ── Nginx (Reverse Proxy + Static Files) ────────

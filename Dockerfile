@@ -54,8 +54,8 @@ COPY --from=builder /app/apps/server/prisma/migrations ./prisma/migrations
 COPY --from=builder /app/apps/server/prisma/models ./prisma/models
 COPY --from=builder /app/apps/server/prisma.config.ts ./prisma.config.ts
 
-# 前端构建产物（Nginx 通过 volume 只读挂载）
-COPY --from=builder /app/apps/client/dist ./public
+# 前端构建产物（镜像内固定目录，entrypoint 启动时同步到 /app/public volume）
+COPY --from=builder /app/apps/client/dist ./public-src
 
 # 入口脚本：先执行 migrate deploy，再启动应用
 COPY docker/entrypoint.sh /app/entrypoint.sh
