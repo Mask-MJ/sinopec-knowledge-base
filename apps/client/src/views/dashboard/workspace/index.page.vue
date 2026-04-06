@@ -1,7 +1,7 @@
 <script setup lang="ts">
 definePage({
   meta: {
-    title: 'dashboard.workspace',
+    title: 'page.dashboard.workspace',
     type: 'menu',
   },
 });

@@ -26,7 +26,7 @@ import { transformationTree } from '@/utils';
 
 definePage({
   meta: {
-    title: 'system.role.title',
+    title: 'page.system.role.title',
     type: 'menu',
   },
 });

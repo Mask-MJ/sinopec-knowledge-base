@@ -12,7 +12,7 @@ import { $t } from '@/locales';
 
 definePage({
   meta: {
-    title: 'monitor.operationLog.title',
+    title: 'page.monitor.operationLog.title',
     type: 'menu',
   },
 });

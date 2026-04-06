@@ -23,7 +23,7 @@ import { $t } from '@/locales';
 
 definePage({
   meta: {
-    title: 'system.dict.title',
+    title: 'page.system.dict.title',
     type: 'menu',
   },
 });

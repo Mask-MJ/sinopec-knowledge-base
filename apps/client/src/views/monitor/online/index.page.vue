@@ -3,7 +3,7 @@ import { $t } from '@/locales';
 
 definePage({
   meta: {
-    title: 'monitor.online.title',
+    title: 'page.monitor.online.title',
     type: 'menu',
   },
 });

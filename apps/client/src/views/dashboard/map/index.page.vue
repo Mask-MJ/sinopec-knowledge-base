@@ -1,7 +1,7 @@
 <script setup lang="ts">
 definePage({
   meta: {
-    title: 'dashboard.map',
+    title: 'page.dashboard.map',
     type: 'menu',
   },
 });

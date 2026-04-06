@@ -25,7 +25,7 @@ import { $t } from '@/locales';
 
 definePage({
   meta: {
-    title: 'system.user.title',
+    title: 'page.system.user.title',
     type: 'menu',
   },
 });

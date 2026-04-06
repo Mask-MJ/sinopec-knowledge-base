@@ -1,7 +1,7 @@
 <script setup lang="ts">
 definePage({
   meta: {
-    title: 'dashboard.analytics.title',
+    title: 'page.dashboard.analytics.title',
     type: 'menu',
   },
 });

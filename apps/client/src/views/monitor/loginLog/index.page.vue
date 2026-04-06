@@ -10,7 +10,7 @@ import { $t } from '@/locales';
 
 definePage({
   meta: {
-    title: 'monitor.loginLog.title',
+    title: 'page.monitor.loginLog.title',
     type: 'menu',
   },
 });
