@@ -1,0 +1,9 @@
+{
+  "jsc": {
+    "baseUrl": ".",
+    "paths": {
+      "@/*": ["./src/*"],
+      "@prisma/generated/*": ["./src/prisma/generated/*"]
+    }
+  }
+}
