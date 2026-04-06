@@ -41,6 +41,29 @@ function loadLocalesMap(modules: Record<string, () => Promise<unknown>>) {
 }
 
 /**
+ * Set a value at a nested path in an object.
+ * Converts path separators (/) into nested object structure.
+ * e.g. setNestedValue(obj, 'page/dashboard', val) → obj.page.dashboard = val
+ */
+function setNestedValue(
+  obj: Record<string, unknown>,
+  path: string,
+  value: unknown,
+) {
+  if (!path.includes('/')) {
+    obj[path] = value;
+    return;
+  }
+  const keys = path.split('/');
+  let current: Record<string, unknown> = obj;
+  for (let i = 0; i < keys.length - 1; i++) {
+    const key = keys[i] as string;
+    current = (current[key] ??= {}) as Record<string, unknown>;
+  }
+  current[keys[keys.length - 1] as string] = value;
+}
+
+/**
  * Load locale modules with directory structure
  * @param regexp - Regular expression to match language and file names
  * @param modules - The modules object containing paths and import functions
@@ -74,7 +97,7 @@ function loadLocalesMapFromDir(
       const messages: Record<string, string> = {};
       for (const [fileName, importFn] of Object.entries(files)) {
         const mod = (await importFn()) as { default: string };
-        messages[fileName] = mod.default;
+        setNestedValue(messages, fileName, mod.default);
       }
       return { default: messages };
     };

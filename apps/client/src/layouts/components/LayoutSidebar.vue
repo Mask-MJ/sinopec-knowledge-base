@@ -31,17 +31,13 @@ const transformMenuOptions = (options: MenuInfo[]): MenuOption[] => {
         key: option.path,
         label: () =>
           option.type === 'catalog'
-            ? h(
-                'span',
-                null,
-                option.title ? $t(`page.${option.title}`) : option.name,
-              )
+            ? h('span', null, option.title ? $t(option.title) : option.name)
             : h(
                 RouterLink,
                 { to: option.path },
                 {
                   default: () =>
-                    option.title ? $t(`page.${option.title}`) : option.name,
+                    option.title ? $t(option.title) : option.name,
                 },
               ),
         icon: renderIcon(option),

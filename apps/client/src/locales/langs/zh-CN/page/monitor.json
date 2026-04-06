@@ -1,0 +1,42 @@
+{
+  "title": "监控管理",
+  "online": {
+    "title": "在线用户",
+    "username": "用户名",
+    "ip": "登录IP",
+    "loginTime": "登录时间",
+    "status": "状态",
+    "forceLogout": "强制下线"
+  },
+  "loginLog": {
+    "title": "登录日志",
+    "username": "用户名称",
+    "ip": "登录IP",
+    "address": "登录地址",
+    "os": "操作系统",
+    "browser": "浏览器",
+    "message": "提示信息",
+    "loginTime": "登录时间",
+    "success": "登录成功",
+    "failure": "登录失败"
+  },
+  "operationLog": {
+    "title": "操作日志",
+    "name": "内容",
+    "businessType": "业务类型",
+    "module": "操作模块",
+    "username": "用户",
+    "ip": "操作IP",
+    "address": "地址",
+    "createdAt": "操作时间"
+  },
+  "info": {
+    "title": "系统信息",
+    "os": "操作系统",
+    "cpu": "CPU",
+    "memory": "内存",
+    "jvm": "JVM",
+    "disk": "磁盘",
+    "network": "网络"
+  }
+}

@@ -27,7 +27,7 @@ async function bootstrap() {
   watchEffect(() => {
     if (DEFAULT_PREFERENCES.app.dynamicTitle) {
       const routeTitle = router.currentRoute.value.meta.title
-        ? `${$t(`page.${router.currentRoute.value.meta.title}`)}-`
+        ? `${$t(router.currentRoute.value.meta.title)}-`
         : '';
       const pageTitle = routeTitle + DEFAULT_PREFERENCES.app.name;
       useTitle(pageTitle);

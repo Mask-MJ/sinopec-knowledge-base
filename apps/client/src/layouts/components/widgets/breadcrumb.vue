@@ -71,7 +71,7 @@ const breadcrumbs = computed(() => {
       <NIcon>
         <i class="inline-block" :class="breadcrumb.icon"></i>
       </NIcon>
-      {{ $t(`page.${breadcrumb.title}`) }}
+      {{ breadcrumb.title ? $t(breadcrumb.title) : '' }}
     </NBreadcrumbItem>
   </NBreadcrumb>
 </template>

@@ -1,0 +1,17 @@
+{
+  "auth": {
+    "login": "Login",
+    "register": "Register",
+    "codeLogin": "Code Login",
+    "qrcodeLogin": "Qr Code Login",
+    "forgetPassword": "Forget Password"
+  },
+  "common": {
+    "loadDataFailed": "Failed to load data",
+    "loginFailed": "Login failed",
+    "yes": "Yes",
+    "no": "No",
+    "lastUpdated": "Last Updated",
+    "records": "records"
+  }
+}

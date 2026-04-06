@@ -1,0 +1,42 @@
+{
+  "title": "Monitor",
+  "online": {
+    "title": "Online User",
+    "username": "Username",
+    "ip": "Login IP",
+    "loginTime": "Login Time",
+    "status": "Status",
+    "forceLogout": "Force Logout"
+  },
+  "loginLog": {
+    "title": "Login Log",
+    "username": "Username",
+    "ip": "Login IP",
+    "address": "Address",
+    "os": "OS",
+    "browser": "Browser",
+    "message": "Message",
+    "loginTime": "Login Time",
+    "success": "Success",
+    "failure": "Failure"
+  },
+  "operationLog": {
+    "title": "Operation Log",
+    "name": "Content",
+    "businessType": "Business Type",
+    "module": "Module",
+    "username": "User",
+    "ip": "IP",
+    "address": "Address",
+    "createdAt": "Created At"
+  },
+  "info": {
+    "title": "System Info",
+    "os": "OS",
+    "cpu": "CPU",
+    "memory": "Memory",
+    "jvm": "JVM",
+    "disk": "Disk",
+    "network": "Network"
+  }
+}

@@ -28,7 +28,7 @@ export const SEED_USERS: Prisma.UserCreateInput[] = [
 export const SEED_MENUS: Prisma.MenuCreateInput[] = [
   {
     name: '概览',
-    title: 'dashboard.title',
+    title: 'page.dashboard.title',
     icon: 'i-ant-design:appstore-outlined',
     order: 1,
     type: 'catalog',
@@ -37,7 +37,7 @@ export const SEED_MENUS: Prisma.MenuCreateInput[] = [
       create: [
         {
           name: '分析页',
-          title: 'dashboard.analytics',
+          title: 'page.dashboard.analytics.title',
           type: 'menu',
           icon: 'i-ant-design:area-chart-outlined',
           order: 1,
@@ -45,7 +45,7 @@ export const SEED_MENUS: Prisma.MenuCreateInput[] = [
         },
         {
           name: '工作台',
-          title: 'dashboard.workspace',
+          title: 'page.dashboard.workspace',
           type: 'menu',
           icon: 'i-ant-design:laptop-outlined',
           order: 2,
@@ -53,7 +53,7 @@ export const SEED_MENUS: Prisma.MenuCreateInput[] = [
         },
         {
           name: '通用聊天',
-          title: 'dashboard.chat',
+          title: 'page.dashboard.chat',
           type: 'menu',
           icon: 'i-ant-design:message-outlined',
           order: 3,
@@ -64,7 +64,7 @@ export const SEED_MENUS: Prisma.MenuCreateInput[] = [
   },
   {
     name: '知识库',
-    title: 'knowledgeBase.title',
+    title: 'page.knowledgeBase.title',
     icon: 'i-ant-design:database-outlined',
     order: 2,
     type: 'menu',
@@ -74,7 +74,7 @@ export const SEED_MENUS: Prisma.MenuCreateInput[] = [
       create: [
         {
           name: '知识库详情',
-          title: 'knowledgeBase.detail.title',
+          title: 'page.knowledgeBase.detail.title',
           hideInMenu: true,
           icon: 'i-ant-design:folder-outlined',
           order: 1,
@@ -111,7 +111,7 @@ export const SEED_MENUS: Prisma.MenuCreateInput[] = [
   },
   {
     name: '聊天助手',
-    title: 'assistant.title',
+    title: 'page.assistant.title',
     icon: 'i-ant-design:robot-outlined',
     order: 2,
     type: 'menu',
@@ -121,7 +121,7 @@ export const SEED_MENUS: Prisma.MenuCreateInput[] = [
       create: [
         {
           name: '聊天',
-          title: 'assistant.chat.title',
+          title: 'page.assistant.chat.title',
           hideInMenu: true,
           icon: 'i-ant-design:message-outlined',
           order: 1,
@@ -136,7 +136,7 @@ export const SEED_MENUS: Prisma.MenuCreateInput[] = [
   },
   {
     name: '系统管理',
-    title: 'system.title',
+    title: 'page.system.title',
     icon: 'i-ant-design:setting-outlined',
     order: 5,
     type: 'catalog',
@@ -145,7 +145,7 @@ export const SEED_MENUS: Prisma.MenuCreateInput[] = [
       create: [
         {
           name: '用户管理',
-          title: 'system.user.title',
+          title: 'page.system.user.title',
           icon: 'i-ant-design:user-outlined',
           order: 1,
           type: 'menu',
@@ -172,7 +172,7 @@ export const SEED_MENUS: Prisma.MenuCreateInput[] = [
         },
         {
           name: '角色管理',
-          title: 'system.role.title',
+          title: 'page.system.role.title',
           icon: 'i-ant-design:usergroup-add-outlined',
           order: 2,
           type: 'menu',
@@ -199,7 +199,7 @@ export const SEED_MENUS: Prisma.MenuCreateInput[] = [
         },
         {
           name: '菜单管理',
-          title: 'system.menu.title',
+          title: 'page.system.menu.title',
           icon: 'i-ant-design:menu-outlined',
           order: 3,
           type: 'menu',
@@ -226,7 +226,7 @@ export const SEED_MENUS: Prisma.MenuCreateInput[] = [
         },
         {
           name: '字典管理',
-          title: 'system.dict.title',
+          title: 'page.system.dict.title',
           icon: 'i-ant-design:medicine-box-outlined',
           order: 4,
           type: 'menu',
@@ -268,7 +268,7 @@ export const SEED_MENUS: Prisma.MenuCreateInput[] = [
         },
         {
           name: '部门管理',
-          title: 'system.dept.title',
+          title: 'page.system.dept.title',
           icon: 'i-ant-design:gold-twotone',
           order: 6,
           type: 'menu',
@@ -295,7 +295,7 @@ export const SEED_MENUS: Prisma.MenuCreateInput[] = [
         },
         {
           name: '岗位管理',
-          title: 'system.post.title',
+          title: 'page.system.post.title',
           icon: 'i-ant-design:deployment-unit-outlined',
           order: 7,
           type: 'menu',
@@ -325,7 +325,7 @@ export const SEED_MENUS: Prisma.MenuCreateInput[] = [
   },
   {
     name: '系统监控',
-    title: 'monitor.title',
+    title: 'page.monitor.title',
     icon: 'i-ant-design:android-filled',
     order: 6,
     type: 'catalog',
@@ -334,7 +334,7 @@ export const SEED_MENUS: Prisma.MenuCreateInput[] = [
       create: [
         {
           name: '在线用户',
-          title: 'monitor.online.title',
+          title: 'page.monitor.online.title',
           icon: 'i-ant-design:aim-outlined',
           order: 1,
           type: 'menu',
@@ -351,7 +351,7 @@ export const SEED_MENUS: Prisma.MenuCreateInput[] = [
         },
         {
           name: '登录日志',
-          title: 'monitor.loginLog.title',
+          title: 'page.monitor.loginLog.title',
           order: 2,
           icon: 'i-ant-design:contacts-outlined',
           type: 'menu',
@@ -359,7 +359,7 @@ export const SEED_MENUS: Prisma.MenuCreateInput[] = [
         },
         {
           name: '操作日志',
-          title: 'monitor.operationLog.title',
+          title: 'page.monitor.operationLog.title',
           order: 3,
           icon: 'i-ant-design:cloud-server-outlined',
           type: 'menu',
@@ -367,7 +367,7 @@ export const SEED_MENUS: Prisma.MenuCreateInput[] = [
         },
         {
           name: '服务器监控',
-          title: 'monitor.info.title',
+          title: 'page.monitor.info.title',
           icon: 'i-ant-design:fund-projection-screen-outlined',
           order: 4,
           path: '/monitor/info',

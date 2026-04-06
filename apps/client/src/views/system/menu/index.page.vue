@@ -126,7 +126,7 @@ const getTableData = async () => {
     data
       .filter((item) => item.type !== 'button')
       .map((item) => ({
-        label: $t(`page.${item.title}`) || item.name,
+        label: (item.title ? $t(item.title) : item.name) || item.name,
         key: item.id,
         id: item.id,
         parentId: item.parentId,

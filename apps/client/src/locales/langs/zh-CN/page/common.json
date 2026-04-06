@@ -1,0 +1,17 @@
+{
+  "auth": {
+    "login": "登录",
+    "register": "注册",
+    "codeLogin": "验证码登录",
+    "qrcodeLogin": "二维码登录",
+    "forgetPassword": "忘记密码"
+  },
+  "common": {
+    "loadDataFailed": "加载数据失败",
+    "loginFailed": "登录失败",
+    "yes": "是",
+    "no": "否",
+    "lastUpdated": "数据更新时间",
+    "records": "条"
+  }
+}
