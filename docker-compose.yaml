@@ -8,14 +8,6 @@ x-logging: &default-logging
     max-file: "3"
 
 services:
-  # ── Override: 生产环境不暴露基础设施端口 ─────────
-  postgres:
-    ports: !override []
-  redis:
-    ports: !override []
-  minio:
-    ports: !override []
-
   # ── App (NestJS Backend) ────────────────────────
   app:
     build:
