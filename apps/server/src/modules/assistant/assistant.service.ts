@@ -30,6 +30,37 @@ export class AssistantService {
 
   // ─── Private Helpers ──────────────────────────────
 
+  /**
+   * 构建 RAGFlow prompt 参数
+   * 通用聊天（无知识库）：不传 empty_response / similarity_threshold 等检索参数
+   * 知识库聊天：传完整检索参数
+   */
+  private buildRagflowPrompt(dto: {
+    datasetIds?: string[];
+    emptyResponse?: string;
+    keywordsSimilarityWeight?: number;
+    opener?: string;
+    prompt?: string;
+    similarityThreshold?: number;
+    topN?: number;
+  }): Record<string, unknown> {
+    const hasKnowledgeBase = dto.datasetIds && dto.datasetIds.length > 0;
+
+    const prompt: Record<string, unknown> = {
+      opener: dto.opener,
+      prompt: dto.prompt,
+    };
+
+    if (hasKnowledgeBase) {
+      prompt.empty_response = dto.emptyResponse;
+      prompt.similarity_threshold = dto.similarityThreshold;
+      prompt.keywords_similarity_weight = dto.keywordsSimilarityWeight;
+      prompt.top_n = dto.topN;
+    }
+
+    return prompt;
+  }
+
   async completions(
     id: number,
     user: ActiveUserData,
@@ -118,14 +149,7 @@ export class AssistantService {
           frequency_penalty: dto.frequencyPenalty,
           max_tokens: dto.maxTokens,
         },
-        prompt: {
-          opener: dto.opener,
-          prompt: dto.prompt,
-          empty_response: dto.emptyResponse,
-          similarity_threshold: dto.similarityThreshold,
-          keywords_similarity_weight: dto.keywordsSimilarityWeight,
-          top_n: dto.topN,
-        },
+        prompt: this.buildRagflowPrompt(dto),
         top_k: dto.topK,
       },
     );
@@ -315,14 +339,7 @@ export class AssistantService {
               temperature: dto.temperature,
               top_p: dto.topP,
             },
-            prompt: {
-              empty_response: dto.emptyResponse,
-              keywords_similarity_weight: dto.keywordsSimilarityWeight,
-              opener: dto.opener,
-              prompt: dto.prompt,
-              similarity_threshold: dto.similarityThreshold,
-              top_n: dto.topN,
-            },
+            prompt: this.buildRagflowPrompt(dto),
             top_k: dto.topK,
           },
         );
