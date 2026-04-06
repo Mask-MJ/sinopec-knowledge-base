@@ -32,23 +32,16 @@ RUN pnpm run postinstall \
     && pnpm --filter @sinopec-kb/server build \
     && pnpm --filter @sinopec-kb/client build-only
 
-# 生成精简的 server 生产依赖
-RUN pnpm --filter @sinopec-kb/server deploy --prod --legacy /app/deploy
-
-# 将 prisma CLI 复制出来（解析符号链接为真实文件）
-RUN mkdir -p /app/prisma-cli \
-    && cp -rL /app/apps/server/node_modules/prisma /app/prisma-cli/prisma
+# 生成精简的 server 生产依赖（包含 devDeps 中的 prisma CLI）
+RUN pnpm --filter @sinopec-kb/server deploy --legacy /app/deploy
 
 # ===== Stage 3: Production =====
 FROM node:22-alpine AS production
 WORKDIR /app
 
-# 拷贝精简的生产部署目录
+# 拷贝完整的部署目录（含 prisma CLI 及其依赖）
 COPY --from=builder /app/deploy/node_modules ./node_modules
 COPY --from=builder /app/deploy/package.json ./
-
-# prisma CLI 用于 migrate deploy（prisma 是 devDep，不在 prod 中）
-COPY --from=builder /app/prisma-cli/prisma ./node_modules/prisma
 
 # 拷贝后端构建产物
 COPY --from=builder /app/apps/server/dist ./dist
