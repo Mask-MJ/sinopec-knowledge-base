@@ -19,8 +19,11 @@ import {
 } from '@/api/knowledgeBase';
 import { getAllUserList } from '@/api/system/user';
 import TableAction from '@/components/common/TableAction.vue';
+import { useLlmOptions } from '@/composables';
 import { PERMISSION } from '@/config/constants/permissionCodes';
 import { $t } from '@/locales';
+
+const { options: embeddingModelOptions, loading: llmLoading } = useLlmOptions('embedding');
 
 const loading = ref(false);
 const router = useRouter();
@@ -190,10 +193,15 @@ onMounted(async () => {
           ],
         }"
       />
-      <pro-input
+      <pro-select
         :title="$t('page.knowledgeBase.embedding_model')"
         path="embeddingModel"
-        :field-props="{ placeholder: 'BAAI/bge-large-zh-v1.5@BAAI' }"
+        :field-props="{
+          options: embeddingModelOptions,
+          loading: llmLoading,
+          filterable: true,
+          placeholder: '请选择向量模型',
+        }"
       />
       <pro-select
         :title="$t('page.knowledgeBase.chunk_method.title')"

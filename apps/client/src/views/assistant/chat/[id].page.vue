@@ -1,42 +1,78 @@
 <script setup lang="ts">
 import { createProDrawerForm } from 'pro-naive-ui';
 
+import { getAssistantDetail, updateAssistant } from '@/api/assistant';
 import ChatPanel from '@/components/chat/ChatPanel.vue';
 import ChatSidebar from '@/components/chat/ChatSidebar.vue';
+import { useKnowledgeBaseOptions } from '@/composables';
 
 const router = useRouter();
 const loading = ref(false);
 const activeId = ref<string>();
+const verified = ref(false);
 
 const assistantId = computed(() => {
   const id = Number(router.currentRoute.value.params.id);
   return Number.isFinite(id) && id > 0 ? id : 0;
 });
 
+onMounted(async () => {
+  if (!assistantId.value) {
+    router.replace('/assistant');
+    return;
+  }
+  try {
+    await getAssistantDetail(assistantId.value);
+    verified.value = true;
+  } catch {
+    window.$message.error('助手不存在或已被删除');
+    router.replace('/assistant');
+  }
+});
+
+const { options: kbOptions, loading: kbLoading } = useKnowledgeBaseOptions();
+
 const sidebarRef = ref<InstanceType<typeof ChatSidebar> | null>(null);
 
 const activeSession = computed(() => sidebarRef.value?.activeSession);
 
 const drawerForm = createProDrawerForm({
-  onSubmit: async () => {
-    window.$message.warning('助手设置更新功能暂未实现');
-    drawerForm.close();
+  onSubmit: async (values) => {
+    loading.value = true;
+    try {
+      await updateAssistant(assistantId.value, values);
+      window.$message.success('更新成功');
+      drawerForm.close();
+    } finally {
+      loading.value = false;
+    }
   },
 });
+
+const openSettings = async () => {
+  loading.value = true;
+  try {
+    const { data } = await getAssistantDetail(assistantId.value);
+    drawerForm.values.value = data;
+    drawerForm.open();
+  } finally {
+    loading.value = false;
+  }
+};
 </script>
 
 <template>
   <n-card
     content-style="height: calc(100vh - 85px); display: flex; flex-direction: column;"
   >
-    <div class="h-full flex">
+    <div v-if="verified" class="h-full flex">
       <ChatSidebar
         ref="sidebarRef"
         v-model:active-id="activeId"
         :assistant-id="assistantId"
       >
         <template #footer>
-          <n-button block class="mt-2" @click="drawerForm.open()">
+          <n-button block class="mt-2" @click="openSettings()">
             {{ $t('page.assistant.chat.settings', '聊天设置') }}
           </n-button>
         </template>
@@ -76,33 +112,22 @@ const drawerForm = createProDrawerForm({
         <pro-textarea
           :title="$t('page.assistant.empty_response')"
           :tooltip="$t('page.assistant.empty_response_desc')"
-          path="empty_response"
+          path="emptyResponse"
         />
         <pro-textarea
           :title="$t('page.assistant.opener')"
           :tooltip="$t('page.assistant.opener_desc')"
           path="opener"
         />
-        <pro-radio-group
-          :title="$t('page.assistant.show_quote')"
-          path="show_quote"
-          :tooltip="$t('page.assistant.show_quote_desc')"
-          :field-props="{
-            type: 'button',
-            options: [
-              { label: $t('common.enable'), value: true },
-              { label: $t('common.disable'), value: false },
-            ],
-          }"
-        />
         <pro-select
           :title="$t('page.assistant.knowledgeBase')"
-          path="knowledgeBase"
+          path="datasetIds"
           :field-props="{
-            options: [
-              { label: '知识库 1', value: '1' },
-              { label: '知识库 2', value: '2' },
-            ],
+            options: kbOptions,
+            loading: kbLoading,
+            multiple: true,
+            filterable: true,
+            placeholder: '请选择关联知识库',
           }"
         />
         <pro-textarea
@@ -113,22 +138,22 @@ const drawerForm = createProDrawerForm({
         <pro-digit
           :title="$t('page.assistant.similarity_threshold')"
           :tooltip="$t('page.assistant.similarity_threshold_desc')"
-          path="similarity_threshold"
+          path="similarityThreshold"
         />
         <pro-digit
           :title="$t('page.assistant.vector_similarity_weight')"
           :tooltip="$t('page.assistant.vector_similarity_weight_desc')"
-          path="vector_similarity_weight"
+          path="keywordsSimilarityWeight"
         />
         <pro-digit
           :title="$t('page.assistant.top_n')"
           :tooltip="$t('page.assistant.top_n_desc')"
-          path="top_n"
+          path="topN"
         />
         <pro-digit
           :title="$t('page.assistant.top_p')"
           :tooltip="$t('page.assistant.top_p_desc')"
-          path="top_p"
+          path="topP"
         />
         <pro-digit
           :title="$t('page.assistant.temperature')"

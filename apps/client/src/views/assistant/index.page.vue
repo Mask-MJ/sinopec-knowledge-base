@@ -3,8 +3,16 @@ import type { AssistantInfo } from '@/api/assistant';
 
 import { createProModalForm } from 'pro-naive-ui';
 
-import { createAssistant, getAssistantList } from '@/api/assistant';
+import {
+  createAssistant,
+  deleteAssistant,
+  getAssistantList,
+} from '@/api/assistant';
+import { useKnowledgeBaseOptions, useLlmOptions } from '@/composables';
 import { $t } from '@/locales';
+
+const { options: chatModelOptions, loading: llmLoading } = useLlmOptions('chat');
+const { options: kbOptions, loading: kbLoading } = useKnowledgeBaseOptions();
 
 const router = useRouter();
 const loading = ref(false);
@@ -21,6 +29,14 @@ const modalForm = createProModalForm({
   },
 });
 
+// 模型列表加载完成后，默认选中第一个
+watch(chatModelOptions, (opts) => {
+  const first = opts[0];
+  if (first && !modalForm.values.value?.modelName) {
+    modalForm.values.value = { ...modalForm.values.value, modelName: first.value };
+  }
+});
+
 const getData = async () => {
   loading.value = true;
   try {
@@ -35,6 +51,21 @@ const getData = async () => {
 
 const goToChat = (id: number) => {
   router.push(`/assistant/chat/${id}`);
+};
+
+const handleDelete = async (e: MouseEvent, id: number) => {
+  e.stopPropagation();
+  window.$dialog.warning({
+    title: '确认删除',
+    content: '删除后无法恢复，确定要删除该助手吗？',
+    positiveText: '删除',
+    negativeText: '取消',
+    onPositiveClick: async () => {
+      await deleteAssistant(id);
+      window.$message.success('删除成功');
+      getData();
+    },
+  });
 };
 
 watchEffect(() => {
@@ -98,9 +129,22 @@ watchEffect(() => {
               {{ item.description || $t('common.noDescription') }}
             </n-ellipsis>
             <template #footer>
-              <n-text depth="3" class="text-xs">
-                {{ item.createdAt }}
-              </n-text>
+              <n-flex justify="space-between" align="center">
+                <n-text depth="3" class="text-xs">
+                  {{ item.createdAt }}
+                </n-text>
+                <n-button
+                  v-if="!item.isGeneral"
+                  text
+                  type="error"
+                  size="tiny"
+                  @click="(e: MouseEvent) => handleDelete(e, item.id)"
+                >
+                  <template #icon>
+                    <i class="i-ant-design:delete-outlined"></i>
+                  </template>
+                </n-button>
+              </n-flex>
             </template>
           </n-card>
         </n-gi>
@@ -115,6 +159,27 @@ watchEffect(() => {
       label-placement="left"
     >
       <pro-input :title="$t('page.assistant.name')" path="name" required />
+      <pro-select
+        :title="$t('page.assistant.model')"
+        path="modelName"
+        :field-props="{
+          options: chatModelOptions,
+          loading: llmLoading,
+          filterable: true,
+          placeholder: '请选择聊天模型',
+        }"
+      />
+      <pro-select
+        :title="$t('page.assistant.knowledgeBase')"
+        path="datasetIds"
+        :field-props="{
+          options: kbOptions,
+          loading: kbLoading,
+          multiple: true,
+          filterable: true,
+          placeholder: '请选择关联知识库',
+        }"
+      />
       <pro-textarea
         :title="$t('page.assistant.description')"
         path="description"

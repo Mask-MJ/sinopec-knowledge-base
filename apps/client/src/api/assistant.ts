@@ -9,6 +9,15 @@ export type SessionInfo = components['schemas']['SessionEntity'];
 export type SearchSessionParams =
   operations['AssistantController_findAllSessions']['parameters']['query'];
 
+// 获取或创建当前用户的通用助手
+export async function getOrCreateGeneralAssistant(): Promise<{
+  data: AssistantInfo | undefined;
+}> {
+  return client.POST('/api/assistant/general' as never) as Promise<{
+    data: AssistantInfo | undefined;
+  }>;
+}
+
 // 获取助手列表
 export function getAssistantList(query?: Partial<SearchParams>) {
   return client.GET('/api/assistant', {

@@ -1,22 +1,40 @@
 <script setup lang="ts">
+import { getOrCreateGeneralAssistant } from '@/api/assistant';
 import ChatPanel from '@/components/chat/ChatPanel.vue';
 import ChatSidebar from '@/components/chat/ChatSidebar.vue';
 
 const activeId = ref<string>();
-// TODO: 从 API 动态获取可用助手列表，当前使用默认 ID
-const DEFAULT_ASSISTANT_ID = 1;
-const assistantId = ref(DEFAULT_ASSISTANT_ID);
+const assistantId = ref(0);
+const ready = ref(false);
 
 const sidebarRef = ref<InstanceType<typeof ChatSidebar> | null>(null);
 
 const activeSession = computed(() => sidebarRef.value?.activeSession);
+
+onMounted(async () => {
+  try {
+    const { data } = await getOrCreateGeneralAssistant();
+    if (data?.id) {
+      assistantId.value = data.id as number;
+    }
+  } catch {
+    window.$message.error('获取通用助手失败');
+  }
+  ready.value = true;
+});
 </script>
 
 <template>
   <n-card
     content-style="height: calc(100vh - 85px); display: flex; flex-direction: column;"
   >
-    <div class="h-full flex">
+    <n-empty
+      v-if="ready && !assistantId"
+      description="暂无可用的通用助手，请先创建一个不关联知识库的助手"
+      class="py-16"
+    />
+
+    <div v-else-if="ready" class="h-full flex">
       <ChatSidebar
         ref="sidebarRef"
         v-model:active-id="activeId"
@@ -39,31 +57,7 @@ const activeSession = computed(() => sidebarRef.value?.activeSession);
             :messages="activeSession?.messages || []"
           >
             <template #sender-prefix>
-              <div class="flex items-center gap-2">
-                <n-button v-if="assistantId === 1" round size="small">
-                  <template #icon>
-                    <i class="i-ant-design:global-outlined"></i>
-                  </template>
-                  <span>联网查询</span>
-                </n-button>
-
-                <n-button v-if="assistantId === 1" round size="small">
-                  <template #icon>
-                    <i class="i-ant-design:node-index-outlined"></i>
-                  </template>
-                  <span>深度思考</span>
-                </n-button>
-
-                <n-select
-                  v-model:value="assistantId"
-                  class="w-30"
-                  size="small"
-                  :options="[
-                    { label: 'DeepSeek', value: 1 },
-                    { label: '长城大模型', value: 2 },
-                  ]"
-                />
-              </div>
+              <div class="flex items-center gap-2" />
             </template>
           </ChatPanel>
         </div>

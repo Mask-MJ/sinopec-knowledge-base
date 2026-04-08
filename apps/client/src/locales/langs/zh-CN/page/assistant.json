@@ -3,6 +3,7 @@
   "editAssistant": "聊天设置",
   "addAssistant": "新建助手",
   "name": "助手名称",
+  "model": "聊天模型",
   "description": "助手描述",
   "empty_response": "空响应",
   "empty_response_desc": "如果在知识库中没有检索到用户的问题，它将使用它作为答案。 如果您希望 LLM 在未检索到任何内容时提出自己的意见，请将此留空。",

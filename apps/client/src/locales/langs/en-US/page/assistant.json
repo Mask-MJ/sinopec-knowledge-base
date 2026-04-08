@@ -3,6 +3,7 @@
   "editAssistant": "Chat Settings",
   "addAssistant": "New Assistant",
   "name": "Assistant Name",
+  "model": "Chat Model",
   "description": "Description",
   "empty_response": "Empty Response",
   "empty_response_desc": "If no relevant content is found in the knowledge base, this will be used as the answer. Leave blank to let the LLM provide its own opinion.",
