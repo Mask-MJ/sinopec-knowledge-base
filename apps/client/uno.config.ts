@@ -1,4 +1,3 @@
-import { icons as antDesign } from '@iconify-json/ant-design';
 import {
   defineConfig,
   presetIcons,
@@ -10,10 +9,31 @@ import {
 
 import { themeVars } from './src/config/preferences/vars';
 
-// Todo 全量导入 vite 启动太慢
-const IconNames = Object.keys(antDesign.icons).map(
-  (iconName) => `i-${antDesign.prefix}:${iconName}`,
-);
+/**
+ * 菜单中实际使用的图标白名单。
+ * 新增菜单图标时同步更新此列表即可。
+ */
+const menuIcons = [
+  'i-ant-design:aim-outlined',
+  'i-ant-design:android-filled',
+  'i-ant-design:appstore-outlined',
+  'i-ant-design:area-chart-outlined',
+  'i-ant-design:cloud-server-outlined',
+  'i-ant-design:contacts-outlined',
+  'i-ant-design:database-outlined',
+  'i-ant-design:deployment-unit-outlined',
+  'i-ant-design:folder-outlined',
+  'i-ant-design:fund-projection-screen-outlined',
+  'i-ant-design:gold-twotone',
+  'i-ant-design:laptop-outlined',
+  'i-ant-design:medicine-box-outlined',
+  'i-ant-design:menu-outlined',
+  'i-ant-design:message-outlined',
+  'i-ant-design:robot-outlined',
+  'i-ant-design:setting-outlined',
+  'i-ant-design:user-outlined',
+  'i-ant-design:usergroup-add-outlined',
+];
 
 export default defineConfig({
   presets: [
@@ -42,5 +62,5 @@ export default defineConfig({
     ['text-primary', 'text-[rgb(var(--primary-color))]'],
   ],
   transformers: [transformerDirectives(), transformerVariantGroup()],
-  safelist: [...'prose prose-sm m-auto text-left'.split(' '), ...IconNames],
+  safelist: [...'prose prose-sm m-auto text-left'.split(' '), ...menuIcons],
 });

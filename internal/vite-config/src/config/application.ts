@@ -45,11 +45,37 @@ function defineApplicationConfig(userConfigPromise?: DefineApplicationOptions) {
         legalComments: 'none',
       },
       plugins,
+      optimizeDeps: {
+        include: [
+          'vue',
+          'vue-router',
+          'pinia',
+          'vue-i18n',
+          '@vueuse/core',
+          '@vueuse/integrations',
+          'naive-ui',
+          'pro-naive-ui',
+          'dayjs',
+          'lodash-es',
+          'echarts/core',
+          'echarts/charts',
+          'echarts/components',
+          'echarts/features',
+          'echarts/renderers',
+          'vue-echarts',
+          'openapi-fetch',
+          'defu',
+          'nprogress',
+        ],
+      },
       server: {
         host: true,
         port,
         warmup: {
-          clientFiles: ['./index.html', './src/{views,layouts,router,store}/*'],
+          clientFiles: [
+            './index.html',
+            './src/{views,layouts,router,store,components,api,composables}/*',
+          ],
         },
       },
     };
