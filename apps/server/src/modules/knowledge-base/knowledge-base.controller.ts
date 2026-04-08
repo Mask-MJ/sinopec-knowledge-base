@@ -141,21 +141,21 @@ export class KnowledgeBaseController {
   // ─── Document Management ──────────────────────────
 
   /**
-   * 获取知识库详情
-   */
-  @ApiOkResponse({ type: KnowledgeBaseEntity })
-  @Get(':id')
-  findOne(@Param('id') id: number, @ActiveUser() user: ActiveUserData) {
-    return this.knowledgeBaseService.findOne(id, user);
-  }
-
-  /**
    * 获取 RAGFlow 已配置的 LLM 模型列表
    */
   @ApiOkResponse({ description: '返回已配置的 LLM 模型列表' })
   @Get('llms')
   getLlmList() {
     return this.ragflowService.getLlmList();
+  }
+
+  /**
+   * 获取知识库详情
+   */
+  @ApiOkResponse({ type: KnowledgeBaseEntity })
+  @Get(':id')
+  findOne(@Param('id') id: number, @ActiveUser() user: ActiveUserData) {
+    return this.knowledgeBaseService.findOne(id, user);
   }
 
   /**

@@ -405,7 +405,7 @@ export class AssistantService {
     if (assistant.assistantId) {
       try {
         await this.ragflow.request(
-          'PATCH',
+          'PUT',
           `/api/v1/chats/${assistant.assistantId}`,
           {
             name: dto.name,
