@@ -3,11 +3,14 @@
   "detail": {
     "title": "Detail",
     "rename": "Rename",
-    "fileName": "File Name",
-    "chunkCount": "Chunk Count",
-    "progress": "Progress",
+    "fileName": "Name",
+    "chunkCount": "Chunks",
+    "progress": "Parse",
     "parse": "Parse",
-    "stopParse": "Stop Parse"
+    "stopParse": "Stop Parse",
+    "uploadDate": "Upload Date",
+    "sourceType": "Source",
+    "fileSize": "Size"
   },
   "list": "Knowledge Base List",
   "name": "Name",

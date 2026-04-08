@@ -3,11 +3,14 @@
   "detail": {
     "title": "详情",
     "rename": "重命名",
-    "fileName": "文件名称",
+    "fileName": "名称",
     "chunkCount": "分块数",
-    "progress": "进度",
+    "progress": "解析",
     "parse": "解析",
-    "stopParse": "停止解析"
+    "stopParse": "停止解析",
+    "uploadDate": "上传日期",
+    "sourceType": "来源",
+    "fileSize": "大小"
   },
   "list": "知识库列表",
   "name": "名称",
