@@ -46,6 +46,9 @@
     "model": "模型",
     "knowledgeBase": "知识库",
     "rename": "重命名",
-    "newName": "新名称"
+    "newName": "新名称",
+    "referenceLoading": "引用加载中...",
+    "referenceSources": "参考来源",
+    "similarity": "相似度"
   }
 }

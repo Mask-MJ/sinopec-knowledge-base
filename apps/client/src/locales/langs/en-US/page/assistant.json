@@ -46,6 +46,9 @@
     "model": "Model",
     "knowledgeBase": "Knowledge Base",
     "rename": "Rename",
-    "newName": "New Name"
+    "newName": "New Name",
+    "referenceLoading": "Loading reference...",
+    "referenceSources": "Reference Sources",
+    "similarity": "Similarity"
   }
 }

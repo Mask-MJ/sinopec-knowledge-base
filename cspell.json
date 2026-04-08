@@ -53,7 +53,9 @@
     "wordprocessingml",
     "Xinference",
     "defu",
-    "llms"
+    "llms",
+    "aggs",
+    "docnm"
   ],
   "ignorePaths": [
     "**/*.log",

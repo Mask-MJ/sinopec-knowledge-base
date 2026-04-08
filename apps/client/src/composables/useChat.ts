@@ -1,12 +1,21 @@
+import type { Reference } from './useSSEStream';
+
 import { completions } from '@/api/assistant';
 
 import { useSSEStream } from './useSSEStream';
+
+export type {
+  Reference,
+  ReferenceChunk,
+  ReferenceDocAgg,
+} from './useSSEStream';
 
 export interface ChatMessage {
   content: string;
   key: number;
   loading: boolean;
   reasoning: string;
+  reference?: Reference;
   role: 'assistant' | 'user';
   thinkingStatus: 'end' | 'start' | 'thinking';
 }
@@ -129,14 +138,18 @@ export function useChat(
     });
   });
 
-  // Watch stream end
+  // Watch stream end — attach reference data from the final SSE chunk
   watch(sseStream.isStreaming, (streaming) => {
     if (!streaming && activeAssistantIndex >= 0) {
       const current = messages.value[activeAssistantIndex];
       if (current) {
+        const ref = sseStream.reference.value;
         updateAssistantMessage({
           loading: false,
           thinkingStatus: 'end',
+          reference: ref
+            ? structuredClone(ref) as Reference
+            : undefined,
         });
       }
       activeAssistantIndex = -1;

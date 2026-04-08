@@ -1,5 +1,10 @@
 export { parseThinkContent, useChat } from '@/composables/useChat';
-export type { ChatMessage } from '@/composables/useChat';
+export type {
+  ChatMessage,
+  Reference,
+  ReferenceChunk,
+  ReferenceDocAgg,
+} from '@/composables/useChat';
 export { useKnowledgeBaseOptions } from '@/composables/useKnowledgeBaseOptions';
 export { useLlmOptions } from '@/composables/useLlmOptions';
 export { useCan, usePermission } from '@/composables/usePermission';

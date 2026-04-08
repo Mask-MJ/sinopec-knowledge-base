@@ -1,21 +1,49 @@
+export interface ReferenceChunk {
+  content: string;
+  dataset_id: string;
+  doc_type: string;
+  document_id: string;
+  document_name: string;
+  id: string;
+  image_id: string;
+  positions: number[][];
+  similarity: number;
+  term_similarity: number;
+  url: null | string;
+  vector_similarity: number;
+}
+
+export interface ReferenceDocAgg {
+  count: number;
+  doc_id: string;
+  doc_name: string;
+}
+
+export interface Reference {
+  chunks: ReferenceChunk[];
+  doc_aggs: ReferenceDocAgg[];
+}
+
 /**
  * Lightweight SSE stream parser for RAGFlow responses.
  * Replaces vue-element-plus-x's useXStream with ~40 lines of native code.
  *
  * RAGFlow SSE format:
- *   data: {"data":{"answer":"text chunk"}}
+ *   data: {"data":{"answer":"text chunk", "reference": {...}}}
  *   data: {"data":true}   ← stream end signal
  */
 export function useSSEStream() {
   const content = ref('');
   const isStreaming = ref(false);
   const error = ref<null | string>(null);
+  const reference = ref<null | Reference>(null);
 
   let abortController: AbortController | null = null;
 
   function reset() {
     content.value = '';
     error.value = null;
+    reference.value = null;
   }
 
   function cancel() {
@@ -53,22 +81,37 @@ export function useSSEStream() {
 
           try {
             const parsed = JSON.parse(raw) as {
-              data: true | { answer: string };
+              data:
+                | true
+                | { answer: string; reference?: Record<string, unknown> };
             };
             if (parsed.data === true) {
               // Stream end signal
               isStreaming.value = false;
               return;
             }
-            if (typeof parsed.data === 'object' && 'answer' in parsed.data) {
-              const answer = parsed.data.answer;
-              // RAGFlow may send accumulated text (each chunk has full answer)
-              // or delta text (each chunk has only new text).
-              // Detect: if new answer starts with current content, it's accumulated.
-              if (answer.startsWith(content.value)) {
-                content.value = answer;
-              } else {
-                content.value += answer;
+            if (typeof parsed.data === 'object') {
+              if ('answer' in parsed.data) {
+                const answer = parsed.data.answer;
+                // RAGFlow may send accumulated text (each chunk has full answer)
+                // or delta text (each chunk has only new text).
+                // Detect: if new answer starts with current content, it's accumulated.
+                if (answer.startsWith(content.value)) {
+                  content.value = answer;
+                } else {
+                  content.value += answer;
+                }
+              }
+              // Extract reference from the final chunk (non-empty chunks array)
+              const ref = parsed.data.reference;
+              if (
+                ref &&
+                typeof ref === 'object' &&
+                'chunks' in ref &&
+                Array.isArray(ref.chunks) &&
+                ref.chunks.length > 0
+              ) {
+                reference.value = ref as unknown as Reference;
               }
             }
           } catch {
@@ -90,6 +133,7 @@ export function useSSEStream() {
     content: readonly(content),
     isStreaming: readonly(isStreaming),
     error: readonly(error),
+    reference: readonly(reference),
     startStream,
     cancel,
   };

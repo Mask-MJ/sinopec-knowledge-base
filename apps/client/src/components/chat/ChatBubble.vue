@@ -1,25 +1,47 @@
 <script setup lang="ts">
+import type { Reference } from '@/composables';
+
 import MarkdownRender from 'markstream-vue';
 
 import logoUrl from '@/assets/logo.png';
+import { useCitationRenderer } from '@/composables/useCitationRenderer';
+
+import CitationPopover from './CitationPopover.vue';
+import ReferenceSourceList from './ReferenceSourceList.vue';
 
 import 'markstream-vue/index.css';
 
-defineProps<{
+const props = defineProps<{
   avatar?: string;
   content: string;
   loading?: boolean;
   reasoning?: string;
+  reference?: Reference;
   role: 'assistant' | 'user';
   thinkingStatus?: 'end' | 'start' | 'thinking';
 }>();
 
 const thinkingOpen = ref(false);
+const bubbleRef = ref<HTMLElement | null>(null);
+
+const {
+  activeCitation,
+  replaceCitationMarkers,
+  handleClick: handleCitationClick,
+  closeCitation,
+} = useCitationRenderer();
 
 // Force MarkdownRender to remount when restored from KeepAlive cache
 const renderKey = ref(0);
 onActivated(() => {
   renderKey.value++;
+});
+
+// After each DOM update, scan for [ID:N] markers and replace with <sup>
+onUpdated(() => {
+  if (bubbleRef.value && props.role === 'assistant') {
+    replaceCitationMarkers(bubbleRef.value);
+  }
 });
 </script>
 
@@ -49,8 +71,10 @@ onActivated(() => {
 
     <!-- Bubble content -->
     <div
+      ref="bubbleRef"
       class="bubble-content min-w-0"
       :class="role === 'assistant' ? 'bubble-ai' : 'bubble-user'"
+      @click="handleCitationClick"
     >
       <!-- Thinking block -->
       <div v-if="reasoning && role === 'assistant'" class="thinking-block mb-2">
@@ -113,7 +137,23 @@ onActivated(() => {
         <span></span>
         <span></span>
       </div>
+
+      <!-- Reference source list -->
+      <ReferenceSourceList
+        v-if="reference && !loading && role === 'assistant'"
+        :reference="reference"
+      />
     </div>
+
+    <!-- Citation popover (positioned by x/y) -->
+    <CitationPopover
+      v-if="activeCitation"
+      :index="activeCitation.index"
+      :reference="reference"
+      :x="activeCitation.x"
+      :y="activeCitation.y"
+      @close="closeCitation"
+    />
   </div>
 </template>
 
@@ -159,6 +199,22 @@ html.dark .bubble-user {
 .thinking-block {
   border-left: 3px solid rgb(var(--primary-color));
   padding-left: 10px;
+}
+
+:deep(.citation-mark) {
+  display: inline;
+  font-size: 0.7em;
+  color: rgb(var(--primary-color));
+  cursor: pointer;
+  padding: 0 1px;
+  vertical-align: super;
+  line-height: 1;
+  font-weight: 600;
+
+  &:hover {
+    text-decoration: underline;
+    opacity: 0.8;
+  }
 }
 
 .loading-dots {
