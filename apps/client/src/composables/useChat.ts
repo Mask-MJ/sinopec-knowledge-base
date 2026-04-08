@@ -13,15 +13,28 @@ export interface ChatMessage {
 
 /**
  * Parse `<think>...</think>` tags from text.
- * Returns [reasoning, content] tuple.
+ * Handles both completed and unclosed (streaming) think blocks.
+ * Returns [reasoning, content, isThinking] tuple.
  */
-export function parseThinkContent(text: string): [string, string] {
-  const reasoning = [...text.matchAll(/<think>([\s\S]*?)<\/think>/g)]
+export function parseThinkContent(text: string): [string, string, boolean] {
+  // Match completed <think>...</think> blocks
+  const completedReasoning = [...text.matchAll(/<think>([\s\S]*?)<\/think>/g)]
     .map((m) => m[1])
     .join('')
     .trim();
-  const content = text.replaceAll(/<think>[\s\S]*?<\/think>/g, '').trim();
-  return [reasoning, content];
+
+  // After removing completed blocks, check for an unclosed <think> tag (streaming)
+  const withoutCompleted = text.replaceAll(/<think>[\s\S]*?<\/think>/g, '');
+  const unclosedMatch = withoutCompleted.match(/<think>([\s\S]*)$/);
+  const isThinking = !!unclosedMatch;
+  const unclosedReasoning = unclosedMatch?.[1]?.trim() ?? '';
+
+  const reasoning = [completedReasoning, unclosedReasoning]
+    .filter(Boolean)
+    .join('');
+  const content = withoutCompleted.replace(/<think>[\s\S]*$/, '').trim();
+
+  return [reasoning, content, isThinking];
 }
 
 export function useChat(
@@ -53,10 +66,9 @@ export function useChat(
 
   function updateAssistantMessage(patch: Partial<ChatMessage>) {
     if (activeAssistantIndex < 0) return;
-    const idx = activeAssistantIndex;
-    messages.value = messages.value.map((msg, i) =>
-      i === idx ? { ...msg, ...patch } : msg,
-    );
+    const msg = messages.value[activeAssistantIndex];
+    if (!msg) return;
+    Object.assign(msg, patch);
   }
 
   async function send(question: string) {
@@ -105,13 +117,11 @@ export function useChat(
   // Watch SSE stream content changes
   watch(sseStream.content, (text) => {
     if (activeAssistantIndex < 0 || !text) return;
-    const [reasoning, content] = parseThinkContent(text);
-    updateAssistantMessage({
-      content,
-      reasoning,
-      loading: true,
-      thinkingStatus: reasoning ? 'thinking' : 'start',
-    });
+    const [reasoning, content, isThinking] = parseThinkContent(text);
+    let thinkingStatus: 'end' | 'start' | 'thinking' = 'start';
+    if (isThinking) thinkingStatus = 'thinking';
+    else if (reasoning) thinkingStatus = 'end';
+    updateAssistantMessage({ content, reasoning, loading: true, thinkingStatus });
   });
 
   // Watch stream end

@@ -15,6 +15,12 @@ defineProps<{
 }>();
 
 const thinkingOpen = ref(false);
+
+// Force MarkdownRender to remount when restored from KeepAlive cache
+const renderKey = ref(0);
+onActivated(() => {
+  renderKey.value++;
+});
 </script>
 
 <template>
@@ -86,8 +92,10 @@ const thinkingOpen = ref(false);
       <!-- AI Markdown content -->
       <MarkdownRender
         v-if="content && role === 'assistant'"
+        :key="renderKey"
         custom-id="chat"
         :content="content"
+        :final="!loading"
         :max-live-nodes="0"
       />
 
@@ -130,6 +138,7 @@ const thinkingOpen = ref(false);
 .bubble-ai {
   background: rgb(var(--primary-50-color));
   border-top-left-radius: 2px;
+  min-width: 120px;
 }
 
 .bubble-user {

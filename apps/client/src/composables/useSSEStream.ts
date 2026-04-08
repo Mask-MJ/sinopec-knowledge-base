@@ -61,7 +61,15 @@ export function useSSEStream() {
               return;
             }
             if (typeof parsed.data === 'object' && 'answer' in parsed.data) {
-              content.value = parsed.data.answer;
+              const answer = parsed.data.answer;
+              // RAGFlow may send accumulated text (each chunk has full answer)
+              // or delta text (each chunk has only new text).
+              // Detect: if new answer starts with current content, it's accumulated.
+              if (answer.startsWith(content.value)) {
+                content.value = answer;
+              } else {
+                content.value += answer;
+              }
             }
           } catch {
             // Skip malformed JSON lines

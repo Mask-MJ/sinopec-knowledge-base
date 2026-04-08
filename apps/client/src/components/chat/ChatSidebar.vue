@@ -98,12 +98,17 @@ async function addSession() {
 }
 
 async function fetchSessions() {
-  const { data = [] } = await getChatSessionList(props.assistantId, {
-    name: searchName.value || undefined,
-  });
-  sessionList.value = data;
-  if (sessionList.value.length > 0 && !activeId.value) {
-    activeId.value = sessionList.value[0]?.id;
+  if (!props.assistantId) return;
+  try {
+    const { data = [] } = await getChatSessionList(props.assistantId, {
+      name: searchName.value || undefined,
+    });
+    sessionList.value = data;
+    if (sessionList.value.length > 0 && !activeId.value) {
+      activeId.value = sessionList.value[0]?.id;
+    }
+  } catch {
+    sessionList.value = [];
   }
 }
 
