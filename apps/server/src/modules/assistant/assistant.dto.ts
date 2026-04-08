@@ -79,7 +79,7 @@ export class CreateAssistantDto {
    */
   @IsOptional()
   @IsString()
-  modelName?: string = 'gpt-oss@Xinference';
+  modelName?: string;
 
   /**
    * 助手名称

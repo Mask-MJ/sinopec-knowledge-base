@@ -25,6 +25,9 @@ export class AssistantEntity implements Assistant {
   /** 主键 ID */
   id: number;
 
+  /** 是否为通用助手 */
+  isGeneral: boolean;
+
   /** 关键词相似度权重 */
   keywordsSimilarityWeight: number;
 

@@ -4,6 +4,7 @@ import {
   ConflictException,
   Inject,
   Injectable,
+  Logger,
   UnauthorizedException,
 } from '@nestjs/common';
 import { EventEmitter2 } from '@nestjs/event-emitter';
@@ -12,17 +13,21 @@ import { PRISMA_SERVICE_TOKEN } from '@/common/database/prisma.extension';
 import { HashingService } from '@/common/hashing';
 import { MinioService } from '@/common/minio/minio.service';
 import { sanitizeFilename } from '@/common/utils';
+import { AssistantService } from '@/modules/assistant/assistant.service';
 import { ActiveUserData } from '@/modules/auth/interfaces/active-user-data.interface';
 
 import { CreateUserDto, QueryUserDto, UpdateUserDto } from './user.dto';
 
 @Injectable()
 export class UserService {
+  private readonly logger = new Logger(UserService.name);
+
   constructor(
     @Inject(PRISMA_SERVICE_TOKEN) private readonly prisma: PrismaService,
     private readonly hashingService: HashingService,
     @Inject(EventEmitter2) private readonly eventEmitter: EventEmitter2,
     private readonly minioClient: MinioService,
+    private readonly assistantService: AssistantService,
   ) {}
 
   async changePassword(id: number, password: string, oldPassword: string) {
@@ -73,6 +78,17 @@ export class UserService {
       username: '',
       ip: '',
     });
+
+    // 为新用户自动创建通用助手
+    try {
+      await this.assistantService.createGeneral(result.id);
+    } catch (error) {
+      this.logger.error(
+        `为用户 ${result.id} 创建通用助手失败`,
+        error,
+      );
+    }
+
     return result;
   }
 

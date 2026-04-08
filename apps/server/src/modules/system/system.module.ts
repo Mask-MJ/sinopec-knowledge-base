@@ -3,6 +3,7 @@ import { Module } from '@nestjs/common';
 
 import { HashingModule } from '@/common/hashing';
 import { MinioModule } from '@/common/minio/minio.module';
+import { AssistantModule } from '@/modules/assistant/assistant.module';
 
 import { DeptController } from './dept/dept.controller';
 import { DeptService } from './dept/dept.service';
@@ -18,7 +19,7 @@ import { UserController } from './user/user.controller';
 import { UserService } from './user/user.service';
 
 @Module({
-  imports: [HttpModule.register({}), HashingModule, MinioModule],
+  imports: [HttpModule.register({}), HashingModule, MinioModule, AssistantModule],
   controllers: [
     UserController,
     DeptController,

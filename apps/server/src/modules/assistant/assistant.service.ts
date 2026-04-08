@@ -100,23 +100,41 @@ export class AssistantService {
   }
 
   async create(user: ActiveUserData, dto: CreateAssistantDto) {
+    const modelName = dto.modelName || AssistantService.DEFAULT_MODEL_NAME;
+    const hasKnowledgeBase = !!(dto.datasetIds && dto.datasetIds.length > 0);
+    const prompt = dto.prompt || (hasKnowledgeBase
+      ? AssistantService.KB_CHAT_PROMPT
+      : AssistantService.GENERAL_CHAT_PROMPT);
+    const opener = dto.opener || AssistantService.DEFAULT_OPENER;
+    const emptyResponse = hasKnowledgeBase
+      ? (dto.emptyResponse || AssistantService.DEFAULT_EMPTY_RESPONSE)
+      : (dto.emptyResponse ?? '');
+
     const ragflowData = await this.ragflow.request<{ id: string }>(
       'POST',
       '/api/v1/chats',
       {
         name: dto.name,
-        avatar: dto.avatar,
+        icon: dto.avatar,
         description: dto.description,
         dataset_ids: dto.datasetIds,
-        llm: {
-          model_name: dto.modelName,
+        llm_id: modelName,
+        llm_setting: {
           temperature: dto.temperature,
           top_p: dto.topP,
           presence_penalty: dto.presencePenalty,
           frequency_penalty: dto.frequencyPenalty,
           max_tokens: dto.maxTokens,
         },
-        prompt: this.buildRagflowPrompt(dto),
+        prompt_config: AssistantService.toPromptConfig({
+          prompt,
+          opener,
+          emptyResponse,
+          hasKnowledgeBase,
+        }),
+        similarity_threshold: dto.similarityThreshold,
+        vector_similarity_weight: dto.keywordsSimilarityWeight,
+        top_n: dto.topN,
         top_k: dto.topK,
       },
     );
@@ -128,7 +146,7 @@ export class AssistantService {
           avatar: dto.avatar,
           description: dto.description,
           assistantId: ragflowData.id,
-          modelName: dto.modelName as string,
+          modelName,
           temperature: dto.temperature,
           topP: dto.topP,
           presencePenalty: dto.presencePenalty,
@@ -138,9 +156,9 @@ export class AssistantService {
           keywordsSimilarityWeight: dto.keywordsSimilarityWeight,
           topN: dto.topN,
           topK: dto.topK,
-          emptyResponse: dto.emptyResponse,
-          opener: dto.opener,
-          prompt: dto.prompt,
+          emptyResponse,
+          opener,
+          prompt,
           datasetIds: dto.datasetIds ?? [],
           userId: user.sub,
         },
@@ -161,6 +179,54 @@ export class AssistantService {
           rollbackError,
         );
       }
+      throw error;
+    }
+  }
+
+  /**
+   * 为指定用户获取或创建通用助手（无知识库关联）
+   * 幂等：若已存在直接返回，并发创建时通过捕获唯一约束冲突保证安全
+   */
+  async createGeneral(userId: number) {
+    const existing = await this.prisma.client.assistant.findFirst({
+      where: { userId, isGeneral: true },
+    });
+    if (existing) return existing;
+
+    const ragflowData = await this.ragflow.request<{ id: string }>(
+      'POST',
+      '/api/v1/chats',
+      {
+        name: '通用助手',
+        description: '通用 AI 对话助手',
+        dataset_ids: [],
+        llm_id: AssistantService.DEFAULT_MODEL_NAME,
+        prompt_config: AssistantService.toPromptConfig({
+          prompt: AssistantService.GENERAL_CHAT_PROMPT,
+          opener: AssistantService.DEFAULT_OPENER,
+          emptyResponse: '',
+          hasKnowledgeBase: false,
+        }),
+      },
+    );
+
+    try {
+      return await this.prisma.client.assistant.create({
+        data: {
+          name: '通用助手',
+          description: '通用 AI 对话助手',
+          assistantId: ragflowData.id,
+          modelName: AssistantService.DEFAULT_MODEL_NAME,
+          isGeneral: true,
+          userId,
+        },
+      });
+    } catch (error) {
+      // 并发创建时可能重复，查询已存在的记录返回
+      const fallback = await this.prisma.client.assistant.findFirst({
+        where: { userId, isGeneral: true },
+      });
+      if (fallback) return fallback;
       throw error;
     }
   }
@@ -293,22 +359,30 @@ export class AssistantService {
     if (assistant.assistantId) {
       try {
         await this.ragflow.request(
-          'PUT',
+          'PATCH',
           `/api/v1/chats/${assistant.assistantId}`,
           {
             name: dto.name,
-            avatar: dto.avatar,
+            icon: dto.avatar,
             description: dto.description,
             dataset_ids: dto.datasetIds,
-            llm: {
-              model_name: dto.modelName,
-              frequency_penalty: dto.frequencyPenalty,
-              max_tokens: dto.maxTokens,
-              presence_penalty: dto.presencePenalty,
+            llm_id: dto.modelName,
+            llm_setting: {
               temperature: dto.temperature,
               top_p: dto.topP,
+              presence_penalty: dto.presencePenalty,
+              frequency_penalty: dto.frequencyPenalty,
+              max_tokens: dto.maxTokens,
             },
-            prompt: this.buildRagflowPrompt(dto),
+            prompt_config: AssistantService.toPromptConfig({
+              prompt: dto.prompt ?? '',
+              opener: dto.opener ?? '',
+              emptyResponse: dto.emptyResponse ?? '',
+              hasKnowledgeBase: !!(dto.datasetIds && dto.datasetIds.length > 0),
+            }),
+            similarity_threshold: dto.similarityThreshold,
+            vector_similarity_weight: dto.keywordsSimilarityWeight,
+            top_n: dto.topN,
             top_k: dto.topK,
           },
         );
@@ -371,34 +445,48 @@ export class AssistantService {
     return assistant;
   }
 
+  /** 通用助手默认模型名称 — 后续可改为从环境变量读取 */
+  private static readonly DEFAULT_MODEL_NAME = 'gpt-oss@Xinference';
+
+  /** 关联知识库时的默认系统提示词（与 RAGFlow 保持一致） */
+  private static readonly KB_CHAT_PROMPT = [
+    '你是一个智能助手，请总结知识库的内容来回答问题，请列举知识库中的数据详细回答。',
+    '当所有知识库内容都与问题无关时，你的回答必须包括"知识库中未找到您要的答案！"这句话。',
+    '回答需要考虑聊天历史。',
+    '以下是知识库：',
+    '{knowledge}',
+    '以上是知识库。',
+  ].join('\n');
+
+  /** 通用聊天（无知识库）的默认系统提示词 */
+  private static readonly GENERAL_CHAT_PROMPT =
+    '你是一个智能助手。请直接回答用户的问题，提供准确、有帮助的信息。\n{knowledge}';
+
+  /** 默认开场白 */
+  private static readonly DEFAULT_OPENER =
+    '你好！我是你的助理，有什么可以帮到你的吗？';
+
+  /** 关联知识库时的默认空回复 */
+  private static readonly DEFAULT_EMPTY_RESPONSE =
+    '知识库中未找到您要的答案！';
+
   /**
-   * 构建 RAGFlow prompt 参数
-   * 通用聊天（无知识库）：不传 empty_response / similarity_threshold 等检索参数
-   * 知识库聊天：传完整检索参数
+   * 将已解析的值映射为 RAGFlow prompt_config 格式
+   * 字段映射：prompt → system, opener → prologue
+   * 调用方负责提供已填入默认值的参数，此方法不做默认值回退
    */
-  private buildRagflowPrompt(dto: {
-    datasetIds?: string[];
-    emptyResponse?: string;
-    keywordsSimilarityWeight?: number;
-    opener?: string;
-    prompt?: string;
-    similarityThreshold?: number;
-    topN?: number;
+  private static toPromptConfig(resolved: {
+    emptyResponse: string;
+    hasKnowledgeBase: boolean;
+    opener: string;
+    prompt: string;
   }): Record<string, unknown> {
-    const hasKnowledgeBase = dto.datasetIds && dto.datasetIds.length > 0;
-
-    const prompt: Record<string, unknown> = {
-      opener: dto.opener,
-      prompt: dto.prompt,
+    return {
+      system: resolved.prompt,
+      prologue: resolved.opener,
+      parameters: [{ key: 'knowledge', optional: false }],
+      empty_response: resolved.emptyResponse,
+      quote: resolved.hasKnowledgeBase,
     };
-
-    if (hasKnowledgeBase) {
-      prompt.empty_response = dto.emptyResponse;
-      prompt.similarity_threshold = dto.similarityThreshold;
-      prompt.keywords_similarity_weight = dto.keywordsSimilarityWeight;
-      prompt.top_n = dto.topN;
-    }
-
-    return prompt;
   }
 }

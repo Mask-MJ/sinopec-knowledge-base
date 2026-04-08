@@ -36,6 +36,8 @@ model Assistant {
   prompt                   String?
   /// RAGFlow 关联的数据集ID列表
   datasetIds               String[] @default([])
+  /// 是否为通用助手（每个用户仅一个）
+  isGeneral                Boolean  @default(false)
   /// RAGFlow 关联助手ID
   assistantId              String?
   /// 创建时间
