@@ -21,6 +21,17 @@ interface RagflowResponse<T = unknown> {
   message?: string;
 }
 
+/** RAGFlow LLM 模型项 */
+export interface RagflowLlmItem {
+  available: boolean;
+  fid: string;
+  llm_name: string;
+  max_tokens?: number;
+  model_type: string;
+  status: string;
+  tags?: string;
+}
+
 /** RAGFlow 健康检查响应 */
 interface HealthStatus {
   db: string;
@@ -87,6 +98,45 @@ export class RagflowService {
       };
     } catch (error) {
       this.logger.error(`RAGFlow 下载异常: ${path}`, error);
+      throw new ServiceUnavailableException(
+        'RAGFlow 服务暂时不可用，请稍后重试',
+      );
+    }
+  }
+
+  /**
+   * 获取已配置的 LLM 模型列表
+   * 调用 RAGFlow 内部接口 GET /v1/llm/list
+   * 返回按 provider 分组的模型列表，每个模型包含 llm_name / model_type / fid 等字段
+   */
+  async getLlmList(): Promise<RagflowLlmItem[]> {
+    this.ensureConfigured();
+    const url = `${this.host}/v1/llm/list`;
+    try {
+      const response = await this.httpService.axiosRef.get<
+        RagflowResponse<Record<string, RagflowLlmItem[]>>
+      >(url, {
+        headers: this.getHeaders(),
+        timeout: 10_000,
+      });
+
+      if (response.data.code !== 0) {
+        this.throwRagflowError(
+          response.data.message ?? '未知错误',
+          response.data.code,
+        );
+      }
+
+      const grouped = response.data.data;
+      return Object.values(grouped).flat();
+    } catch (error) {
+      if (
+        error instanceof BadRequestException ||
+        error instanceof NotFoundException
+      ) {
+        throw error;
+      }
+      this.logger.error('RAGFlow 获取 LLM 列表异常', error);
       throw new ServiceUnavailableException(
         'RAGFlow 服务暂时不可用，请稍后重试',
       );

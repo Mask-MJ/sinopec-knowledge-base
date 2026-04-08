@@ -50,7 +50,7 @@ export class CreateKnowledgeBaseDto {
    */
   @IsOptional()
   @IsString()
-  embeddingModel?: string = 'bge-large-zh-v1.5@Xinference';
+  embeddingModel?: string;
 
   /**
    * 知识库名称
@@ -131,7 +131,7 @@ export class UpdateDocumentDto {
    */
   @IsOptional()
   @IsString()
-  chunkMethod?: string = 'naive';
+  chunkMethod?: string;
 
   /**
    * 文档元数据
@@ -156,6 +156,16 @@ export class UpdateDocumentDto {
   @IsObject()
   @IsOptional()
   parserConfig?: object;
+}
+
+export class ToggleDocumentStatusDto {
+  /**
+   * 文档启用状态 ('1' 启用, '0' 禁用)
+   * @example '1'
+   */
+  @IsIn(['0', '1'])
+  @IsString()
+  status!: string;
 }
 
 export class DeleteDocumentDto {

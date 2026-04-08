@@ -13,6 +13,8 @@ import type {
 import type { PrismaService } from '@/common/database/prisma.extension';
 import type { ActiveUserData } from '@/modules/auth/interfaces/active-user-data.interface';
 
+import { Buffer } from 'node:buffer';
+
 import {
   BadRequestException,
   ConflictException,
@@ -215,7 +217,7 @@ export class KnowledgeBaseService {
       'GET',
       `/api/v1/datasets/${datasetId}/documents`,
       {
-        name: dto.name,
+        keywords: dto.name,
         page: dto.page,
         page_size: dto.pageSize,
       },
@@ -366,6 +368,22 @@ export class KnowledgeBaseService {
     );
   }
 
+  async toggleDocumentStatus(
+    id: number,
+    user: ActiveUserData,
+    documentId: string,
+    status: string,
+  ) {
+    const kb = await this.assertOwnership(id, user);
+    const datasetId = this.requireDatasetId(kb);
+
+    return this.ragflow.request(
+      'PUT',
+      `/api/v1/datasets/${datasetId}/documents/${documentId}`,
+      { enabled: Number(status) },
+    );
+  }
+
   async update(user: ActiveUserData, id: number, dto: UpdateKnowledgeBaseDto) {
     const kb = await this.assertOwnership(id, user);
 
@@ -478,11 +496,13 @@ export class KnowledgeBaseService {
 
     const formData = new FormData();
     for (const file of files) {
+      const rawName = Buffer.from(file.originalname, 'latin1').toString(
+        'utf8',
+      );
+      const filename = sanitizeFilename(rawName);
       formData.append(
         'file',
-        new File([file.buffer], sanitizeFilename(file.originalname), {
-          type: file.mimetype,
-        }),
+        new File([file.buffer], filename, { type: file.mimetype }),
       );
     }
 

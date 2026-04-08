@@ -51,7 +51,8 @@
     "vueuse",
     "spreadsheetml",
     "wordprocessingml",
-    "Xinference"
+    "Xinference",
+    "llms"
   ],
   "ignorePaths": [
     "**/*.log",

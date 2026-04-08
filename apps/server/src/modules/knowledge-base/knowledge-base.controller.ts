@@ -26,6 +26,7 @@ import {
 } from '@nestjs/swagger';
 
 import { FilesUploadDto } from '@/common/dto/upload.dto';
+import { RagflowService } from '@/common/ragflow/ragflow.service';
 import { ApiPaginatedResponse } from '@/common/response/paginated.response';
 import { AutoPermission } from '@/modules/auth/authorization/decorators/auto-permission.decorator';
 import { ActiveUser } from '@/modules/auth/decorators/active-user.decorator';
@@ -40,6 +41,7 @@ import {
   QueryDocumentDto,
   QueryKnowledgeBaseDto,
   RetrieveChunkDto,
+  ToggleDocumentStatusDto,
   UpdateChunkDto,
   UpdateDocumentDto,
   UpdateKnowledgeBaseDto,
@@ -51,9 +53,12 @@ import { KnowledgeBaseService } from './knowledge-base.service';
 @ApiTags('知识库管理')
 @Controller()
 export class KnowledgeBaseController {
-  constructor(private readonly knowledgeBaseService: KnowledgeBaseService) {}
+  constructor(
+    private readonly knowledgeBaseService: KnowledgeBaseService,
+    private readonly ragflowService: RagflowService,
+  ) {}
 
-  // ─── Dataset CRUD ────────────────────────────────
+  // ─── LLM 模型列表 ──────────────────────────────────
 
   /**
    * 添加分块
@@ -68,6 +73,8 @@ export class KnowledgeBaseController {
   ) {
     return this.knowledgeBaseService.addChunk(id, user, documentId, dto);
   }
+
+  // ─── Dataset CRUD ────────────────────────────────
 
   /**
    * 创建知识库
@@ -119,8 +126,6 @@ export class KnowledgeBaseController {
     return this.knowledgeBaseService.findAllChunks(id, user, documentId, dto);
   }
 
-  // ─── Document Management ──────────────────────────
-
   /**
    * 获取知识库文件列表
    */
@@ -133,6 +138,8 @@ export class KnowledgeBaseController {
     return this.knowledgeBaseService.findAllDocuments(id, user, dto);
   }
 
+  // ─── Document Management ──────────────────────────
+
   /**
    * 获取知识库详情
    */
@@ -140,6 +147,15 @@ export class KnowledgeBaseController {
   @Get(':id')
   findOne(@Param('id') id: number, @ActiveUser() user: ActiveUserData) {
     return this.knowledgeBaseService.findOne(id, user);
+  }
+
+  /**
+   * 获取 RAGFlow 已配置的 LLM 模型列表
+   */
+  @ApiOkResponse({ description: '返回已配置的 LLM 模型列表' })
+  @Get('llms')
+  getLlmList() {
+    return this.ragflowService.getLlmList();
   }
 
   /**
@@ -233,6 +249,25 @@ export class KnowledgeBaseController {
   }
 
   /**
+   * 切换知识库文档启用状态
+   */
+  @AutoPermission()
+  @Patch(':id/documents/:documentId/status')
+  toggleDocumentStatus(
+    @Param('id') id: number,
+    @ActiveUser() user: ActiveUserData,
+    @Param('documentId') documentId: string,
+    @Body() dto: ToggleDocumentStatusDto,
+  ) {
+    return this.knowledgeBaseService.toggleDocumentStatus(
+      id,
+      user,
+      documentId,
+      dto.status,
+    );
+  }
+
+  /**
    * 更新知识库
    */
   @ApiOkResponse({ type: KnowledgeBaseEntity })
@@ -302,8 +337,30 @@ export class KnowledgeBaseController {
           'text/markdown',
           'text/plain',
         ]);
+
+        // 当浏览器无法识别 MIME 时回退到扩展名判断
+        const ALLOWED_EXTS = new Set([
+          '.csv',
+          '.doc',
+          '.docx',
+          '.md',
+          '.pdf',
+          '.txt',
+          '.xls',
+          '.xlsx',
+        ]);
+
         if (ALLOWED_MIMES.has(file.mimetype)) {
           cb(null, true);
+        } else if (file.mimetype === 'application/octet-stream') {
+          const ext = file.originalname
+            .slice(file.originalname.lastIndexOf('.'))
+            .toLowerCase();
+          if (ALLOWED_EXTS.has(ext)) {
+            cb(null, true);
+          } else {
+            cb(new BadRequestException(`不支持的文件类型: ${ext}`), false);
+          }
         } else {
           cb(
             new BadRequestException(`不支持的文件类型: ${file.mimetype}`),
