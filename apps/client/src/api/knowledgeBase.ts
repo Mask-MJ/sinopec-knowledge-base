@@ -100,9 +100,9 @@ export async function uploadKnowledgeBaseDocuments(
     body: formData,
   });
   if (!response.ok) {
-    const errBody = (await response.json().catch(() => null)) as
-      | { message?: string | string[] }
-      | null;
+    const errBody = (await response.json().catch(() => null)) as null | {
+      message?: string | string[];
+    };
     const raw = errBody?.message ?? '上传失败';
     throw new Error(Array.isArray(raw) ? raw.join(', ') : raw);
   }

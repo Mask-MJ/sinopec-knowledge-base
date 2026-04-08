@@ -496,9 +496,7 @@ export class KnowledgeBaseService {
 
     const formData = new FormData();
     for (const file of files) {
-      const rawName = Buffer.from(file.originalname, 'latin1').toString(
-        'utf8',
-      );
+      const rawName = Buffer.from(file.originalname, 'latin1').toString('utf8');
       const filename = sanitizeFilename(rawName);
       formData.append(
         'file',

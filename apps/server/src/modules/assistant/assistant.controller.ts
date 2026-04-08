@@ -67,16 +67,6 @@ export class AssistantController {
   }
 
   /**
-   * 获取或创建当前用户的通用助手
-   */
-  @ApiOkResponse({ type: AssistantEntity })
-  @AutoPermission()
-  @Post('general')
-  getOrCreateGeneral(@ActiveUser() user: ActiveUserData) {
-    return this.assistantService.createGeneral(user.sub);
-  }
-
-  /**
    * 创建与聊天助手的会话
    */
   @ApiCreatedResponse({ type: SessionEntity })
@@ -119,6 +109,16 @@ export class AssistantController {
   @Get(':id')
   findOne(@Param('id') id: number, @ActiveUser() user: ActiveUserData) {
     return this.assistantService.findOne(id, user);
+  }
+
+  /**
+   * 获取或创建当前用户的通用助手
+   */
+  @ApiOkResponse({ type: AssistantEntity })
+  @AutoPermission()
+  @Post('general')
+  getOrCreateGeneral(@ActiveUser() user: ActiveUserData) {
+    return this.assistantService.createGeneral(user.sub);
   }
 
   /**

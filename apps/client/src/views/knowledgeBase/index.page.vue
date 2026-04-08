@@ -23,7 +23,8 @@ import { useLlmOptions } from '@/composables';
 import { PERMISSION } from '@/config/constants/permissionCodes';
 import { $t } from '@/locales';
 
-const { options: embeddingModelOptions, loading: llmLoading } = useLlmOptions('embedding');
+const { options: embeddingModelOptions, loading: llmLoading } =
+  useLlmOptions('embedding');
 
 const loading = ref(false);
 const router = useRouter();

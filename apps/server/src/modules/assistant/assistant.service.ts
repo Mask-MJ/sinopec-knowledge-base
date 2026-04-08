@@ -21,14 +21,62 @@ import { RagflowService } from '@/common/ragflow/ragflow.service';
 
 @Injectable()
 export class AssistantService {
+  /** 关联知识库时的默认空回复 */
+  private static readonly DEFAULT_EMPTY_RESPONSE = '知识库中未找到您要的答案！';
+
+  /** 通用助手默认模型名称 — 后续可改为从环境变量读取 */
+  private static readonly DEFAULT_MODEL_NAME = 'gpt-oss@Xinference';
+
+  // ─── Private Helpers ──────────────────────────────
+
+  /** 默认开场白 */
+  private static readonly DEFAULT_OPENER =
+    '你好！我是你的助理，有什么可以帮到你的吗？';
+
+  /** 通用聊天（无知识库）的默认系统提示词 */
+  private static readonly GENERAL_CHAT_PROMPT =
+    '你是一个智能助手。请直接回答用户的问题，提供准确、有帮助的信息。\n{knowledge}';
+
+  /** 关联知识库时的默认系统提示词（与 RAGFlow 保持一致） */
+  private static readonly KB_CHAT_PROMPT = [
+    '你是一个智能助手，请总结知识库的内容来回答问题，请列举知识库中的数据详细回答。',
+    '当所有知识库内容都与问题无关时，你的回答必须包括"知识库中未找到您要的答案！"这句话。',
+    '回答需要考虑聊天历史。',
+    '以下是知识库：',
+    '{knowledge}',
+    '以上是知识库。',
+  ].join('\n');
+
+  // ─── Completion (SSE 中间层) ──────────────────────
+
   private readonly logger = new Logger(AssistantService.name);
+
+  // ─── Assistant CRUD ──────────────────────────────
 
   constructor(
     @Inject(PRISMA_SERVICE_TOKEN) private readonly prisma: PrismaService,
     private readonly ragflow: RagflowService,
   ) {}
 
-  // ─── Private Helpers ──────────────────────────────
+  /**
+   * 将已解析的值映射为 RAGFlow prompt_config 格式
+   * 字段映射：prompt → system, opener → prologue
+   * 调用方负责提供已填入默认值的参数，此方法不做默认值回退
+   */
+  private static toPromptConfig(resolved: {
+    emptyResponse: string;
+    hasKnowledgeBase: boolean;
+    opener: string;
+    prompt: string;
+  }): Record<string, unknown> {
+    return {
+      system: resolved.prompt,
+      prologue: resolved.opener,
+      parameters: [{ key: 'knowledge', optional: false }],
+      empty_response: resolved.emptyResponse,
+      quote: resolved.hasKnowledgeBase,
+    };
+  }
 
   async completions(
     id: number,
@@ -102,12 +150,14 @@ export class AssistantService {
   async create(user: ActiveUserData, dto: CreateAssistantDto) {
     const modelName = dto.modelName || AssistantService.DEFAULT_MODEL_NAME;
     const hasKnowledgeBase = !!(dto.datasetIds && dto.datasetIds.length > 0);
-    const prompt = dto.prompt || (hasKnowledgeBase
-      ? AssistantService.KB_CHAT_PROMPT
-      : AssistantService.GENERAL_CHAT_PROMPT);
+    const prompt =
+      dto.prompt ||
+      (hasKnowledgeBase
+        ? AssistantService.KB_CHAT_PROMPT
+        : AssistantService.GENERAL_CHAT_PROMPT);
     const opener = dto.opener || AssistantService.DEFAULT_OPENER;
     const emptyResponse = hasKnowledgeBase
-      ? (dto.emptyResponse || AssistantService.DEFAULT_EMPTY_RESPONSE)
+      ? dto.emptyResponse || AssistantService.DEFAULT_EMPTY_RESPONSE
       : (dto.emptyResponse ?? '');
 
     const ragflowData = await this.ragflow.request<{ id: string }>(
@@ -231,8 +281,6 @@ export class AssistantService {
     }
   }
 
-  // ─── Completion (SSE 中间层) ──────────────────────
-
   async createSession(id: number, user: ActiveUserData, dto: CreateSessionDto) {
     const assistant = await this.prisma.client.assistant.findUniqueOrThrow({
       where: { id },
@@ -247,8 +295,6 @@ export class AssistantService {
       },
     );
   }
-
-  // ─── Assistant CRUD ──────────────────────────────
 
   async findAll(user: ActiveUserData, dto: QueryAssistantDto) {
     const { name, current, pageSize } = dto;
@@ -443,50 +489,5 @@ export class AssistantService {
       throw new ForbiddenException('无权操作此助手');
     }
     return assistant;
-  }
-
-  /** 通用助手默认模型名称 — 后续可改为从环境变量读取 */
-  private static readonly DEFAULT_MODEL_NAME = 'gpt-oss@Xinference';
-
-  /** 关联知识库时的默认系统提示词（与 RAGFlow 保持一致） */
-  private static readonly KB_CHAT_PROMPT = [
-    '你是一个智能助手，请总结知识库的内容来回答问题，请列举知识库中的数据详细回答。',
-    '当所有知识库内容都与问题无关时，你的回答必须包括"知识库中未找到您要的答案！"这句话。',
-    '回答需要考虑聊天历史。',
-    '以下是知识库：',
-    '{knowledge}',
-    '以上是知识库。',
-  ].join('\n');
-
-  /** 通用聊天（无知识库）的默认系统提示词 */
-  private static readonly GENERAL_CHAT_PROMPT =
-    '你是一个智能助手。请直接回答用户的问题，提供准确、有帮助的信息。\n{knowledge}';
-
-  /** 默认开场白 */
-  private static readonly DEFAULT_OPENER =
-    '你好！我是你的助理，有什么可以帮到你的吗？';
-
-  /** 关联知识库时的默认空回复 */
-  private static readonly DEFAULT_EMPTY_RESPONSE =
-    '知识库中未找到您要的答案！';
-
-  /**
-   * 将已解析的值映射为 RAGFlow prompt_config 格式
-   * 字段映射：prompt → system, opener → prologue
-   * 调用方负责提供已填入默认值的参数，此方法不做默认值回退
-   */
-  private static toPromptConfig(resolved: {
-    emptyResponse: string;
-    hasKnowledgeBase: boolean;
-    opener: string;
-    prompt: string;
-  }): Record<string, unknown> {
-    return {
-      system: resolved.prompt,
-      prologue: resolved.opener,
-      parameters: [{ key: 'knowledge', optional: false }],
-      empty_response: resolved.emptyResponse,
-      quote: resolved.hasKnowledgeBase,
-    };
   }
 }

@@ -12,7 +12,10 @@ export function useLlmOptions(modelType?: 'chat' | 'embedding') {
 
   const options = computed(() =>
     llmList.value
-      .filter((item) => item.available && (!modelType || item.model_type === modelType))
+      .filter(
+        (item) =>
+          item.available && (!modelType || item.model_type === modelType),
+      )
       .map((item) => ({
         label: `${item.llm_name}@${item.fid}`,
         value: `${item.llm_name}@${item.fid}`,

@@ -83,10 +83,7 @@ export class UserService {
     try {
       await this.assistantService.createGeneral(result.id);
     } catch (error) {
-      this.logger.error(
-        `为用户 ${result.id} 创建通用助手失败`,
-        error,
-      );
+      this.logger.error(`为用户 ${result.id} 创建通用助手失败`, error);
     }
 
     return result;

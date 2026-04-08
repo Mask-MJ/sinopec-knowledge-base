@@ -11,7 +11,8 @@ import {
 import { useKnowledgeBaseOptions, useLlmOptions } from '@/composables';
 import { $t } from '@/locales';
 
-const { options: chatModelOptions, loading: llmLoading } = useLlmOptions('chat');
+const { options: chatModelOptions, loading: llmLoading } =
+  useLlmOptions('chat');
 const { options: kbOptions, loading: kbLoading } = useKnowledgeBaseOptions();
 
 const router = useRouter();
@@ -33,7 +34,10 @@ const modalForm = createProModalForm({
 watch(chatModelOptions, (opts) => {
   const first = opts[0];
   if (first && !modalForm.values.value?.modelName) {
-    modalForm.values.value = { ...modalForm.values.value, modelName: first.value };
+    modalForm.values.value = {
+      ...modalForm.values.value,
+      modelName: first.value,
+    };
   }
 });
 

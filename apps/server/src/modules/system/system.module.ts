@@ -19,7 +19,12 @@ import { UserController } from './user/user.controller';
 import { UserService } from './user/user.service';
 
 @Module({
-  imports: [HttpModule.register({}), HashingModule, MinioModule, AssistantModule],
+  imports: [
+    HttpModule.register({}),
+    HashingModule,
+    MinioModule,
+    AssistantModule,
+  ],
   controllers: [
     UserController,
     DeptController,

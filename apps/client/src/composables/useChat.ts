@@ -121,7 +121,12 @@ export function useChat(
     let thinkingStatus: 'end' | 'start' | 'thinking' = 'start';
     if (isThinking) thinkingStatus = 'thinking';
     else if (reasoning) thinkingStatus = 'end';
-    updateAssistantMessage({ content, reasoning, loading: true, thinkingStatus });
+    updateAssistantMessage({
+      content,
+      reasoning,
+      loading: true,
+      thinkingStatus,
+    });
   });
 
   // Watch stream end
