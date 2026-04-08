@@ -26,7 +26,6 @@ import {
 } from '@nestjs/swagger';
 
 import { FilesUploadDto } from '@/common/dto/upload.dto';
-import { RagflowService } from '@/common/ragflow/ragflow.service';
 import { ApiPaginatedResponse } from '@/common/response/paginated.response';
 import { AutoPermission } from '@/modules/auth/authorization/decorators/auto-permission.decorator';
 import { ActiveUser } from '@/modules/auth/decorators/active-user.decorator';
@@ -55,10 +54,7 @@ import { KnowledgeBaseService } from './knowledge-base.service';
 export class KnowledgeBaseController {
   constructor(
     private readonly knowledgeBaseService: KnowledgeBaseService,
-    private readonly ragflowService: RagflowService,
   ) {}
-
-  // ─── LLM 模型列表 ──────────────────────────────────
 
   /**
    * 添加分块
@@ -147,15 +143,6 @@ export class KnowledgeBaseController {
   @Get(':id')
   findOne(@Param('id') id: number, @ActiveUser() user: ActiveUserData) {
     return this.knowledgeBaseService.findOne(id, user);
-  }
-
-  /**
-   * 获取 RAGFlow 已配置的 LLM 模型列表
-   */
-  @ApiOkResponse({ description: '返回已配置的 LLM 模型列表' })
-  @Get('llms')
-  getLlmList() {
-    return this.ragflowService.getLlmList();
   }
 
   /**
