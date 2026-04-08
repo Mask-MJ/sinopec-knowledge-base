@@ -147,9 +147,7 @@ export function useChat(
         updateAssistantMessage({
           loading: false,
           thinkingStatus: 'end',
-          reference: ref
-            ? structuredClone(ref) as Reference
-            : undefined,
+          reference: ref ? (structuredClone(ref) as Reference) : undefined,
         });
       }
       activeAssistantIndex = -1;

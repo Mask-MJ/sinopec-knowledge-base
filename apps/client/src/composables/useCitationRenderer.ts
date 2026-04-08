@@ -24,7 +24,7 @@ export function useCitationRenderer() {
     const walker = document.createTreeWalker(container, NodeFilter.SHOW_TEXT, {
       acceptNode(node) {
         // Skip nodes inside an already-replaced citation mark
-        const parent = node.parentElement as HTMLElement | null;
+        const parent = node.parentElement;
         if (parent?.classList.contains(CITATION_CLASS)) {
           return NodeFilter.FILTER_REJECT;
         }
