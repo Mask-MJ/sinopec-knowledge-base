@@ -171,7 +171,7 @@ async function loadApplicationPlugins(
       plugins: () => [
         viteHtmlPlugin({
           inject: {
-            data: { title: appTitle || 'Sinopec Knowledge Base' },
+            data: { title: appTitle || '物探大模型' },
           },
           minify: true,
         }),

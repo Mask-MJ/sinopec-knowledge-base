@@ -10,7 +10,7 @@ interface Props {
 defineOptions({ name: 'Copyright' });
 
 withDefaults(defineProps<Props>(), {
-  companyName: '中石化知识库',
+  companyName: '物探大模型',
   companySiteLink: '',
   date: '2025',
   icp: '',

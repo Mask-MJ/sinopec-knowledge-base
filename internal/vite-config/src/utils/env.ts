@@ -83,7 +83,7 @@ async function loadAndConvertEnv(
   } = envConfig;
 
   return {
-    appTitle: getString(VITE_APP_TITLE, 'Sinopec Knowledge Base'),
+    appTitle: getString(VITE_APP_TITLE, '物探大模型'),
     base: getString(VITE_BASE, '/'),
     devtools: getBoolean(VITE_DEVTOOLS),
     injectAppLoading: getBoolean(VITE_INJECT_APP_LOADING),
