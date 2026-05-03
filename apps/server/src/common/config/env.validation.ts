@@ -109,6 +109,11 @@ class EnvironmentVariables {
 
   // ─── RAGFlow ─────────────────────────────────────
 
+  /** 通用助手 / 默认聊天助手所用 LLM ID（格式: `<llm_name>@<provider_id>`） */
+  @IsOptional()
+  @IsString()
+  ASSISTANT_DEFAULT_MODEL?: string;
+
   @IsOptional()
   @IsString()
   RAGFLOW_API_KEY?: string;

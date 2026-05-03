@@ -15,6 +15,7 @@ import { Buffer } from 'node:buffer';
 import { Transform } from 'node:stream';
 
 import { ForbiddenException, Inject, Injectable, Logger } from '@nestjs/common';
+import { ConfigService } from '@nestjs/config';
 
 import { PRISMA_SERVICE_TOKEN } from '@/common/database/prisma.extension';
 import { RagflowService } from '@/common/ragflow/ragflow.service';
@@ -24,8 +25,8 @@ export class AssistantService {
   /** 关联知识库时的默认空回复 */
   private static readonly DEFAULT_EMPTY_RESPONSE = '知识库中未找到您要的答案！';
 
-  /** 通用助手默认模型名称 — 后续可改为从环境变量读取 */
-  private static readonly DEFAULT_MODEL_NAME = 'gpt-oss@Xinference';
+  /** 通用助手默认模型名称（后备值） — 优先取环境变量 ASSISTANT_DEFAULT_MODEL */
+  private static readonly DEFAULT_MODEL_NAME_FALLBACK = 'gpt-oss@Xinference';
 
   // ─── Private Helpers ──────────────────────────────
 
@@ -49,6 +50,8 @@ export class AssistantService {
 
   // ─── Completion (SSE 中间层) ──────────────────────
 
+  private readonly defaultModelName: string;
+
   private readonly logger = new Logger(AssistantService.name);
 
   // ─── Assistant CRUD ──────────────────────────────
@@ -56,7 +59,13 @@ export class AssistantService {
   constructor(
     @Inject(PRISMA_SERVICE_TOKEN) private readonly prisma: PrismaService,
     private readonly ragflow: RagflowService,
-  ) {}
+    configService: ConfigService,
+  ) {
+    this.defaultModelName = configService.get<string>(
+      'ASSISTANT_DEFAULT_MODEL',
+      AssistantService.DEFAULT_MODEL_NAME_FALLBACK,
+    );
+  }
 
   /**
    * 将已解析的值映射为 RAGFlow prompt_config 格式
@@ -148,7 +157,7 @@ export class AssistantService {
   }
 
   async create(user: ActiveUserData, dto: CreateAssistantDto) {
-    const modelName = dto.modelName || AssistantService.DEFAULT_MODEL_NAME;
+    const modelName = dto.modelName || this.defaultModelName;
     const hasKnowledgeBase = !!(dto.datasetIds && dto.datasetIds.length > 0);
     const prompt =
       dto.prompt ||
@@ -250,7 +259,7 @@ export class AssistantService {
         name: '通用助手',
         description: '通用 AI 对话助手',
         dataset_ids: [],
-        llm_id: AssistantService.DEFAULT_MODEL_NAME,
+        llm_id: this.defaultModelName,
         prompt_config: AssistantService.toPromptConfig({
           prompt: AssistantService.GENERAL_CHAT_PROMPT,
           opener: AssistantService.DEFAULT_OPENER,
@@ -266,7 +275,7 @@ export class AssistantService {
           name: '通用助手',
           description: '通用 AI 对话助手',
           assistantId: ragflowData.id,
-          modelName: AssistantService.DEFAULT_MODEL_NAME,
+          modelName: this.defaultModelName,
           isGeneral: true,
           userId,
         },
