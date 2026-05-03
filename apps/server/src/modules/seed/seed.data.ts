@@ -6,22 +6,77 @@ export const SEED_ROLES: Prisma.RoleCreateManyInput[] = [
   { name: '普通角色', value: 'common', order: 2 },
 ];
 
-/** 用户种子数据 */
-export const SEED_USERS: Prisma.UserCreateInput[] = [
+/**
+ * 用户种子数据（明文密码，由 SeedService 启动时 hash）
+ * 默认密码遵循『大小写字母 + 数字 + 特殊符号』强度
+ */
+export const SEED_USERS_PLAINTEXT: ReadonlyArray<{
+  isAdmin: boolean;
+  nickname: string;
+  plainPassword: string;
+  roleValue: string;
+  username: string;
+}> = [
   {
     username: 'admin',
     nickname: '管理员',
     isAdmin: true,
-    roles: { connect: { value: 'admin' } },
-    password: '$2b$10$kxYSbbQSzJ64r4EIcORm8umQB7GQRLNxWAKHmJalYMzkgRZbAaIDq',
+    plainPassword: 'Admin@123',
+    roleValue: 'admin',
   },
   {
     username: 'user',
     nickname: '普通用户',
     isAdmin: false,
-    roles: { connect: { value: 'common' } },
-    password: '$2b$10$kxYSbbQSzJ64r4EIcORm8umQB7GQRLNxWAKHmJalYMzkgRZbAaIDq',
+    plainPassword: 'User@123',
+    roleValue: 'common',
   },
+];
+
+/**
+ * 旧版 admin 密码 hash（明文 `123456`）
+ * SeedService 启动时检测到此 hash 会自动升级到 SEED_USERS_PLAINTEXT 中的强密码
+ */
+export const LEGACY_ADMIN_PASSWORD_HASH =
+  '$2b$10$kxYSbbQSzJ64r4EIcORm8umQB7GQRLNxWAKHmJalYMzkgRZbAaIDq';
+
+/**
+ * 普通角色 (common) 应当可见的菜单 path 列表
+ * SeedService 启动时会幂等地把这些菜单挂到 common 角色下
+ */
+export const COMMON_ROLE_MENU_PATHS: readonly string[] = [
+  '/dashboard',
+  '/dashboard/analytics',
+  '/dashboard/workspace',
+  '/dashboard/chat',
+  '/knowledgeBase',
+  '/knowledgeBase/detail/:id',
+  '/assistant',
+  '/assistant/chat/:id',
+];
+
+/**
+ * 普通角色 (common) 应当具备的按钮权限码
+ * 命名遵循 `@AutoPermission()` 自动生成规则: `<module>:<resource>:<action>`
+ */
+export const COMMON_ROLE_BUTTON_PERMISSIONS: readonly string[] = [
+  // 知识库 - 文件操作
+  'knowledge-base:documents:create',
+  'knowledge-base:documents:update',
+  'knowledge-base:documents:delete',
+  // 知识库 - 解析
+  'knowledge-base:parse:create',
+  'knowledge-base:parse:delete',
+  // 知识库 - 检索
+  'knowledge-base:retrieval:create',
+  // 聊天助手 - 会话
+  'assistant:sessions:create',
+  'assistant:sessions:update',
+  'assistant:sessions:delete',
+  // 聊天助手 - 对话
+  'assistant:completions:create',
+  // 聊天助手 - 通用助手
+  'assistant:general:create',
 ];
 
 /** 菜单种子数据 */
@@ -58,6 +113,35 @@ export const SEED_MENUS: Prisma.MenuCreateInput[] = [
           icon: 'i-ant-design:message-outlined',
           order: 3,
           path: '/dashboard/chat',
+          children: {
+            create: [
+              {
+                name: '使用通用助手',
+                type: 'button',
+                permission: 'assistant:general:create',
+              },
+              {
+                name: '通用助手对话',
+                type: 'button',
+                permission: 'assistant:completions:create',
+              },
+              {
+                name: '通用助手会话-创建',
+                type: 'button',
+                permission: 'assistant:sessions:create',
+              },
+              {
+                name: '通用助手会话-更新',
+                type: 'button',
+                permission: 'assistant:sessions:update',
+              },
+              {
+                name: '通用助手会话-删除',
+                type: 'button',
+                permission: 'assistant:sessions:delete',
+              },
+            ],
+          },
         },
       ],
     },
@@ -81,31 +165,39 @@ export const SEED_MENUS: Prisma.MenuCreateInput[] = [
           type: 'menu',
           path: '/knowledgeBase/detail/:id',
         },
+        // 文件操作
         {
-          name: '创建知识库',
+          name: '上传文件',
           type: 'button',
-          permission: 'knowledgeBase:create',
+          permission: 'knowledge-base:documents:create',
         },
         {
-          name: '修改知识库',
+          name: '修改文件',
           type: 'button',
-          permission: 'knowledgeBase:update',
+          permission: 'knowledge-base:documents:update',
         },
         {
-          name: '删除知识库',
+          name: '删除文件',
           type: 'button',
-          permission: 'knowledgeBase:delete',
+          permission: 'knowledge-base:documents:delete',
         },
-        { name: '上传文件', type: 'button', permission: 'document:upload' },
-        { name: '解析文件', type: 'button', permission: 'document:parse' },
+        // 解析
+        {
+          name: '解析文件',
+          type: 'button',
+          permission: 'knowledge-base:parse:create',
+        },
         {
           name: '停止解析文件',
           type: 'button',
-          permission: 'document:stop-parse',
+          permission: 'knowledge-base:parse:delete',
         },
-        { name: '修改文件', type: 'button', permission: 'document:update' },
-        { name: '删除文件', type: 'button', permission: 'document:delete' },
-        { name: '下载文件', type: 'button', permission: 'document:download' },
+        // 检索
+        {
+          name: '检索分块',
+          type: 'button',
+          permission: 'knowledge-base:retrieval:create',
+        },
       ],
     },
   },
@@ -113,7 +205,7 @@ export const SEED_MENUS: Prisma.MenuCreateInput[] = [
     name: '聊天助手',
     title: 'page.assistant.title',
     icon: 'i-ant-design:robot-outlined',
-    order: 2,
+    order: 3,
     type: 'menu',
     path: '/assistant',
     hideChildrenInMenu: true,
@@ -128,9 +220,26 @@ export const SEED_MENUS: Prisma.MenuCreateInput[] = [
           type: 'menu',
           path: '/assistant/chat/:id',
         },
-        { name: '创建聊天', type: 'button', permission: 'assistant:create' },
-        { name: '修改聊天', type: 'button', permission: 'assistant:update' },
-        { name: '删除聊天', type: 'button', permission: 'assistant:delete' },
+        {
+          name: '会话-创建',
+          type: 'button',
+          permission: 'assistant:sessions:create',
+        },
+        {
+          name: '会话-更新',
+          type: 'button',
+          permission: 'assistant:sessions:update',
+        },
+        {
+          name: '会话-删除',
+          type: 'button',
+          permission: 'assistant:sessions:delete',
+        },
+        {
+          name: '助手对话',
+          type: 'button',
+          permission: 'assistant:completions:create',
+        },
       ],
     },
   },
