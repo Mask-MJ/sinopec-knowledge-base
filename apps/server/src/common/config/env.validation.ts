@@ -31,6 +31,11 @@ class EnvironmentVariables {
 
   // ─── Authentication & Security ───────────────────
 
+  /** 通用助手 / 默认聊天助手所用 LLM ID（格式: `<llm_name>@<provider_id>`） */
+  @IsOptional()
+  @IsString()
+  ASSISTANT_DEFAULT_MODEL?: string;
+
   @IsInt()
   AUTH_BCRYPT_SALT!: number;
 
@@ -40,10 +45,10 @@ class EnvironmentVariables {
   @IsInt()
   AUTH_JWT_REFRESH_TOKEN_TTL!: number;
 
+  // ─── Database (PostgreSQL) ───────────────────────
+
   @IsString()
   AUTH_JWT_SECRET!: string;
-
-  // ─── Database (PostgreSQL) ───────────────────────
 
   @IsString()
   DATABASE_DB!: string;
@@ -75,12 +80,12 @@ class EnvironmentVariables {
   @Min(0)
   DB_POOL_IDLE_TIMEOUT?: number;
 
+  // ─── Minio (Object Storage) ──────────────────────
+
   @IsInt()
   @IsOptional()
   @Min(1)
   DB_POOL_MAX?: number;
-
-  // ─── Minio (Object Storage) ──────────────────────
 
   @IsString()
   MINIO_ACCESS_KEY!: string;
@@ -104,15 +109,10 @@ class EnvironmentVariables {
   @IsString()
   MINIO_ROOT_USER!: string;
 
-  @IsString()
-  MINIO_SECRET_KEY!: string;
-
   // ─── RAGFlow ─────────────────────────────────────
 
-  /** 通用助手 / 默认聊天助手所用 LLM ID（格式: `<llm_name>@<provider_id>`） */
-  @IsOptional()
   @IsString()
-  ASSISTANT_DEFAULT_MODEL?: string;
+  MINIO_SECRET_KEY!: string;
 
   @IsOptional()
   @IsString()
