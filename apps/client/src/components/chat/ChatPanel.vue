@@ -1,4 +1,6 @@
 <script setup lang="ts">
+import type { Reference } from '@/composables';
+
 import { useChat } from '@/composables';
 
 import ChatEmptyState from './ChatEmptyState.vue';
@@ -7,7 +9,11 @@ import ChatSender from './ChatSender.vue';
 
 const props = defineProps<{
   assistantId: number;
-  messages: ReadonlyArray<{ content?: string; role: string }>;
+  messages: ReadonlyArray<{
+    content?: string;
+    reference?: Reference;
+    role: string;
+  }>;
   sessionId: string | undefined;
 }>();
 

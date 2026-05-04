@@ -43,8 +43,14 @@ const chunk = computed(() => props.reference?.chunks[props.index]);
       </n-ellipsis>
     </div>
 
+    <div v-else-if="reference" class="text-sm opacity-50">
+      {{ $t('page.assistant.chat.referenceNotFound', '未找到对应引用片段') }}
+    </div>
+
     <div v-else class="text-sm opacity-50">
-      {{ $t('page.assistant.chat.referenceLoading', '引用加载中...') }}
+      {{
+        $t('page.assistant.chat.referenceUnavailable', '该消息未携带引用数据')
+      }}
     </div>
   </n-popover>
 </template>

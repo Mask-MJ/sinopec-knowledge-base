@@ -57,7 +57,11 @@ export function useChat(
   const sseStream = useSSEStream();
 
   function initMessages(
-    history: ReadonlyArray<{ content?: string; role: string }>,
+    history: ReadonlyArray<{
+      content?: string;
+      reference?: Reference;
+      role: string;
+    }>,
   ) {
     messages.value = history.map((item, i) => {
       const [reasoning, content] = parseThinkContent(item.content ?? '');
@@ -68,6 +72,7 @@ export function useChat(
         reasoning,
         loading: false,
         thinkingStatus: 'end' as const,
+        reference: item.reference,
       };
     });
     activeAssistantIndex = -1;

@@ -47,8 +47,9 @@
     "knowledgeBase": "Knowledge Base",
     "rename": "Rename",
     "newName": "New Name",
-    "referenceLoading": "Loading reference...",
+    "referenceNotFound": "Reference chunk not found",
     "referenceSources": "Reference Sources",
+    "referenceUnavailable": "No reference data available for this message",
     "similarity": "Similarity"
   }
 }

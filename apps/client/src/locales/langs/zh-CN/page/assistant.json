@@ -47,8 +47,9 @@
     "knowledgeBase": "知识库",
     "rename": "重命名",
     "newName": "新名称",
-    "referenceLoading": "引用加载中...",
+    "referenceNotFound": "未找到对应引用片段",
     "referenceSources": "参考来源",
+    "referenceUnavailable": "该消息未携带引用数据",
     "similarity": "相似度"
   }
 }
