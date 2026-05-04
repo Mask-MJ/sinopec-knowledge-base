@@ -71,6 +71,78 @@ export class AssistantEntity implements Assistant {
   userId: number;
 }
 
+/** RAGFlow 引用块（assistant 消息附带的检索片段） */
+export class ReferenceChunkEntity {
+  /** 块文本内容 */
+  content: string;
+
+  /** 数据集 ID */
+  dataset_id: string;
+
+  /** 文档类型 */
+  doc_type: string;
+
+  /** 文档 ID */
+  document_id: string;
+
+  /** 文档名称 */
+  document_name: string;
+
+  /** 块 ID */
+  id: string;
+
+  /** 关联图片 ID */
+  image_id: string;
+
+  /** 块在文档中的位置（页码 / 边界） */
+  positions: number[][];
+
+  /** 综合相似度（0~1） */
+  similarity: number;
+
+  /** 关键词相似度 */
+  term_similarity: number;
+
+  /** 关联资源 URL */
+  url: null | string;
+
+  /** 向量相似度 */
+  vector_similarity: number;
+}
+
+/** RAGFlow 文档聚合（按文档汇总的引用次数） */
+export class ReferenceDocAggEntity {
+  /** 该文档被引用的块数 */
+  count: number;
+
+  /** 文档 ID */
+  doc_id: string;
+
+  /** 文档名称 */
+  doc_name: string;
+}
+
+/** RAGFlow 消息引用数据（仅 assistant 消息可能携带） */
+export class ReferenceEntity {
+  /** 命中的引用块列表 */
+  chunks: ReferenceChunkEntity[];
+
+  /** 文档维度的聚合统计 */
+  doc_aggs: ReferenceDocAggEntity[];
+}
+
+/** 会话历史中的单条消息 */
+export class SessionMessageEntity {
+  /** 消息内容 */
+  content: string;
+
+  /** 引用数据（assistant 消息可能包含，由 RAGFlow 在答复时返回） */
+  reference?: ReferenceEntity;
+
+  /** 消息角色 */
+  role: string;
+}
+
 export class SessionEntity {
   /** 关联的助手聊天 ID */
   chatId: string;
@@ -82,12 +154,7 @@ export class SessionEntity {
   id: string;
 
   /** 消息列表 */
-  messages: {
-    /** 消息内容 */
-    content: string;
-    /** 消息角色 */
-    role: string;
-  }[];
+  messages: SessionMessageEntity[];
 
   /** 会话名称 */
   name: string;

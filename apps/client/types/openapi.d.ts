@@ -455,23 +455,6 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/api/assistant/general": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        /** 获取或创建当前用户的通用助手 */
-        post: operations["AssistantController_getOrCreateGeneral"];
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
     "/api/assistant/{id}/sessions": {
         parameters: {
             query?: never;
@@ -507,6 +490,23 @@ export interface paths {
         head?: never;
         /** 更新聊天助手 */
         patch: operations["AssistantController_update"];
+        trace?: never;
+    };
+    "/api/assistant/general": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** 获取或创建当前用户的通用助手 */
+        post: operations["AssistantController_getOrCreateGeneral"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
         trace?: never;
     };
     "/api/assistant/{id}/sessions/{sessionId}": {
@@ -636,7 +636,8 @@ export interface paths {
             path?: never;
             cookie?: never;
         };
-        get: operations["KnowledgeBaseController_getLlmList"];
+        /** 获取 RAGFlow 已配置的 LLM 模型列表 */
+        get: operations["LlmController_getLlmList"];
         put?: never;
         post?: never;
         delete?: never;
@@ -655,6 +656,7 @@ export interface paths {
         /** 获取分块列表 */
         get: operations["KnowledgeBaseController_findAllChunks"];
         put?: never;
+        /** 添加分块 */
         post: operations["KnowledgeBaseController_addChunk"];
         /** 删除分块 */
         delete: operations["KnowledgeBaseController_removeChunks"];
@@ -673,7 +675,6 @@ export interface paths {
         /** 获取知识库列表 */
         get: operations["KnowledgeBaseController_findAll"];
         put?: never;
-        /** 创建知识库 */
         post: operations["KnowledgeBaseController_create"];
         delete?: never;
         options?: never;
@@ -706,6 +707,7 @@ export interface paths {
             path?: never;
             cookie?: never;
         };
+        /** 获取知识库文件列表 */
         get: operations["KnowledgeBaseController_findAllDocuments"];
         put?: never;
         /** 上传文件到指定知识库 */
@@ -724,7 +726,6 @@ export interface paths {
             path?: never;
             cookie?: never;
         };
-        /** 获取知识库详情 */
         get: operations["KnowledgeBaseController_findOne"];
         put?: never;
         post?: never;
@@ -787,23 +788,6 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/api/knowledge-base/{id}/documents/{documentId}/chunks/{chunkId}": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        /** 更新分块 */
-        put: operations["KnowledgeBaseController_updateChunk"];
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
     "/api/knowledge-base/{id}/documents/{documentId}/status": {
         parameters: {
             query?: never;
@@ -819,6 +803,23 @@ export interface paths {
         head?: never;
         /** 切换知识库文档启用状态 */
         patch: operations["KnowledgeBaseController_toggleDocumentStatus"];
+        trace?: never;
+    };
+    "/api/knowledge-base/{id}/documents/{documentId}/chunks/{chunkId}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        /** 更新分块 */
+        put: operations["KnowledgeBaseController_updateChunk"];
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
         trace?: never;
     };
 }
@@ -1767,6 +1768,53 @@ export interface components {
              */
             stream?: boolean;
         };
+        ReferenceChunkEntity: {
+            /** @description 块文本内容 */
+            content: string;
+            /** @description 数据集 ID */
+            dataset_id: string;
+            /** @description 文档类型 */
+            doc_type: string;
+            /** @description 文档 ID */
+            document_id: string;
+            /** @description 文档名称 */
+            document_name: string;
+            /** @description 块 ID */
+            id: string;
+            /** @description 关联图片 ID */
+            image_id: string;
+            positions: number[][];
+            /** @description 综合相似度（0~1） */
+            similarity: number;
+            /** @description 关键词相似度 */
+            term_similarity: number;
+            /** @description 关联资源 URL */
+            url: string | null;
+            /** @description 向量相似度 */
+            vector_similarity: number;
+        };
+        ReferenceDocAggEntity: {
+            /** @description 该文档被引用的块数 */
+            count: number;
+            /** @description 文档 ID */
+            doc_id: string;
+            /** @description 文档名称 */
+            doc_name: string;
+        };
+        ReferenceEntity: {
+            /** @description 命中的引用块列表 */
+            chunks: components["schemas"]["ReferenceChunkEntity"][];
+            /** @description 文档维度的聚合统计 */
+            doc_aggs: components["schemas"]["ReferenceDocAggEntity"][];
+        };
+        SessionMessageEntity: {
+            /** @description 消息内容 */
+            content: string;
+            /** @description 引用数据（assistant 消息可能包含，由 RAGFlow 在答复时返回） */
+            reference?: components["schemas"]["ReferenceEntity"];
+            /** @description 消息角色 */
+            role: string;
+        };
         SessionEntity: {
             /** @description 关联的助手聊天 ID */
             chatId: string;
@@ -1774,10 +1822,8 @@ export interface components {
             createDate: string;
             /** @description 会话 ID */
             id: string;
-            messages: {
-                content: string;
-                role: string;
-            }[];
+            /** @description 消息列表 */
+            messages: components["schemas"]["SessionMessageEntity"][];
             /** @description 会话名称 */
             name: string;
             /** @description 更新日期 */
@@ -2274,6 +2320,13 @@ export interface components {
              */
             vectorSimilarityWeight?: number;
         };
+        ToggleDocumentStatusDto: {
+            /**
+             * @description 文档启用状态 ('1' 启用, '0' 禁用)
+             * @example 1
+             */
+            status: string;
+        };
         UpdateKnowledgeBaseDto: {
             /**
              * @description 知识库头像（Base64）
@@ -2326,13 +2379,6 @@ export interface components {
              *     ]
              */
             importantKeywords?: string[];
-        };
-        ToggleDocumentStatusDto: {
-            /**
-             * @description 文档启用状态 ('1' 启用, '0' 禁用)
-             * @example 1
-             */
-            status: string;
         };
         UpdateDocumentDto: {
             /**
@@ -3531,25 +3577,6 @@ export interface operations {
             };
         };
     };
-    AssistantController_getOrCreateGeneral: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["AssistantEntity"];
-                };
-            };
-        };
-    };
     AssistantController_findAllSessions: {
         parameters: {
             query?: {
@@ -3657,6 +3684,25 @@ export interface operations {
                 "application/json": components["schemas"]["UpdateAssistantDto"];
             };
         };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AssistantEntity"];
+                };
+            };
+        };
+    };
+    AssistantController_getOrCreateGeneral: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
         responses: {
             200: {
                 headers: {
@@ -3887,7 +3933,7 @@ export interface operations {
             };
         };
     };
-    KnowledgeBaseController_getLlmList: {
+    LlmController_getLlmList: {
         parameters: {
             query?: never;
             header?: never;
@@ -4336,6 +4382,32 @@ export interface operations {
             };
         };
     };
+    KnowledgeBaseController_toggleDocumentStatus: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: number;
+                documentId: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ToggleDocumentStatusDto"];
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": Record<string, never>;
+                };
+            };
+        };
+    };
     KnowledgeBaseController_updateChunk: {
         parameters: {
             query?: never;
@@ -4350,32 +4422,6 @@ export interface operations {
         requestBody: {
             content: {
                 "application/json": components["schemas"]["UpdateChunkDto"];
-            };
-        };
-        responses: {
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": Record<string, never>;
-                };
-            };
-        };
-    };
-    KnowledgeBaseController_toggleDocumentStatus: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                id: number;
-                documentId: string;
-            };
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                "application/json": components["schemas"]["ToggleDocumentStatusDto"];
             };
         };
         responses: {
