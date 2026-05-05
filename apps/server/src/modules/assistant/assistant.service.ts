@@ -11,9 +11,6 @@ import type { PrismaService } from '@/common/database/prisma.extension';
 import type { ActiveUserData } from '@/modules/auth/interfaces/active-user-data.interface';
 import type { Response } from 'express';
 
-import { Buffer } from 'node:buffer';
-import { Transform } from 'node:stream';
-
 import { ForbiddenException, Inject, Injectable, Logger } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 
@@ -124,16 +121,14 @@ export class AssistantService {
       },
     );
 
-    const transformStream = new Transform({
-      transform(chunk: Buffer | string, _encoding, callback) {
-        this.push(chunk.toString());
-        callback();
-      },
-    });
-
     res.setHeader('Content-Type', 'text/event-stream');
     res.setHeader('Cache-Control', 'no-cache');
     res.setHeader('Connection', 'keep-alive');
+    // 显式关 Express compression / proxy buffering：SSE 必须立即 flush
+    res.setHeader('X-Accel-Buffering', 'no');
+    if (typeof (res as any).flushHeaders === 'function') {
+      (res as any).flushHeaders();
+    }
 
     ragflowStream.on('error', (err) => {
       this.logger.error('RAGFlow SSE 流异常', err);
@@ -144,16 +139,13 @@ export class AssistantService {
       }
     });
 
-    transformStream.on('error', (err) => {
-      this.logger.error('Transform 流异常', err);
-      res.end();
-    });
-
     res.on('close', () => {
       ragflowStream.destroy();
     });
 
-    ragflowStream.pipe(transformStream).pipe(res);
+    // 透明 pipe：保留 Buffer 类型，避免不必要的 toString 中间层和潜在的
+    // chunk 边界问题。SSE 是字节流，浏览器 fetch ReadableStream 自己 decode。
+    ragflowStream.pipe(res);
   }
 
   async create(user: ActiveUserData, dto: CreateAssistantDto) {
