@@ -239,17 +239,48 @@ async function callChat(
  */
 async function syncAssistantConfig(cfg: ExperimentConfig): Promise<void> {
   if (!cfg.assistantId) return;
+  // 关键：RAGFlow PUT 是全量替换，遗漏的字段会回到默认值。
+  // 必须先 GET 拿现有配置（特别是 prompt_config / llm_setting），再 merge 检索参数后 PUT，
+  // 否则会把 prompt 清空。
+  const existing = await api<any[]>(
+    'GET',
+    `/api/v1/chats?id=${cfg.assistantId}`,
+  );
+  const cur = existing[0] ?? {};
+  const curPrompt = cur.prompt ?? {};
+  const curLlm = cur.llm ?? {};
   const body: Record<string, unknown> = {
+    name: cur.name ?? 'assistant',
     dataset_ids: cfg.datasetIds,
+    llm_id: curLlm.model_name ?? 'deepseek-chat@DeepSeek',
+    llm_setting: {
+      temperature: curLlm.temperature ?? 0.1,
+      top_p: curLlm.top_p ?? 0.3,
+      presence_penalty: curLlm.presence_penalty ?? 0.4,
+      frequency_penalty: curLlm.frequency_penalty ?? 0.7,
+      max_tokens: curLlm.max_tokens ?? 512,
+    },
     similarity_threshold: cfg.retrieval.similarityThreshold ?? 0.2,
     vector_similarity_weight: cfg.retrieval.vectorSimilarityWeight ?? 0.3,
     top_k: cfg.retrieval.topK ?? 1024,
     top_n: cfg.retrieval.topN ?? 6,
+    // RAGFlow 字段命名错位：GET 返回 prompt.prompt（system 字符串），
+    // PUT 接受 prompt_config.system —— 必须做映射
+    prompt_config: {
+      system: curPrompt.prompt ?? '',
+      parameters: curPrompt.variables ?? [
+        { key: 'knowledge', optional: false },
+      ],
+      empty_response: curPrompt.empty_response ?? '',
+      opener: curPrompt.opener ?? '',
+      quote: curPrompt.show_quote ?? true,
+      refine_multiturn: curPrompt.refine_multiturn ?? true,
+    },
   };
   if (cfg.retrieval.rerankId) body.rerank_id = cfg.retrieval.rerankId;
   await api('PUT', `/api/v1/chats/${cfg.assistantId}`, body);
   console.log(
-    `  assistant synced: top_k=${body.top_k} thr=${body.similarity_threshold} w=${body.vector_similarity_weight} top_n=${body.top_n}`,
+    `  assistant synced: top_k=${body.top_k} thr=${body.similarity_threshold} w=${body.vector_similarity_weight} top_n=${body.top_n}  prompt_len=${(curPrompt.prompt ?? '').length}`,
   );
 }
 
