@@ -1,0 +1,14 @@
+{
+  "experimentId": "A0-baseline",
+  "_desc": "复刻线上参数：top_k=1024 / thr=0.2 / weight=0.7（向量主导）/ keyword=false。期望 ~70%",
+  "datasetIds": ["ba1e786a479b11f1a9b8932ed31a3307"],
+  "assistantId": "91a25496482311f1a9b8932ed31a3307",
+  "split": "dev",
+  "retrieval": {
+    "topK": 1024,
+    "similarityThreshold": 0.2,
+    "vectorSimilarityWeight": 0.7,
+    "keyword": false,
+    "topN": 6
+  }
+}

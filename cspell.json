@@ -65,6 +65,7 @@
     "**/prisma/generated/**",
     "**/seed.data.ts",
     "**/metadata.ts",
+    "**/scripts/eval/**",
     "pnpm-lock.yaml"
   ]
 }

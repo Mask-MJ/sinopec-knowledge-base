@@ -1,0 +1,14 @@
+{
+  "experimentId": "A1-topk-256",
+  "_desc": "OFAT: top_k 1024→256，验证缩小召回池效果",
+  "datasetIds": ["ba1e786a479b11f1a9b8932ed31a3307"],
+  "assistantId": "91a25496482311f1a9b8932ed31a3307",
+  "split": "dev",
+  "retrieval": {
+    "topK": 256,
+    "similarityThreshold": 0.2,
+    "vectorSimilarityWeight": 0.7,
+    "keyword": false,
+    "topN": 6
+  }
+}

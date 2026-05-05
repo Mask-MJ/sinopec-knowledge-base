@@ -1,0 +1,6 @@
+# Eval runtime outputs — never check in
+results/
+.env.eval
+
+# Importer intermediate (ok to keep dataset/questions.json in git, but exclude any tmp artifacts)
+*.tmp

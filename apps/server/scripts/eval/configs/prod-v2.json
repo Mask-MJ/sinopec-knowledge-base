@@ -1,0 +1,14 @@
+{
+  "experimentId": "prod-v2",
+  "_desc": "生产 dataset + prod assistant + prompt v2 (raptor+graphrag 已开)",
+  "datasetIds": ["6ec4cd18476611f1a9b8932ed31a3307"],
+  "assistantId": "b7e94c58476611f1a9b8932ed31a3307",
+  "split": "dev",
+  "retrieval": {
+    "topK": 1024,
+    "similarityThreshold": 0.2,
+    "vectorSimilarityWeight": 0.3,
+    "keyword": false,
+    "topN": 6
+  }
+}

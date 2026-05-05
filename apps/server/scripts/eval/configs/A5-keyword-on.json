@@ -1,0 +1,14 @@
+{
+  "experimentId": "A5-keyword-on",
+  "_desc": "OFAT: keyword=true (启用关键词通道)",
+  "datasetIds": ["ba1e786a479b11f1a9b8932ed31a3307"],
+  "assistantId": "91a25496482311f1a9b8932ed31a3307",
+  "split": "dev",
+  "retrieval": {
+    "topK": 1024,
+    "similarityThreshold": 0.2,
+    "vectorSimilarityWeight": 0.7,
+    "keyword": true,
+    "topN": 6
+  }
+}

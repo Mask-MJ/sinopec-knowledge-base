@@ -1,0 +1,14 @@
+{
+  "experimentId": "A0-baseline",
+  "datasetIds": ["<FILL IN: shadow dataset id (B1-baseline)>"],
+  "assistantId": "<FILL IN: shadow chat assistant id>",
+  "split": "dev",
+  "_comment": "复刻线上配置：top_k=1024 / threshold=0.2 / weight=0.7 / keyword=false。期望 ~70%。",
+  "retrieval": {
+    "topK": 1024,
+    "similarityThreshold": 0.2,
+    "vectorSimilarityWeight": 0.7,
+    "keyword": false,
+    "topN": 6
+  }
+}

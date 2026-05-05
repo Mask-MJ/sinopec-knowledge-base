@@ -1,0 +1,14 @@
+{
+  "experimentId": "A2-thr-035",
+  "_desc": "OFAT: similarity_threshold 0.2→0.35",
+  "datasetIds": ["ba1e786a479b11f1a9b8932ed31a3307"],
+  "assistantId": "91a25496482311f1a9b8932ed31a3307",
+  "split": "dev",
+  "retrieval": {
+    "topK": 1024,
+    "similarityThreshold": 0.35,
+    "vectorSimilarityWeight": 0.7,
+    "keyword": false,
+    "topN": 6
+  }
+}

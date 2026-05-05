@@ -1,0 +1,14 @@
+{
+  "experimentId": "A4-weight-05",
+  "_desc": "OFAT: vector_weight 0.7→0.5 (平衡点)",
+  "datasetIds": ["ba1e786a479b11f1a9b8932ed31a3307"],
+  "assistantId": "91a25496482311f1a9b8932ed31a3307",
+  "split": "dev",
+  "retrieval": {
+    "topK": 1024,
+    "similarityThreshold": 0.2,
+    "vectorSimilarityWeight": 0.5,
+    "keyword": false,
+    "topN": 6
+  }
+}

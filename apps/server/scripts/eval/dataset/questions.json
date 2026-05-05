@@ -1,0 +1,871 @@
+{
+  "version": "0.1.0",
+  "source": "test-docs/RAG问题和参考答案.docx",
+  "generatedAt": "2026-05-04T09:14:23.192Z",
+  "splits": {
+    "dev": [
+      1,
+      2,
+      3,
+      4,
+      7,
+      8,
+      9,
+      12,
+      13,
+      14,
+      16,
+      17,
+      18
+    ],
+    "holdout": [
+      5,
+      6,
+      10,
+      11,
+      15,
+      19,
+      20
+    ]
+  },
+  "topicDistribution": {
+    "shunbei21": 6,
+    "shunbei42": 5,
+    "shunbei43": 4,
+    "shale": 5
+  },
+  "questions": [
+    {
+      "id": 1,
+      "topic": "shunbei21",
+      "question": "“2024年顺北21井三维项目”的项目地质任务是什么？",
+      "reference": {
+        "doc": "2024年塔里木盆地顺托果勒西区块顺北21井区三维地震勘探资料采集项目试验报告",
+        "section": "2.地质任务"
+      },
+      "answer": {
+        "raw": "（1）落实工区内地层展布及顺北2号断裂带特征。\n（2）以奥陶系为主要目的层，兼顾志留系、泥盆系，落实描述各类圈闭。\n（3）开展储层预测及圈闭综合评价，优选钻探目标"
+      },
+      "mustContain": [],
+      "mustNotContain": [],
+      "useLLMJudge": true,
+      "llmJudgeRubric": "评分维度（共 1.0 分，不命中即 0）：\n- 提到\"地层展布 / 断裂带\"或\"顺北2号断裂\"特征：0.33\n- 提到\"奥陶系\"为主要目的层（可兼顾志留/泥盆）：0.33\n- 提到\"圈闭评价 / 储层预测 / 优选钻探目标\"：0.34\n满分需三块都命中。任意一块语义偏离或缺失对应扣分。",
+      "notes": ""
+    },
+    {
+      "id": 2,
+      "topic": "shunbei21",
+      "question": "“2024年顺北21井三维项目”的设计炮数是多少？实际生产总炮数是多少？",
+      "reference": {
+        "doc": "2024年塔里木盆地顺托果勒西区块顺北21井区三维地震勘探项目测量施工总结报告",
+        "section": "1.1-任务来源、2.3-完成测线长度、物理点数 （不同文档表述有不同，需要能理解“炮点”“炮数”的关系）"
+      },
+      "answer": {
+        "raw": "设计炮数：63750炮，实际生产炮数：63787炮。"
+      },
+      "mustContain": [
+        {
+          "pattern": "63750",
+          "type": "number",
+          "unit": "炮",
+          "context": "设计炮数："
+        },
+        {
+          "pattern": "63787",
+          "type": "number",
+          "unit": "炮",
+          "context": "计炮数：63750炮，实际生产炮数："
+        }
+      ],
+      "mustNotContain": [],
+      "useLLMJudge": false,
+      "llmJudgeRubric": "",
+      "notes": "（不同文档表述有不同，需要能理解“炮点”“炮数”的关系）"
+    },
+    {
+      "id": 3,
+      "topic": "shunbei21",
+      "question": "“2024年顺北21井三维项目”优化后的工作量有哪些，工作量包括设计满覆盖面积，一次覆盖面积，激发面积，线束数，微测井",
+      "reference": {
+        "doc": "2024年塔里木盆地顺托果勒西区块顺北21井区三维地震勘探项目测量施工总结报告",
+        "section": "1.1-任务来源"
+      },
+      "answer": {
+        "raw": "设计满覆盖面积：550.8km²\n一次覆盖面积：1211.76km²\n激发面积：839.85km²\n线束数：85束\n单井微测井个数：163个。"
+      },
+      "mustContain": [
+        {
+          "pattern": "550.8",
+          "type": "number",
+          "unit": "km²",
+          "context": "设计满覆盖面积："
+        },
+        {
+          "pattern": "1211.76",
+          "type": "number",
+          "unit": "km²",
+          "context": "积：550.8km²一次覆盖面积："
+        },
+        {
+          "pattern": "839.85",
+          "type": "number",
+          "unit": "km²",
+          "context": "积：1211.76km²激发面积："
+        },
+        {
+          "pattern": "85",
+          "type": "number",
+          "unit": "束",
+          "context": "发面积：839.85km²线束数："
+        },
+        {
+          "pattern": "163",
+          "type": "number",
+          "unit": "个",
+          "context": "²线束数：85束单井微测井个数："
+        }
+      ],
+      "mustNotContain": [],
+      "useLLMJudge": false,
+      "llmJudgeRubric": "",
+      "notes": ""
+    },
+    {
+      "id": 4,
+      "topic": "shunbei21",
+      "question": "“2024年顺北21井三维项目”该项目的观测系统主要参数有哪些？（包括覆盖次数、面元大小、道距、炮点距、炮线距等）",
+      "reference": {
+        "doc": "2024年塔里木盆地顺托果勒西区块顺北21井区三维地震勘探资料采集项目工程设计",
+        "section": "3.4.1-地震采集工作方法"
+      },
+      "answer": {
+        "raw": "观测系统类型：36线×6炮×528道\n覆盖次数：396次（22(in)×18(cr)）\n面元大小：12.5 m×25 m\n道距：25 m\n接收线距：300 m\n炮点距：50 m\n炮线距：300 m"
+      },
+      "mustContain": [
+        {
+          "pattern": "36",
+          "type": "number",
+          "unit": "线",
+          "context": "观测系统类型：",
+          "severity": "critical"
+        },
+        {
+          "pattern": "6",
+          "type": "number",
+          "unit": "炮",
+          "context": "观测系统类型：36线×",
+          "severity": "critical"
+        },
+        {
+          "pattern": "396",
+          "type": "number",
+          "unit": "次",
+          "context": "：36线×6炮×528道覆盖次数：",
+          "severity": "critical"
+        },
+        {
+          "pattern": "12.5",
+          "type": "number",
+          "unit": "m",
+          "context": "(in)×18(cr)）面元大小：",
+          "severity": "supporting"
+        },
+        {
+          "pattern": "25",
+          "type": "number",
+          "unit": "m",
+          "context": "(cr)）面元大小：12.5m×",
+          "severity": "supporting"
+        },
+        {
+          "pattern": "300",
+          "type": "number",
+          "unit": "m",
+          "context": "25m道距：25m接收线距：",
+          "severity": "supporting"
+        },
+        {
+          "pattern": "50",
+          "type": "number",
+          "unit": "m",
+          "context": "m接收线距：300m炮点距：",
+          "severity": "supporting"
+        }
+      ],
+      "mustNotContain": [],
+      "useLLMJudge": false,
+      "llmJudgeRubric": "",
+      "notes": ""
+    },
+    {
+      "id": 5,
+      "topic": "shunbei21",
+      "question": "“2024年顺北21井三维项目”测量施工中布设了多少个加密控制点？控制网同步环和异步环的最大闭合差分别是多少？",
+      "reference": {
+        "doc": "2024年塔里木盆地顺托果勒西区块顺北21井区三维地震勘探项目测量施工总结报告",
+        "section": "2.2-布设控制点数）、5.1-控制网点精度分析，附表1"
+      },
+      "answer": {
+        "raw": "加密控制点：5个（SB21J01～SB21J05）\n同步环最大闭合差：0.101 m\n异步环最大闭合差：0.115 m"
+      },
+      "mustContain": [
+        {
+          "pattern": "5",
+          "type": "number",
+          "unit": "个",
+          "context": "加密控制点：",
+          "severity": "critical"
+        },
+        {
+          "pattern": "0.101",
+          "type": "number",
+          "unit": "m",
+          "context": "SB21J05）同步环最大闭合差：",
+          "severity": "critical"
+        },
+        {
+          "pattern": "0.115",
+          "type": "number",
+          "unit": "m",
+          "context": "：0.101m异步环最大闭合差：",
+          "severity": "critical"
+        },
+        {
+          "pattern": "SB21J01",
+          "type": "string",
+          "context": "井号/控制点编号",
+          "severity": "supporting"
+        },
+        {
+          "pattern": "SB21J05",
+          "type": "string",
+          "context": "井号/控制点编号",
+          "severity": "supporting"
+        }
+      ],
+      "mustNotContain": [],
+      "useLLMJudge": false,
+      "llmJudgeRubric": "",
+      "notes": ""
+    },
+    {
+      "id": 6,
+      "topic": "shunbei21",
+      "question": "“2024年顺北21井三维项目”在施工中遇到的主要技术难点有哪些？对应的技术对策中“一升一降三确保”具体指什么？",
+      "reference": {
+        "doc": "2024年塔里木盆地顺托果勒西区块顺北21井区三维地震勘探资料采集项目工程设计",
+        "section": "2.2-技术难点与对策"
+      },
+      "answer": {
+        "raw": "主要技术难点：\n目的层埋藏深，反射波能量弱、信噪比低；\n走滑断裂发育，断距小、角度大，成像困难；\n沙漠地表对地震波吸收衰减严重；\n二叠系火成岩屏蔽作用。\n“一升一降三确保”：\n一升：优化观测系统设计（观测系统升级）\n一降：降低噪音干扰，提高奥陶系内幕弱反射信噪比\n三确保：确保点位精度、确保激发效果、确保接收效果"
+      },
+      "mustContain": [],
+      "mustNotContain": [],
+      "useLLMJudge": true,
+      "llmJudgeRubric": "两部分独立评分各占 0.5（合计 1.0）：\nA. 技术难点（0.5）：命中 4 个中至少 3 个语义即满，2 个 = 0.3，1 个 = 0.15，0 = 0\n   - 目的层埋藏深 / 反射弱 / 信噪比低\n   - 走滑断裂 / 成像困难\n   - 沙漠地表 / 吸收衰减\n   - 二叠系火成岩屏蔽\nB. \"一升一降三确保\"语义（0.5）：必须三块齐才满\n   - 一升=观测系统升级 / 优化观测系统设计：0.15\n   - 一降=降噪 / 提高信噪比：0.15\n   - 三确保=点位精度 + 激发效果 + 接收效果（三项任缺 1 个扣半）：0.20\n若仅命中字面\"一升一降三确保\"四个字但语义全错 → B=0；只字面+部分语义 → 按命中数比例。",
+      "notes": ""
+    },
+    {
+      "id": 7,
+      "topic": "shunbei42",
+      "question": "“2022年顺北42井东三维地震勘探项目”设计满覆盖面积、一次覆盖面积、炮点总数和接收点总数分别是多少？",
+      "reference": {
+        "doc": "2022年塔里木盆地顺托果勒区块顺北42井东三维地震勘探资料采集项目测量施工总结报告",
+        "section": "1.1-任务来源"
+      },
+      "answer": {
+        "raw": "设计满覆盖面积：458.01 km²\n一次覆盖面积：1135.71 km²\n炮点总数：50982炮\n接收点总数：212796个"
+      },
+      "mustContain": [
+        {
+          "pattern": "458.01",
+          "type": "number",
+          "unit": "km²",
+          "context": "设计满覆盖面积：",
+          "severity": "critical"
+        },
+        {
+          "pattern": "1135.71",
+          "type": "number",
+          "unit": "km²",
+          "context": "458.01km²一次覆盖面积：",
+          "severity": "critical"
+        },
+        {
+          "pattern": "50982",
+          "type": "number",
+          "unit": "炮",
+          "context": "：1135.71km²炮点总数：",
+          "severity": "critical"
+        },
+        {
+          "pattern": "212796",
+          "type": "number",
+          "unit": "个",
+          "context": "炮点总数：50982炮接收点总数：",
+          "severity": "supporting"
+        }
+      ],
+      "mustNotContain": [],
+      "useLLMJudge": false,
+      "llmJudgeRubric": "",
+      "notes": ""
+    },
+    {
+      "id": 8,
+      "topic": "shunbei42",
+      "question": "“2022年顺北42井东三维地震勘探项目”观测系统主要参数有哪些？（包括覆盖次数、面元大小、道距、炮点距、炮线距等）",
+      "reference": {
+        "doc": "2022年塔里木盆地顺托果勒区块顺北42井东三维地震勘探资料采集项目测量施工总结报告",
+        "section": "3.1-束线号的编排及观测系统"
+      },
+      "answer": {
+        "raw": "观测系统类型：36线×6炮×528道（部分采用36线×6炮×576道）\n覆盖次数：396次（18×22）\n面元大小：12.5 m（纵）×25 m（横）\n道距：25 m\n接收线距：300 m\n炮点距：50 m\n炮线距：300 m\n纵向最大炮检距：6587.5 m\n最大炮检距：8502.105 m"
+      },
+      "mustContain": [
+        {
+          "pattern": "36",
+          "type": "number",
+          "unit": "线",
+          "context": "观测系统类型：",
+          "severity": "critical"
+        },
+        {
+          "pattern": "6",
+          "type": "number",
+          "unit": "炮",
+          "context": "观测系统类型：36线×",
+          "severity": "critical"
+        },
+        {
+          "pattern": "396",
+          "type": "number",
+          "unit": "次",
+          "context": "36线×6炮×576道）覆盖次数：",
+          "severity": "critical"
+        },
+        {
+          "pattern": "12.5",
+          "type": "number",
+          "unit": "m",
+          "context": "：396次（18×22）面元大小：",
+          "severity": "supporting"
+        },
+        {
+          "pattern": "25",
+          "type": "number",
+          "unit": "m",
+          "context": "2）面元大小：12.5m（纵）×",
+          "severity": "supporting"
+        },
+        {
+          "pattern": "300",
+          "type": "number",
+          "unit": "m",
+          "context": "m（横）道距：25m接收线距：",
+          "severity": "supporting"
+        },
+        {
+          "pattern": "50",
+          "type": "number",
+          "unit": "m",
+          "context": "m接收线距：300m炮点距：",
+          "severity": "supporting"
+        },
+        {
+          "pattern": "6587.5",
+          "type": "number",
+          "unit": "m",
+          "context": "炮线距：300m纵向最大炮检距：",
+          "severity": "supporting"
+        },
+        {
+          "pattern": "8502.105",
+          "type": "number",
+          "unit": "m",
+          "context": "检距：6587.5m最大炮检距：",
+          "severity": "supporting"
+        }
+      ],
+      "mustNotContain": [],
+      "useLLMJudge": false,
+      "llmJudgeRubric": "",
+      "notes": ""
+    },
+    {
+      "id": 9,
+      "topic": "shunbei42",
+      "question": "“2022年顺北42井东三维地震勘探项目”RTK复测检查的限差是多少？实际复测率是多少？",
+      "reference": {
+        "doc": "2022年塔里木盆地顺托果勒区块顺北42井东三维地震勘探资料采集项目测量施工总结报告",
+        "section": "5.3-物理点复测检核情况"
+      },
+      "answer": {
+        "raw": "RTK复测检查限差：ΔX ≤ 0.4 m，ΔY ≤ 0.4 m，ΔH ≤ 0.8 m。\n实际复测率：3.82%（复测检查点11706个）。"
+      },
+      "mustContain": [
+        {
+          "pattern": "[-+±]?0\\.40?",
+          "type": "regex",
+          "severity": "critical",
+          "context": "平面限差 0.4m"
+        },
+        {
+          "pattern": "[-+±]?0\\.[78]\\d?",
+          "type": "regex",
+          "severity": "critical",
+          "context": "高程限差 0.8m"
+        },
+        {
+          "pattern": "3.82",
+          "type": "number",
+          "unit": "%",
+          "severity": "critical",
+          "context": "复测率"
+        },
+        {
+          "pattern": "3.82",
+          "type": "number",
+          "unit": "%",
+          "context": "ΔH≤0.8m。实际复测率：",
+          "severity": "critical"
+        }
+      ],
+      "mustNotContain": [],
+      "useLLMJudge": false,
+      "llmJudgeRubric": "",
+      "notes": ""
+    },
+    {
+      "id": 10,
+      "topic": "shunbei42",
+      "question": "“2022年顺北42井东三维地震勘探项目”测量施工中控制网同步环和异步环的最大闭合差分别是多少？",
+      "reference": {
+        "doc": "2022年塔里木盆地顺托果勒区块顺北42井东三维地震勘探资料采集项目测量施工总结报告",
+        "section": "5.1-控制网点精度分析，附表1"
+      },
+      "answer": {
+        "raw": "同步环最大闭合差：0.059 m\n异步环最大闭合差：0.077 m"
+      },
+      "mustContain": [
+        {
+          "pattern": "0.059",
+          "type": "number",
+          "unit": "m",
+          "context": "同步环最大闭合差：",
+          "severity": "critical"
+        },
+        {
+          "pattern": "0.077",
+          "type": "number",
+          "unit": "m",
+          "context": "：0.059m异步环最大闭合差：",
+          "severity": "critical"
+        }
+      ],
+      "mustNotContain": [],
+      "useLLMJudge": false,
+      "llmJudgeRubric": "",
+      "notes": ""
+    },
+    {
+      "id": 11,
+      "topic": "shunbei42",
+      "question": "“2022年顺北42井东三维地震勘探项目”测量施工中采用的坐标系和高程系统是什么？高程转换公式是什么？",
+      "reference": {
+        "doc": "2022年塔里木盆地顺托果勒区块顺北42井东三维地震勘探资料采集项目测量施工总结报告",
+        "section": "3.3-技术参数"
+      },
+      "answer": {
+        "raw": "坐标系：1954北京坐标系（高斯6°分带，第14带），同时提供CGCS2000成果。\n高程系统：1956黄海高程系。\n高程转换公式：1956黄海高程 = 1985青岛高程 + 0.029 m。"
+      },
+      "mustContain": [
+        {
+          "pattern": "6",
+          "type": "number",
+          "unit": "°",
+          "context": "坐标系：1954北京坐标系（高斯",
+          "severity": "supporting"
+        },
+        {
+          "pattern": "0.029",
+          "type": "number",
+          "unit": "m",
+          "context": "黄海高程=1985青岛高程+",
+          "severity": "critical"
+        },
+        {
+          "pattern": "1954北京坐标系",
+          "type": "string",
+          "context": "坐标/高程系",
+          "severity": "critical"
+        },
+        {
+          "pattern": "1956黄海高程",
+          "type": "string",
+          "context": "坐标/高程系",
+          "severity": "critical"
+        },
+        {
+          "pattern": "高斯6°分带",
+          "type": "string",
+          "context": "高斯分带",
+          "severity": "supporting"
+        }
+      ],
+      "mustNotContain": [],
+      "useLLMJudge": false,
+      "llmJudgeRubric": "",
+      "notes": ""
+    },
+    {
+      "id": 12,
+      "topic": "shunbei43",
+      "question": "“2022年顺北43井东三维地震勘探项目”的设计满覆盖面积、一次覆盖面积、炮点总数和接收点总数分别是多少？",
+      "reference": {
+        "doc": "2022年塔里木盆地顺托果勒区块顺北43井东三维地震勘探资料采集项目测量施工总结报告",
+        "section": "1.1-任务来源"
+      },
+      "answer": {
+        "raw": "设计满覆盖面积：580.5 km²\n一次覆盖面积：1292.76 km²\n炮点总数：60300炮\n接收点总数：236232个"
+      },
+      "mustContain": [
+        {
+          "pattern": "580.5",
+          "type": "number",
+          "unit": "km²",
+          "context": "设计满覆盖面积：",
+          "severity": "critical"
+        },
+        {
+          "pattern": "1292.76",
+          "type": "number",
+          "unit": "km²",
+          "context": "：580.5km²一次覆盖面积：",
+          "severity": "critical"
+        },
+        {
+          "pattern": "60300",
+          "type": "number",
+          "unit": "炮",
+          "context": "：1292.76km²炮点总数：",
+          "severity": "critical"
+        },
+        {
+          "pattern": "236232",
+          "type": "number",
+          "unit": "个",
+          "context": "炮点总数：60300炮接收点总数：",
+          "severity": "supporting"
+        }
+      ],
+      "mustNotContain": [],
+      "useLLMJudge": false,
+      "llmJudgeRubric": "",
+      "notes": ""
+    },
+    {
+      "id": 13,
+      "topic": "shunbei43",
+      "question": "“2022年顺北43井东三维地震勘探项目”的观测系统主要参数有哪些？（包括覆盖次数、面元大小、道距、炮点距、炮线距等）",
+      "reference": {
+        "doc": "2022年塔里木盆地顺托果勒区块顺北43井东三维地震勘探资料采集项目测量施工总结报告",
+        "section": "3.1-束线号的编排及观测系统"
+      },
+      "answer": {
+        "raw": "观测系统类型：36线×6炮×528道\n覆盖次数：396次（18×22）\n面元大小：12.5 m（纵）×25 m（横）\n道距：25 m\n接收线距：300 m\n炮点距：50 m\n炮线距：300 m\n纵向最大炮检距：6587.5 m\n最大炮检距：8502.105 m"
+      },
+      "mustContain": [
+        {
+          "pattern": "36",
+          "type": "number",
+          "unit": "线",
+          "context": "观测系统类型：",
+          "severity": "critical"
+        },
+        {
+          "pattern": "6",
+          "type": "number",
+          "unit": "炮",
+          "context": "观测系统类型：36线×",
+          "severity": "critical"
+        },
+        {
+          "pattern": "396",
+          "type": "number",
+          "unit": "次",
+          "context": "：36线×6炮×528道覆盖次数：",
+          "severity": "critical"
+        },
+        {
+          "pattern": "12.5",
+          "type": "number",
+          "unit": "m",
+          "context": "：396次（18×22）面元大小：",
+          "severity": "supporting"
+        },
+        {
+          "pattern": "25",
+          "type": "number",
+          "unit": "m",
+          "context": "2）面元大小：12.5m（纵）×",
+          "severity": "supporting"
+        },
+        {
+          "pattern": "300",
+          "type": "number",
+          "unit": "m",
+          "context": "m（横）道距：25m接收线距：",
+          "severity": "supporting"
+        },
+        {
+          "pattern": "50",
+          "type": "number",
+          "unit": "m",
+          "context": "m接收线距：300m炮点距：",
+          "severity": "supporting"
+        },
+        {
+          "pattern": "6587.5",
+          "type": "number",
+          "unit": "m",
+          "context": "炮线距：300m纵向最大炮检距：",
+          "severity": "supporting"
+        },
+        {
+          "pattern": "8502.105",
+          "type": "number",
+          "unit": "m",
+          "context": "检距：6587.5m最大炮检距：",
+          "severity": "supporting"
+        }
+      ],
+      "mustNotContain": [],
+      "useLLMJudge": false,
+      "llmJudgeRubric": "",
+      "notes": ""
+    },
+    {
+      "id": 14,
+      "topic": "shunbei43",
+      "question": "“2022年顺北43井东三维地震勘探项目”施工的起止日期是什么？实际完成的接收点总数和炮点总数是多少？",
+      "reference": {
+        "doc": "2022年塔里木盆地顺托果勒区块顺北43井东三维地震勘探资料采集项目测量施工总结报告",
+        "section": "2.1-施工起止日期、2.3-完成测线长度、物理点数"
+      },
+      "answer": {
+        "raw": "施工起止：2021年10月23日开始野外放样，2022年01月09日完成放样作业。\n实际完成接收点总数：236928个\n实际完成炮点总数：60374炮（其中加密炮点74个，变观炮点316个）"
+      },
+      "mustContain": [
+        {
+          "pattern": "2021",
+          "type": "number",
+          "unit": "年",
+          "context": "施工起止：",
+          "severity": "critical"
+        },
+        {
+          "pattern": "10",
+          "type": "number",
+          "unit": "月",
+          "context": "施工起止：2021年",
+          "severity": "critical"
+        },
+        {
+          "pattern": "23",
+          "type": "number",
+          "unit": "日",
+          "context": "施工起止：2021年10月",
+          "severity": "critical"
+        },
+        {
+          "pattern": "2022",
+          "type": "number",
+          "unit": "年",
+          "context": "2021年10月23日开始野外放样，",
+          "severity": "supporting"
+        },
+        {
+          "pattern": "01",
+          "type": "number",
+          "unit": "月",
+          "context": "10月23日开始野外放样，2022年",
+          "severity": "supporting"
+        },
+        {
+          "pattern": "09",
+          "type": "number",
+          "unit": "日",
+          "context": "23日开始野外放样，2022年01月",
+          "severity": "supporting"
+        },
+        {
+          "pattern": "236928",
+          "type": "number",
+          "unit": "个",
+          "context": "完成放样作业。实际完成接收点总数：",
+          "severity": "supporting"
+        },
+        {
+          "pattern": "60374",
+          "type": "number",
+          "unit": "炮",
+          "context": "：236928个实际完成炮点总数：",
+          "severity": "supporting"
+        },
+        {
+          "pattern": "74",
+          "type": "number",
+          "unit": "个",
+          "context": "炮点总数：60374炮（其中加密炮点",
+          "severity": "supporting"
+        },
+        {
+          "pattern": "316",
+          "type": "number",
+          "unit": "个",
+          "context": "74炮（其中加密炮点74个，变观炮点",
+          "severity": "supporting"
+        },
+        {
+          "pattern": "2021年10月23日",
+          "type": "string",
+          "context": "日期",
+          "severity": "supporting"
+        },
+        {
+          "pattern": "2022年01月09日",
+          "type": "string",
+          "context": "日期",
+          "severity": "supporting"
+        }
+      ],
+      "mustNotContain": [],
+      "useLLMJudge": false,
+      "llmJudgeRubric": "",
+      "notes": ""
+    },
+    {
+      "id": 15,
+      "topic": "shunbei43",
+      "question": "“2022年顺北43井东三维地震勘探项目”RTK复测检查的限差是多少？实际复测率是多少？",
+      "reference": {
+        "doc": "2022年塔里木盆地顺托果勒区块顺北43井东三维地震勘探资料采集项目测量施工总结报告",
+        "section": "5.3-物理点复测检核情况"
+      },
+      "answer": {
+        "raw": "RTK复测检查限差：ΔX ≤ 0.4 m，ΔY ≤ 0.4 m，ΔH ≤ 0.8 m。\n实际复测率：3.82%（复测检查点11370个）"
+      },
+      "mustContain": [
+        {
+          "pattern": "[-+±]?0\\.40?",
+          "type": "regex",
+          "severity": "critical",
+          "context": "平面限差"
+        },
+        {
+          "pattern": "[-+±]?0\\.[78]\\d?",
+          "type": "regex",
+          "severity": "critical",
+          "context": "高程限差"
+        },
+        {
+          "pattern": "3.82",
+          "type": "number",
+          "unit": "%",
+          "context": "ΔH≤0.8m。实际复测率：",
+          "severity": "critical"
+        }
+      ],
+      "mustNotContain": [],
+      "useLLMJudge": false,
+      "llmJudgeRubric": "",
+      "notes": ""
+    },
+    {
+      "id": 16,
+      "topic": "shale",
+      "question": "在“2014年页岩气地震攻关实验项目”中资料品质受哪些因素影响？",
+      "reference": {
+        "doc": "2014年度页岩气地震攻关试验项目采集报告",
+        "section": "二级品资料分析"
+      },
+      "answer": {
+        "raw": "这些影响因素主要表现在：\n1、部分地段由于地形高差变化较大，沟谷深、切割剧烈等原因， 施工中在一些斜坡地带激发和接收时由于激发点和接收排列所处的特殊地形位置极易产生声波干扰。\n2、个别炮点靠近周围山体疏松的地方，炮点激发导致山上岩石滑落，在记录上造成瞬间点震源干扰。\n3、区内树林、竹林密集，灌木丛生，山风大，次生干扰源较多，随机干扰背景较强，都是影响地震资料品质的重要因素。\n4、高速公路、铁路的交通干扰，影响采集资料。\n5、部分测线穿过城镇、村庄、公路、厂矿等人口密集区对记录背景造成一定的干扰。\n6、本工区输电线路众多，测线穿越高压电线，在地震记录上导致持续50Hz干扰。"
+      },
+      "mustContain": [],
+      "mustNotContain": [],
+      "useLLMJudge": true,
+      "llmJudgeRubric": "评分标准（共 1.0 分）：\n6 个核心干扰源中命中 N 个 = N/6 分（向上取整到 0.1）。任命中 5+ 即满。\n列表：\n1. 地形高差大/沟谷深/斜坡声波干扰\n2. 山体岩石滑落 / 瞬间点震源\n3. 树林/竹林/山风 / 次生干扰 / 随机干扰\n4. 高速公路 / 铁路 / 交通干扰\n5. 城镇 / 村庄 / 厂矿 / 人口密集区\n6. 高压电线 / 50Hz 持续干扰\n模型如果只笼统说\"地形/植被/交通\"未具体到上述类别，每项最多 0.5 折算。",
+      "notes": ""
+    },
+    {
+      "id": 17,
+      "topic": "shale",
+      "question": "“2014年页岩气地震攻关实验项目”地形地貌特征 ？",
+      "reference": {
+        "doc": "2014年度页岩气地震攻关试验项目采集报告",
+        "section": "1.4.2地形地貌"
+      },
+      "answer": {
+        "raw": "彭水区块地处云贵高原向湖南丘陵和四川盆地过渡的斜坡地带。受NNE向构造构造运动控制的影响，区内山脉纵横交错，主要山脉呈NNE向延伸，属山地丘陵及河谷地貌，地形复杂，谷地、坡麓、岩溶洼地及山间小型盆地相间，海拔多为500-1400m，相对高差较大100—1000m；区内地质灾害多为滑坡、泥石流和岩体崩塌、地面塌陷和地震。区内为深切割地形，山脉呈NNE向延伸，总体而言区块东北部地势陡峭，海拔较高，西南部海拔较低（见图1-4-2）。\n工区内超过1000m的高山有31座，其中：北部断崖处的猪铣孔海拔达1474m。由于山高无路，加上雨天山路湿滑，施工人员攀爬难度很大，严重影响施工进度。\n根据地形图、前期测量实测结果、炮点踏勘结果统计，海拔高于1000m的区域面积约8.8km2，占施工面积的18.6%；海拔800m-1000m的区域面积约14km2，占施工面积的35%；海拔500-800m以上的区域面积合计9.7 km2，占施工面积的24.3%，海拔200-500m以上的区域面积合计8.8 km2，占施工面积的22%。"
+      },
+      "mustContain": [],
+      "mustNotContain": [],
+      "useLLMJudge": true,
+      "llmJudgeRubric": "评分标准（共 1.0 分）：\n彭水工区地形地貌特征。命中以下要点 N 个 = N/4 分（向上取整到 0.1）：\n1. 地理位置（云贵高原过渡带 / NNE 向构造 / 山地丘陵 / 河谷地貌）\n2. 海拔范围（500-1400m 或描述海拔多为 500m 左右）\n3. 高差描述（100-1000m 或描述相对高差大）\n4. 地形细分（岩溶洼地 / 盆地 / 山间盆地 / 滑坡泥石流地质灾害）\n任 3 个全命中 → 满分 1.0；命中 2 个 → 0.7；命中 1 个 → 0.4",
+      "notes": ""
+    },
+    {
+      "id": 18,
+      "topic": "shale",
+      "question": "“2014年页岩气地震攻关实验项目”中使用的采集方法用的什么观测系统，如何简要分析总结该观测系统效果？",
+      "reference": {
+        "doc": "2014年度页岩气地震攻关试验项目采集报告",
+        "section": "1、采集方法/观测系统 ; 2、观测系统属性分析，只写概括，可以有不同表述"
+      },
+      "answer": {
+        "raw": "1、采用观测系统如下：\n观测系统类型：20L32S378P168F\n观测方向：北西向\nCMP面元：20m（inline）×40m（crossline）\n接收道数：7560道(实际最大接收道数7980)\n道    距：40m                 接收线距：320m\n炮 间 距：80m                 炮 线 距：360m\n2、覆盖次数满足设计覆盖次数要求，面元线各炮检距分布基本均匀，采集成像分辨率高，成像的空间连续性好；衰减多次波的能力强，有利于压制相干噪音。（中间分析过程，问题是简要，这里只写了结论）"
+      },
+      "mustContain": [],
+      "mustNotContain": [],
+      "useLLMJudge": true,
+      "llmJudgeRubric": "评分标准（共 1.0 分）：\n观测系统类型 + 效果分析两块：\nA. 观测系统类型（0.4）：命中\"宽方位 / 长排列 / 炮检点优化\"或具体观测系统参数（设计 2240 炮 / 17460 道）即满\nB. 效果分析（0.6）：命中以下任一组合：\n   - 加大向斜下倾排列长度 / 细化激发参数 / 横向增加炮排\n   - 资料品质提升 / 信噪比改善\n   - 反射波连续性提高 / 层间信息丰富\n任 2 个语义即满 0.6，1 个 = 0.3",
+      "notes": ""
+    },
+    {
+      "id": 19,
+      "topic": "shale",
+      "question": "“2014年页岩气地震攻关实验项目”中表层结构特征怎样的？",
+      "reference": {
+        "doc": "2014年度页岩气地震攻关试验项目采集报告",
+        "section": "/ 表存结构调查资料分析结果"
+      },
+      "answer": {
+        "raw": "本区低速层厚度一般在0-4m，速度395-1000m/s，降速层厚度一般在4-15m之间，速度为1200-3000m/s之间，低降速层厚度一般小于15米，高速层速度一般在3400-5700m/s。"
+      },
+      "mustContain": [],
+      "mustNotContain": [],
+      "useLLMJudge": true,
+      "llmJudgeRubric": "评分标准（共 1.0 分）：\n表层结构特征。命中以下要点 N 个 = N/4 分：\n1. 低降速带 / 高速层\n2. 表层调查 / 微测井 / 表层结构调查\n3. 巨厚低速带 / 盆地表层结构复杂\n4. 山区/丘陵/沟谷不同表层类型\n任 3 个全命中 → 满分。",
+      "notes": ""
+    },
+    {
+      "id": 20,
+      "topic": "shale",
+      "question": "描述一下彭水地区的气候条件如何？如何安排地震采集施工时间更合理？",
+      "reference": {
+        "doc": "2014年度页岩气地震攻关试验项目采集报告",
+        "section": "/  1.4.3气候条件，第二个问题，需要推理回答"
+      },
+      "answer": {
+        "raw": "区内气候属于中亚热带高原型湿润季风区，四季分明，雨热同季，无霜期长，冬无严寒，夏无酷暑。全年平均气温约为13-17ºC，7月份最高，月均温度23-28ºC，1月份最低，月均温度2-8ºC，但因山地地势高差悬殊，山高谷深，温差约为10-14ºC，垂直分带差异显著。降水量由东至西递增，雨量较为丰沛，年降水量约为1000-1300mm，但各地各时段分布不均，水系较为发育。据气象统计，每年4-6月及9-10月为阴雨连绵期，为施工不利期。全区风速平均0.9-2.5m/s，多为东北风。\n总的气候特点是：气候温和，雨量充沛多集中，光照偏少云雾多，春来较早多夜雨，夏季炎热多伏旱，秋季凉爽多绵雨，冬无严寒少霜雪。\n彭水气候的另一特点是，立体差异大：海拔每升高100米，平均气温便递减0.46－0.55℃；年积温约下降200℃左右。年无霜期由沿江河谷的312天，递减到中山区的235天。年日照时数，低中山区受山脊和云雾阻挡，要比平坝约少四分之一。\n工期安排在11月到次年3月比较合理，降雨量小，期间最低温度2-8度，不存在冰冻问题。 （推理）"
+      },
+      "mustContain": [],
+      "mustNotContain": [],
+      "useLLMJudge": true,
+      "llmJudgeRubric": "评分标准（共 1.0 分）：\n气候条件 + 施工时间安排两块：\nA. 气候条件（0.4）：命中\"亚热带 / 雨季 / 干湿季 / 多雨\"或月份分布\nB. 施工时间合理安排（0.6）：命中\"避雨季 / 10 月-次年 4 月 / 干季施工 / 避开洪水\"等\n两块全命中 = 1.0；只一块 = 0.5",
+      "notes": ""
+    }
+  ]
+}
