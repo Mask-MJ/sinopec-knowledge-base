@@ -111,3 +111,13 @@ Desktop.ini
 # ========================
 docker/volumes/
 docker/data/
+
+test-docs/
+
+# ========================
+# Local-only tooling state
+# ========================
+.claude/
+# Eval runtime: env (with API keys) and per-experiment outputs
+**/.env.eval
+apps/server/scripts/eval/results/

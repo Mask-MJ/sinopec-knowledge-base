@@ -52,9 +52,7 @@ import { KnowledgeBaseService } from './knowledge-base.service';
 @ApiTags('知识库管理')
 @Controller()
 export class KnowledgeBaseController {
-  constructor(
-    private readonly knowledgeBaseService: KnowledgeBaseService,
-  ) {}
+  constructor(private readonly knowledgeBaseService: KnowledgeBaseService) {}
 
   /**
    * 添加分块
