@@ -1,0 +1,14 @@
+{
+  "experimentId": "prod-test2",
+  "_desc": "测试 2 dataset (7 docs, RAPTOR built, GraphRAG off) + 测试 2 assistant (prompt v2). dev 78.3% / holdout 79.3% on the 20-question eval set.",
+  "datasetIds": ["a691b35e487a11f1a9b8932ed31a3307"],
+  "assistantId": "c52e3c2a487e11f1a9b8932ed31a3307",
+  "split": "dev",
+  "retrieval": {
+    "topK": 1024,
+    "similarityThreshold": 0.2,
+    "vectorSimilarityWeight": 0.3,
+    "keyword": false,
+    "topN": 6
+  }
+}
