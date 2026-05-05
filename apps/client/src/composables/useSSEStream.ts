@@ -62,10 +62,60 @@ export function useSSEStream() {
 
     let buffer = '';
 
+    /** Returns true when the stream-end sentinel `data:true` is seen. */
+    const processLine = (line: string): boolean => {
+      const trimmed = line.trim();
+      if (!trimmed.startsWith('data:')) return false;
+      const raw = trimmed.slice(5).trim();
+      if (!raw) return false;
+      try {
+        const parsed = JSON.parse(raw) as {
+          data:
+            | true
+            | { answer: string; reference?: Record<string, unknown> };
+        };
+        if (parsed.data === true) {
+          isStreaming.value = false;
+          return true;
+        }
+        if (typeof parsed.data === 'object') {
+          if ('answer' in parsed.data) {
+            const answer = parsed.data.answer;
+            // RAGFlow may send accumulated text or delta text.
+            if (answer.startsWith(content.value)) content.value = answer;
+            else content.value += answer;
+          }
+          const ref = parsed.data.reference;
+          if (
+            ref &&
+            typeof ref === 'object' &&
+            'chunks' in ref &&
+            Array.isArray(ref.chunks) &&
+            ref.chunks.length > 0
+          ) {
+            reference.value = ref as unknown as Reference;
+          }
+        }
+      } catch {
+        /* skip malformed JSON line */
+      }
+      return false;
+    };
+
     try {
       for (;;) {
         const { done, value } = await reader.read();
-        if (done || abortController.signal.aborted) break;
+        if (done || abortController.signal.aborted) {
+          // Flush whatever is still in the buffer plus any UTF-8 bytes
+          // held by the streaming decoder. Without this, an SSE message
+          // that ends without a trailing newline before close is dropped.
+          buffer += decoder.decode();
+          if (buffer.trim()) {
+            for (const line of buffer.split('\n')) processLine(line);
+            buffer = '';
+          }
+          break;
+        }
 
         buffer += decoder.decode(value, { stream: true });
         const lines = buffer.split('\n');
@@ -73,50 +123,7 @@ export function useSSEStream() {
         buffer = lines.pop() ?? '';
 
         for (const line of lines) {
-          const trimmed = line.trim();
-          if (!trimmed.startsWith('data:')) continue;
-
-          const raw = trimmed.slice(5).trim();
-          if (!raw) continue;
-
-          try {
-            const parsed = JSON.parse(raw) as {
-              data:
-                | true
-                | { answer: string; reference?: Record<string, unknown> };
-            };
-            if (parsed.data === true) {
-              // Stream end signal
-              isStreaming.value = false;
-              return;
-            }
-            if (typeof parsed.data === 'object') {
-              if ('answer' in parsed.data) {
-                const answer = parsed.data.answer;
-                // RAGFlow may send accumulated text (each chunk has full answer)
-                // or delta text (each chunk has only new text).
-                // Detect: if new answer starts with current content, it's accumulated.
-                if (answer.startsWith(content.value)) {
-                  content.value = answer;
-                } else {
-                  content.value += answer;
-                }
-              }
-              // Extract reference from the final chunk (non-empty chunks array)
-              const ref = parsed.data.reference;
-              if (
-                ref &&
-                typeof ref === 'object' &&
-                'chunks' in ref &&
-                Array.isArray(ref.chunks) &&
-                ref.chunks.length > 0
-              ) {
-                reference.value = ref as unknown as Reference;
-              }
-            }
-          } catch {
-            // Skip malformed JSON lines
-          }
+          if (processLine(line)) return;
         }
       }
     } catch (error_) {
