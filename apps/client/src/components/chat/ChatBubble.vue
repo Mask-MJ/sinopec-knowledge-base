@@ -37,12 +37,26 @@ onActivated(() => {
   renderKey.value++;
 });
 
-// After each DOM update, scan for [ID:N] markers and replace with <sup>
-onUpdated(() => {
-  if (bubbleRef.value && props.role === 'assistant') {
-    replaceCitationMarkers(bubbleRef.value);
-  }
+// MarkdownRender (markstream-vue) renders asynchronously; onUpdated may fire
+// before the final markdown chunk hits the DOM, so [ID:N] markers can slip
+// past replacement. A MutationObserver tied to bubbleRef catches every DOM
+// mutation — including async markdown renders that follow Vue's update tick.
+let citationObserver: MutationObserver | null = null;
+onMounted(() => {
+  if (props.role !== 'assistant' || !bubbleRef.value) return;
+  citationObserver = new MutationObserver(() => {
+    if (bubbleRef.value) replaceCitationMarkers(bubbleRef.value);
+  });
+  citationObserver.observe(bubbleRef.value, {
+    childList: true,
+    subtree: true,
+    characterData: true,
+  });
+  // Initial pass in case content was already rendered before the observer
+  // attached (e.g. when restoring history).
+  replaceCitationMarkers(bubbleRef.value);
 });
+onUnmounted(() => citationObserver?.disconnect());
 </script>
 
 <template>
