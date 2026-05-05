@@ -6,6 +6,7 @@
     "dist",
     "**/*spec.ts",
     "src/metadata.ts",
+    "scripts/**",
     "vitest.base.ts",
     "vitest.config.ts",
     "vitest.config.e2e.ts"
