@@ -70,9 +70,7 @@ export function useSSEStream() {
       if (!raw) return false;
       try {
         const parsed = JSON.parse(raw) as {
-          data:
-            | true
-            | { answer: string; reference?: Record<string, unknown> };
+          data: true | { answer: string; reference?: Record<string, unknown> };
         };
         if (parsed.data === true) {
           isStreaming.value = false;

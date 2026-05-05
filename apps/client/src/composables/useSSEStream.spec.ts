@@ -42,10 +42,7 @@ describe('useSSEStream', () => {
 
     // Real browsers typically deliver the final RAGFlow message in one read()
     // and the trailing end signal in the next read() right before close.
-    const stream = makeStream([
-      `${finalMessage}\n\n`,
-      `${endSignal}\n\n`,
-    ]);
+    const stream = makeStream([`${finalMessage}\n\n`, `${endSignal}\n\n`]);
 
     const sse = useSSEStream();
     await sse.startStream(stream);
