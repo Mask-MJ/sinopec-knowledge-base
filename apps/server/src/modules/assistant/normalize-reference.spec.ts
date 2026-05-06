@@ -20,95 +20,158 @@ const chunk = (overrides: Partial<RagflowChunk> = {}): RagflowChunk => ({
   ...overrides,
 });
 
-describe('normalizeMessageReferences', () => {
-  it('wraps a flat chunk array into { chunks, doc_aggs } for a real answer (after a user message)', () => {
+describe('normalizeMessageReferences (RAGFlow off-by-one shift fix)', () => {
+  it('1-round session: ref RAGFlow misplaced on opener gets shifted to a1', () => {
     const raw: RagflowRawMessage[] = [
+      {
+        role: 'assistant',
+        content: '你好！我是你的助理，有什么可以帮到你的吗？',
+        reference: [chunk({ id: 'real-a1-ref' })],
+      },
+      { role: 'user', content: 'q1' },
+      { role: 'assistant', content: 'a1 [ID:0]' },
+    ];
+    const result = normalizeMessageReferences(raw);
+    expect(result[0]).not.toHaveProperty('reference');
+    expect(result[2]?.reference?.chunks).toHaveLength(1);
+    expect(result[2]?.reference?.chunks[0]?.id).toBe('real-a1-ref');
+  });
+
+  it('multi-round session: each assistant gets the chunks RAGFlow misplaced on the previous assistant', () => {
+    const raw: RagflowRawMessage[] = [
+      {
+        role: 'assistant',
+        content: 'opener',
+        reference: [chunk({ id: 'real-a1' })],
+      },
       { role: 'user', content: 'q1' },
       {
         role: 'assistant',
         content: 'a1 [ID:0]',
-        reference: [
-          chunk({ id: 'c1', document_id: 'doc-A', document_name: 'A.docx' }),
-        ],
+        reference: [chunk({ id: 'real-a2' })],
       },
+      { role: 'user', content: 'q2' },
+      { role: 'assistant', content: 'a2 [ID:0]' },
     ];
     const result = normalizeMessageReferences(raw);
-    expect(result[1]?.reference).toEqual({
-      chunks: [
-        chunk({ id: 'c1', document_id: 'doc-A', document_name: 'A.docx' }),
-      ],
-      doc_aggs: [{ doc_id: 'doc-A', doc_name: 'A.docx', count: 1 }],
-    });
+    expect(result[0]).not.toHaveProperty('reference');
+    expect(result[2]?.reference?.chunks[0]?.id).toBe('real-a1');
+    expect(result[4]?.reference?.chunks[0]?.id).toBe('real-a2');
   });
 
-  it('aggregates doc_aggs by document_id and counts chunks per document', () => {
+  it('three-round session: shift propagates correctly through all assistants', () => {
     const raw: RagflowRawMessage[] = [
+      {
+        role: 'assistant',
+        content: 'opener',
+        reference: [chunk({ id: 'r-for-a1' })],
+      },
       { role: 'user', content: 'q1' },
       {
         role: 'assistant',
         content: 'a1',
+        reference: [chunk({ id: 'r-for-a2' })],
+      },
+      { role: 'user', content: 'q2' },
+      {
+        role: 'assistant',
+        content: 'a2',
+        reference: [chunk({ id: 'r-for-a3' })],
+      },
+      { role: 'user', content: 'q3' },
+      { role: 'assistant', content: 'a3' },
+    ];
+    const result = normalizeMessageReferences(raw);
+    expect(result[0]).not.toHaveProperty('reference');
+    expect(result[2]?.reference?.chunks[0]?.id).toBe('r-for-a1');
+    expect(result[4]?.reference?.chunks[0]?.id).toBe('r-for-a2');
+    expect(result[6]?.reference?.chunks[0]?.id).toBe('r-for-a3');
+  });
+
+  it('builds doc_aggs from shifted chunks aggregated by document_id', () => {
+    const raw: RagflowRawMessage[] = [
+      {
+        role: 'assistant',
+        content: 'opener',
         reference: [
           chunk({ id: 'c1', document_id: 'doc-A', document_name: 'A.docx' }),
           chunk({ id: 'c2', document_id: 'doc-A', document_name: 'A.docx' }),
           chunk({ id: 'c3', document_id: 'doc-B', document_name: 'B.docx' }),
         ],
       },
+      { role: 'user', content: 'q1' },
+      { role: 'assistant', content: 'a1' },
     ];
     const result = normalizeMessageReferences(raw);
-    expect(result[1]?.reference?.doc_aggs).toEqual([
+    expect(result[2]?.reference?.doc_aggs).toEqual([
       { doc_id: 'doc-A', doc_name: 'A.docx', count: 2 },
       { doc_id: 'doc-B', doc_name: 'B.docx', count: 1 },
     ]);
   });
 
-  it('drops reference field when absent (RAGFlow streaming-truncated message)', () => {
-    const raw: RagflowRawMessage[] = [
-      { role: 'assistant', content: 'truncated' },
-    ];
-    expect(normalizeMessageReferences(raw)[0]).not.toHaveProperty('reference');
-  });
-
-  it('drops reference field when array is empty', () => {
-    const raw: RagflowRawMessage[] = [
-      { role: 'assistant', content: 'no refs', reference: [] },
-    ];
-    expect(normalizeMessageReferences(raw)[0]).not.toHaveProperty('reference');
-  });
-
-  it('passes user messages through untouched', () => {
-    const raw: RagflowRawMessage[] = [{ role: 'user', content: 'q1' }];
-    expect(normalizeMessageReferences(raw)[0]).toEqual({
-      role: 'user',
-      content: 'q1',
-    });
-  });
-
-  it('drops reference on the opener (first assistant before any user) — RAGFlow quirk', () => {
+  it('opener-only new session (no user yet): no reference attached anywhere', () => {
     const raw: RagflowRawMessage[] = [
       {
         role: 'assistant',
-        content: '你好！我是你的助理，有什么可以帮到你的吗？',
-        reference: [chunk({ id: 'opener-junk' })],
-      },
-      { role: 'user', content: 'q1' },
-      {
-        role: 'assistant',
-        content: 'a1 [ID:0]',
-        reference: [chunk({ id: 'real-a1' })],
+        content: '你好！',
+        reference: [chunk({ id: 'leftover' })],
       },
     ];
     const result = normalizeMessageReferences(raw);
     expect(result[0]).not.toHaveProperty('reference');
-    expect(result[2]?.reference?.chunks[0]?.id).toBe('real-a1');
+  });
+
+  it('all assistants empty reference (RAGFlow gave none): all dropped', () => {
+    const raw: RagflowRawMessage[] = [
+      { role: 'assistant', content: 'opener' },
+      { role: 'user', content: 'q1' },
+      { role: 'assistant', content: 'a1' },
+    ];
+    const result = normalizeMessageReferences(raw);
+    expect(result[0]).not.toHaveProperty('reference');
+    expect(result[2]).not.toHaveProperty('reference');
+  });
+
+  it('user messages pass through untouched', () => {
+    const raw: RagflowRawMessage[] = [
+      { role: 'user', content: 'q1' },
+      {
+        role: 'assistant',
+        content: 'a1',
+        reference: [chunk({ id: 'r' })],
+      },
+    ];
+    const result = normalizeMessageReferences(raw);
+    expect(result[0]).toEqual({ role: 'user', content: 'q1' });
+  });
+
+  it('empty reference array on an assistant is treated as no reference (no shift contribution)', () => {
+    const raw: RagflowRawMessage[] = [
+      { role: 'assistant', content: 'opener', reference: [] },
+      { role: 'user', content: 'q1' },
+      {
+        role: 'assistant',
+        content: 'a1',
+        reference: [chunk({ id: 'real-a2' })],
+      },
+      { role: 'user', content: 'q2' },
+      { role: 'assistant', content: 'a2' },
+    ];
+    const result = normalizeMessageReferences(raw);
+    expect(result[0]).not.toHaveProperty('reference');
+    expect(result[2]).not.toHaveProperty('reference');
+    expect(result[4]?.reference?.chunks[0]?.id).toBe('real-a2');
   });
 
   it('does not mutate the input array', () => {
     const raw: RagflowRawMessage[] = [
       {
         role: 'assistant',
-        content: 'a1',
-        reference: [chunk({ id: 'c1' })],
+        content: 'opener',
+        reference: [chunk({ id: 'r' })],
       },
+      { role: 'user', content: 'q1' },
+      { role: 'assistant', content: 'a1' },
     ];
     const snapshot = structuredClone(raw);
     normalizeMessageReferences(raw);

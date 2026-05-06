@@ -49,24 +49,24 @@ describe('assistantService.findAllSessions', () => {
     });
   });
 
-  it('normalizes flat chunk[] reference into { chunks, doc_aggs } per assistant message', async () => {
+  it('shifts ragflow off-by-one reference: chunks misplaced on opener get assigned to a1, doc_aggs derived', async () => {
     ragflow.request.mockResolvedValue([
       {
         id: 's1',
         chat_id: 'rf-1',
         name: '会话 1',
         messages: [
-          { role: 'assistant', content: '你好！' },
-          { role: 'user', content: 'q1' },
           {
             role: 'assistant',
-            content: 'a1 [ID:0]',
+            content: '你好！',
             reference: [
               fakeChunk('c1', 'doc-A', 'A.docx'),
               fakeChunk('c2', 'doc-A', 'A.docx'),
               fakeChunk('c3', 'doc-B', 'B.docx'),
             ],
           },
+          { role: 'user', content: 'q1' },
+          { role: 'assistant', content: 'a1 [ID:0]' },
         ],
       },
     ]);
@@ -74,6 +74,7 @@ describe('assistantService.findAllSessions', () => {
     const result = await service.findAllSessions(1, createMockActiveUser(), {});
 
     expect(result).toHaveLength(1);
+    expect(result[0]?.messages[0]).not.toHaveProperty('reference');
     const a1 = result[0]?.messages[2];
     expect(a1?.reference?.chunks).toHaveLength(3);
     expect(a1?.reference?.doc_aggs).toEqual([
@@ -82,12 +83,12 @@ describe('assistantService.findAllSessions', () => {
     ]);
   });
 
-  it('drops reference field for assistant messages where RAGFlow truncated persistence', async () => {
+  it('drops reference everywhere when RAGFlow has not yet attached any reference (new session, no completed Q-A)', async () => {
     ragflow.request.mockResolvedValue([
       {
         id: 's2',
         chat_id: 'rf-1',
-        name: '截断会话',
+        name: '空会话',
         messages: [
           { role: 'assistant', content: '你好！' },
           { role: 'user', content: 'q1' },
@@ -97,6 +98,7 @@ describe('assistantService.findAllSessions', () => {
     ]);
 
     const result = await service.findAllSessions(1, createMockActiveUser(), {});
+    expect(result[0]?.messages[0]).not.toHaveProperty('reference');
     expect(result[0]?.messages[2]).not.toHaveProperty('reference');
   });
 });
