@@ -33,15 +33,25 @@ export interface NormalizedMessage {
  * 容错：
  * - reference 字段缺失 / 为空数组 → drop（不输出 reference 键）
  * - user 消息 → 透传不动
+ * - 开场白（第一条 user 之前的 assistant 消息）reference → drop。RAGFlow
+ *   有时会把 reference 错挂到开场白上（quirk），但开场白文本里没有 [ID:N]
+ *   标记，前端 ReferenceSourceList 仍会无条件渲染 doc_aggs，导致用户在
+ *   "你好！我是你的助理" 下看到一堆参考来源 —— 必须在透传层丢弃。
  *
  * 该函数是纯函数，不修改入参。
  */
 export function normalizeMessageReferences(
   messages: ReadonlyArray<RagflowRawMessage>,
 ): NormalizedMessage[] {
+  let seenUser = false;
   return messages.map((msg) => {
     const { reference, ...rest } = msg;
-    if (!reference || reference.length === 0) {
+    if (msg.role === 'user') {
+      seenUser = true;
+      return { ...rest };
+    }
+    const isOpener = msg.role === 'assistant' && !seenUser;
+    if (isOpener || !reference || reference.length === 0) {
       return { ...rest };
     }
     return { ...rest, reference: buildReferenceEntity(reference) };

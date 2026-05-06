@@ -21,8 +21,9 @@ const chunk = (overrides: Partial<RagflowChunk> = {}): RagflowChunk => ({
 });
 
 describe('normalizeMessageReferences', () => {
-  it('wraps a flat chunk array into { chunks, doc_aggs }', () => {
+  it('wraps a flat chunk array into { chunks, doc_aggs } for a real answer (after a user message)', () => {
     const raw: RagflowRawMessage[] = [
+      { role: 'user', content: 'q1' },
       {
         role: 'assistant',
         content: 'a1 [ID:0]',
@@ -32,7 +33,7 @@ describe('normalizeMessageReferences', () => {
       },
     ];
     const result = normalizeMessageReferences(raw);
-    expect(result[0]?.reference).toEqual({
+    expect(result[1]?.reference).toEqual({
       chunks: [
         chunk({ id: 'c1', document_id: 'doc-A', document_name: 'A.docx' }),
       ],
@@ -42,6 +43,7 @@ describe('normalizeMessageReferences', () => {
 
   it('aggregates doc_aggs by document_id and counts chunks per document', () => {
     const raw: RagflowRawMessage[] = [
+      { role: 'user', content: 'q1' },
       {
         role: 'assistant',
         content: 'a1',
@@ -53,7 +55,7 @@ describe('normalizeMessageReferences', () => {
       },
     ];
     const result = normalizeMessageReferences(raw);
-    expect(result[0]?.reference?.doc_aggs).toEqual([
+    expect(result[1]?.reference?.doc_aggs).toEqual([
       { doc_id: 'doc-A', doc_name: 'A.docx', count: 2 },
       { doc_id: 'doc-B', doc_name: 'B.docx', count: 1 },
     ]);
@@ -79,6 +81,25 @@ describe('normalizeMessageReferences', () => {
       role: 'user',
       content: 'q1',
     });
+  });
+
+  it('drops reference on the opener (first assistant before any user) — RAGFlow quirk', () => {
+    const raw: RagflowRawMessage[] = [
+      {
+        role: 'assistant',
+        content: '你好！我是你的助理，有什么可以帮到你的吗？',
+        reference: [chunk({ id: 'opener-junk' })],
+      },
+      { role: 'user', content: 'q1' },
+      {
+        role: 'assistant',
+        content: 'a1 [ID:0]',
+        reference: [chunk({ id: 'real-a1' })],
+      },
+    ];
+    const result = normalizeMessageReferences(raw);
+    expect(result[0]).not.toHaveProperty('reference');
+    expect(result[2]?.reference?.chunks[0]?.id).toBe('real-a1');
   });
 
   it('does not mutate the input array', () => {
