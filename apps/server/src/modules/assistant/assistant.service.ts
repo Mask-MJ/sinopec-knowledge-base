@@ -7,6 +7,7 @@ import type {
   UpdateAssistantDto,
   UpdateSessionDto,
 } from './assistant.dto';
+import type { RagflowRawMessage } from './normalize-reference';
 import type { PrismaService } from '@/common/database/prisma.extension';
 import type { ActiveUserData } from '@/modules/auth/interfaces/active-user-data.interface';
 import type { Response } from 'express';
@@ -16,6 +17,17 @@ import { ConfigService } from '@nestjs/config';
 
 import { PRISMA_SERVICE_TOKEN } from '@/common/database/prisma.extension';
 import { RagflowService } from '@/common/ragflow/ragflow.service';
+
+import { normalizeMessageReferences } from './normalize-reference';
+
+interface RagflowSessionRaw {
+  chat_id: string;
+  create_date: string;
+  id: string;
+  messages: RagflowRawMessage[];
+  name: string;
+  update_date: string;
+}
 
 @Injectable()
 export class AssistantService {
@@ -331,7 +343,7 @@ export class AssistantService {
       where: { id },
     });
 
-    return this.ragflow.request(
+    const sessions = await this.ragflow.request<RagflowSessionRaw[]>(
       'GET',
       `/api/v1/chats/${assistant.assistantId}/sessions`,
       {
@@ -341,6 +353,11 @@ export class AssistantService {
         name: dto.name,
       },
     );
+
+    return sessions.map((s) => ({
+      ...s,
+      messages: normalizeMessageReferences(s.messages ?? []),
+    }));
   }
 
   async findOne(id: number, user: ActiveUserData) {
