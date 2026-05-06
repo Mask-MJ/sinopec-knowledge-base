@@ -1,5 +1,7 @@
 import type { Reference } from './useSSEStream';
 
+import { toRaw } from 'vue';
+
 import { completions } from '@/api/assistant';
 
 import { useSSEStream } from './useSSEStream';
@@ -149,10 +151,13 @@ export function useChat(
       const current = messages.value[activeAssistantIndex];
       if (current) {
         const ref = sseStream.reference.value;
+        // toRaw 必须：sseStream.reference 是 readonly() 包装的 Vue Proxy，
+        // structuredClone 在 Proxy 上抛 DataCloneError 然后整个 watcher 静默失败，
+        // 导致流式答完点 [N] 显示"未携带引用数据"。先 toRaw 解包再 clone。
         updateAssistantMessage({
           loading: false,
           thinkingStatus: 'end',
-          reference: ref ? (structuredClone(ref) as Reference) : undefined,
+          reference: ref ? (structuredClone(toRaw(ref)) as Reference) : undefined,
         });
       }
       activeAssistantIndex = -1;
