@@ -23,13 +23,7 @@
     "team": "部门"
   },
   "chunk_method": {
-    "title": "分块方式",
-    "naïve": "常规分块 (使用视觉检测模型将连续文本分割成多个片段)",
-    "laws": "法律文档 (文件格式为DOCX、PDF、TXT。法律文件有严格的书写格式。 用文本特征来检测分割点)",
-    "manual": "Manual (文件格式为PDF，使用文档中的章节标题进行分块)",
-    "presentation": "Presentation (文件格式为PDF、PPTX。每个页面都将被视为一个块)",
-    "qa": "Q&A 提问回答 (文件格式为Excel、CSV/txt，由两个列组成，没有标题，一个提出问题，一个用于答案)",
-    "table": "表格分块 (文件格式为Excel、CSV, 第一行必须是列标题。列标题必须是有意义的术语)"
+    "title": "分块方式"
   },
   "parser_config": {
     "layout_recognize": "PDF解析器",

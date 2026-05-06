@@ -17,6 +17,7 @@ import {
   getKnowledgeBaseList,
   updateKnowledgeBase,
 } from '@/api/knowledgeBase';
+import { getDictDataList } from '@/api/system/dict';
 import { getAllUserList } from '@/api/system/user';
 import TableAction from '@/components/common/TableAction.vue';
 import { useLlmOptions } from '@/composables';
@@ -25,6 +26,11 @@ import { $t } from '@/locales';
 
 const { options: embeddingModelOptions, loading: llmLoading } =
   useLlmOptions('embedding');
+
+const chunkMethodOptions = ref<{ label: string; value: string }[]>([]);
+const chunkMethodLabelMap = computed(
+  () => new Map(chunkMethodOptions.value.map((o) => [o.value, o.label])),
+);
 
 const loading = ref(false);
 const router = useRouter();
@@ -59,7 +65,9 @@ const columns = computed<ProDataTableColumns<KnowledgeBaseInfo>>(() => [
   },
   {
     title: $t('page.knowledgeBase.chunk_method.title'),
-    key: 'chunk_method',
+    key: 'chunkMethod',
+    render: (row) =>
+      chunkMethodLabelMap.value.get(row.chunkMethod) ?? row.chunkMethod,
   },
   { title: $t('common.createdAt'), key: 'createdAt' },
   { title: $t('common.updatedAt'), key: 'updatedAt' },
@@ -128,13 +136,17 @@ const edit = async (row: KnowledgeBaseInfo) => {
 const userOptions = ref<{ label: string; value: number }[]>([]);
 
 onMounted(async () => {
-  const { data } = await getAllUserList();
-  if (!data) return;
+  const [{ data: users }, { data: chunkData }] = await Promise.all([
+    getAllUserList(),
+    getDictDataList({ dictValue: 'knowledgeBase.chunkMethod' }),
+  ]);
   userOptions.value =
-    data.map((user) => ({
+    users?.map((user) => ({
       label: user.username,
       value: user.id,
     })) || [];
+  chunkMethodOptions.value =
+    chunkData?.map((d) => ({ label: d.name, value: d.value })) || [];
 });
 </script>
 
@@ -207,35 +219,8 @@ onMounted(async () => {
       <pro-select
         :title="$t('page.knowledgeBase.chunk_method.title')"
         required
-        path="chunk_method"
-        :field-props="{
-          options: [
-            {
-              label: $t('page.knowledgeBase.chunk_method.naïve'),
-              value: 'naïve',
-            },
-            {
-              label: $t('page.knowledgeBase.chunk_method.laws'),
-              value: 'laws',
-            },
-            {
-              label: $t('page.knowledgeBase.chunk_method.manual'),
-              value: 'manual',
-            },
-            {
-              label: $t('page.knowledgeBase.chunk_method.presentation'),
-              value: 'presentation',
-            },
-            {
-              label: $t('page.knowledgeBase.chunk_method.qa'),
-              value: 'qa',
-            },
-            {
-              label: $t('page.knowledgeBase.chunk_method.table'),
-              value: 'table',
-            },
-          ],
-        }"
+        path="chunkMethod"
+        :field-props="{ options: chunkMethodOptions }"
       />
       <pro-select
         :title="$t('page.knowledgeBase.parser_config.layout_recognize')"
