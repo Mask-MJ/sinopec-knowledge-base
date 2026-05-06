@@ -7,6 +7,7 @@ import type {
   UpdateAssistantDto,
   UpdateSessionDto,
 } from './assistant.dto';
+import type { RagflowRawMessage } from './normalize-reference';
 import type { PrismaService } from '@/common/database/prisma.extension';
 import type { ActiveUserData } from '@/modules/auth/interfaces/active-user-data.interface';
 import type { Response } from 'express';
@@ -16,6 +17,17 @@ import { ConfigService } from '@nestjs/config';
 
 import { PRISMA_SERVICE_TOKEN } from '@/common/database/prisma.extension';
 import { RagflowService } from '@/common/ragflow/ragflow.service';
+
+import { normalizeMessageReferences } from './normalize-reference';
+
+interface RagflowSessionRaw {
+  chat_id: string;
+  create_date: string;
+  id: string;
+  messages: RagflowRawMessage[];
+  name: string;
+  update_date: string;
+}
 
 @Injectable()
 export class AssistantService {
@@ -43,7 +55,7 @@ export class AssistantService {
     '2. **数字必须精确严格**：所有数字（井号、坐标、限差、面积、覆盖次数、炮数、控制点编号等）必须照实给出，包含正负号和单位。',
     '3. **区分试验段 vs 全工区**：当问"实际生产 / 总数 / 全项目"时，必须找**全工区/全项目的汇总数据**；问"试验段 / 局部"才用试验段数据。如果两者在知识库中都有，必须**分别回答**并明确区分。',
     '4. **多文档汇总**：同一项目跨多份文档（如工程设计 + 测量施工总结 + 试验报告），需要从多源汇总，不要遗漏。',
-    '5. **不知道就说不知道**：知识库未提及的事实绝不编造，明确说"知识库未给出"。当所有知识库内容都与问题无关时，你的回答必须包括"知识库中未找到您要的答案！"这句话。',
+    '5. **不知道就说不知道**：知识库未提及的事实绝不编造，明确说"知识库未给出"。',
     '6. **回答结构化**：使用编号列表、bullet point 或表格，便于核对每个数据点。',
     '',
     '知识库内容：',
@@ -331,7 +343,7 @@ export class AssistantService {
       where: { id },
     });
 
-    return this.ragflow.request(
+    const sessions = await this.ragflow.request<RagflowSessionRaw[]>(
       'GET',
       `/api/v1/chats/${assistant.assistantId}/sessions`,
       {
@@ -341,6 +353,11 @@ export class AssistantService {
         name: dto.name,
       },
     );
+
+    return sessions.map((s) => ({
+      ...s,
+      messages: normalizeMessageReferences(s.messages ?? []),
+    }));
   }
 
   async findOne(id: number, user: ActiveUserData) {
