@@ -31,6 +31,7 @@ export class SeedService implements OnApplicationBootstrap {
       await this.seedInitialIfEmpty();
       await this.upgradeLegacyAdminPassword();
       await this.syncCommonRolePermissions();
+      await this.syncSeedDicts();
     } catch (error: unknown) {
       if (
         error instanceof Object &&
@@ -134,6 +135,49 @@ export class SeedService implements OnApplicationBootstrap {
     this.logger.log(
       `🔄 已同步 common 角色权限：${targetMenus.length} 个菜单/按钮`,
     );
+  }
+
+  /**
+   * 幂等同步: 只补缺，不覆盖运维手动调整过的字典数据
+   * - 字典本身不存在 → 完整新建（含 dictData）
+   * - 字典已存在 → 仅按 value 补充缺失的 dictData 行
+   */
+  private async syncSeedDicts() {
+    for (const seed of SEED_DICTS) {
+      const existing = await this.prisma.client.dict.findUnique({
+        where: { name: seed.name },
+      });
+
+      if (!existing) {
+        await this.prisma.client.dict.create({ data: seed });
+        this.logger.log(`🌱 已新建字典「${seed.name}」`);
+        continue;
+      }
+
+      const seedData = (seed.dictData?.create ?? []) as {
+        name: string;
+        order?: number;
+        value: string;
+      }[];
+      if (seedData.length === 0) continue;
+
+      const existingData = await this.prisma.client.dictData.findMany({
+        where: { dictId: existing.id },
+        select: { value: true },
+      });
+      const existingValues = new Set(existingData.map((d) => d.value));
+
+      const toCreate = seedData
+        .filter((d) => !existingValues.has(d.value))
+        .map((d) => ({ ...d, dictId: existing.id }));
+
+      if (toCreate.length > 0) {
+        await this.prisma.client.dictData.createMany({ data: toCreate });
+        this.logger.log(
+          `🔄 字典「${seed.name}」补齐 ${toCreate.length} 条数据`,
+        );
+      }
+    }
   }
 
   /**
