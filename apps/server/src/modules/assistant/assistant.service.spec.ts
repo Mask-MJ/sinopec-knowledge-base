@@ -100,3 +100,14 @@ describe('assistantService.findAllSessions', () => {
     expect(result[0]?.messages[2]).not.toHaveProperty('reference');
   });
 });
+
+describe('AssistantService KB prompt template', () => {
+  it('does not instruct the model to emit "知识库中未找到您要的答案" — that role is owned by RAGFlow empty_response', () => {
+    const prompt = (
+      AssistantService as unknown as { KB_CHAT_PROMPT: string }
+    ).KB_CHAT_PROMPT;
+    expect(prompt).toBeTruthy();
+    expect(prompt).not.toContain('知识库中未找到您要的答案');
+    expect(prompt).toContain('知识库未给出');
+  });
+});
