@@ -80,7 +80,8 @@ onUnmounted(() => citationObserver?.disconnect());
       round
       :size="36"
       :src="avatar || logoUrl"
-      class="shrink-0"
+      color="#fff"
+      class="user-avatar shrink-0"
     />
 
     <!-- Bubble content -->
@@ -179,6 +180,17 @@ onUnmounted(() => citationObserver?.disconnect());
     rgb(var(--primary-400-color)) 100%
   );
   color: #fff;
+}
+
+.user-avatar {
+  background: #fff;
+  border: 1px solid rgba(0, 0, 0, 0.08);
+}
+
+:root.dark .user-avatar,
+html.dark .user-avatar {
+  background: #fff;
+  border-color: rgba(255, 255, 255, 0.1);
 }
 
 .bubble-content {
