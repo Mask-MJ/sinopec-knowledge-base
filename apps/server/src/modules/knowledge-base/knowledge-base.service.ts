@@ -26,6 +26,7 @@ import {
 } from '@nestjs/common';
 
 import { PRISMA_SERVICE_TOKEN } from '@/common/database/prisma.extension';
+import { DocxPreprocessService } from '@/common/docx-preprocess/docx-preprocess.service';
 import { RagflowService } from '@/common/ragflow/ragflow.service';
 import { sanitizeFilename } from '@/common/utils';
 
@@ -36,6 +37,7 @@ export class KnowledgeBaseService {
   constructor(
     @Inject(PRISMA_SERVICE_TOKEN) private readonly prisma: PrismaService,
     private readonly ragflow: RagflowService,
+    private readonly docxPreprocess: DocxPreprocessService,
   ) {}
 
   // ─── Private Helpers ──────────────────────────────
@@ -494,8 +496,12 @@ export class KnowledgeBaseService {
     const kb = await this.assertOwnership(id, user);
     const datasetId = this.requireDatasetId(kb);
 
+    // RAGFlow 0.24 deepdoc DocxParser drops digits in many table cells, so
+    // run docx through pandoc first; non-docx files pass through untouched.
+    const preprocessed = await this.docxPreprocess.preprocessFiles(files);
+
     const formData = new FormData();
-    for (const file of files) {
+    for (const file of preprocessed) {
       const rawName = Buffer.from(file.originalname, 'latin1').toString('utf8');
       const filename = sanitizeFilename(rawName);
       formData.append(
