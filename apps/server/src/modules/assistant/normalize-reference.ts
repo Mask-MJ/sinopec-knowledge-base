@@ -22,39 +22,59 @@ export interface NormalizedMessage {
 }
 
 /**
- * 把 RAGFlow GET /sessions 返回的扁平 chunk 数组规范成前端期望的
- * `{ chunks, doc_aggs }` 形态。
+ * 修复 RAGFlow `GET /api/v1/chats/{id}/sessions` API 的 off-by-one merge bug。
  *
- * RAGFlow 持久化格式（实测 v0.x）：`messages[i].reference: ReferenceChunkEntity[]`
- * SSE 流式格式：`reference: { chunks, doc_aggs }`
- * 前端 `Reference` 类型按 SSE 格式建模，要让历史会话也能用同一套渲染，
- * server 在透传层做格式归一：从 chunks 按 document_id 派生 doc_aggs。
+ * RAGFlow `conversation` 表设计：`message` 列存消息列表，`reference` 列存引用
+ * 列表（按 Q-A 轮次排，长度 = 已完成回答数 = assistant 数 - 1，开场白没引用）。
+ * GET API merge 时（[ragflow/api/apps/sdk/session.py list_session()]）按顺序
+ * 把 `ref[i]` 挂到第 i 个 `role != 'user'` 的 message 上，**没有跳过开场白**，
+ * 导致整体错位：
  *
- * 容错：
- * - reference 字段缺失 / 为空数组 → drop（不输出 reference 键）
- * - user 消息 → 透传不动
- * - 开场白（第一条 user 之前的 assistant 消息）reference → drop。RAGFlow
- *   有时会把 reference 错挂到开场白上（quirk），但开场白文本里没有 [ID:N]
- *   标记，前端 ReferenceSourceList 仍会无条件渲染 doc_aggs，导致用户在
- *   "你好！我是你的助理" 下看到一堆参考来源 —— 必须在透传层丢弃。
+ *   messages[0] (开场白)   ← 被挂上 ref[0] = a1 的真实引用
+ *   messages[2] (a1)       ← 被挂上 ref[1] = a2 的真实引用
+ *   messages[4] (a2)       ← 被挂上 ref[2] = a3 的真实引用
+ *   ...
+ *   messages[2n] (a_n)     ← 没分到（ref 数组用完）
+ *
+ * 修复：把每条 assistant 上 RAGFlow 挂的 chunks 转移给"下一个 assistant"。
+ * 开场白自己丢掉 reference；最新一条原本错位丢失的 reference 由倒数第二个
+ * assistant 的 chunks 补回。
+ *
+ * 同时把 RAGFlow 持久化的扁平 `chunk[]` 包装成前端期望的
+ * `{chunks, doc_aggs}` 形态（doc_aggs 从 chunks 按 document_id 聚合派生）。
  *
  * 该函数是纯函数，不修改入参。
  */
 export function normalizeMessageReferences(
   messages: ReadonlyArray<RagflowRawMessage>,
 ): NormalizedMessage[] {
-  let seenUser = false;
-  return messages.map((msg) => {
-    const { reference, ...rest } = msg;
-    if (msg.role === 'user') {
-      seenUser = true;
+  const assistantIndexes: number[] = [];
+  for (let i = 0; i < messages.length; i++) {
+    if (messages[i]?.role === 'assistant') {
+      assistantIndexes.push(i);
+    }
+  }
+
+  const correctedChunksByIndex = new Map<number, RagflowChunk[]>();
+  for (let k = 1; k < assistantIndexes.length; k++) {
+    const prevAssistantIndex = assistantIndexes[k - 1];
+    if (prevAssistantIndex === undefined) continue;
+    const misplacedRef = messages[prevAssistantIndex]?.reference;
+    if (misplacedRef && misplacedRef.length > 0) {
+      const targetIndex = assistantIndexes[k];
+      if (targetIndex !== undefined) {
+        correctedChunksByIndex.set(targetIndex, misplacedRef);
+      }
+    }
+  }
+
+  return messages.map((msg, i) => {
+    const { reference: _ignored, ...rest } = msg;
+    const corrected = correctedChunksByIndex.get(i);
+    if (!corrected || corrected.length === 0) {
       return { ...rest };
     }
-    const isOpener = msg.role === 'assistant' && !seenUser;
-    if (isOpener || !reference || reference.length === 0) {
-      return { ...rest };
-    }
-    return { ...rest, reference: buildReferenceEntity(reference) };
+    return { ...rest, reference: buildReferenceEntity(corrected) };
   });
 }
 
