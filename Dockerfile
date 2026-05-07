@@ -39,6 +39,10 @@ RUN pnpm --filter @sinopec-kb/server deploy --legacy /app/deploy
 FROM node:22-alpine AS production
 WORKDIR /app
 
+# pandoc 用于上传 docx 时的预处理（绕开 RAGFlow 0.24 deepdoc DocxParser 的
+# 表格 cell 数字丢字 bug，详见 DocxPreprocessService）
+RUN apk add --no-cache pandoc
+
 # 拷贝完整的部署目录（含 prisma CLI 及其依赖）
 COPY --from=builder /app/deploy/node_modules ./node_modules
 COPY --from=builder /app/deploy/package.json ./
