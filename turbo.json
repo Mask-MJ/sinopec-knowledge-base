@@ -5,7 +5,14 @@
     "**/.env.*local",
     "**/tsconfig*.json"
   ],
-  "globalEnv": ["NODE_ENV"],
+  "globalEnv": [
+    "NODE_ENV",
+    "E2E_BASE_URL",
+    "E2E_ADMIN_USER",
+    "E2E_ADMIN_PASS",
+    "E2E_KB_NAME",
+    "E2E_PARSE_TIMEOUT_MS"
+  ],
   "tasks": {
     "build": {
       "dependsOn": ["^build"],
