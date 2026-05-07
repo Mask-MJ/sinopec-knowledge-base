@@ -38,6 +38,7 @@
     "vue-router": "catalog:"
   },
   "devDependencies": {
+    "@dotenvx/dotenvx": "catalog:",
     "@iconify-json/ant-design": "catalog:",
     "@iconify-json/line-md": "catalog:",
     "@iconify-json/lucide": "catalog:",
