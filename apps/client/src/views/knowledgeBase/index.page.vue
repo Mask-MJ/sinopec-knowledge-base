@@ -224,7 +224,7 @@ onMounted(async () => {
       />
       <pro-select
         :title="$t('page.knowledgeBase.parser_config.layout_recognize')"
-        path="parser_config.layout_recognize"
+        path="parserConfig.layout_recognize"
         :field-props="{
           options: [
             { label: 'DeepDOC', value: 'DeepDOC' },
@@ -234,11 +234,11 @@ onMounted(async () => {
       />
       <pro-digit
         :title="$t('page.knowledgeBase.parser_config.chunk_token_num')"
-        path="parser_config.chunk_token_num"
+        path="parserConfig.chunk_token_num"
       />
       <pro-input
         :title="$t('page.knowledgeBase.parser_config.delimiter')"
-        path="parser_config.delimiter"
+        path="parserConfig.delimiter"
       />
       <pro-digit :title="$t('common.sort')" path="order" />
       <pro-textarea :title="$t('common.remark')" path="description" />
