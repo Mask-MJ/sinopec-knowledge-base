@@ -23,13 +23,7 @@
     "team": "Team"
   },
   "chunk_method": {
-    "title": "Chunk Method",
-    "naïve": "General (Uses visual detection model to split continuous text into segments)",
-    "laws": "Legal Documents (DOCX, PDF, TXT formats. Uses text features to detect split points)",
-    "manual": "Manual (PDF format, uses chapter titles for chunking)",
-    "presentation": "Presentation (PDF, PPTX. Each page is treated as a chunk)",
-    "qa": "Q&A (Excel, CSV/txt with two columns: question and answer)",
-    "table": "Table (Excel, CSV. First row must be column headers with meaningful terms)"
+    "title": "Chunk Method"
   },
   "parser_config": {
     "layout_recognize": "PDF Parser",

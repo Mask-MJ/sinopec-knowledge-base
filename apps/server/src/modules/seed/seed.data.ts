@@ -520,4 +520,18 @@ export const SEED_DICTS: Prisma.DictCreateInput[] = [
       ],
     },
   },
+  {
+    name: '知识库分块方式',
+    value: 'knowledgeBase.chunkMethod',
+    dictData: {
+      create: [
+        { name: '常规分块', value: 'naive', order: 1 },
+        { name: '法律文档', value: 'laws', order: 2 },
+        { name: 'Manual', value: 'manual', order: 3 },
+        { name: 'Presentation', value: 'presentation', order: 4 },
+        { name: 'Q&A 提问回答', value: 'qa', order: 5 },
+        { name: '表格分块', value: 'table', order: 6 },
+      ],
+    },
+  },
 ];
