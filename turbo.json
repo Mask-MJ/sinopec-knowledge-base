@@ -11,7 +11,10 @@
     "E2E_ADMIN_USER",
     "E2E_ADMIN_PASS",
     "E2E_KB_NAME",
-    "E2E_PARSE_TIMEOUT_MS"
+    "E2E_PARSE_TIMEOUT_MS",
+    "E2E_KB_ID",
+    "E2E_PROD_DATASET_ID",
+    "E2E_CHAT_QUESTION_TIMEOUT_MS"
   ],
   "tasks": {
     "build": {
