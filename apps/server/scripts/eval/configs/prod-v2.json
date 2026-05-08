@@ -1,6 +1,6 @@
 {
   "experimentId": "prod-v2",
-  "_desc": "生产 dataset + prod assistant + prompt v2 (raptor+graphrag 已开)",
+  "_desc": "生产 dataset + prod assistant + prompt v2 (raptor+graphrag 已开)；升级 top_n 6→10 让 Q6/Q9/Q18/Q19 拿到正确 chunk（PR #18 实验数据：5 道关心题 4 道明显提升、总均分 75.2%→77.9%）",
   "datasetIds": ["6ec4cd18476611f1a9b8932ed31a3307"],
   "assistantId": "b7e94c58476611f1a9b8932ed31a3307",
   "split": "dev",
@@ -9,6 +9,6 @@
     "similarityThreshold": 0.2,
     "vectorSimilarityWeight": 0.3,
     "keyword": false,
-    "topN": 6
+    "topN": 10
   }
 }
