@@ -14,7 +14,9 @@
     "E2E_PARSE_TIMEOUT_MS",
     "E2E_KB_ID",
     "E2E_PROD_DATASET_ID",
-    "E2E_CHAT_QUESTION_TIMEOUT_MS"
+    "E2E_CHAT_QUESTION_TIMEOUT_MS",
+    "KB_DEFAULT_RAPTOR",
+    "KB_DEFAULT_GRAPHRAG"
   ],
   "tasks": {
     "build": {

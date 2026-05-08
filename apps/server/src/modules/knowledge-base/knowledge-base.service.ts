@@ -26,6 +26,7 @@ import {
 } from '@nestjs/common';
 
 import { PRISMA_SERVICE_TOKEN } from '@/common/database/prisma.extension';
+import { DEFAULT_KB_PARSER_CONFIG } from '@/common/defaults/knowledge-base.defaults';
 import { DocxPreprocessService } from '@/common/docx-preprocess/docx-preprocess.service';
 import { RagflowService } from '@/common/ragflow/ragflow.service';
 import { sanitizeFilename } from '@/common/utils';
@@ -76,6 +77,10 @@ export class KnowledgeBaseService {
       throw new ForbiddenException('仅部门主管可创建部门公开知识库');
     }
 
+    const parserConfig = {
+      ...DEFAULT_KB_PARSER_CONFIG,
+      ...dto.parserConfig,
+    };
     const ragflowData = await this.ragflow.request<{ id: string }>(
       'POST',
       '/api/v1/datasets',
@@ -83,7 +88,7 @@ export class KnowledgeBaseService {
         name: dto.name,
         embedding_model: dto.embeddingModel,
         chunk_method: dto.chunkMethod,
-        parser_config: dto.parserConfig,
+        parser_config: parserConfig,
         description: dto.description,
         permission: dto.permission,
         avatar: dto.avatar,

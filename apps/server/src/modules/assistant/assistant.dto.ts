@@ -8,6 +8,18 @@ import {
   IsString,
 } from 'class-validator';
 
+import {
+  DEFAULT_ASSISTANT_FREQUENCY_PENALTY,
+  DEFAULT_ASSISTANT_KEYWORDS_SIMILARITY_WEIGHT,
+  DEFAULT_ASSISTANT_MAX_TOKENS,
+  DEFAULT_ASSISTANT_PRESENCE_PENALTY,
+  DEFAULT_ASSISTANT_SIMILARITY_THRESHOLD,
+  DEFAULT_ASSISTANT_SYSTEM_PROMPT,
+  DEFAULT_ASSISTANT_TEMPERATURE,
+  DEFAULT_ASSISTANT_TOP_K,
+  DEFAULT_ASSISTANT_TOP_N,
+  DEFAULT_ASSISTANT_TOP_P,
+} from '@/common/defaults/assistant.defaults';
 import { PaginateDto } from '@/common/dto/base.dto';
 
 // ─── Assistant DTO ───────────────────────────────
@@ -53,7 +65,7 @@ export class CreateAssistantDto {
   @IsNumber()
   @IsOptional()
   @Type(() => Number)
-  frequencyPenalty?: number = 0.7;
+  frequencyPenalty?: number = DEFAULT_ASSISTANT_FREQUENCY_PENALTY;
 
   /**
    * 关键词相似度权重
@@ -62,7 +74,8 @@ export class CreateAssistantDto {
   @IsNumber()
   @IsOptional()
   @Type(() => Number)
-  keywordsSimilarityWeight?: number = 0.7;
+  keywordsSimilarityWeight?: number =
+    DEFAULT_ASSISTANT_KEYWORDS_SIMILARITY_WEIGHT;
 
   /**
    * 最大生成长度
@@ -71,7 +84,7 @@ export class CreateAssistantDto {
   @IsNumber()
   @IsOptional()
   @Type(() => Number)
-  maxTokens?: number = 512;
+  maxTokens?: number = DEFAULT_ASSISTANT_MAX_TOKENS;
 
   /**
    * 聊天模型名称（格式: model_name@provider）
@@ -103,7 +116,7 @@ export class CreateAssistantDto {
   @IsNumber()
   @IsOptional()
   @Type(() => Number)
-  presencePenalty?: number = 0.4;
+  presencePenalty?: number = DEFAULT_ASSISTANT_PRESENCE_PENALTY;
 
   /**
    * 提示词模板
@@ -111,7 +124,7 @@ export class CreateAssistantDto {
    */
   @IsOptional()
   @IsString()
-  prompt?: string;
+  prompt?: string = DEFAULT_ASSISTANT_SYSTEM_PROMPT;
 
   /**
    * 加权关键字相似度
@@ -120,7 +133,7 @@ export class CreateAssistantDto {
   @IsNumber()
   @IsOptional()
   @Type(() => Number)
-  similarityThreshold?: number = 0.2;
+  similarityThreshold?: number = DEFAULT_ASSISTANT_SIMILARITY_THRESHOLD;
 
   /**
    * 温度
@@ -129,7 +142,7 @@ export class CreateAssistantDto {
   @IsNumber()
   @IsOptional()
   @Type(() => Number)
-  temperature?: number = 0.1;
+  temperature?: number = DEFAULT_ASSISTANT_TEMPERATURE;
 
   /**
    * 重新排序或选择前 k 个项目
@@ -138,7 +151,7 @@ export class CreateAssistantDto {
   @IsNumber()
   @IsOptional()
   @Type(() => Number)
-  topK?: number = 1024;
+  topK?: number = DEFAULT_ASSISTANT_TOP_K;
 
   /**
    * 生成的回复数量
@@ -147,7 +160,7 @@ export class CreateAssistantDto {
   @IsNumber()
   @IsOptional()
   @Type(() => Number)
-  topN?: number = 6;
+  topN?: number = DEFAULT_ASSISTANT_TOP_N;
 
   /**
    * 核心采样
@@ -156,7 +169,7 @@ export class CreateAssistantDto {
   @IsNumber()
   @IsOptional()
   @Type(() => Number)
-  topP?: number = 0.3;
+  topP?: number = DEFAULT_ASSISTANT_TOP_P;
 }
 
 export class QueryAssistantDto extends IntersectionType(
