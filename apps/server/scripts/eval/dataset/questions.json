@@ -644,17 +644,17 @@
       "question": "“2022年顺北43井东三维地震勘探项目”施工的起止日期是什么？实际完成的接收点总数和炮点总数是多少？",
       "reference": {
         "doc": "2022年塔里木盆地顺托果勒区块顺北43井东三维地震勘探资料采集项目测量施工总结报告",
-        "section": "2.1-施工起止日期、2.3-完成测线长度、物理点数"
+        "section": "2.1-施工起止日期；2.3-完成测线长度、物理点数；同时第 43 页表格表头另写「施工日期：2021年10月01日 至 2022年01月09日」（项目部组建到完成放样的工程周期），故 2021-10-01 与 2021-10-23 两种起始表述均合法。"
       },
       "answer": {
-        "raw": "施工起止：2021年10月23日开始野外放样，2022年01月09日完成放样作业。\n实际完成接收点总数：236928个\n实际完成炮点总数：60374炮（其中加密炮点74个，变观炮点316个）"
+        "raw": "施工起止：docx 同时存在两种合法表述——(a) 表格表头：2021年10月01日 至 2022年01月09日（从项目部组建到完成放样作业的工程周期）；(b) 正文 2.1 节：2021年10月23日开始野外放样，2022年01月09日完成放样作业（实际野外作业窗口）。\n实际完成接收点总数：236928 个\n实际完成炮点总数：60374 炮（其中加密炮点 74 个，变观炮点 316 个）"
       },
       "mustContain": [
         {
           "pattern": "2021",
           "type": "number",
           "unit": "年",
-          "context": "施工起止：",
+          "context": "施工起止年",
           "severity": "critical"
         },
         {
@@ -665,78 +665,66 @@
           "severity": "critical"
         },
         {
-          "pattern": "23",
-          "type": "number",
-          "unit": "日",
-          "context": "施工起止：2021年10月",
-          "severity": "critical"
-        },
-        {
           "pattern": "2022",
           "type": "number",
           "unit": "年",
-          "context": "2021年10月23日开始野外放样，",
+          "context": "完成年份",
+          "severity": "critical"
+        },
+        {
+          "pattern": "09",
+          "type": "number",
+          "unit": "日",
+          "context": "完成日 2022年01月09日",
+          "severity": "critical"
+        },
+        {
+          "pattern": "23",
+          "type": "number",
+          "unit": "日",
+          "context": "野外放样起始日 10月23日；docx 内还有 10月01日（表格表头），任一即可",
           "severity": "supporting"
         },
         {
           "pattern": "01",
           "type": "number",
           "unit": "月",
-          "context": "10月23日开始野外放样，2022年",
-          "severity": "supporting"
-        },
-        {
-          "pattern": "09",
-          "type": "number",
-          "unit": "日",
-          "context": "23日开始野外放样，2022年01月",
+          "context": "完成月份 2022年01月",
           "severity": "supporting"
         },
         {
           "pattern": "236928",
           "type": "number",
           "unit": "个",
-          "context": "完成放样作业。实际完成接收点总数：",
+          "context": "实际完成接收点总数",
           "severity": "supporting"
         },
         {
           "pattern": "60374",
           "type": "number",
           "unit": "炮",
-          "context": "：236928个实际完成炮点总数：",
+          "context": "实际完成炮点总数",
           "severity": "supporting"
         },
         {
           "pattern": "74",
           "type": "number",
           "unit": "个",
-          "context": "炮点总数：60374炮（其中加密炮点",
+          "context": "加密炮点",
           "severity": "supporting"
         },
         {
           "pattern": "316",
           "type": "number",
           "unit": "个",
-          "context": "74炮（其中加密炮点74个，变观炮点",
-          "severity": "supporting"
-        },
-        {
-          "pattern": "2021年10月23日",
-          "type": "string",
-          "context": "日期",
-          "severity": "supporting"
-        },
-        {
-          "pattern": "2022年01月09日",
-          "type": "string",
-          "context": "日期",
+          "context": "变观炮点",
           "severity": "supporting"
         }
       ],
       "mustNotContain": [],
       "useLLMJudge": false,
       "llmJudgeRubric": "",
-      "notes": ""
+      "notes": "docx 自身有 ground-truth 模糊：第 7 页正文 2.1 节写「2021年10月01日 开始寻找控制点、埋石…10月23日 开始野外放样，2022年01月09日 完成了放样作业」，第 43 页表格表头另写「施工日期：2021年10月01日 至 2022年01月09日」。LLM 复述任何一种都符合 docx 字面量，不应判错。本次修订把「23」从 critical 降到 supporting，把「2022 / 09」加到 critical（任何合理回答必须包含完成日期 2022-01-09）。同时去掉重复的 mustContain 字符串项（数字 mustContain 已覆盖）。"
     },
     {
       "id": 15,
