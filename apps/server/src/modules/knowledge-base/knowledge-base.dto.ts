@@ -69,7 +69,9 @@ export class CreateKnowledgeBaseDto {
   order?: number;
 
   /**
-   * 数据集分析器的配置设置
+   * 数据集分析器的配置设置。不传则 service 浅合并 `DEFAULT_KB_PARSER_CONFIG`
+   * （layout_recognize=DeepDOC / chunk_token_num=512 / delimiter='\n' / raptor+graphrag
+   * 默认 OFF，通过 env `KB_DEFAULT_RAPTOR=1` / `KB_DEFAULT_GRAPHRAG=1` 显式打开）。
    * @example {"chunkTokenNum": 1024}
    */
   @IsObject()
