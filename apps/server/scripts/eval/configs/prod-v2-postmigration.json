@@ -1,0 +1,14 @@
+{
+  "experimentId": "prod-v2-postmigration",
+  "_desc": "prod assistant + dataset + prompt v2，跑在 docx pandoc 重 ingest 之后；与 prod-v2-holdout / prod-v2-dev 同 retrieval/assistant，仅 split 改 all 以一次覆盖 dev+holdout",
+  "datasetIds": ["6ec4cd18476611f1a9b8932ed31a3307"],
+  "assistantId": "b7e94c58476611f1a9b8932ed31a3307",
+  "split": "all",
+  "retrieval": {
+    "topK": 1024,
+    "similarityThreshold": 0.2,
+    "vectorSimilarityWeight": 0.3,
+    "keyword": false,
+    "topN": 6
+  }
+}
