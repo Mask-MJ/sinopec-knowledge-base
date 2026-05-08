@@ -1,0 +1,14 @@
+{
+  "experimentId": "prod-v2-topn10",
+  "_desc": "在 prod-v2-after-reparse 基础上把 topN 6 → 10，让含'一升一降三确保'的 chunk 更可能进 LLM prompt（Q6 retrieval 偏差专项试验）",
+  "datasetIds": ["6ec4cd18476611f1a9b8932ed31a3307"],
+  "assistantId": "b7e94c58476611f1a9b8932ed31a3307",
+  "split": "all",
+  "retrieval": {
+    "topK": 1024,
+    "similarityThreshold": 0.2,
+    "vectorSimilarityWeight": 0.3,
+    "keyword": false,
+    "topN": 10
+  }
+}

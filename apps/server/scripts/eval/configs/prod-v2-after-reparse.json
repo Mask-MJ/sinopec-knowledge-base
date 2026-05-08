@@ -1,0 +1,14 @@
+{
+  "experimentId": "prod-v2-after-reparse",
+  "_desc": "prod assistant + dataset + prompt v2，跑在 6 份 .md doc 一份份重 parse、RAPTOR/GraphRAG 重建之后；与 prod-v2-postmigration 同 retrieval/assistant，对比 Q6 retrieval 是否回归 + Q19 修订 rubric 是否暴露隐藏胜利",
+  "datasetIds": ["6ec4cd18476611f1a9b8932ed31a3307"],
+  "assistantId": "b7e94c58476611f1a9b8932ed31a3307",
+  "split": "all",
+  "retrieval": {
+    "topK": 1024,
+    "similarityThreshold": 0.2,
+    "vectorSimilarityWeight": 0.3,
+    "keyword": false,
+    "topN": 6
+  }
+}
