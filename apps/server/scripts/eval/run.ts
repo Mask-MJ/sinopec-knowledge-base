@@ -14,6 +14,12 @@ import { resolve } from 'node:path';
 
 import pLimit from 'p-limit';
 
+import {
+  averageScores,
+  parseJudgeScore,
+  resolveJudgeReplicas,
+  runReplicas,
+} from './judge';
 import { cleanText, scoreAnswer, scoreRetrieval } from './scoring';
 
 interface ExperimentConfig {
@@ -50,6 +56,7 @@ interface QuestionResult {
   answerScore: AnswerScore | null;
   answerText: string;
   durationMs: number;
+  llmJudgeReplicas?: (null | number)[];
   llmJudgeScore?: null | number;
   qid: number;
   question: string;
@@ -161,51 +168,71 @@ async function callRetrieval(
 }
 
 const JUDGE_ASSISTANT_ID = process.env.RAGFLOW_JUDGE_ASSISTANT_ID ?? '';
+const JUDGE_REPLICAS = resolveJudgeReplicas(process.env.EVAL_JUDGE_REPLICAS);
 
-/** LLM-as-judge 评分（用于概念题）。返回 0-1 之间的浮点数。 */
-async function callLLMJudge(
+interface JudgeResult {
+  replicas: (null | number)[];
+  score: null | number;
+}
+
+/** 单次 judge 调用：建 session → 提交 prompt → 解析返回。失败抛出供 runReplicas 捕获。 */
+async function callJudgeOnce(
   q: QuestionRow,
   modelAnswer: string,
   rubric: string,
 ): Promise<null | number> {
-  if (!JUDGE_ASSISTANT_ID) return null;
-  if (!rubric || !modelAnswer) return null;
-  try {
-    const session = await api<{ id: string }>(
-      'POST',
-      `/api/v1/chats/${JUDGE_ASSISTANT_ID}/sessions`,
-      { name: `judge-q${q.id}-${Date.now()}` },
-    );
-    const prompt = [
-      `问题：${q.question}`,
-      ``,
-      `参考答案：`,
-      (q as any).answer?.raw ?? '',
-      ``,
-      `评分标准：`,
-      rubric,
-      ``,
-      `模型回答：`,
-      modelAnswer,
-      ``,
-      `请只输出一个 0 到 1 之间的小数（保留 2 位）。不要任何文字解释、不要 markdown、不要单位。`,
-    ].join('\n');
-    const data = await api<{ answer?: string }>(
-      'POST',
-      `/api/v1/chats/${JUDGE_ASSISTANT_ID}/completions`,
-      { question: prompt, stream: false, session_id: session.id },
-    );
-    const raw = (data.answer ?? '').trim();
-    // 抽第一个浮点数
-    const m = raw.match(/(\d+(?:\.\d+)?)/);
-    if (!m?.[1]) return null;
-    const score = Number.parseFloat(m[1]);
-    if (Number.isNaN(score)) return null;
-    return Math.max(0, Math.min(1, score));
-  } catch (error) {
-    console.warn(`Q${q.id}: judge call failed:`, (error as Error).message);
-    return null;
-  }
+  const session = await api<{ id: string }>(
+    'POST',
+    `/api/v1/chats/${JUDGE_ASSISTANT_ID}/sessions`,
+    { name: `judge-q${q.id}-${Date.now()}` },
+  );
+  const prompt = [
+    `问题：${q.question}`,
+    ``,
+    `参考答案：`,
+    (q as any).answer?.raw ?? '',
+    ``,
+    `评分标准：`,
+    rubric,
+    ``,
+    `模型回答：`,
+    modelAnswer,
+    ``,
+    `请只输出一个 0 到 1 之间的小数（保留 2 位）。不要任何文字解释、不要 markdown、不要单位。`,
+  ].join('\n');
+  const data = await api<{ answer?: string }>(
+    'POST',
+    `/api/v1/chats/${JUDGE_ASSISTANT_ID}/completions`,
+    { question: prompt, stream: false, session_id: session.id },
+  );
+  return parseJudgeScore(data.answer ?? '');
+}
+
+/**
+ * LLM-as-judge 评分（用于概念题）。
+ * 串行跑 N 次（N = EVAL_JUDGE_REPLICAS，默认 3，避免 RAGFlow rate limit），
+ * 单次失败跳过，全部失败才返回 score=null。
+ * 返回均值（四舍五入到 2 位小数）+ 每次原始分数（用于事后审计）。
+ */
+async function callLLMJudge(
+  q: QuestionRow,
+  modelAnswer: string,
+  rubric: string,
+): Promise<JudgeResult> {
+  if (!JUDGE_ASSISTANT_ID) return { score: null, replicas: [] };
+  if (!rubric || !modelAnswer) return { score: null, replicas: [] };
+  const replicas = await runReplicas(JUDGE_REPLICAS, async (i) => {
+    try {
+      return await callJudgeOnce(q, modelAnswer, rubric);
+    } catch (error) {
+      console.warn(
+        `Q${q.id}: judge call ${i + 1}/${JUDGE_REPLICAS} failed:`,
+        (error as Error).message,
+      );
+      throw error;
+    }
+  });
+  return { score: averageScores(replicas), replicas };
 }
 
 async function callChat(
@@ -301,15 +328,18 @@ async function processOne(
   const answerText = cleanText(await callChat(q, cfg));
   let answerScore: AnswerScore | null = null;
   let llmJudgeScore: null | number = null;
+  let llmJudgeReplicas: (null | number)[] | undefined;
   if (answerText) {
     if (q.useLLMJudge) {
       const rubric = (q as any).llmJudgeRubric ?? '';
-      llmJudgeScore = await callLLMJudge(q, answerText, rubric);
+      const judge = await callLLMJudge(q, answerText, rubric);
+      llmJudgeScore = judge.score;
+      llmJudgeReplicas = judge.replicas;
     } else {
       answerScore = scoreAnswer(answerText, q.mustContain, q.mustNotContain);
     }
   }
-  const result: QuestionResult & { llmJudgeScore?: null | number } = {
+  const result: QuestionResult = {
     qid: q.id,
     topic: q.topic,
     question: q.question,
@@ -317,6 +347,7 @@ async function processOne(
     answerText,
     answerScore,
     llmJudgeScore,
+    llmJudgeReplicas,
     durationMs: Date.now() - start,
     timestamp: new Date().toISOString(),
   };
