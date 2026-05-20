@@ -139,13 +139,16 @@ const UNIT_GROUPS: Record<string, number> = {
 /**
  * 判断两个单位是否兼容：
  *   - 完全相等 → 兼容
- *   - 任一为空 → 兼容（候选无单位时放过，不强迫模型每次都带单位）
- *   - 同组 → 兼容
+ *   - target 无单位（fact 本就是裸数字）→ 兼容
+ *   - target 有单位但 candidate 无单位 → 不兼容（修 Q19/Q26 类裸数字误命中：
+ *     "顺8井北" 中的 "8" 不应命中 fact '8m'；"3 条" 中的 "3" 不应命中 fact '3m'）
+ *   - 同组 → 兼容（计数 / 长度 / 面积等领域同义单位互通）
  *   - 否则 → 冲突
  */
 export function unitsCompatible(target: string, candidate: string): boolean {
   if (target === candidate) return true;
-  if (!target || !candidate) return true;
+  if (!target) return true;
+  if (!candidate) return false;
   const tg = UNIT_GROUPS[target];
   const cg = UNIT_GROUPS[candidate];
   return tg !== undefined && tg === cg;

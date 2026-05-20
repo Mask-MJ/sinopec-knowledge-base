@@ -346,9 +346,15 @@ describe('unitsCompatible', () => {
   it('米类同组', () => {
     expect(unitsCompatible('m', 'mm')).toBe(true);
   });
-  it('候选空单位放过', () => {
-    expect(unitsCompatible('炮', '')).toBe(true);
-    expect(unitsCompatible('m', '')).toBe(true);
+  it('target 无单位放过（fact 本就是裸数字）', () => {
+    expect(unitsCompatible('', '炮')).toBe(true);
+    expect(unitsCompatible('', 'm')).toBe(true);
+  });
+  it('target 有单位但 candidate 无单位 → 拒绝', () => {
+    // 修 Q19/Q26 类裸数字误命中：fact '8m' 不应被 "顺8井北" 中的 "8" 命中
+    expect(unitsCompatible('炮', '')).toBe(false);
+    expect(unitsCompatible('m', '')).toBe(false);
+    expect(unitsCompatible('%', '')).toBe(false);
   });
   it('跨组拒绝', () => {
     expect(unitsCompatible('炮', 'm')).toBe(false);
