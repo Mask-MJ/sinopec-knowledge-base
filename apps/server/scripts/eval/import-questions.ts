@@ -9,7 +9,7 @@ import { resolve } from 'node:path';
 
 const DOCX_PATH = resolve(
   __dirname,
-  '../../../../test-docs/RAG问题和参考答案.docx',
+  '../../../../test-docs/0420/RAG问题和参考答案.docx',
 );
 const OUT_DIR = resolve(__dirname, 'dataset');
 const OUT_PATH = resolve(OUT_DIR, 'questions.json');
@@ -224,7 +224,7 @@ for (const ids of Object.values(byTopic)) {
 
 const out = {
   version: '0.1.0',
-  source: 'test-docs/RAG问题和参考答案.docx',
+  source: 'test-docs/0420/RAG问题和参考答案.docx',
   generatedAt: new Date().toISOString(),
   splits: {
     dev: dev.sort((a, b) => a - b),
