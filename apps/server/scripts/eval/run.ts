@@ -1,4 +1,4 @@
-/* eslint-disable unicorn/prefer-module , unicorn/no-process-exit , unicorn/prefer-single-call , no-console , no-lone-blocks , eqeqeq , @typescript-eslint/no-explicit-any , @typescript-eslint/no-unsafe-assignment , @typescript-eslint/no-unsafe-member-access , @typescript-eslint/no-unsafe-argument , @typescript-eslint/no-unsafe-return , @typescript-eslint/restrict-template-expressions , @typescript-eslint/use-unknown-in-catch-callback-variable */
+/* eslint-disable unicorn/prefer-module , unicorn/no-process-exit , unicorn/prefer-single-call , no-console , no-lone-blocks , eqeqeq , @typescript-eslint/no-explicit-any , @typescript-eslint/no-unsafe-assignment , @typescript-eslint/no-unsafe-member-access , @typescript-eslint/no-unsafe-argument , @typescript-eslint/no-unsafe-return , @typescript-eslint/restrict-template-expressions , @typescript-eslint/use-unknown-in-catch-callback-variable , turbo/no-undeclared-env-vars */
 // cspell:disable-file
 // scripts/eval/ 是开发评测工具，按照 ESLint config-protection 钩子要求，
 // 不修改 eslint.config.mjs ignores；改用 file-level disable 注释。
@@ -24,6 +24,8 @@ import { cleanText, scoreAnswer, scoreRetrieval } from './scoring';
 
 interface ExperimentConfig {
   assistantId?: string;
+  /** 题集相对路径（相对 scripts/eval/dataset/）；缺省读 questions.json（0420 第一批） */
+  dataset?: string;
   datasetIds: string[];
   experimentId: string;
   retrieval: {
@@ -114,11 +116,17 @@ function parseArgs(argv: string[]) {
   let configPath = '';
   let split: 'all' | 'dev' | 'holdout' | undefined;
   let resume = false;
+  let dataset: string | undefined;
   for (let i = 0; i < argv.length; i++) {
     const a = argv[i];
     switch (a) {
       case '--config': {
         configPath = argv[++i] ?? '';
+        break;
+      }
+      case '--dataset': {
+        // 题集文件名（相对 scripts/eval/dataset/），覆盖 config.dataset
+        dataset = argv[++i] ?? '';
         break;
       }
       case '--resume': {
@@ -136,11 +144,11 @@ function parseArgs(argv: string[]) {
   }
   if (!configPath) {
     console.error(
-      'Usage: tsx run.ts --config <path> [--split dev|holdout|all] [--resume]',
+      'Usage: tsx run.ts --config <path> [--split dev|holdout|all] [--resume] [--dataset <file>]',
     );
     process.exit(1);
   }
-  return { configPath, split, resume };
+  return { configPath, split, resume, dataset };
 }
 
 async function callRetrieval(
@@ -431,11 +439,13 @@ async function main(): Promise<void> {
     configPath,
     split: cliSplit,
     resume,
+    dataset: cliDataset,
   } = parseArgs(process.argv.slice(2));
   const cfg: ExperimentConfig = JSON.parse(readFileSync(configPath, 'utf8'));
   const split = cliSplit ?? cfg.split ?? 'dev';
+  const datasetFile = cliDataset ?? cfg.dataset ?? 'questions.json';
 
-  const setPath = resolve(__dirname, 'dataset/questions.json');
+  const setPath = resolve(__dirname, 'dataset', datasetFile);
   const set: QuestionSet = JSON.parse(readFileSync(setPath, 'utf8'));
   const ids =
     split === 'all' ? set.questions.map((q) => q.id) : set.splits[split];
@@ -445,6 +455,7 @@ async function main(): Promise<void> {
   mkdirSync(outputDir, { recursive: true });
 
   console.log(`\nExperiment: ${cfg.experimentId}`);
+  console.log(`Dataset: ${datasetFile}`);
   console.log(`Split: ${split} (${questions.length} questions)`);
   console.log(`Output: ${outputDir}`);
   console.log(`Host: ...${HOST.slice(-25)}  Key: ...${API_KEY.slice(-4)}`);
