@@ -11,6 +11,19 @@ import { router } from '@/router';
 import { useUserStore } from '@/stores/modules/user';
 import { formatDateTime } from '@/utils/date';
 
+/**
+ * API 错误类
+ *
+ * 标识由 request 拦截器处理过的错误（已通过 $message 展示提示）。
+ * 调用方通过 `instanceof ApiError` 判断是否需要二次弹错。
+ */
+export class ApiError extends Error {
+  constructor(message: string) {
+    super(message);
+    this.name = 'ApiError';
+  }
+}
+
 const UNPROTECTED_ROUTES = [
   '/api/auth/authentication/refresh-token',
   '/api/auth/authentication/sign-in',
@@ -201,9 +214,11 @@ const authMiddleware: Middleware = {
               window.$message.error(messages);
             }
           }
-          throw new Error(isString(errorMsg) ? errorMsg : 'Request failed');
+          throw new ApiError(
+            isString(errorMsg) ? errorMsg : 'Request failed',
+          );
         }
-        throw new Error(`Request failed with status ${response.status}`);
+        throw new ApiError(`Request failed with status ${response.status}`);
       }
     }
 
