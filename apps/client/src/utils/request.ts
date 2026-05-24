@@ -8,6 +8,7 @@ import { storeToRefs } from 'pinia';
 import { LOGIN_PATH } from '@/config/constants';
 import { $t } from '@/locales';
 import { router } from '@/router';
+import { useUserStore } from '@/stores/modules/user';
 import { formatDateTime } from '@/utils/date';
 
 const UNPROTECTED_ROUTES = [
