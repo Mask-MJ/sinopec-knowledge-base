@@ -1,13 +1,25 @@
 <script lang="ts" setup>
-import type { ButtonProps, PopconfirmProps, TooltipProps } from 'naive-ui';
+import type {
+  ButtonProps,
+  DropdownOption,
+  PopconfirmProps,
+  TooltipProps,
+} from 'naive-ui';
 
 import { isBoolean, isFunction } from 'lodash-es';
-import { NButton, NPopconfirm, NSpace, NTooltip } from 'naive-ui';
+import {
+  NButton,
+  NDropdown,
+  NPopconfirm,
+  NSpace,
+  NTooltip,
+  useDialog,
+} from 'naive-ui';
 
 import { $t } from '@/locales';
 import { hasPermission } from '@/utils/permission';
 
-interface ActionItem {
+export interface ActionItem {
   auth?: string;
   buttonProps?: ButtonProps;
   icon?: string;
@@ -21,8 +33,23 @@ interface ActionItem {
   // 编辑和删除几乎每个表格都有，所以提取出来
   type?: 'del' | 'edit';
 }
+
+export interface DropdownActionItem {
+  auth?: string;
+  confirm?: { content: string; title: string; type?: 'error' | 'warning' };
+  icon?: string;
+  ifShow?: ((item: DropdownActionItem) => boolean) | boolean;
+  key: string;
+  label: string;
+  onClick: () => void;
+}
+
 const props = defineProps({
   actions: { type: Array as PropType<ActionItem[]>, default: () => [] },
+  dropdownActions: {
+    type: Array as PropType<DropdownActionItem[]>,
+    default: () => [],
+  },
   divider: { type: Boolean, default: false },
   stopButtonPropagation: { type: Boolean, default: true },
 });
@@ -66,6 +93,7 @@ const getActions = computed(() => {
           buttonProps: { type: 'error', quaternary: true },
           popConfirmProps: {
             content: $t('common.deleteConfirm'),
+            positiveButtonProps: { type: 'error' },
             onPositiveClick: async () => {
               try {
                 await action.onClick?.();
@@ -83,6 +111,51 @@ const getActions = computed(() => {
       }
     });
 });
+
+// ==================== Dropdown ====================
+
+const visibleDropdownActions = computed(() => {
+  return (toRaw(props.dropdownActions) || []).filter((item) => {
+    if (item.auth && !hasPermission(item.auth)) return false;
+    if (isBoolean(item.ifShow)) return item.ifShow;
+    if (isFunction(item.ifShow)) return item.ifShow(item);
+    return true;
+  });
+});
+
+const dropdownOptions = computed<DropdownOption[]>(() =>
+  visibleDropdownActions.value.map((item) => ({
+    label: item.label,
+    key: item.key,
+    icon: item.icon ? () => h('i', { class: item.icon }) : undefined,
+  })),
+);
+
+const dialog = useDialog();
+const showDropdown = ref(false);
+
+function handleDropdownSelect(key: string) {
+  const item = visibleDropdownActions.value.find((a) => a.key === key);
+  if (!item) return;
+  showDropdown.value = false;
+  if (item.confirm) {
+    const dialogMethod =
+      item.confirm.type === 'error' ? dialog.error : dialog.warning;
+    dialogMethod({
+      title: item.confirm.title,
+      content: item.confirm.content,
+      positiveText: $t('common.confirm'),
+      negativeText: $t('common.cancel'),
+      onPositiveClick: () => item.onClick(),
+    });
+  } else {
+    item.onClick();
+  }
+}
+
+const hasContent = computed(
+  () => getActions.value.length > 0 || visibleDropdownActions.value.length > 0,
+);
 
 function onCellClick(e: MouseEvent) {
   if (!props.stopButtonPropagation) return;
@@ -123,10 +196,25 @@ const renderButton = (action: ActionItem) => {
 </script>
 <template>
   <div @click="onCellClick">
-    <NSpace>
-      <template v-for="action in getActions" :key="`${action.label}`">
-        <RenderTooltip v-bind="action" />
-      </template>
-    </NSpace>
+    <template v-if="hasContent">
+      <NSpace align="center">
+        <template v-for="action in getActions" :key="`${action.label}`">
+          <RenderTooltip v-bind="action" />
+          <n-divider v-if="divider" vertical />
+        </template>
+        <NDropdown
+          v-if="visibleDropdownActions.length > 0"
+          :show="showDropdown"
+          trigger="manual"
+          :options="dropdownOptions"
+          @select="handleDropdownSelect"
+          @clickoutside="showDropdown = false"
+        >
+          <NButton quaternary size="small" @click="showDropdown = !showDropdown">
+            <i class="i-ant-design:ellipsis-outlined"></i>
+          </NButton>
+        </NDropdown>
+      </NSpace>
+    </template>
   </div>
 </template>
