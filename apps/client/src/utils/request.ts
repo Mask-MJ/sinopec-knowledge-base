@@ -124,10 +124,24 @@ const authMiddleware: Middleware = {
           unknown
         >;
 
-        if (response.url.includes('/api/auth/authentication/sign-in')) {
-          window.$message.error(
-            (data?.error as string | undefined) ?? 'Authentication failed',
-          );
+        // 登录 / 改密接口返回 401（密码错、用户不存在等）：直接展示错误，
+        // 不应走 token refresh 流程（旧密码错误 ≠ access token 过期）。
+        if (
+          response.url.includes('/api/auth/authentication/sign-in') ||
+          response.url.includes('/api/system/user/changePassword')
+        ) {
+          const rawError = data?.error;
+          const errorMsg =
+            typeof rawError === 'object' && rawError !== null
+              ? (rawError as { message?: unknown }).message
+              : rawError;
+          if (isString(errorMsg)) {
+            window.$message.error(errorMsg);
+          } else if (Array.isArray(errorMsg)) {
+            errorMsg.forEach((msg) => window.$message.error(String(msg)));
+          } else {
+            window.$message.error('Authentication failed');
+          }
           return response;
         }
 
