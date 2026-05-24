@@ -121,3 +121,6 @@ test-docs/
 # Eval runtime: env (with API keys) and per-experiment outputs
 **/.env.eval
 apps/server/scripts/eval/results/
+
+# Local git worktrees for parallel agent development
+.worktrees/
