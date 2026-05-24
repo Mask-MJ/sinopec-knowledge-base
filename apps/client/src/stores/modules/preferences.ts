@@ -14,7 +14,6 @@ import {
   createThemeToken,
   DEFAULT_PREFERENCES,
   getCssVarByTokens,
-  initPreferences,
 } from '@/config/preferences';
 import { loadLocaleMessages } from '@/locales';
 
@@ -23,7 +22,15 @@ type DeepPartial<T> = {
 };
 
 export const usePreferencesStore = defineStore('preferences-store', () => {
-  const state = ref<Preferences>(initPreferences());
+  // 用 useStorage 直接绑定 localStorage：刷新 / 重开标签都能恢复用户的
+  // 主题色、暗黑模式、语言、布局等偏好。mergeDefaults 保证后续 DEFAULT
+  // 新增字段对老用户不会丢。
+  const state = useStorage<Preferences>(
+    'preferences-store',
+    DEFAULT_PREFERENCES,
+    localStorage,
+    { mergeDefaults: true },
+  );
   const { css } = useStyleTag('', { id: 'theme-vars' });
   // 更新偏好设置
   const updatePreferences = (preferences: DeepPartial<Preferences>) => {
@@ -31,7 +38,7 @@ export const usePreferencesStore = defineStore('preferences-store', () => {
   };
   // 重置偏好设置
   function resetState() {
-    state.value = DEFAULT_PREFERENCES;
+    state.value = { ...DEFAULT_PREFERENCES };
   }
   // 设置主题颜色, 注入全局css变量
   function setupThemeVarsToGlobal(val: ThemeColor) {
