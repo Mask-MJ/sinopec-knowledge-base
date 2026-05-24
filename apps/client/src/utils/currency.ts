@@ -52,7 +52,6 @@ export function formatCurrency(
     }).format(num);
   } catch (error) {
     if (import.meta.env.DEV) {
-      // eslint-disable-next-line no-console
       console.error('[currency] formatCurrency failed', error);
     }
     return String(num);

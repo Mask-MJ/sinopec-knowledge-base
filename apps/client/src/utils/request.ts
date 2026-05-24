@@ -214,9 +214,7 @@ const authMiddleware: Middleware = {
               window.$message.error(messages);
             }
           }
-          throw new ApiError(
-            isString(errorMsg) ? errorMsg : 'Request failed',
-          );
+          throw new ApiError(isString(errorMsg) ? errorMsg : 'Request failed');
         }
         throw new ApiError(`Request failed with status ${response.status}`);
       }

@@ -26,7 +26,6 @@ export function useKnowledgeBaseOptions() {
       knowledgeBaseList.value = data?.list ?? [];
     } catch (error) {
       if (import.meta.env.DEV) {
-        // eslint-disable-next-line no-console
         console.warn('[useKnowledgeBaseOptions] fetch failed', error);
       }
       knowledgeBaseList.value = [];

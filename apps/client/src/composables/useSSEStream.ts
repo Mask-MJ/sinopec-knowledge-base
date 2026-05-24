@@ -96,7 +96,6 @@ export function useSSEStream() {
         }
       } catch (parseError) {
         if (import.meta.env.DEV) {
-          // eslint-disable-next-line no-console
           console.warn('[useSSEStream] failed to parse SSE line', parseError);
         }
       }

@@ -19,7 +19,7 @@ describe('fmtNumber', () => {
     expect(fmtNumber('abc')).toBe('-');
   });
   it('adds thousand separators', () => {
-    expect(fmtNumber(1234567)).toBe('1,234,567');
+    expect(fmtNumber(1_234_567)).toBe('1,234,567');
   });
 });
 

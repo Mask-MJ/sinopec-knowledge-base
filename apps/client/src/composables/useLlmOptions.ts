@@ -28,7 +28,6 @@ export function useLlmOptions(modelType?: 'chat' | 'embedding') {
       llmList.value = await getLlmList();
     } catch (error) {
       if (import.meta.env.DEV) {
-        // eslint-disable-next-line no-console
         console.warn('[useLlmOptions] fetch failed', error);
       }
       llmList.value = [];

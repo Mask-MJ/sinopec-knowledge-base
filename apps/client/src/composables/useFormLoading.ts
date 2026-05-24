@@ -33,7 +33,6 @@ export function useFormLoading() {
     } catch (error) {
       if (error instanceof ApiError) {
         if (import.meta.env.DEV) {
-          // eslint-disable-next-line no-console
           console.warn('[useFormLoading]', error.message);
         }
         return undefined;

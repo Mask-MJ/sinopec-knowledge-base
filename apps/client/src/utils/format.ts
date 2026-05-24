@@ -95,10 +95,7 @@ export const fmtCompact = (val: Formattable, digits = 2): string => {
  * 入参接受 `unknown` 以兼容 OpenAPI-typescript 生成的 Decimal2 字段
  * （运行时 number | string，schema 类型为 `Record<string, never>`）。
  */
-export const fmtCurrency = (
-  val: unknown,
-  currency?: null | string,
-): string => {
+export const fmtCurrency = (val: unknown, currency?: null | string): string => {
   const num = Number(val);
   if (Number.isNaN(num)) return '-';
   return formatCurrency(num, currency || 'USD');

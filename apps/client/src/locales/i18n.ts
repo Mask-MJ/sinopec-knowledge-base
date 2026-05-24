@@ -127,7 +127,6 @@ async function setupI18n(app: App, options: LocaleSetupOptions = {}) {
   // 也避免给真实用户的控制台增加噪音。
   i18n.global.setMissingHandler((locale, key) => {
     if (import.meta.env.DEV && options.missingWarn && key.includes('.')) {
-      // eslint-disable-next-line no-console
       console.warn(
         `[intlify] Not found '${key}' key in '${locale}' locale messages.`,
       );
