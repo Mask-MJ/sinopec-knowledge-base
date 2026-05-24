@@ -30,23 +30,17 @@ function subscribeTokenRefresh(
   refreshSubscribers.push({ resolve, reject });
 }
 
+// 通知前先快照并清空订阅列表，避免回调中再注册的订阅者被本轮通知吞掉。
 function onTokenRefreshed(newToken: string) {
-  refreshSubscribers.forEach(({ resolve }) => {
-    resolve(newToken);
-  });
+  const subscribers = refreshSubscribers;
   refreshSubscribers = [];
+  subscribers.forEach(({ resolve }) => resolve(newToken));
 }
 
 function onTokenRefreshFailed(error: unknown) {
-  refreshSubscribers.forEach(({ reject }) => {
-    reject(error);
-  });
+  const subscribers = refreshSubscribers;
   refreshSubscribers = [];
-}
-
-function resetRefreshState() {
-  isRefreshing = false;
-  refreshSubscribers = [];
+  subscribers.forEach(({ reject }) => reject(error));
 }
 
 async function safeParseJson(response: Response): Promise<unknown> {
@@ -93,11 +87,10 @@ function getUserStore() {
   return useUserStore();
 }
 
-function handleAuthFailure(error?: unknown) {
-  if (error !== undefined) {
-    onTokenRefreshFailed(error);
-  }
-  resetRefreshState();
+// 仅负责"清除登录态 + 跳登录页"。订阅者通知由调用方在更精确的时机触发，
+// 避免在同一异常路径上重复 reject。
+function handleAuthFailure() {
+  isRefreshing = false;
   getUserStore().$reset();
   window.$message.error($t('authentication.loginAgainSubTitle'));
   void router.push(LOGIN_PATH);
@@ -163,7 +156,7 @@ const authMiddleware: Middleware = {
         isRefreshing = true;
         try {
           const newToken = await getUserStore().refreshToken();
-          if (newToken) {
+          if (newToken?.accessToken) {
             onTokenRefreshed(newToken.accessToken);
             const newRequest = request.clone();
             newRequest.headers.set(
@@ -172,10 +165,14 @@ const authMiddleware: Middleware = {
             );
             return await fetch(newRequest);
           }
+          // refreshToken 返回 null / 空 token：必须显式通知所有等待中的订阅者，
+          // 否则 if(isRefreshing) 分支里 hang 住的请求 promise 永不 settle。
+          onTokenRefreshFailed(new Error('Token refresh returned empty'));
           handleAuthFailure();
           return response;
         } catch (error) {
-          handleAuthFailure(error);
+          onTokenRefreshFailed(error);
+          handleAuthFailure();
           return response;
         } finally {
           isRefreshing = false;
