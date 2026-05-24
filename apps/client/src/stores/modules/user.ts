@@ -149,6 +149,30 @@ export const useUserStore = defineStore('user-store', () => {
     return findMenu(accessMenus.value, path);
   };
 
+  /**
+   * 返回第一个对当前用户可见的菜单路径。
+   *
+   * 默认首页（如 `/`）无权限时，路由守卫调用此函数把用户降级到侧栏第一个
+   * 实际可访问的菜单，而不是直接跳 403 — 后者对刚被分配新角色的用户体验很差。
+   *
+   * 跳过：button 类型、hideInMenu、空路径的节点；递归找子节点。
+   */
+  const getFirstAccessibleMenu = (): null | string => {
+    const findFirst = (menus: MenuInfo[]): null | string => {
+      for (const menu of menus) {
+        if (menu.type === 'button' || menu.hideInMenu) continue;
+        if (menu.children?.length) {
+          const found = findFirst(menu.children);
+          if (found) return found;
+        } else if (menu.path) {
+          return menu.path;
+        }
+      }
+      return null;
+    };
+    return findFirst(accessMenus.value);
+  };
+
   const resetState = () => {
     accessCodes.value = [];
     accessMenus.value = [];
@@ -173,6 +197,7 @@ export const useUserStore = defineStore('user-store', () => {
     refreshToken,
     fetchMenuList,
     getMenuByPath,
+    getFirstAccessibleMenu,
     setAccessCodes,
     setAccessMenus,
     setToken,

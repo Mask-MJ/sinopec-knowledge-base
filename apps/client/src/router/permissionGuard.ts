@@ -109,8 +109,14 @@ function setupAccessGuard(router: Router) {
 
     if (to.path === '/') return { path: DEFAULT_HOME_PATH, replace: true };
 
-    // 如果没有访问权限，则跳转到403页面
+    // 没有权限：先尝试降级到侧栏第一个可访问菜单，仍无路可走才跳 403。
+    // 场景：管理员刚为用户分配了新角色，但 DEFAULT_HOME_PATH 不在新角色
+    // 权限内 — 直接 403 让人摸不着头脑，降级到首个可见菜单更友好。
     if (!userStore.hasAccess(to.path)) {
+      const fallback = userStore.getFirstAccessibleMenu();
+      if (fallback && fallback !== to.path) {
+        return { path: fallback, replace: true };
+      }
       return { path: '/403', replace: true };
     }
 

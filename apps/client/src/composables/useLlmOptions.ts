@@ -26,7 +26,10 @@ export function useLlmOptions(modelType?: 'chat' | 'embedding') {
     loading.value = true;
     try {
       llmList.value = await getLlmList();
-    } catch {
+    } catch (error) {
+      if (import.meta.env.DEV) {
+        console.warn('[useLlmOptions] fetch failed', error);
+      }
       llmList.value = [];
     } finally {
       loading.value = false;

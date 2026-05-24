@@ -46,12 +46,15 @@ export function useDateRangeShortcuts(
         dayjs().subtract(1, 'day').endOf('day').valueOf(),
       ],
     }),
+    // 起点也以 getMaxDate() 为基准回推，保证跨度始终等于声明天数。
+    // 以前用 dayjs() 起点 + getMaxDate() 终点，disableDays > 0 时会缩短窗口
+    // （如 disableDays=2 的 "最近 7 天" 实际只剩 5 天）。
     [$t('page.erp.shop.last7Days')]: () => [
-      dayjs().subtract(6, 'day').startOf('day').valueOf(),
+      getMaxDate().subtract(6, 'day').startOf('day').valueOf(),
       getMaxDate().endOf('day').valueOf(),
     ],
     [$t('page.erp.shop.last30Days')]: () => [
-      dayjs().subtract(29, 'day').startOf('day').valueOf(),
+      getMaxDate().subtract(29, 'day').startOf('day').valueOf(),
       getMaxDate().endOf('day').valueOf(),
     ],
     [$t('page.erp.shop.thisMonth')]: () => [

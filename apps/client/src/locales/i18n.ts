@@ -123,9 +123,10 @@ async function setupI18n(app: App, options: LocaleSetupOptions = {}) {
   app.use(i18n);
   await loadLocaleMessages(defaultLocale);
 
-  // 在控制台打印警告
+  // 仅在 DEV 提示 missing key — 生产环境不应通过 console 泄露 i18n key 结构，
+  // 也避免给真实用户的控制台增加噪音。
   i18n.global.setMissingHandler((locale, key) => {
-    if (options.missingWarn && key.includes('.')) {
+    if (import.meta.env.DEV && options.missingWarn && key.includes('.')) {
       console.warn(
         `[intlify] Not found '${key}' key in '${locale}' locale messages.`,
       );

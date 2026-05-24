@@ -11,16 +11,7 @@ import type { GlobalThemeOverrides } from 'naive-ui';
 import { TinyColor } from '@ctrl/tinycolor';
 import { getColors } from 'theme-colors';
 
-import { DEFAULT_PREFERENCES } from './config';
 import { themeVars } from './vars';
-
-export function initPreferences() {
-  // app.config.globalProperties.$preferences = usePreferencesStore();
-  // const isProd = import.meta.env.PROD
-  // if (!isProd) return DEFAULT_PREFERENCES
-  const preferences = useStorage('preferences-store', DEFAULT_PREFERENCES);
-  return preferences.value;
-}
 
 function getPaletteColorByNumber(color: string, number: number): string {
   const theme = getColors(new TinyColor(color).toHexString());

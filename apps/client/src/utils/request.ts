@@ -8,7 +8,21 @@ import { storeToRefs } from 'pinia';
 import { LOGIN_PATH } from '@/config/constants';
 import { $t } from '@/locales';
 import { router } from '@/router';
+import { useUserStore } from '@/stores/modules/user';
 import { formatDateTime } from '@/utils/date';
+
+/**
+ * API 错误类
+ *
+ * 标识由 request 拦截器处理过的错误（已通过 $message 展示提示）。
+ * 调用方通过 `instanceof ApiError` 判断是否需要二次弹错。
+ */
+export class ApiError extends Error {
+  constructor(message: string) {
+    super(message);
+    this.name = 'ApiError';
+  }
+}
 
 const UNPROTECTED_ROUTES = [
   '/api/auth/authentication/refresh-token',
@@ -29,23 +43,21 @@ function subscribeTokenRefresh(
   refreshSubscribers.push({ resolve, reject });
 }
 
+// 通知前先快照并清空订阅列表，避免回调中再注册的订阅者被本轮通知吞掉。
 function onTokenRefreshed(newToken: string) {
-  refreshSubscribers.forEach(({ resolve }) => {
+  const subscribers = refreshSubscribers;
+  refreshSubscribers = [];
+  subscribers.forEach(({ resolve }) => {
     resolve(newToken);
   });
-  refreshSubscribers = [];
 }
 
 function onTokenRefreshFailed(error: unknown) {
-  refreshSubscribers.forEach(({ reject }) => {
+  const subscribers = refreshSubscribers;
+  refreshSubscribers = [];
+  subscribers.forEach(({ reject }) => {
     reject(error);
   });
-  refreshSubscribers = [];
-}
-
-function resetRefreshState() {
-  isRefreshing = false;
-  refreshSubscribers = [];
 }
 
 async function safeParseJson(response: Response): Promise<unknown> {
@@ -92,11 +104,10 @@ function getUserStore() {
   return useUserStore();
 }
 
-function handleAuthFailure(error?: unknown) {
-  if (error !== undefined) {
-    onTokenRefreshFailed(error);
-  }
-  resetRefreshState();
+// 仅负责"清除登录态 + 跳登录页"。订阅者通知由调用方在更精确的时机触发，
+// 避免在同一异常路径上重复 reject。
+function handleAuthFailure() {
+  isRefreshing = false;
   getUserStore().$reset();
   window.$message.error($t('authentication.loginAgainSubTitle'));
   void router.push(LOGIN_PATH);
@@ -123,10 +134,24 @@ const authMiddleware: Middleware = {
           unknown
         >;
 
-        if (response.url.includes('/api/auth/authentication/sign-in')) {
-          window.$message.error(
-            (data?.error as string | undefined) ?? 'Authentication failed',
-          );
+        // 登录 / 改密接口返回 401（密码错、用户不存在等）：直接展示错误，
+        // 不应走 token refresh 流程（旧密码错误 ≠ access token 过期）。
+        if (
+          response.url.includes('/api/auth/authentication/sign-in') ||
+          response.url.includes('/api/system/user/changePassword')
+        ) {
+          const rawError = data?.error;
+          const errorMsg =
+            typeof rawError === 'object' && rawError !== null
+              ? (rawError as { message?: unknown }).message
+              : rawError;
+          if (isString(errorMsg)) {
+            window.$message.error(errorMsg);
+          } else if (Array.isArray(errorMsg)) {
+            errorMsg.forEach((msg) => window.$message.error(String(msg)));
+          } else {
+            window.$message.error('Authentication failed');
+          }
           return response;
         }
 
@@ -148,7 +173,7 @@ const authMiddleware: Middleware = {
         isRefreshing = true;
         try {
           const newToken = await getUserStore().refreshToken();
-          if (newToken) {
+          if (newToken?.accessToken) {
             onTokenRefreshed(newToken.accessToken);
             const newRequest = request.clone();
             newRequest.headers.set(
@@ -157,10 +182,14 @@ const authMiddleware: Middleware = {
             );
             return await fetch(newRequest);
           }
+          // refreshToken 返回 null / 空 token：必须显式通知所有等待中的订阅者，
+          // 否则 if(isRefreshing) 分支里 hang 住的请求 promise 永不 settle。
+          onTokenRefreshFailed(new Error('Token refresh returned empty'));
           handleAuthFailure();
           return response;
         } catch (error) {
-          handleAuthFailure(error);
+          onTokenRefreshFailed(error);
+          handleAuthFailure();
           return response;
         } finally {
           isRefreshing = false;
@@ -185,9 +214,9 @@ const authMiddleware: Middleware = {
               window.$message.error(messages);
             }
           }
-          throw new Error(isString(errorMsg) ? errorMsg : 'Request failed');
+          throw new ApiError(isString(errorMsg) ? errorMsg : 'Request failed');
         }
-        throw new Error(`Request failed with status ${response.status}`);
+        throw new ApiError(`Request failed with status ${response.status}`);
       }
     }
 

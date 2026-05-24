@@ -12,6 +12,10 @@ const userStore = useUserStore();
 const preferencesStore = usePreferencesStore();
 const { userInfo } = storeToRefs(userStore);
 const { state } = storeToRefs(preferencesStore);
+
+// 应用启动时把持久化偏好与系统级暗黑标志位对齐，避免 html.dark class 与
+// 用户上次保存的主题状态不一致。
+useDark().value = preferencesStore.isDarkTheme;
 const naiveTheme = computed(() => {
   const { error, info, primary, success, warning } = state.value.theme;
   return getNaiveTheme({ error, info, primary, success, warning });
