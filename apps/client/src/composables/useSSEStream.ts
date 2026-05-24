@@ -94,8 +94,11 @@ export function useSSEStream() {
             reference.value = ref as unknown as Reference;
           }
         }
-      } catch {
-        /* skip malformed JSON line */
+      } catch (parseError) {
+        if (import.meta.env.DEV) {
+          // eslint-disable-next-line no-console
+          console.warn('[useSSEStream] failed to parse SSE line', parseError);
+        }
       }
       return false;
     };

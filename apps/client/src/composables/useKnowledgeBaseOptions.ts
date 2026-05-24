@@ -24,7 +24,11 @@ export function useKnowledgeBaseOptions() {
     try {
       const { data } = await getKnowledgeBaseList({ pageSize: 999 });
       knowledgeBaseList.value = data?.list ?? [];
-    } catch {
+    } catch (error) {
+      if (import.meta.env.DEV) {
+        // eslint-disable-next-line no-console
+        console.warn('[useKnowledgeBaseOptions] fetch failed', error);
+      }
       knowledgeBaseList.value = [];
     } finally {
       loading.value = false;
