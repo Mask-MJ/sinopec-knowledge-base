@@ -34,13 +34,17 @@ function subscribeTokenRefresh(
 function onTokenRefreshed(newToken: string) {
   const subscribers = refreshSubscribers;
   refreshSubscribers = [];
-  subscribers.forEach(({ resolve }) => resolve(newToken));
+  subscribers.forEach(({ resolve }) => {
+    resolve(newToken);
+  });
 }
 
 function onTokenRefreshFailed(error: unknown) {
   const subscribers = refreshSubscribers;
   refreshSubscribers = [];
-  subscribers.forEach(({ reject }) => reject(error));
+  subscribers.forEach(({ reject }) => {
+    reject(error);
+  });
 }
 
 async function safeParseJson(response: Response): Promise<unknown> {
