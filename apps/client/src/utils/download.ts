@@ -24,8 +24,10 @@ export function downloadFileFromUrl({
   const isChrome = window.navigator.userAgent.toLowerCase().includes('chrome');
   const isSafari = window.navigator.userAgent.toLowerCase().includes('safari');
 
+  // iOS Safari 旧版（< 13）不支持 <a download>；现代 iOS 已支持，但保留
+  // 检测做兜底。改用 $message 给用户友好提示，避免静默失败 + console 泄露。
   if (/iP/.test(window.navigator.userAgent)) {
-    console.error('Your browser does not support download!');
+    window.$message.warning('Your browser does not support download.');
     return;
   }
 
