@@ -1,12 +1,17 @@
 import type { Ref } from 'vue';
 
+import { ApiError } from '@/utils/request';
+
 /**
  * 编辑加载封装
  *
  * 提取 system 模块 6 个页面重复的 edit 编排模式：
  *   loadingBar.start() → fetch → restoreFieldsValue → values = data → open → finish
  *
- * 支持可选的 transform 回调（如 user 页面需要映射 roleIds）。
+ * 错误处理策略（与 useFormLoading 保持一致）：
+ *   - ApiError：拦截器已通过 $message 展示过提示，静默 + 结束 loadingBar；
+ *   - 其他异常（TypeError / SyntaxError / 代码 bug 等）：rethrow，避免代码级
+ *     问题被静默吞掉。
  *
  * @example
  * const editLoading = useEditLoading()
@@ -46,10 +51,14 @@ export function useEditLoading() {
       window.$loadingBar.finish();
     } catch (error) {
       window.$loadingBar.error();
-      if (import.meta.env.DEV) {
-        // eslint-disable-next-line no-console
-        console.warn('[useEditLoading] fetch failed', error);
+      if (error instanceof ApiError) {
+        if (import.meta.env.DEV) {
+          console.warn('[useEditLoading]', error.message);
+        }
+        return;
       }
+      // 非 ApiError 视为真实代码错误，rethrow 让外层感知，避免静默失败。
+      throw error;
     }
   };
 }
