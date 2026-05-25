@@ -78,30 +78,6 @@ export class AssistantService {
   ) {}
 
   /**
-   * 解析默认 LLM 模型 ID（格式 `<llm_name>@<provider_id>`）：
-   * 1. 优先使用 `ASSISTANT_DEFAULT_MODEL` 环境变量（部署侧固定）
-   * 2. 否则从 RAGFlow `GET /v1/llm/list` 拉首个可用 chat 模型
-   * 3. 实例未挂载任何可用 chat 模型时抛 ServiceUnavailableException
-   */
-  private async resolveDefaultModel(): Promise<string> {
-    const configured = this.configService.get<string>(
-      'ASSISTANT_DEFAULT_MODEL',
-    );
-    if (configured) return configured;
-
-    const list = await this.ragflow.getLlmList();
-    const chat = list.find(
-      (item) => item.model_type === 'chat' && item.available,
-    );
-    if (!chat) {
-      throw new ServiceUnavailableException(
-        'RAGFlow 实例未挂载任何可用 chat 模型，请先在 RAGFlow 添加模型或配置 ASSISTANT_DEFAULT_MODEL',
-      );
-    }
-    return `${chat.llm_name}@${chat.fid}`;
-  }
-
-  /**
    * 将已解析的值映射为 RAGFlow prompt_config 格式
    * 字段映射：prompt → system, opener → prologue
    * 调用方负责提供已填入默认值的参数，此方法不做默认值回退
@@ -533,5 +509,29 @@ export class AssistantService {
       throw new ForbiddenException('无权操作此助手');
     }
     return assistant;
+  }
+
+  /**
+   * 解析默认 LLM 模型 ID（格式 `<llm_name>@<provider_id>`）：
+   * 1. 优先使用 `ASSISTANT_DEFAULT_MODEL` 环境变量（部署侧固定）
+   * 2. 否则从 RAGFlow `GET /v1/llm/list` 拉首个可用 chat 模型
+   * 3. 实例未挂载任何可用 chat 模型时抛 ServiceUnavailableException
+   */
+  private async resolveDefaultModel(): Promise<string> {
+    const configured = this.configService.get<string>(
+      'ASSISTANT_DEFAULT_MODEL',
+    );
+    if (configured) return configured;
+
+    const list = await this.ragflow.getLlmList();
+    const chat = list.find(
+      (item) => item.model_type === 'chat' && item.available,
+    );
+    if (!chat) {
+      throw new ServiceUnavailableException(
+        'RAGFlow 实例未挂载任何可用 chat 模型，请先在 RAGFlow 添加模型或配置 ASSISTANT_DEFAULT_MODEL',
+      );
+    }
+    return `${chat.llm_name}@${chat.fid}`;
   }
 }
