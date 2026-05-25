@@ -12,12 +12,18 @@ const preferencesStore = usePreferencesStore();
 const message = useMessage();
 const dialog = useDialog();
 
+// useDark 在 setup 顶层调用一次拿单例 ref。在 computed setter 内重复 useDark()
+// 会创建新实例 + 失效原有 watch，因此一定要在这里拿。
+const isDark = useDark();
+
 // ===== Theme =====
 const isDarkMode = computed({
   get: () => preferencesStore.state.theme.mode === 'dark',
   set: (val) => {
-    preferencesStore.state.theme.mode = val ? 'dark' : 'light';
-    useDark().value = val;
+    preferencesStore.updatePreferences({
+      theme: { mode: val ? 'dark' : 'light' },
+    });
+    isDark.value = val;
   },
 });
 
@@ -31,17 +37,19 @@ function handleSelectTheme(preset: (typeof BUILT_IN_THEME_PRESETS)[number]) {
 }
 
 // ===== Tabbar =====
+// 所有 setter 都经过 updatePreferences()，避免直接 mutate Pinia state +
+// 绕过 useStorage 的序列化追踪。
 const tabbarEnabled = computed({
   get: () => preferencesStore.state.tabbar.enable,
   set: (val) => {
-    preferencesStore.state.tabbar.enable = val;
+    preferencesStore.updatePreferences({ tabbar: { enable: val } });
   },
 });
 
 const keepAliveEnabled = computed({
   get: () => preferencesStore.state.tabbar.keepAlive,
   set: (val) => {
-    preferencesStore.state.tabbar.keepAlive = val;
+    preferencesStore.updatePreferences({ tabbar: { keepAlive: val } });
   },
 });
 
@@ -49,7 +57,7 @@ const keepAliveEnabled = computed({
 const transitionEnabled = computed({
   get: () => preferencesStore.state.transition.enable,
   set: (val) => {
-    preferencesStore.state.transition.enable = val;
+    preferencesStore.updatePreferences({ transition: { enable: val } });
   },
 });
 
@@ -63,7 +71,7 @@ const transitionOptions: { label: string; value: PageTransitionType }[] = [
 const transitionName = computed({
   get: () => preferencesStore.state.transition.name as PageTransitionType,
   set: (val) => {
-    preferencesStore.state.transition.name = val;
+    preferencesStore.updatePreferences({ transition: { name: val } });
   },
 });
 
@@ -71,7 +79,7 @@ const transitionName = computed({
 const sidebarWidth = computed({
   get: () => preferencesStore.state.sidebar.width,
   set: (val) => {
-    preferencesStore.state.sidebar.width = val;
+    preferencesStore.updatePreferences({ sidebar: { width: val } });
   },
 });
 
@@ -84,6 +92,8 @@ function handleReset() {
     negativeText: t('common.cancel'),
     onPositiveClick: () => {
       preferencesStore.$reset();
+      // 重置后 useDark 也要拉回默认值，否则 html.dark class 与 store 不同步。
+      isDark.value = preferencesStore.state.theme.mode === 'dark';
       message.success(t('preferences.resetSuccess'));
     },
   });
@@ -175,15 +185,18 @@ function handleReset() {
         <!-- 页面切换动画 -->
         <div>
           <div class="mb-3 text-sm font-medium">
-            {{ t('preferences.transition.transition') }}
+            {{ t('preferences.animation.title') }}
           </div>
           <div class="mb-2 flex items-center justify-between">
             <span class="text-sm">{{
-              t('preferences.transition.transition')
+              t('preferences.animation.transition')
             }}</span>
             <NSwitch v-model:value="transitionEnabled" size="small" />
           </div>
-          <div v-if="transitionEnabled" class="flex items-center justify-between">
+          <div
+            v-if="transitionEnabled"
+            class="flex items-center justify-between"
+          >
             <span class="text-sm">{{ t('preferences.mode') }}</span>
             <NSelect
               v-model:value="transitionName"
