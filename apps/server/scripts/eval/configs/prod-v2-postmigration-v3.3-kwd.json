@@ -1,0 +1,14 @@
+{
+  "experimentId": "prod-v2-postmigration-v3.3-kwd",
+  "_desc": "0420 prod 验证 prompt v3.3：qwen3-max + v3.3 prompt + tagged 0420 KB。对照 prod-v2-postmigration-kwd（deepseek + v1 prompt + tagged KB, overall 78.3%）和 prod-v2-postmigration（deepseek + v1, no tags, overall 67.5%）。重点观察 Q10 闭合差 0.059m 单位问题是否被 v3.3 规则 3 修复。assistant 78d794e2573e11f1854b5738863ef026。",
+  "datasetIds": ["6ec4cd18476611f1a9b8932ed31a3307"],
+  "assistantId": "78d794e2573e11f1854b5738863ef026",
+  "split": "all",
+  "retrieval": {
+    "topK": 1024,
+    "similarityThreshold": 0.2,
+    "vectorSimilarityWeight": 0.3,
+    "keyword": false,
+    "topN": 6
+  }
+}

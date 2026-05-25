@@ -1,0 +1,14 @@
+{
+  "experimentId": "prod-v2-postmigration-kwd",
+  "_desc": "0420 prod KB 验证 chunk-tagger 效果：与 prod-v2-postmigration 完全同 assistant/retrieval/dataset，只是 prod KB 全部 720 chunks 通过 chunk-tagger.ts 灌入了 important_keywords（avg 15.6 个/chunk）。对照 prod-v2-postmigration 看领域字典对 0420 批 20 题的提升。",
+  "datasetIds": ["6ec4cd18476611f1a9b8932ed31a3307"],
+  "assistantId": "b7e94c58476611f1a9b8932ed31a3307",
+  "split": "all",
+  "retrieval": {
+    "topK": 1024,
+    "similarityThreshold": 0.2,
+    "vectorSimilarityWeight": 0.3,
+    "keyword": false,
+    "topN": 6
+  }
+}

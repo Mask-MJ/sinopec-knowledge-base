@@ -1,0 +1,15 @@
+{
+  "experimentId": "0520-qwen3max-promptv2",
+  "_desc": "0520 客户评测第三跑：qwen3-max + 改进 prompt（列举类触发词扩 + 每条目必须带细节）。assistant df025f5a55ee11f1854b5738863ef026。其他参数与 0520-baseline / 0520-qwen3max 完全一致。",
+  "datasetIds": ["e6a74a2453f311f1a1ac51b09f8da739"],
+  "assistantId": "df025f5a55ee11f1854b5738863ef026",
+  "split": "all",
+  "retrieval": {
+    "topK": 1024,
+    "similarityThreshold": 0.2,
+    "vectorSimilarityWeight": 0.3,
+    "keyword": false,
+    "topN": 10
+  },
+  "dataset": "questions-0520.json"
+}
