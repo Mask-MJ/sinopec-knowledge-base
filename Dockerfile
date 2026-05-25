@@ -41,7 +41,10 @@ WORKDIR /app
 
 # pandoc 用于上传 docx 时的预处理（绕开 RAGFlow 0.24 deepdoc DocxParser 的
 # 表格 cell 数字丢字 bug，详见 DocxPreprocessService）
-RUN apk add --no-cache pandoc
+# Alpine 源切换到清华镜像：dl-cdn.alpinelinux.org 在国内网络环境下常 hang，
+# 导致 apk add 卡住无超时（中石化部署机实测 30min+ 无响应）
+RUN sed -i 's|dl-cdn.alpinelinux.org|mirrors.tuna.tsinghua.edu.cn|g' /etc/apk/repositories \
+    && apk add --no-cache pandoc
 
 # 拷贝完整的部署目录（含 prisma CLI 及其依赖）
 COPY --from=builder /app/deploy/node_modules ./node_modules
