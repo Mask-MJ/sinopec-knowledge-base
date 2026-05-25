@@ -1,4 +1,5 @@
 import type { useTabbarStore } from '@/stores/modules/tabbar';
+import type { DropdownOption } from 'naive-ui';
 import type { RouteLocationNormalized, Router } from 'vue-router';
 
 /**
@@ -19,7 +20,7 @@ export function useTabContextMenu(options: {
   const contextMenuY = ref(0);
   const contextMenuTab = ref<null | RouteLocationNormalized>(null);
 
-  const contextOptions = computed(() => {
+  const contextOptions = computed<DropdownOption[]>(() => {
     const tab = contextMenuTab.value;
     if (!tab) return [];
     const affix = isAffix(tab);
@@ -52,20 +53,30 @@ export function useTabContextMenu(options: {
     ];
   });
 
-  const contextActions: Record<
-    string,
-    (tab: RouteLocationNormalized) => void
-  > = {
-    close: (tab) => void tabbarStore.closeTab(tab, router),
-    closeAll: () => void tabbarStore.closeAllTabs(router),
-    closeLeft: (tab) => tabbarStore.closeLeftTabs(tab),
-    closeOther: (tab) => tabbarStore.closeOtherTabs(tab),
-    closeRight: (tab) => tabbarStore.closeRightTabs(tab),
-    openInNewWindow: (tab) => tabbarStore.openTabInNewWindow(tab),
-    pin: (tab) => tabbarStore.pinTab(tab),
-    refresh: () => void tabbarStore.refresh(router),
-    unpin: (tab) => tabbarStore.unpinTab(tab),
-  };
+  const contextActions: Record<string, (tab: RouteLocationNormalized) => void> =
+    {
+      close: (tab) => void tabbarStore.closeTab(tab, router),
+      closeAll: () => void tabbarStore.closeAllTabs(router),
+      closeLeft: (tab) => {
+        tabbarStore.closeLeftTabs(tab);
+      },
+      closeOther: (tab) => {
+        tabbarStore.closeOtherTabs(tab);
+      },
+      closeRight: (tab) => {
+        tabbarStore.closeRightTabs(tab);
+      },
+      openInNewWindow: (tab) => {
+        tabbarStore.openTabInNewWindow(tab);
+      },
+      pin: (tab) => {
+        tabbarStore.pinTab(tab);
+      },
+      refresh: () => void tabbarStore.refresh(router),
+      unpin: (tab) => {
+        tabbarStore.unpinTab(tab);
+      },
+    };
 
   function handleContextSelect(key: string) {
     const tab = contextMenuTab.value;

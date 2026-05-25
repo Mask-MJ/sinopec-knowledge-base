@@ -180,6 +180,11 @@ watch(
 
 // ============ 路由监听 ============
 
+// vue-router 在 setup 中的 useRoute() 返回 RouteLocationNormalizedLoaded，
+// 它的 `matched` 字段类型是 RouteLocationMatched[]，而 tabbar 的
+// TabDefinition extends RouteLocationNormalized（matched: RouteRecordNormalized[]）。
+// RouteLocationMatched extends RouteRecordNormalized，结构上兼容但 TS 类型系
+// 统不可直接赋值；这里的 cast 是已知安全的结构窄化，不是逻辑欺骗。
 watch(
   () => route.fullPath,
   () => {
@@ -259,11 +264,7 @@ function getTabBreadcrumb(tab: RouteLocationNormalized): string {
 }
 
 function handleMouseDown(e: MouseEvent, tab: RouteLocationNormalized) {
-  if (
-    e.button === 1 &&
-    tabbarPrefs.value.middleClickToClose &&
-    !isAffix(tab)
-  ) {
+  if (e.button === 1 && tabbarPrefs.value.middleClickToClose && !isAffix(tab)) {
     e.preventDefault();
     handleClose(tab);
   }
@@ -413,7 +414,7 @@ function handleWheel(e: WheelEvent) {
     <!-- 右键菜单 -->
     <NDropdown
       :show="contextMenuVisible"
-      :options="contextOptions as any"
+      :options="contextOptions"
       :x="contextMenuX"
       :y="contextMenuY"
       placement="bottom-start"

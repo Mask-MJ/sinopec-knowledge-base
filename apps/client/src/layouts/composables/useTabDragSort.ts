@@ -103,8 +103,7 @@ export function useTabDragSort(options: {
     const mouseTrackX = e.clientX - trackRect.left + scrollLeft;
     const newLeft = mouseTrackX - dragState.offsetInTab;
 
-    const dragWidth =
-      tabWidths.value.get(dragState.dragKey) || defaultTabWidth;
+    const dragWidth = tabWidths.value.get(dragState.dragKey) || defaultTabWidth;
     dragState.currentLeft = Math.max(
       0,
       Math.min(newLeft, totalTrackWidth.value - dragWidth),
@@ -176,6 +175,13 @@ export function useTabDragSort(options: {
     document.removeEventListener('mousemove', handleDragMove);
     document.removeEventListener('mouseup', handleDragEnd);
   }
+
+  // 防止拖拽中途组件被销毁（例如 tabbar 被动态隐藏）时 document 监听器
+  // 永久泄漏；handleDragEnd 重复 removeEventListener 是幂等操作，安全。
+  onUnmounted(() => {
+    document.removeEventListener('mousemove', handleDragMove);
+    document.removeEventListener('mouseup', handleDragEnd);
+  });
 
   return {
     dragState,
