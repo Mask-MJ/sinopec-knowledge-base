@@ -65,7 +65,7 @@ export function useVersionPoll(
   }
 
   function handleRefresh() {
-    cachedVersion.value = latestVersion.value || null;
+    cachedVersion.value = latestVersion.value ?? null;
     window.location.reload();
   }
 
@@ -84,6 +84,9 @@ export function useVersionPoll(
     }
   }
 
+  // 单一调度入口：watch immediate=true 在 setup 同步阶段就跑一次，
+  // 不需要额外的 onMounted 块（之前两份会让 checkVersion 在挂载时并发触发
+  // 两次 — isChecking flag 在第一次 await 之前还是 false，无法去重）。
   watch(
     isLeader,
     (leader) => {
@@ -96,13 +99,6 @@ export function useVersionPoll(
     },
     { immediate: true },
   );
-
-  onMounted(() => {
-    if (isLeader.value) {
-      void checkVersion();
-      startPoll();
-    }
-  });
 
   onBeforeUnmount(() => {
     stopPoll();

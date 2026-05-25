@@ -198,9 +198,12 @@ const renderButton = (action: ActionItem) => {
   <div @click="onCellClick">
     <template v-if="hasContent">
       <NSpace align="center">
-        <template v-for="action in getActions" :key="`${action.label}`">
+        <template
+          v-for="(action, index) in getActions"
+          :key="`${action.label}`"
+        >
           <RenderTooltip v-bind="action" />
-          <n-divider v-if="divider" vertical />
+          <n-divider v-if="divider && index < getActions.length - 1" vertical />
         </template>
         <NDropdown
           v-if="visibleDropdownActions.length > 0"
