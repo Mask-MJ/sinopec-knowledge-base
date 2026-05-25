@@ -23,7 +23,9 @@ describe('getMillisecondsUntilNextMidnight', () => {
 
   it('clamps to 0 when called past the day boundary (defensive)', () => {
     const farFuture = new Date(2026, 5, 15, 23, 59, 59, 999);
-    expect(getMillisecondsUntilNextMidnight(farFuture)).toBeGreaterThanOrEqual(0);
+    expect(getMillisecondsUntilNextMidnight(farFuture)).toBeGreaterThanOrEqual(
+      0,
+    );
   });
 });
 
@@ -48,18 +50,18 @@ describe('isLeaderLeaseOwner', () => {
     expect(isLeaderLeaseOwner(null, 'a', 100)).toBe(false);
   });
   it('returns false when ownerId differs', () => {
-    expect(
-      isLeaderLeaseOwner({ expiresAt: 200, ownerId: 'a' }, 'b', 100),
-    ).toBe(false);
+    expect(isLeaderLeaseOwner({ expiresAt: 200, ownerId: 'a' }, 'b', 100)).toBe(
+      false,
+    );
   });
   it('returns true when own + active', () => {
-    expect(
-      isLeaderLeaseOwner({ expiresAt: 200, ownerId: 'a' }, 'a', 100),
-    ).toBe(true);
+    expect(isLeaderLeaseOwner({ expiresAt: 200, ownerId: 'a' }, 'a', 100)).toBe(
+      true,
+    );
   });
   it('returns false when own but expired', () => {
-    expect(
-      isLeaderLeaseOwner({ expiresAt: 100, ownerId: 'a' }, 'a', 200),
-    ).toBe(false);
+    expect(isLeaderLeaseOwner({ expiresAt: 100, ownerId: 'a' }, 'a', 200)).toBe(
+      false,
+    );
   });
 });

@@ -2,10 +2,7 @@ import type { VersionCheckLeaderLease } from '@/utils/version-check';
 
 import { StorageSerializers, useStorage } from '@vueuse/core';
 
-import {
-  isLeaderLeaseActive,
-  isLeaderLeaseOwner,
-} from '@/utils/version-check';
+import { isLeaderLeaseActive, isLeaderLeaseOwner } from '@/utils/version-check';
 
 const LEADER_HEARTBEAT_INTERVAL = 15 * 1000;
 const LEADER_LEASE_MS = 45 * 1000;

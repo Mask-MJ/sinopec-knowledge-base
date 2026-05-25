@@ -210,7 +210,11 @@ const renderButton = (action: ActionItem) => {
           @select="handleDropdownSelect"
           @clickoutside="showDropdown = false"
         >
-          <NButton quaternary size="small" @click="showDropdown = !showDropdown">
+          <NButton
+            quaternary
+            size="small"
+            @click="showDropdown = !showDropdown"
+          >
             <i class="i-ant-design:ellipsis-outlined"></i>
           </NButton>
         </NDropdown>

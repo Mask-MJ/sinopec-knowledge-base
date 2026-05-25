@@ -30,8 +30,8 @@ export function useVersionPoll(
   const showUpdateBanner = computed(() => {
     return Boolean(
       cachedVersion.value &&
-        latestVersion.value &&
-        cachedVersion.value !== latestVersion.value,
+      latestVersion.value &&
+      cachedVersion.value !== latestVersion.value,
     );
   });
 

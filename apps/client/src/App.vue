@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import type { WatermarkProps } from 'naive-ui';
 
-import { NAlert, NButton, darkTheme, dateEnUS, dateZhCN } from 'naive-ui';
+import { darkTheme, dateEnUS, dateZhCN, NAlert, NButton } from 'naive-ui';
 import { storeToRefs } from 'pinia';
 import { enUS, zhCN } from 'pro-naive-ui';
 import { RouterView } from 'vue-router';
