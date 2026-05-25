@@ -1,16 +1,19 @@
-import type { components, operations } from '#/openapi';
+import type { components as AuthComponents } from '#/openapi-auth';
+import type { components, operations } from '#/openapi-system';
 
 import { client } from '@/utils';
 
 export type UserInfo = components['schemas']['UserEntity'];
 export type SearchParams =
   operations['UserController_findAll']['parameters']['query'];
-export type SignInParams = components['schemas']['SignInDto'];
-export type SignInEntity = components['schemas']['SignInEntity'];
-export type RefreshTokenParams = components['schemas']['RefreshTokenDto'];
+// SignIn/SignUp/RefreshToken DTOs 来自 auth module — system/user.ts 历史上把
+// 鉴权相关接口和用户管理接口混在一处，跨 module spec 用 alias 避免重命名 churn。
+export type SignInParams = AuthComponents['schemas']['SignInDto'];
+export type SignInEntity = AuthComponents['schemas']['SignInEntity'];
+export type RefreshTokenParams = AuthComponents['schemas']['RefreshTokenDto'];
 
 // 注册
-export function register(body: components['schemas']['SignUpDto']) {
+export function register(body: AuthComponents['schemas']['SignUpDto']) {
   return client.POST('/api/auth/authentication/sign-up', { body });
 }
 // 登录

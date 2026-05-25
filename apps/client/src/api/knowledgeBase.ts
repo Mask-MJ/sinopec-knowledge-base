@@ -1,4 +1,4 @@
-import type { components, operations } from '#/openapi';
+import type { components, operations } from '#/openapi-knowledge-base';
 
 import { client } from '@/utils';
 
