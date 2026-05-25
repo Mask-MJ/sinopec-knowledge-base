@@ -107,6 +107,10 @@ function setupAccessGuard(router: Router) {
       };
     }
 
+    // 用户信息 + 菜单列表已加载成功，初始化完成。提前标记可避免后续
+    // 降级 / 403 跳转再次进入"未初始化"分支重复请求 getUserInfo + fetchMenuList。
+    setIsAccessChecked(true);
+
     if (to.path === '/') return { path: DEFAULT_HOME_PATH, replace: true };
 
     // 没有权限：先尝试降级到侧栏第一个可访问菜单，仍无路可走才跳 403。
@@ -119,9 +123,6 @@ function setupAccessGuard(router: Router) {
       }
       return { path: '/403', replace: true };
     }
-
-    // 权限检查通过后再标记为已初始化，避免 403 状态被锁死
-    setIsAccessChecked(true);
 
     // 检查是否有来自登录页的 redirect 参数
     const redirectPath = from.query.redirect as string | undefined;

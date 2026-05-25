@@ -42,14 +42,23 @@ export function useTabScroll(
     setTimeout(updateScrollIndicators, 350);
   }
 
+  // observer 在外层声明，让 onUnmounted 与 onMounted 平级配对（之前
+  // 在 onMounted 内嵌套注册 onUnmounted 技术上 OK 但反模式 — 闭包让"何
+  // 时清理"的意图变得隐晦）。
+  let resizeObserver: null | ResizeObserver = null;
+
   onMounted(() => {
     updateScrollIndicators();
     const container = tabListRef.value;
     if (container) {
-      const observer = new ResizeObserver(updateScrollIndicators);
-      observer.observe(container);
-      onUnmounted(() => observer.disconnect());
+      resizeObserver = new ResizeObserver(updateScrollIndicators);
+      resizeObserver.observe(container);
     }
+  });
+
+  onUnmounted(() => {
+    resizeObserver?.disconnect();
+    resizeObserver = null;
   });
 
   return {

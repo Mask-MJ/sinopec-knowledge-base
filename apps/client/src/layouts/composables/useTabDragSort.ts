@@ -1,6 +1,11 @@
 import type { useTabbarStore } from '@/stores/modules/tabbar';
 import type { RouteLocationNormalized } from 'vue-router';
 
+/** 拖拽时距 tabList 容器左右边缘多少 px 内触发自动滚动 */
+const AUTO_SCROLL_EDGE_ZONE = 40;
+/** 每次 mousemove 触发自动滚动时滚动的步长 (px) */
+const AUTO_SCROLL_STEP = 5;
+
 /**
  * Tab 拖拽排序 composable
  *
@@ -129,19 +134,22 @@ export function useTabDragSort(options: {
       }
       accLeft += w + tabGap;
     }
+    // 鼠标越过所有非拖拽 tab 的中线但没找到插入点，说明拖到末尾。
+    // 此时 targetIndex 应为"插入到 tabs 末尾"的位置 — 即 tabs.length - 1，
+    // 因为 getVirtualOrder 的 splice 在移除自身后再插入，最后一个槽对应 length - 1。
     if (!found) {
       insertIndex = tabs.length - 1;
     }
 
     dragState.targetIndex = insertIndex;
 
-    // 自动滚动
+    // 自动滚动：鼠标到容器左右边缘 AUTO_SCROLL_EDGE_ZONE 内时按
+    // AUTO_SCROLL_STEP 推进滚动条，让用户能把 tab 拖到不可见区域。
     const containerRect = scrollContainer.getBoundingClientRect();
-    const edgeZone = 40;
-    if (e.clientX < containerRect.left + edgeZone) {
-      scrollContainer.scrollLeft -= 5;
-    } else if (e.clientX > containerRect.right - edgeZone) {
-      scrollContainer.scrollLeft += 5;
+    if (e.clientX < containerRect.left + AUTO_SCROLL_EDGE_ZONE) {
+      scrollContainer.scrollLeft -= AUTO_SCROLL_STEP;
+    } else if (e.clientX > containerRect.right - AUTO_SCROLL_EDGE_ZONE) {
+      scrollContainer.scrollLeft += AUTO_SCROLL_STEP;
     }
   }
 
