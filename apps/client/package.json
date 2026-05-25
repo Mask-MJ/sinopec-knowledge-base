@@ -13,7 +13,13 @@
     "typecheck": "vue-tsc --build",
     "lint": "eslint . --fix --cache",
     "format": "prettier --write --experimental-cli src/",
-    "openapi": "openapi-typescript http://localhost:${APP_PORT:-3001}/doc-json -o ./types/openapi.d.ts"
+    "openapi": "run-p openapi:full openapi:auth openapi:system openapi:monitor openapi:knowledge-base openapi:assistant",
+    "openapi:full": "openapi-typescript http://localhost:${APP_PORT:-3001}/doc-json -o ./types/openapi.d.ts",
+    "openapi:auth": "openapi-typescript http://localhost:${APP_PORT:-3001}/doc-json/auth -o ./types/openapi-auth.d.ts",
+    "openapi:system": "openapi-typescript http://localhost:${APP_PORT:-3001}/doc-json/system -o ./types/openapi-system.d.ts",
+    "openapi:monitor": "openapi-typescript http://localhost:${APP_PORT:-3001}/doc-json/monitor -o ./types/openapi-monitor.d.ts",
+    "openapi:knowledge-base": "openapi-typescript http://localhost:${APP_PORT:-3001}/doc-json/knowledge-base -o ./types/openapi-knowledge-base.d.ts",
+    "openapi:assistant": "openapi-typescript http://localhost:${APP_PORT:-3001}/doc-json/assistant -o ./types/openapi-assistant.d.ts"
   },
   "dependencies": {
     "@ctrl/tinycolor": "catalog:",

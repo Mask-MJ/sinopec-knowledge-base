@@ -1,4 +1,4 @@
-import type { components } from '#/openapi';
+import type { components } from '#/openapi-monitor';
 
 import { client } from '@/utils';
 

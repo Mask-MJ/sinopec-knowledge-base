@@ -1,5 +1,20 @@
-import type { paths } from '#/openapi'; // 由openapi-typescript生成
+import type { paths as AssistantPaths } from '#/openapi-assistant';
+import type { paths as AuthPaths } from '#/openapi-auth';
+import type { paths as KnowledgeBasePaths } from '#/openapi-knowledge-base';
+import type { paths as MonitorPaths } from '#/openapi-monitor';
+import type { paths as SystemPaths } from '#/openapi-system';
 import type { Middleware } from 'openapi-fetch';
+
+// openapi-fetch 的 createClient 只接受单一 paths 类型，把按 NestJS feature
+// module 拆分的 spec paths（见 server app-routes.ts）交叉合并即可获得统一
+// client.GET/POST 调用。各 module 的 components / operations 仍由消费方从
+// 对应的 #/openapi-{module} 按需 import，保持按视图 tree-shake、d.ts 不
+// 加载无关定义。
+type paths = AssistantPaths &
+  AuthPaths &
+  KnowledgeBasePaths &
+  MonitorPaths &
+  SystemPaths;
 
 import { isString } from 'lodash-es';
 import createClient from 'openapi-fetch';
