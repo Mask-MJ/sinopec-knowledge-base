@@ -98,7 +98,12 @@ function setupAccessGuard(router: Router) {
       }
       await fetchMenuList(router);
     } catch {
-      // 接口异常（网络错误、token 过期等），清除状态并跳转登录页
+      // 接口异常（网络错误、token 过期等），清除状态并跳转登录页。
+      // 同步将 loadingBar 标记为 error 让用户感知失败，否则 afterEach 的
+      // finish() 会让加载条静默归位，看不出曾经报错。
+      if (showProgress) {
+        window.$loadingBar.error();
+      }
       userStore.$reset();
       return {
         path: LOGIN_PATH,
