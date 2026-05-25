@@ -7,6 +7,7 @@ import { EventEmitterModule } from '@nestjs/event-emitter';
 import { ScheduleModule } from '@nestjs/schedule';
 import { CustomPrismaModule } from 'nestjs-prisma/dist/custom';
 
+import { APP_ROUTES } from './app-routes';
 import { ConfigModule } from './common/config/config.module';
 import {
   extendedPrismaClient,
@@ -52,13 +53,7 @@ import { SystemModule } from './modules/system/system.module';
       },
     }),
     EventEmitterModule.forRoot(),
-    RouterModule.register([
-      { path: 'auth', module: AuthModule },
-      { path: 'system', module: SystemModule },
-      { path: 'monitor', module: MonitorModule },
-      { path: 'knowledge-base', module: KnowledgeBaseModule },
-      { path: 'assistant', module: AssistantModule },
-    ]),
+    RouterModule.register(APP_ROUTES),
     AuthModule,
     SystemModule,
     MonitorModule,
