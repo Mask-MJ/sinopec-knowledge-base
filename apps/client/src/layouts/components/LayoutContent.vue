@@ -6,6 +6,8 @@ import type {
 
 import { storeToRefs } from 'pinia';
 
+import { KEEP_ALIVE_MAX } from '@/config/constants';
+
 const tabbarStore = useTabbarStore();
 const preferencesStore = usePreferencesStore();
 const keepAlive = computed(() => preferencesStore.state.tabbar.keepAlive);
@@ -84,6 +86,7 @@ function transformComponent(
         v-if="keepAlive"
         :exclude="getExcludeCachedTabs"
         :include="getCachedTabs"
+        :max="KEEP_ALIVE_MAX"
       >
         <component
           :is="transformComponent(Component, route)"
@@ -102,6 +105,7 @@ function transformComponent(
         v-if="keepAlive"
         :exclude="getExcludeCachedTabs"
         :include="getCachedTabs"
+        :max="KEEP_ALIVE_MAX"
       >
         <component
           :is="transformComponent(Component, route)"
