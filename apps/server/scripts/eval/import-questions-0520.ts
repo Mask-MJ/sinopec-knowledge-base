@@ -1,5 +1,10 @@
 /* eslint-disable unicorn/prefer-module , unicorn/prefer-string-slice , no-cond-assign , no-console , regexp/no-dupe-disjunctions , regexp/no-obscure-range */
 // cspell:disable-file
+// 0520 客户第二批评测题集导入器。与 import-questions.ts 主体逻辑同源，差异：
+//   1) DOCX 源切换到 test-docs/0520/RAG问题和参考答案-30.docx
+//   2) 输出 dataset/questions-0520.json
+//   3) parseExplanation 增加书名号《》识别（0520 题面混用引号与书名号）
+//   4) classifyTopic 重写为 0520 工程项目主题分类
 // scripts/eval/ 是开发评测工具，按照 ESLint config-protection 钩子要求，
 // 不修改 eslint.config.mjs ignores；改用 file-level disable 注释。
 
@@ -9,10 +14,10 @@ import { resolve } from 'node:path';
 
 const DOCX_PATH = resolve(
   __dirname,
-  '../../../../test-docs/0420/RAG问题和参考答案.docx',
+  '../../../../test-docs/0520/RAG问题和参考答案-30.docx',
 );
 const OUT_DIR = resolve(__dirname, 'dataset');
-const OUT_PATH = resolve(OUT_DIR, 'questions.json');
+const OUT_PATH = resolve(OUT_DIR, 'questions-0520.json');
 
 mkdirSync(OUT_DIR, { recursive: true });
 
@@ -77,15 +82,21 @@ for (const p of paragraphs) {
 }
 flush();
 
+/**
+ * 解析【说明】里的"参考文档：xxx"片段。
+ * 0520 题面混用了引号和书名号两种引法（"xxx" / 《xxx》），需都识别。
+ */
 function parseExplanation(exp: string): { doc: string; section: string } {
-  const docMatch = exp.match(/[“"]([^“”"\n]+)[”"]/);
-  const doc = docMatch?.[1] ?? '';
+  const quoteMatch = exp.match(/[“"]([^“”"\n《》]+)[”"]/);
+  const bookMatch = exp.match(/《([^《》\n]+)》/);
+  const doc = quoteMatch?.[1] ?? bookMatch?.[1] ?? '';
   let section = exp;
   if (doc) {
     section = exp
       .replaceAll(/参考文档[:：]?/g, '')
       .replace(`"${doc}"`, '')
       .replace(`“${doc}”`, '')
+      .replace(`《${doc}》`, '')
       .trim();
   }
   section = section.replaceAll(/^[，,。.\s]+|[，,。.\s]+$/g, '');
@@ -175,25 +186,64 @@ function autoMustContain(answer: string): FactItem[] {
   return items;
 }
 
-type Topic = 'other' | 'shale' | 'shunbei21' | 'shunbei42' | 'shunbei43';
+/**
+ * 0520 工程项目主题分类。
+ * 题面 + 答案 + 参考文档名联合判定，便于按工区做 dev/holdout split。
+ */
+type Topic =
+  | 'fangshan'
+  | 'other'
+  | 'shun8'
+  | 'shunzhong2'
+  | 'shunzhong'
+  | 'sunan'
+  | 'suyong'
+  | 'yongan'
+  | 'zhangji'
+  | 'zhentong-shijiabu'
+  | 'zhentong-shuaiduo';
 
-function classifyTopic(answer: string, question: string): Topic {
-  const text = `${answer} ${question}`;
-  if (text.includes('43井') || /顺北\s*43/.test(text)) return 'shunbei43';
-  if (text.includes('42井') || /顺北\s*42/.test(text)) return 'shunbei42';
-  if (text.includes('21井') || /顺北\s*21/.test(text)) return 'shunbei21';
-  if (text.includes('页岩气') || text.includes('彭水')) return 'shale';
+function classifyTopic(answer: string, question: string, ref: string): Topic {
+  const text = `${ref} ${answer} ${question}`;
+  if (text.includes('史家堡') || text.includes('草舍'))
+    return 'zhentong-shijiabu';
+  if (text.includes('帅垛')) return 'zhentong-shuaiduo';
+  if (text.includes('永安')) return 'yongan';
+  if (text.includes('顺中二期')) return 'shunzhong2';
+  if (text.includes('顺中')) return 'shunzhong';
+  if (text.includes('顺8') || text.includes('顺八')) return 'shun8';
+  if (text.includes('安徽宿南') || text.includes('宿南')) return 'sunan';
+  if (text.includes('张集东')) return 'zhangji';
+  if (text.includes('方山')) return 'fangshan';
+  if (text.includes('苏北') || text.includes('高邮')) return 'suyong';
   return 'other';
 }
 
 const questions = raw.map((q) => {
   const ref = parseExplanation(q.explanation);
-  const topic = classifyTopic(q.answer, q.question);
+  const topic = classifyTopic(q.answer, q.question, ref.doc);
   const mustContain = autoMustContain(q.answer);
   // 概念题启发式：mustContain 抽不出 || 答案以"（1）/（2）/...."等分点开头但全是文字
   const looksConceptual =
     mustContain.length === 0 ||
     /^（?[1-9]）?\s*[^\d\s]\D{8,}/.test(q.answer.split('\n')[0] ?? '');
+  const useLLMJudge = looksConceptual && mustContain.length === 0;
+  // 0520 题集首次生成，没人工 rubric — 写一个通用 rubric 让 LLM judge 能跑分。
+  // 给定参考答案后让 judge 按"关键事实覆盖 / 准确性 / 完整性"三档打分。
+  const llmJudgeRubric = useLLMJudge
+    ? [
+        '通用评分（0.00-1.00 一位小数，按下列三档加权）：',
+        '- 关键事实覆盖（0.60）：模型答案是否提到参考答案中的核心事实、要点、清单项目',
+        '- 准确性（0.30）：是否与参考答案矛盾，是否编造',
+        '- 完整性（0.10）：列举/枚举型问题是否尽量完整',
+        '',
+        '判定速查：',
+        '- 完全覆盖关键事实且无错误 → 1.00',
+        '- 覆盖约一半关键事实且无错误 → 0.50',
+        '- 覆盖一两项 / 含轻微错误 → 0.20-0.40',
+        '- 完全跑题 / 编造 / 未回答 → 0.00',
+      ].join('\n')
+    : '';
   return {
     id: q.id,
     topic,
@@ -206,8 +256,8 @@ const questions = raw.map((q) => {
       reason?: string;
       type: 'regex' | 'string';
     }>,
-    useLLMJudge: looksConceptual && mustContain.length === 0,
-    llmJudgeRubric: '' as string,
+    useLLMJudge,
+    llmJudgeRubric,
     notes: q.explanation.match(/[(（](?!参考)[^)）]+[)）]/g)?.join(' | ') ?? '',
   };
 });
@@ -224,7 +274,7 @@ for (const ids of Object.values(byTopic)) {
 
 const out = {
   version: '0.1.0',
-  source: 'test-docs/0420/RAG问题和参考答案.docx',
+  source: 'test-docs/0520/RAG问题和参考答案-30.docx',
   generatedAt: new Date().toISOString(),
   splits: {
     dev: dev.sort((a, b) => a - b),

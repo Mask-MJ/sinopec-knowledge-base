@@ -1,0 +1,14 @@
+{
+  "experimentId": "prod-0420-qwen3max-v2-projowner",
+  "_desc": "0420 prod KB 升级 qwen3-max + v2 prompt 验证：assistant fb1c3c78574811f1854b5738863ef026（与 0520 prod 完全对齐 model / prompt / topN / topK）。对照 prod-v2-postmigration-kwd（deepseek + v1 + tagged KB）= 78.3%，看 qwen3-max + v2 升级对 0420 批的影响。KB 是 projowner-tagged。",
+  "datasetIds": ["6ec4cd18476611f1a9b8932ed31a3307"],
+  "assistantId": "fb1c3c78574811f1854b5738863ef026",
+  "split": "all",
+  "retrieval": {
+    "topK": 1024,
+    "similarityThreshold": 0.2,
+    "vectorSimilarityWeight": 0.3,
+    "keyword": false,
+    "topN": 10
+  }
+}

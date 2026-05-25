@@ -1,0 +1,14 @@
+{
+  "experimentId": "prod-v2-postmigration-kwd-projowner",
+  "_desc": "0420 prod KB chunk-tagger v2 升级验证：与 prod-v2-postmigration-kwd 同 assistant/retrieval/prompt，唯一变化是给每个 chunk 强制注入'文档归属项目'作为 important_keyword（如顺北42井东 doc 所有 chunks 都强制带'顺北42井东'关键词），解决跨项目召回串扰。重打了 711/720 chunks（9 个 chunk 超 8K token 跳过）。",
+  "datasetIds": ["6ec4cd18476611f1a9b8932ed31a3307"],
+  "assistantId": "b7e94c58476611f1a9b8932ed31a3307",
+  "split": "all",
+  "retrieval": {
+    "topK": 1024,
+    "similarityThreshold": 0.2,
+    "vectorSimilarityWeight": 0.3,
+    "keyword": false,
+    "topN": 6
+  }
+}

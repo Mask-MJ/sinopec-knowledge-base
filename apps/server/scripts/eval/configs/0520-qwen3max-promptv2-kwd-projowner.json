@@ -1,0 +1,15 @@
+{
+  "experimentId": "0520-qwen3max-promptv2-kwd-projowner",
+  "_desc": "0520 第九跑：与 0520-qwen3max-promptv2-kwd 同 assistant/retrieval/prompt，唯一变化是 chunk-tagger 升级到 v2——给每个 chunk 强制注入'文档归属项目'作为 important_keyword（如方山新井 doc 所有 chunks 都强制带'方山新井'关键词），解决跨项目召回串扰（Q46 方山新井浅表层被张集东抢走的问题）。重打了 1297/1303 chunks。",
+  "datasetIds": ["e6a74a2453f311f1a1ac51b09f8da739"],
+  "assistantId": "df025f5a55ee11f1854b5738863ef026",
+  "split": "all",
+  "retrieval": {
+    "topK": 1024,
+    "similarityThreshold": 0.2,
+    "vectorSimilarityWeight": 0.3,
+    "keyword": false,
+    "topN": 10
+  },
+  "dataset": "questions-0520.json"
+}

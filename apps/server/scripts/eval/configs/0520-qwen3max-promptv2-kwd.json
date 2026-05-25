@@ -1,0 +1,15 @@
+{
+  "experimentId": "0520-qwen3max-promptv2-kwd",
+  "_desc": "0520 第五跑：qwen3-max + prompt v2 + chunk-level important_keywords（Plan B' = 用 RAGFlow 原生字段，绕过 broken tag_kb_ids 机制）。原 0520 KB 全部 1229/1303 chunks 已通过 PUT /chunks API 注入 dict + regex 匹配出的 keywords（avg 16.8/chunk）。同 v2 assistant、同 KB、同 prompt、同检索参数。",
+  "datasetIds": ["e6a74a2453f311f1a1ac51b09f8da739"],
+  "assistantId": "df025f5a55ee11f1854b5738863ef026",
+  "split": "all",
+  "retrieval": {
+    "topK": 1024,
+    "similarityThreshold": 0.2,
+    "vectorSimilarityWeight": 0.3,
+    "keyword": false,
+    "topN": 10
+  },
+  "dataset": "questions-0520.json"
+}

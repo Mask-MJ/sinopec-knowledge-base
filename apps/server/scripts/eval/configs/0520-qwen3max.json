@@ -1,0 +1,15 @@
+{
+  "experimentId": "0520-qwen3max",
+  "_desc": "0520 第二批客户评测：与 0520-baseline 完全同 KB / 同检索参数，只换 chat model = qwen3-max@Tongyi-Qianwen，用于验证模型升级能否拉高答案完整度。",
+  "datasetIds": ["e6a74a2453f311f1a1ac51b09f8da739"],
+  "assistantId": "f2a7e7c655eb11f1854b5738863ef026",
+  "split": "all",
+  "retrieval": {
+    "topK": 1024,
+    "similarityThreshold": 0.2,
+    "vectorSimilarityWeight": 0.3,
+    "keyword": false,
+    "topN": 10
+  },
+  "dataset": "questions-0520.json"
+}

@@ -1,0 +1,1365 @@
+[
+  {
+    "name": "测量误差符号化精度（Mh/Ms/Mx/My/Δh/Δx/Δy）",
+    "pattern": "(?:M[hsxy]|Δ[hxy])\\s*(?:[±≤]\\s*)?\\d+(?:\\.\\d+)?\\s*m\\b",
+    "tags": [
+      "测量定位",
+      "质量控制"
+    ],
+    "example_matches": [
+      "Mh±0.043m",
+      "Ms±0.060m",
+      "Mx≤0.3m",
+      "Δh≤0.8m",
+      "Δx≤0.4m"
+    ],
+    "estimated_coverage": 14,
+    "category": "numerical"
+  },
+  {
+    "name": "通用平面/高程/绝对误差（带语义前缀）",
+    "pattern": "(?:平面误差|高程误差|绝对误差|相对误差)\\s*\\d+(?:\\.\\d+)?\\s*m\\b",
+    "tags": [
+      "测量定位",
+      "质量控制"
+    ],
+    "example_matches": [
+      "平面误差0.5m",
+      "高程误差0.5m",
+      "绝对误差0.5m"
+    ],
+    "estimated_coverage": 3,
+    "category": "numerical"
+  },
+  {
+    "name": "闭合差/精度裸小数（≤0.2m 的多位小数 m）",
+    "pattern": "\\b0\\.\\d{2,4}\\s*m?\\b",
+    "tags": [
+      "测量定位",
+      "质量控制"
+    ],
+    "example_matches": [
+      "0.014m",
+      "0.059m",
+      "0.077m",
+      "0.101m",
+      "0.131m",
+      "0.032",
+      "0.816"
+    ],
+    "estimated_coverage": 11,
+    "category": "numerical"
+  },
+  {
+    "name": "井深（含范围与单值，激发/微测井）",
+    "pattern": "(?:最小钻井井深|最深钻井|平均井深|固定井深|井深)\\s*[>＞]?\\s*\\d+(?:\\.\\d+)?(?:\\s*[-~–—]\\s*\\d+(?:\\.\\d+)?)?\\s*m(?:微测井|激发)?",
+    "tags": [
+      "激发参数",
+      "表层调查",
+      "试验设计"
+    ],
+    "example_matches": [
+      "井深7m",
+      "井深10-12m",
+      "井深15-20m微测井",
+      "平均井深17m",
+      "固定井深21m",
+      "最小钻井井深13m",
+      "最深钻井44m"
+    ],
+    "estimated_coverage": 21,
+    "category": "numerical"
+  },
+  {
+    "name": "井间距",
+    "pattern": "井间距\\s*\\d+(?:\\.\\d+)?\\s*m\\b",
+    "tags": [
+      "激发参数"
+    ],
+    "example_matches": [
+      "井间距5m"
+    ],
+    "estimated_coverage": 1,
+    "category": "numerical"
+  },
+  {
+    "name": "药量（含单值/范围/小药量/双井×组合）",
+    "pattern": "(?:固定药量|小药量|药量)\\s*\\d+(?:\\.\\d+)?(?:\\s*[-~–—]\\s*\\d+(?:\\.\\d+)?)?\\s*kg\\b|\\d+\\s*kg\\s*(?:药量|小药量)|\\d+\\s*\\*\\s*\\d+\\s*kg(?:双井)?|\\d+\\s*kg\\s*[×x]\\s*\\d+\\s*次",
+    "tags": [
+      "激发参数",
+      "技术对策",
+      "试验设计"
+    ],
+    "example_matches": [
+      "药量18kg",
+      "药量2-3kg",
+      "16kg药量",
+      "1kg小药量",
+      "2*2kg双井",
+      "2*4kg双井",
+      "4kg×4次",
+      "固定药量18kg"
+    ],
+    "estimated_coverage": 22,
+    "category": "numerical"
+  },
+  {
+    "name": "雷管型号",
+    "pattern": "\\d{2,3}\\s*#\\s*雷管",
+    "tags": [
+      "激发参数"
+    ],
+    "example_matches": [
+      "84#雷管",
+      "85#雷管"
+    ],
+    "estimated_coverage": 2,
+    "category": "numerical"
+  },
+  {
+    "name": "可控震源吨位",
+    "pattern": "\\d+\\s*吨可控震源",
+    "tags": [
+      "激发参数"
+    ],
+    "example_matches": [
+      "28吨可控震源",
+      "9吨可控震源"
+    ],
+    "estimated_coverage": 2,
+    "category": "numerical"
+  },
+  {
+    "name": "驱动幅度",
+    "pattern": "驱动幅度\\s*\\d+\\s*%",
+    "tags": [
+      "激发参数"
+    ],
+    "example_matches": [
+      "驱动幅度50%",
+      "驱动幅度70%",
+      "驱动幅度75%"
+    ],
+    "estimated_coverage": 3,
+    "category": "numerical"
+  },
+  {
+    "name": "扫描频率/扫描长度/激发时间间隔",
+    "pattern": "(?:扫描频率|扫描长度|激发时间间隔|激发线)\\s*\\d+(?:\\.\\d+)?(?:\\s*[-~–—]\\s*\\d+(?:\\.\\d+)?)?\\s*(?:Hz|s|条)|\\d+\\s*s\\s*激发时间间隔",
+    "tags": [
+      "激发参数",
+      "质量控制"
+    ],
+    "example_matches": [
+      "扫描频率7-84Hz",
+      "扫描长度14s",
+      "扫描长度16s",
+      "激发时间间隔40s",
+      "40s激发时间间隔",
+      "激发线26条"
+    ],
+    "estimated_coverage": 9,
+    "category": "numerical"
+  },
+  {
+    "name": "潜水面下/虚反射面下/高速顶下激发深度",
+    "pattern": "(?:潜水面下|虚反射面下|高速层顶界面下|高速顶下)\\s*\\d+(?:\\.\\d+)?\\s*m(?:激发)?|100\\s*%\\s*潜水面下激发",
+    "tags": [
+      "激发参数",
+      "试验设计"
+    ],
+    "example_matches": [
+      "潜水面下1m激发",
+      "潜水面下3m",
+      "潜水面下5m激发",
+      "虚反射面下5m",
+      "高速层顶界面下5m",
+      "高速顶下7m",
+      "100%潜水面下激发"
+    ],
+    "estimated_coverage": 14,
+    "category": "numerical"
+  },
+  {
+    "name": "潜水面埋深/潜水面深度",
+    "pattern": "潜水面\\s*(?:埋深|下)?\\s*\\d+(?:\\.\\d+)?(?:\\s*[-~–—]\\s*\\d+(?:\\.\\d+)?)?\\s*m\\b",
+    "tags": [
+      "试验设计",
+      "表层调查"
+    ],
+    "example_matches": [
+      "潜水面埋深7.39m",
+      "潜水面埋深20.2m",
+      "潜水面2-5m"
+    ],
+    "estimated_coverage": 6,
+    "category": "numerical"
+  },
+  {
+    "name": "入岩深度",
+    "pattern": "入岩深度\\s*\\d+(?:\\.\\d+)?\\s*m",
+    "tags": [
+      "激发参数"
+    ],
+    "example_matches": [
+      "入岩深度3m"
+    ],
+    "estimated_coverage": 1,
+    "category": "numerical"
+  },
+  {
+    "name": "频率分频与分频扫描",
+    "pattern": "\\d+\\s*[-~–—]\\s*\\d+\\s*Hz\\s*分频(?:扫描)?|\\d+\\s*[-~–—]?\\s*\\d*\\s*Hz\\s*分频",
+    "tags": [
+      "数据处理",
+      "资料品质"
+    ],
+    "example_matches": [
+      "0-5Hz分频",
+      "1-10Hz分频",
+      "10-20Hz分频",
+      "10-20Hz分频扫描",
+      "20-40Hz分频",
+      "30-60Hz分频扫描",
+      "40-80Hz分频",
+      "50-100Hz分频"
+    ],
+    "estimated_coverage": 13,
+    "category": "numerical"
+  },
+  {
+    "name": "主频（单值或范围）",
+    "pattern": "主频\\s*\\d+(?:\\s*[-~–—]\\s*\\d+)?\\s*Hz",
+    "tags": [
+      "资料品质"
+    ],
+    "example_matches": [
+      "主频15Hz",
+      "主频17Hz",
+      "主频15-60Hz",
+      "主频40-50Hz",
+      "主频60Hz"
+    ],
+    "estimated_coverage": 6,
+    "category": "numerical"
+  },
+  {
+    "name": "频带/频宽",
+    "pattern": "(?:频带|频宽)\\s*\\d+\\s*[-~–—]\\s*\\d+\\s*Hz",
+    "tags": [
+      "资料品质"
+    ],
+    "example_matches": [
+      "频带4-54Hz",
+      "频带4-57Hz",
+      "频带4-63Hz",
+      "频宽10-150Hz"
+    ],
+    "estimated_coverage": 4,
+    "category": "numerical"
+  },
+  {
+    "name": "时窗",
+    "pattern": "\\d+(?:\\.\\d+)?\\s*[-~–—]\\s*\\d+(?:\\.\\d+)?\\s*s\\s*时窗",
+    "tags": [
+      "资料品质"
+    ],
+    "example_matches": [
+      "3.4-4s时窗",
+      "4.5-5.2s时窗"
+    ],
+    "estimated_coverage": 2,
+    "category": "numerical"
+  },
+  {
+    "name": "工业电干扰/工频/干扰",
+    "pattern": "\\d+\\s*Hz\\s*(?:工业电干扰|工频|干扰)",
+    "tags": [
+      "资料品质",
+      "技术难点",
+      "工区情况"
+    ],
+    "example_matches": [
+      "50Hz工业电干扰",
+      "50Hz工频",
+      "50Hz干扰"
+    ],
+    "estimated_coverage": 3,
+    "category": "numerical"
+  },
+  {
+    "name": "检波器型号（NHz 检波器 / 20DX-NHz / 20DX 检波器 / NHz 节点仪）",
+    "pattern": "\\d+\\s*DX(?:\\s*[-]\\s*\\d+\\s*Hz)?\\s*(?:检波器)?|\\d+\\s*Hz\\s*(?:低频)?(?:检波器|节点仪)",
+    "tags": [
+      "接收设备",
+      "技术对策"
+    ],
+    "example_matches": [
+      "10Hz检波器",
+      "10Hz低频检波器",
+      "20DX-10Hz",
+      "20DX-10Hz检波器",
+      "20DX检波器",
+      "30DX-10Hz检波器",
+      "60Hz检波器",
+      "5Hz节点仪"
+    ],
+    "estimated_coverage": 8,
+    "category": "numerical"
+  },
+  {
+    "name": "数字地震仪型号（408XL / 428XL / 508XT 等）",
+    "pattern": "(?:\\d+位)?\\s*\\d{3}X[LT]\\s*(?:数字地震仪)?|24位数字地震仪",
+    "tags": [
+      "接收设备"
+    ],
+    "example_matches": [
+      "408XL",
+      "428XL",
+      "428XL数字地震仪",
+      "508XT",
+      "508XT数字地震仪",
+      "24位数字地震仪",
+      "20DX检波器"
+    ],
+    "estimated_coverage": 7,
+    "category": "numerical"
+  },
+  {
+    "name": "前放增益",
+    "pattern": "前放增益\\s*\\d+\\s*dB|\\d+\\s*dB\\s*前放增益",
+    "tags": [
+      "接收设备"
+    ],
+    "example_matches": [
+      "前放增益0dB",
+      "前放增益12dB",
+      "12dB前放增益"
+    ],
+    "estimated_coverage": 3,
+    "category": "numerical"
+  },
+  {
+    "name": "采样间隔/采样率",
+    "pattern": "\\d+(?:\\.\\d+)?\\s*ms\\s*采样(?:间隔|率)?|采样(?:间隔|率)\\s*\\d+(?:\\.\\d+)?\\s*ms",
+    "tags": [
+      "接收设备",
+      "表层调查"
+    ],
+    "example_matches": [
+      "1ms采样",
+      "1ms采样间隔",
+      "2ms采样",
+      "2ms采样间隔",
+      "采样率0.25ms",
+      "采样间隔0.5ms",
+      "采样间隔1ms"
+    ],
+    "estimated_coverage": 7,
+    "category": "numerical"
+  },
+  {
+    "name": "记录长度",
+    "pattern": "(?:记录长度\\s*\\d+\\s*s|\\d+\\s*s\\s*记录长度)",
+    "tags": [
+      "接收设备"
+    ],
+    "example_matches": [
+      "记录长度2s",
+      "记录长度4s",
+      "记录长度6s",
+      "8s记录长度"
+    ],
+    "estimated_coverage": 4,
+    "category": "numerical"
+  },
+  {
+    "name": "坑深/挖坑/检波器挖坑",
+    "pattern": "(?:坑深|挖坑|检波器挖坑)\\s*\\d+\\s*cm",
+    "tags": [
+      "接收设备"
+    ],
+    "example_matches": [
+      "坑深40cm",
+      "坑深60cm",
+      "挖坑40cm",
+      "挖坑60cm",
+      "检波器挖坑15cm",
+      "检波器挖坑25cm"
+    ],
+    "estimated_coverage": 6,
+    "category": "numerical"
+  },
+  {
+    "name": "偏移距/炮检距/纵距/非纵距",
+    "pattern": "(?:最大偏移距|偏移距离|偏移距|最大炮检距|纵向最大炮检距|最大纵距|最大非纵距|排列片宽度)\\s*\\d+(?:\\.\\d+)?\\s*m",
+    "tags": [
+      "观测系统",
+      "测量定位",
+      "接收设备"
+    ],
+    "example_matches": [
+      "最大偏移距4010m",
+      "偏移距15m",
+      "偏移距离6.25m",
+      "最大炮检距8502.105m",
+      "最大纵距3590m",
+      "最大非纵距2330m",
+      "纵向最大炮检距6587.5m",
+      "排列片宽度10400m"
+    ],
+    "estimated_coverage": 9,
+    "category": "numerical"
+  },
+  {
+    "name": "检波器组合基距（LX/LY）",
+    "pattern": "组合基距\\s*L[XY]\\s*=\\s*\\d+m\\s*L[XY]\\s*=\\s*\\d+m|L[XY]\\s*=\\s*\\d+m",
+    "tags": [
+      "接收设备"
+    ],
+    "example_matches": [
+      "组合基距LX=3mLY=2m"
+    ],
+    "estimated_coverage": 1,
+    "category": "numerical"
+  },
+  {
+    "name": "检波器串/组合（N 串 N 个检波器）",
+    "pattern": "\\d+\\s*串\\s*\\d+\\s*个(?:检波器)?",
+    "tags": [
+      "接收设备"
+    ],
+    "example_matches": [
+      "2串12个检波器",
+      "2串24个检波器",
+      "3串36个"
+    ],
+    "estimated_coverage": 3,
+    "category": "numerical"
+  },
+  {
+    "name": "覆盖次数（覆盖次数 N 次 / N 次覆盖 / 裸 N 次资料品质语境）",
+    "pattern": "覆盖次数\\s*\\d+\\s*次|\\d+\\s*次覆盖|\\b(?:24|64|80|180|213|224|240|294|360|396|480|900)\\s*次\\b",
+    "tags": [
+      "观测系统",
+      "资料品质"
+    ],
+    "example_matches": [
+      "覆盖次数224次",
+      "覆盖次数900次",
+      "396次覆盖",
+      "360次",
+      "480次",
+      "900次"
+    ],
+    "estimated_coverage": 13,
+    "category": "numerical"
+  },
+  {
+    "name": "道距/道间距/炮点距/炮线距/接收线距/检波线距/束线距/线束间滚动距离",
+    "pattern": "(?:道间距|道距|炮点距|炮线距|接收线距|检波线距|束线距|线束间滚动距离)\\s*\\d+(?:\\.\\d+)?\\s*m|\\d+\\s*m\\s*(?:道间距|道距|炮点距|炮线距|接收线距|检波线距|检波线|炮线|接收线)",
+    "tags": [
+      "观测系统"
+    ],
+    "example_matches": [
+      "25m道距",
+      "50m道距",
+      "25m道间距",
+      "炮点距40m",
+      "炮线距160m",
+      "接收线距100m",
+      "检波线距300m",
+      "300m接收线距",
+      "300m检波线距",
+      "300m炮线距",
+      "束线距200m",
+      "线束间滚动距离300m",
+      "500m检波线"
+    ],
+    "estimated_coverage": 17,
+    "category": "numerical"
+  },
+  {
+    "name": "面元/CDP 网格（NxN m）",
+    "pattern": "(?:面元|CDP网格|网格)?\\s*\\d+(?:\\.\\d+)?\\s*m?\\s*[×x*]\\s*\\d+(?:\\.\\d+)?\\s*m(?:面元|网格)?|面元\\s*\\d+\\s*[×x*]\\s*\\d+\\s*m",
+    "tags": [
+      "观测系统",
+      "测量定位"
+    ],
+    "example_matches": [
+      "12.5m×12.5m",
+      "12.5m×25m",
+      "12.5m×25m面元",
+      "25m×12.5m",
+      "25m×25m网格",
+      "CDP网格10m×10m",
+      "CDP网格5m×5m",
+      "面元10×10m",
+      "面元12.5m×25m",
+      "面元20×20m",
+      "面元25×50m",
+      "面元5m×5m"
+    ],
+    "estimated_coverage": 12,
+    "category": "numerical"
+  },
+  {
+    "name": "炮密度/道密度",
+    "pattern": "(?:炮密度|道密度)\\s*\\d+(?:\\.\\d+)?\\s*(?:炮|道)\\s*/\\s*km[²2]?",
+    "tags": [
+      "观测系统"
+    ],
+    "example_matches": [
+      "炮密度139炮/km2",
+      "炮密度156.3炮/km2",
+      "道密度357道/km2",
+      "道密度500道/km2"
+    ],
+    "estimated_coverage": 4,
+    "category": "numerical"
+  },
+  {
+    "name": "满覆盖/一次覆盖面积",
+    "pattern": "(?:满覆盖面积|满覆盖|一次覆盖面积)\\s*\\d+(?:\\.\\d+)?\\s*km[²2]",
+    "tags": [
+      "观测系统"
+    ],
+    "example_matches": [
+      "满覆盖面积299.25km²",
+      "满覆盖面积37.44km²",
+      "满覆盖424.725km2",
+      "满覆盖502.2km2",
+      "满覆盖504km2",
+      "一次覆盖面积1135.71km²",
+      "一次覆盖面积1292.76km²"
+    ],
+    "estimated_coverage": 7,
+    "category": "numerical"
+  },
+  {
+    "name": "裸工区面积（NN.NN km²，地质任务/观测系统语境）",
+    "pattern": "\\b\\d{2,4}(?:\\.\\d+)?\\s*km[²2]\\b",
+    "tags": [
+      "地质任务",
+      "观测系统"
+    ],
+    "example_matches": [
+      "299.25km²",
+      "37.44km²",
+      "458.01km²",
+      "550.8km²",
+      "580.5km²",
+      "1211.76km²"
+    ],
+    "estimated_coverage": 7,
+    "category": "numerical"
+  },
+  {
+    "name": "测线总长度/二维总长（NNNN.NN km）",
+    "pattern": "\\b\\d{3,5}(?:\\.\\d+)?\\s*km\\b",
+    "tags": [
+      "测量定位",
+      "观测系统",
+      "施工组织"
+    ],
+    "example_matches": [
+      "1822.5km",
+      "2681.8km",
+      "3018.7km",
+      "4714.25km",
+      "5920.6km",
+      "6306.85km",
+      "6536.75km",
+      "8720.50km",
+      "8939.3km",
+      "8988.65km"
+    ],
+    "estimated_coverage": 10,
+    "category": "numerical"
+  },
+  {
+    "name": "炮数（总炮数/加密炮/单值）",
+    "pattern": "(?:加密炮点|加密点)\\s*\\d+\\s*个|\\b\\d{2,6}\\s*炮\\b|平均日效\\s*\\d+\\s*炮|日效\\s*\\d+\\s*炮",
+    "tags": [
+      "观测系统",
+      "施工组织",
+      "质量控制"
+    ],
+    "example_matches": [
+      "2240炮",
+      "2337炮",
+      "7140炮",
+      "36550炮",
+      "50982炮",
+      "53934炮",
+      "60300炮",
+      "63750炮",
+      "63787炮",
+      "174炮",
+      "加密炮点168个",
+      "加密点50个",
+      "平均日效1471炮",
+      "日效77炮",
+      "日效778炮"
+    ],
+    "estimated_coverage": 19,
+    "category": "numerical"
+  },
+  {
+    "name": "接收点/检波点/总点数/总道数（N 个接收点 / N 检波点 / N 点 / N 道）",
+    "pattern": "\\d+\\s*个?\\s*(?:接收点|检波点)|\\b\\d{4,6}\\s*道\\b|单线\\s*\\d+\\s*道|\\d+\\s*个检波器|\\b\\d{5,7}\\s*点\\b",
+    "tags": [
+      "观测系统",
+      "接收设备"
+    ],
+    "example_matches": [
+      "1296个接收点",
+      "1848个接收点",
+      "94458接收点",
+      "17460检波点",
+      "212796检波点",
+      "236232检波点",
+      "17460道",
+      "19008道",
+      "单线252道",
+      "221760点"
+    ],
+    "estimated_coverage": 17,
+    "category": "numerical"
+  },
+  {
+    "name": "接收线/炮线（N 条接收线 / N 条炮线）",
+    "pattern": "\\d+\\s*条(?:接收|炮)线",
+    "tags": [
+      "观测系统"
+    ],
+    "example_matches": [
+      "102条接收线",
+      "122条接收线",
+      "164条接收线",
+      "173条接收线",
+      "20条接收线",
+      "1020条炮线"
+    ],
+    "estimated_coverage": 6,
+    "category": "numerical"
+  },
+  {
+    "name": "束/束线（N 束 / N 束线）",
+    "pattern": "\\d+\\s*束(?:线)?(?:联束叠加)?|\\d+\\s*[-~–—]\\s*\\d+\\s*束线|线束\\s*\\d+\\s*束",
+    "tags": [
+      "观测系统",
+      "试验设计",
+      "数据处理"
+    ],
+    "example_matches": [
+      "108束",
+      "146束",
+      "67束",
+      "87束",
+      "85束线",
+      "14束联束叠加",
+      "68-85束线",
+      "线束55束"
+    ],
+    "estimated_coverage": 8,
+    "category": "numerical"
+  },
+  {
+    "name": "观测系统编码（NL×NS×NT, NL NS NR NF 紧凑型, 16线8炮束状）",
+    "pattern": "\\d+\\s*[Ll]\\s*[×x*]?\\s*\\d+\\s*[Ss]\\s*[×x*]?\\s*\\d+\\s*[RTrt][^\\u4e00-\\u9fff]*\\d*\\s*[Ff]?|\\d+\\s*线\\s*[×x*]?\\s*\\d+\\s*炮\\s*[×x*]?\\s*\\d+\\s*道|\\d+\\s*线\\s*\\d+\\s*炮(?:束状)?(?:\\d+\\s*道)?|\\d+\\s*[Ll]\\s*[×x*]\\s*\\d+\\s*[Ss]\\s*[×x*]\\s*全排列",
+    "tags": [
+      "观测系统"
+    ],
+    "example_matches": [
+      "16L×8S×192T",
+      "16L×8S×60T",
+      "28L6S252R294F",
+      "36L6S528R",
+      "36线×6炮×528道",
+      "16线8炮束状",
+      "1线1炮640道",
+      "40L6S270R900F",
+      "54L×5S×全排列"
+    ],
+    "estimated_coverage": 10,
+    "category": "numerical"
+  },
+  {
+    "name": "排列段位/炮排（N-N-N-N-N 数字段或炮排段）",
+    "pattern": "\\d+\\s*[-]\\s*\\d+\\s*[-]\\s*\\d+\\s*[-]\\s*\\d+\\s*[-]\\s*\\d+|\\d+(?:\\.\\d+)?\\s*[-]\\s*\\d+(?:\\.\\d+)?\\s*炮排|\\d+\\s*\\(in\\)\\s*[×x*]\\s*\\d+\\s*\\(cr\\)\\s*=\\s*\\d+",
+    "tags": [
+      "观测系统",
+      "试验设计"
+    ],
+    "example_matches": [
+      "3195-5-10-5-3195",
+      "1264.5-1912.5炮排",
+      "22(in)×18(cr)=396"
+    ],
+    "estimated_coverage": 3,
+    "category": "numerical"
+  },
+  {
+    "name": "试验线/测线编号（07-DS线、2014-PS-NW-994K）",
+    "pattern": "\\d{2,4}\\s*[-]\\s*[A-Z]{2,3}\\s*(?:[-]\\s*[A-Z]{1,3})?\\s*[-]?\\s*\\d*[A-Za-z]?(?:线)?",
+    "tags": [
+      "地质任务",
+      "观测系统",
+      "试验设计"
+    ],
+    "example_matches": [
+      "07-DS线",
+      "2014-PS-NW-994K",
+      "2014-PS-NW994k"
+    ],
+    "estimated_coverage": 3,
+    "category": "numerical"
+  },
+  {
+    "name": "坐标系/高程基准（北京/西安/CGCS2000、黄海/青岛高程）",
+    "pattern": "(?:1954(?:年)?北京坐标系|2000国家大地坐标系|西安80坐标系|CGCS2000|1956(?:年)?黄海高程(?:系)?|1985(?:国家)?高程基准|1985青岛高程(?:系)?)",
+    "tags": [
+      "测量定位"
+    ],
+    "example_matches": [
+      "1954北京坐标系",
+      "1954年北京坐标系",
+      "1956年黄海高程系",
+      "1956黄海高程",
+      "1956黄海高程系",
+      "1985国家高程基准",
+      "1985青岛高程",
+      "1985青岛高程系",
+      "2000国家大地坐标系"
+    ],
+    "estimated_coverage": 9,
+    "category": "numerical"
+  },
+  {
+    "name": "高斯分带/带号（N 度分带、N 带、中央子午线）",
+    "pattern": "\\d+\\s*度分带(?:第\\d+带)?|\\d+\\s*带(?:坐标)?|高斯\\s*\\d+\\s*°\\s*投影带|中央子午线经度\\s*\\d+\\s*°?\\s*[EWNS]?",
+    "tags": [
+      "测量定位"
+    ],
+    "example_matches": [
+      "6度分带",
+      "6度分带第14带",
+      "14带",
+      "14带坐标",
+      "高斯3°投影带",
+      "中央子午线经度81°E"
+    ],
+    "estimated_coverage": 6,
+    "category": "numerical"
+  },
+  {
+    "name": "标准号/规范号（DZ/T、NB/T、Q/SHXB、T/CGS）",
+    "pattern": "(?:DZ|NB|SY|T)\\s*/\\s*(?:T|CGS|SHXB|[A-Z]+)?\\s*\\d{3,5}\\s*[-]?\\s*\\d{0,4}|Q\\s*/\\s*SHXB\\s*\\d{3,5}\\s*[-]?\\s*\\d{0,4}",
+    "tags": [
+      "测量定位",
+      "质量控制"
+    ],
+    "example_matches": [
+      "DZ/T0300-2017",
+      "NB/T10002",
+      "Q/SHXB0037-2008",
+      "Q/SHXB0037-2020",
+      "Q/SHXB0094-2012",
+      "T/CGS012-2022"
+    ],
+    "estimated_coverage": 6,
+    "category": "numerical"
+  },
+  {
+    "name": "施工队号（N 队）",
+    "pattern": "\\b\\d{2,4}\\s*队\\b",
+    "tags": [
+      "施工组织",
+      "技术难点"
+    ],
+    "example_matches": [
+      "2123队",
+      "2186队",
+      "247队",
+      "645队",
+      "649队"
+    ],
+    "estimated_coverage": 5,
+    "category": "numerical"
+  },
+  {
+    "name": "煤层编号（N 煤、N-N 煤）",
+    "pattern": "\\d+\\s*[-]?\\s*\\d*\\s*煤\\b",
+    "tags": [
+      "地质任务"
+    ],
+    "example_matches": [
+      "11-2煤",
+      "13-1煤",
+      "1煤",
+      "6煤",
+      "7煤",
+      "8煤",
+      "9煤"
+    ],
+    "estimated_coverage": 7,
+    "category": "numerical"
+  },
+  {
+    "name": "断层/陷落柱/褶曲尺寸（落差/直径/波幅 N m）",
+    "pattern": "(?:落差|直径|波幅)\\s*(?:大于|小于|>|<|＞|＜)?\\s*\\d+(?:\\.\\d+)?\\s*m\\s*(?:断层|断点|陷落柱|褶曲)?",
+    "tags": [
+      "地质任务",
+      "技术难点"
+    ],
+    "example_matches": [
+      "落差3m断层",
+      "落差大于20m断层",
+      "落差大于5m断层",
+      "落差小于5m断点",
+      "直径15m陷落柱",
+      "直径50m陷落柱",
+      "波幅大于50m褶曲"
+    ],
+    "estimated_coverage": 7,
+    "category": "numerical"
+  },
+  {
+    "name": "表层速度（低速层/降速层/高速层 N-N m/s）",
+    "pattern": "(?:低速层|降速层|高速层)(?:速度)?\\s*\\d+(?:\\.\\d+)?\\s*[-~–—]\\s*\\d+(?:\\.\\d+)?\\s*m\\s*/\\s*s",
+    "tags": [
+      "表层调查"
+    ],
+    "example_matches": [
+      "低速层350-800m/s",
+      "低速层速度340-450m/s",
+      "降速层1000-2400m/s",
+      "降速层速度500-780m/s",
+      "高速层3300-5400m/s",
+      "高速层速度1638-1927m/s"
+    ],
+    "estimated_coverage": 6,
+    "category": "numerical"
+  },
+  {
+    "name": "低降速带厚度/范围",
+    "pattern": "低降速带(?:厚度)?\\s*(?:[>≥<≤]|大于|小于)?\\s*\\d+(?:\\.\\d+)?(?:\\s*[-~–—]\\s*\\d+(?:\\.\\d+)?)?\\s*m",
+    "tags": [
+      "激发参数",
+      "表层调查"
+    ],
+    "example_matches": [
+      "低降速带1-12m",
+      "低降速带厚度15-30m",
+      "低降速带厚度>30m",
+      "低降速带厚度≤15m"
+    ],
+    "estimated_coverage": 4,
+    "category": "numerical"
+  },
+  {
+    "name": "替换速度/基准面（静校正）",
+    "pattern": "\\d+\\s*m\\s*/\\s*s\\s*替换速度|基准面\\s*\\d+\\s*m|\\d+\\s*m\\s*基准面",
+    "tags": [
+      "静校正"
+    ],
+    "example_matches": [
+      "2000m/s替换速度",
+      "基准面10m",
+      "1100m基准面"
+    ],
+    "estimated_coverage": 3,
+    "category": "numerical"
+  },
+  {
+    "name": "井口偏移容差",
+    "pattern": "井口偏移\\s*(?:大于|小于|>|<)?\\s*\\d+(?:\\s*[-~–—]\\s*\\d+)?\\s*m",
+    "tags": [
+      "测量定位"
+    ],
+    "example_matches": [
+      "井口偏移0-1m",
+      "井口偏移1-5m",
+      "井口偏移大于5m"
+    ],
+    "estimated_coverage": 3,
+    "category": "numerical"
+  },
+  {
+    "name": "同步观测时间",
+    "pattern": "同步观测时间\\s*\\d+\\s*分钟",
+    "tags": [
+      "测量定位"
+    ],
+    "example_matches": [
+      "同步观测时间180分钟"
+    ],
+    "estimated_coverage": 1,
+    "category": "numerical"
+  },
+  {
+    "name": "合格率/复测率（百分比）",
+    "pattern": "(?:合格率|复测率|优良率)\\s*\\d+(?:\\.\\d+)?\\s*%",
+    "tags": [
+      "质量控制",
+      "测量定位"
+    ],
+    "example_matches": [
+      "合格率98%",
+      "合格率99%",
+      "复测率3.82%"
+    ],
+    "estimated_coverage": 3,
+    "category": "numerical"
+  },
+  {
+    "name": "新生界/盖层厚度",
+    "pattern": "(?:新生界|盖层|表土|风化层)\\s*\\d+(?:\\.\\d+)?\\s*m\\s*厚?",
+    "tags": [
+      "工区情况",
+      "技术难点"
+    ],
+    "example_matches": [
+      "新生界380m厚"
+    ],
+    "estimated_coverage": 1,
+    "category": "numerical"
+  },
+  {
+    "name": "限偏（限制偏移距）",
+    "pattern": "限偏\\s*\\d+\\s*m",
+    "tags": [
+      "资料品质"
+    ],
+    "example_matches": [
+      "限偏500m",
+      "限偏600m",
+      "限偏800m"
+    ],
+    "estimated_coverage": 3,
+    "category": "numerical"
+  },
+  {
+    "name": "通用大尺寸 m（排列长度/最深值，纯数字+m）",
+    "pattern": "\\b\\d{4,6}(?:\\.\\d+)?\\s*m\\b",
+    "tags": [
+      "观测系统"
+    ],
+    "example_matches": [
+      "10500m",
+      "5375m",
+      "6587.5m",
+      "8502.105m",
+      "8502.1m",
+      "850225m"
+    ],
+    "estimated_coverage": 6,
+    "category": "numerical"
+  },
+  {
+    "name": "快速通道/横纵通道",
+    "pattern": "\\d+\\s*横\\s*\\d+\\s*纵\\s*快速通道",
+    "tags": [
+      "施工组织"
+    ],
+    "example_matches": [
+      "1横2纵快速通道"
+    ],
+    "estimated_coverage": 1,
+    "category": "numerical"
+  },
+  {
+    "name": "公路/道路编号",
+    "pattern": "\\d+\\s*号\\s*(?:公路|铁路|高速)",
+    "tags": [
+      "工区情况"
+    ],
+    "example_matches": [
+      "1号公路"
+    ],
+    "estimated_coverage": 1,
+    "category": "numerical"
+  },
+  {
+    "name": "热线/编号（12345 热线、84#85# 仓库等）",
+    "pattern": "12345\\s*求助热线|\\d{2,3}\\s*#\\s*\\d{2,3}\\s*#\\s*(?:存储|安全管理)?",
+    "tags": [
+      "施工组织"
+    ],
+    "example_matches": [
+      "12345求助热线",
+      "84#85#",
+      "84#85#存储",
+      "84#85#安全管理"
+    ],
+    "estimated_coverage": 4,
+    "category": "numerical"
+  },
+  {
+    "name": "可控震源台数/次数（N 台 N 次）",
+    "pattern": "\\d+\\s*台\\s*\\d+\\s*次",
+    "tags": [
+      "激发参数"
+    ],
+    "example_matches": [
+      "3台1次"
+    ],
+    "estimated_coverage": 1,
+    "category": "numerical"
+  },
+  {
+    "name": "线元",
+    "pattern": "线元\\s*\\d+\\s*m",
+    "tags": [
+      "观测系统"
+    ],
+    "example_matches": [
+      "线元5m"
+    ],
+    "estimated_coverage": 1,
+    "category": "numerical"
+  },
+  {
+    "name": "观测系统编码 (NLnSmTpFq)",
+    "pattern": "\\b\\d{1,3}L\\d{1,3}S\\d{1,4}T(?:\\d{1,4}F)?\\b",
+    "tags": [
+      "观测系统"
+    ],
+    "example_matches": [
+      "28L8S256T224F",
+      "36L7S360T",
+      "1L1S640T",
+      "10L36S144T"
+    ],
+    "estimated_coverage": 8,
+    "category": "identifier"
+  },
+  {
+    "name": "顺北加密控制点 (SB+数字+J+数字 可选-序号)",
+    "pattern": "\\bSB\\d{1,3}J(?:\\d{1,3}|-\\d{1,2})\\b",
+    "tags": [
+      "测量定位",
+      "质量控制"
+    ],
+    "example_matches": [
+      "SB21J01",
+      "SB21J05",
+      "SB43J-1",
+      "SB43J-3"
+    ],
+    "estimated_coverage": 8,
+    "category": "identifier"
+  },
+  {
+    "name": "顺北/胜利 SBBJ/SHB 控制点编号",
+    "pattern": "\\b(?:SBBJ|SHB)\\d{3,5}\\b",
+    "tags": [
+      "测量定位"
+    ],
+    "example_matches": [
+      "SBBJ2103",
+      "SHB4201",
+      "SHB4204"
+    ],
+    "estimated_coverage": 5,
+    "category": "identifier"
+  },
+  {
+    "name": "XBC 系列控制点编号",
+    "pattern": "\\bXBC\\d{3,4}\\b",
+    "tags": [
+      "测量定位"
+    ],
+    "example_matches": [
+      "XBC011",
+      "XBC026",
+      "XBC031"
+    ],
+    "estimated_coverage": 7,
+    "category": "identifier"
+  },
+  {
+    "name": "通用控制点编号 (B/C/L/Z/P + 3位数字)",
+    "pattern": "\\b[BCLZP]\\d{3}\\b",
+    "tags": [
+      "测量定位"
+    ],
+    "example_matches": [
+      "B009",
+      "C012"
+    ],
+    "estimated_coverage": 2,
+    "category": "identifier"
+  },
+  {
+    "name": "公路编号 (G国道/S省道 + 数字)",
+    "pattern": "\\b[GS]\\d{1,4}(?=京|沪|省道|国道|高速|$|[，。、\\s])",
+    "tags": [
+      "工区情况"
+    ],
+    "example_matches": [
+      "G2",
+      "S229",
+      "S232",
+      "S352"
+    ],
+    "estimated_coverage": 4,
+    "category": "identifier"
+  },
+  {
+    "name": "断层编号 (F/DF + 数字 + 可选'断层')",
+    "pattern": "\\b(?:DF|F)\\d{2,4}(?:断层)?\\b",
+    "tags": [
+      "地质任务"
+    ],
+    "example_matches": [
+      "DF211断层",
+      "F214断层",
+      "F220断层"
+    ],
+    "estimated_coverage": 3,
+    "category": "identifier"
+  },
+  {
+    "name": "井名 (字母前缀 + 数字 + 可选-NH + '井')",
+    "pattern": "\\b(?:ZG|SHB|TZ|TP|SN|YJ|TH)\\d{1,3}(?:-\\d{1,2}[HX]?)?井\\b",
+    "tags": [
+      "地质任务"
+    ],
+    "example_matches": [
+      "ZG12井",
+      "ZG13-3H井",
+      "ZG20井",
+      "SHB81X井"
+    ],
+    "estimated_coverage": 4,
+    "category": "identifier"
+  },
+  {
+    "name": "测线编号 (NW/SN + 数字 + 线)",
+    "pattern": "\\b(?:NW|SN|SZP\\d{4}-NW)\\d{2,4}线\\b",
+    "tags": [
+      "地质任务"
+    ],
+    "example_matches": [
+      "NW994线",
+      "SZP2012-NW994线"
+    ],
+    "estimated_coverage": 2,
+    "category": "identifier"
+  },
+  {
+    "name": "反射波/反射波组/标志层 (T + 数字/上标/连字符 + 后缀)",
+    "pattern": "\\bT\\d(?:[-\\d¹²³⁴⁵⁶⁷⁸⁹⁰]+)?(?:反射波组|反射波|标志层|波)\\b",
+    "tags": [
+      "地质任务",
+      "资料品质",
+      "数据处理"
+    ],
+    "example_matches": [
+      "T0波",
+      "T20反射波",
+      "T7⁰反射波组",
+      "T8¹反射波组",
+      "T3-3标志层",
+      "T7-4反射波组"
+    ],
+    "estimated_coverage": 34,
+    "category": "identifier"
+  },
+  {
+    "name": "速度层标识 (V + 单位数字 + 速度)",
+    "pattern": "\\bV\\d速度\\b",
+    "tags": [
+      "表层调查"
+    ],
+    "example_matches": [
+      "V0速度",
+      "V1速度",
+      "V2速度"
+    ],
+    "estimated_coverage": 3,
+    "category": "identifier"
+  },
+  {
+    "name": "考核试验点 (K + 单位数字 + 考核试验点)",
+    "pattern": "\\bK\\d考核试验点\\b",
+    "tags": [
+      "试验设计"
+    ],
+    "example_matches": [
+      "K1考核试验点",
+      "K2考核试验点",
+      "K3考核试验点"
+    ],
+    "estimated_coverage": 3,
+    "category": "identifier"
+  },
+  {
+    "name": "地层灰岩标识 (S + 数字 + 地质年代 + 灰岩)",
+    "pattern": "\\bS\\d(?:二叠系|三叠系|侏罗系|寒武系|奥陶系|志留系|泥盆系|石炭系|白垩系)灰岩\\b",
+    "tags": [
+      "地质任务",
+      "试验设计"
+    ],
+    "example_matches": [
+      "S1二叠系灰岩",
+      "S2三叠系灰岩"
+    ],
+    "estimated_coverage": 2,
+    "category": "identifier"
+  },
+  {
+    "name": "隐蔽油藏地层 (字母+数字+小写字母+隐蔽油藏)",
+    "pattern": "\\b[A-Z]\\d[a-z]隐蔽油藏\\b",
+    "tags": [
+      "地质任务"
+    ],
+    "example_matches": [
+      "E2d隐蔽油藏"
+    ],
+    "estimated_coverage": 1,
+    "category": "identifier"
+  },
+  {
+    "name": "石油行业标准 (SY/T 编号-年份)",
+    "pattern": "\\bSY\\s*/\\s*T\\s*\\d{3,5}(?:-\\d{4})?\\b",
+    "tags": [
+      "质量控制",
+      "测量定位",
+      "静校正",
+      "资料品质"
+    ],
+    "example_matches": [
+      "SY/T5171-2011",
+      "SY/T5171-2017",
+      "SY/T5928",
+      "SY/T6052-2000"
+    ],
+    "estimated_coverage": 8,
+    "category": "identifier"
+  },
+  {
+    "name": "国家标准 (GB 或 GB/T 编号-年份)",
+    "pattern": "\\bGB(?:\\s*/\\s*T)?\\s*\\d{3,5}(?:-\\d{4})?\\b",
+    "tags": [
+      "质量控制",
+      "测量定位",
+      "激发参数"
+    ],
+    "example_matches": [
+      "GB/T18314-2009",
+      "GB/T33583-2017",
+      "GB12950",
+      "GB6722-2014"
+    ],
+    "estimated_coverage": 5,
+    "category": "identifier"
+  },
+  {
+    "name": "企业/国际质量规范 (QSYBGP/ISO 等)",
+    "pattern": "\\b(?:QSYBGPK\\d{4}-\\d{4}|ISO\\d{4,5}|Q/SY\\s*\\d+)\\b",
+    "tags": [
+      "质量控制",
+      "激发参数"
+    ],
+    "example_matches": [
+      "QSYBGPK1211-2005",
+      "ISO9001"
+    ],
+    "estimated_coverage": 2,
+    "category": "identifier"
+  },
+  {
+    "name": "坐标系/高程系 (BJ54/CGCS2000/WGS84/EGM2008/CQG2000 + 可选后缀)",
+    "pattern": "\\b(?:BJ-?54|CGCS2000|WGS84|EGM2008|CQG2000)(?:坐标系?|高程异常拾取软件)?\\b",
+    "tags": [
+      "测量定位"
+    ],
+    "example_matches": [
+      "BJ54",
+      "BJ-54坐标",
+      "CGCS2000坐标系",
+      "WGS84",
+      "EGM2008",
+      "CQG2000高程异常拾取软件"
+    ],
+    "estimated_coverage": 11,
+    "category": "identifier"
+  },
+  {
+    "name": "Trimble GNSS 接收机型号",
+    "pattern": "\\bTrimble\\s*(?:R\\d{1,2}|SPS\\d{3,4})(?:双频接收机)?\\b",
+    "tags": [
+      "接收设备",
+      "测量定位",
+      "激发参数"
+    ],
+    "example_matches": [
+      "TrimbleR8",
+      "TrimbleR10",
+      "TrimbleR12",
+      "TrimbleSPS855",
+      "TrimbleR8双频接收机"
+    ],
+    "estimated_coverage": 5,
+    "category": "identifier"
+  },
+  {
+    "name": "检波器/采集站型号 (常见型号 + 可选中文后缀)",
+    "pattern": "\\b(?:DSU\\d|SM-?\\d{2}|FS-?\\d|GDZ\\d{2,3}|SERCEL\\s*JF-?\\d{2}DX|INodal\\d|Mini(?:seis)?\\d{2}|Aries\\d+(?:\\.\\d+)?|TBC\\d+(?:\\.\\d+)?|Ve\\d{3}|KZ\\d{2}[A-Z]{1,2})(?:数字检波器|检波器|水中检波器|节点仪|可控震源)?\\b",
+    "tags": [
+      "接收设备",
+      "激发参数",
+      "表层调查",
+      "数据处理",
+      "质量控制"
+    ],
+    "example_matches": [
+      "DSU1数字检波器",
+      "SM-24检波器",
+      "FS-4水中检波器",
+      "GDZ24",
+      "SERCELJF-20DX",
+      "INodal2节点仪",
+      "Mini48",
+      "Miniseis48",
+      "Aries2.66",
+      "TBC2.81",
+      "Ve464",
+      "KZ28AS可控震源"
+    ],
+    "estimated_coverage": 13,
+    "category": "identifier"
+  },
+  {
+    "name": "输油气管道直径标识 (DN + 数字 + 管道/管线)",
+    "pattern": "\\bDN\\d{2,4}(?:输油管道|输干气管线|输湿气管线|输气管线|输水管线|管道|管线)\\b",
+    "tags": [
+      "工区情况",
+      "技术难点"
+    ],
+    "example_matches": [
+      "DN250输油管道",
+      "DN400输干气管线",
+      "DN400输湿气管线"
+    ],
+    "estimated_coverage": 3,
+    "category": "identifier"
+  },
+  {
+    "name": "施工队编号 (SGC + 4位数字 + 队)",
+    "pattern": "\\bSGC\\d{4}队\\b",
+    "tags": [
+      "施工组织"
+    ],
+    "example_matches": [
+      "SGC2118队",
+      "SGC2121队",
+      "SGC2123队"
+    ],
+    "estimated_coverage": 3,
+    "category": "identifier"
+  }
+]

@@ -1,0 +1,15 @@
+{
+  "experimentId": "0520-qwen3max-promptv2-tagged",
+  "_desc": "0520 第四跑：qwen3-max + prompt v2 + 概念字典 tag KB (2491 terms)。和 0520-qwen3max-promptv2 唯一差别：主 KB 设置 tag_kb_ids=[<concept-dict-kb>] 重新 ingest 后的版本。assistant 6e2cda48572f11f1854b5738863ef026。",
+  "datasetIds": ["dce370e2572e11f1854b5738863ef026"],
+  "assistantId": "6e2cda48572f11f1854b5738863ef026",
+  "split": "all",
+  "retrieval": {
+    "topK": 1024,
+    "similarityThreshold": 0.2,
+    "vectorSimilarityWeight": 0.3,
+    "keyword": false,
+    "topN": 10
+  },
+  "dataset": "questions-0520.json"
+}

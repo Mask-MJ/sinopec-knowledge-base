@@ -1,0 +1,15 @@
+{
+  "experimentId": "0520-qwen3max-promptv3-kwd",
+  "_desc": "0520 第六跑：qwen3-max + prompt v3（精简 v2 的硬编码 + 加项目特异性强约束）+ chunk-tagged KB。assistant dcfdc1c0573a11f1854b5738863ef026。v3 vs v2 主要差异：删了 v2 规则 1 的 X 长枚举、缩了规则 3 的数字类型枚举、新增规则 4 项目特异性（针对 0420 Q14 类项目串扰退化）。其他参数 retrieval/topN/topK 与 v2-kwd 完全相同。",
+  "datasetIds": ["e6a74a2453f311f1a1ac51b09f8da739"],
+  "assistantId": "dcfdc1c0573a11f1854b5738863ef026",
+  "split": "all",
+  "retrieval": {
+    "topK": 1024,
+    "similarityThreshold": 0.2,
+    "vectorSimilarityWeight": 0.3,
+    "keyword": false,
+    "topN": 10
+  },
+  "dataset": "questions-0520.json"
+}

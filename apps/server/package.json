@@ -26,6 +26,10 @@
     "prisma:pull": "npx prisma db pull",
     "prisma:reset": "prisma migrate reset",
     "prisma:studio": "prisma studio",
+    "eval:setup:0520-baseline": "RAGFLOW_HOST=${RAGFLOW_HOST:-http://ragflow:9380} bash scripts/eval/setup-kb-0520.sh",
+    "eval:setup:0520-qwen3": "RAGFLOW_HOST=${RAGFLOW_HOST:-http://ragflow:9380} bash scripts/eval/setup-kb-0520-qwen3.sh",
+    "eval:run:0520-baseline": "RAGFLOW_HOST=${RAGFLOW_HOST:-http://ragflow:9380} dotenvx run --env-file=.env.eval -- tsx scripts/eval/run.ts --config scripts/eval/configs/0520-baseline.json --split all",
+    "eval:run:0520-qwen3": "RAGFLOW_HOST=${RAGFLOW_HOST:-http://ragflow:9380} dotenvx run --env-file=.env.eval -- tsx scripts/eval/run.ts --config scripts/eval/configs/0520-qwen3-embedding-v4.json --split all",
     "postinstall": "test -d prisma/models && prisma generate || echo 'No Prisma schema found, skipping generate.'"
   },
   "dependencies": {

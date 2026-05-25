@@ -1,0 +1,15 @@
+{
+  "experimentId": "0520-qwen3max-promptv3.1-kwd",
+  "_desc": "0520 第七跑：qwen3-max + prompt v3.1（v3 太严 → 软化）+ tagged KB。v3.1 改动：(1) 规则 4 项目特异性从「答案只能来自该项目文档」软化为「优先采用项目相关 chunk，注意区分边界」(2) 规则 3 数字必须带单位 加详细 enum 示例（修 Q10/Q5 单位漏掉问题）。assistant 4d468100573c11f1854b5738863ef026。",
+  "datasetIds": ["e6a74a2453f311f1a1ac51b09f8da739"],
+  "assistantId": "4d468100573c11f1854b5738863ef026",
+  "split": "all",
+  "retrieval": {
+    "topK": 1024,
+    "similarityThreshold": 0.2,
+    "vectorSimilarityWeight": 0.3,
+    "keyword": false,
+    "topN": 10
+  },
+  "dataset": "questions-0520.json"
+}

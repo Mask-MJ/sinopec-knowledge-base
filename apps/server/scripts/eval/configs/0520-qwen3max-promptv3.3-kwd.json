@@ -1,0 +1,15 @@
+{
+  "experimentId": "0520-qwen3max-promptv3.3-kwd",
+  "_desc": "0520 第八跑：qwen3-max + prompt v3.3 + tagged KB。v3.3 = v2 + 只改规则 3（数字必须保留原文完整表述，含单位/符号/范围）。**未加项目特异性规则**（v3/v3.1 已证明该规则在多形态下都净退化）。预期：保住 v2-kwd 的 mc 86%，外加 Q10 单位修复 → 87-89%。assistant 65139380573d11f1854b5738863ef026。",
+  "datasetIds": ["e6a74a2453f311f1a1ac51b09f8da739"],
+  "assistantId": "65139380573d11f1854b5738863ef026",
+  "split": "all",
+  "retrieval": {
+    "topK": 1024,
+    "similarityThreshold": 0.2,
+    "vectorSimilarityWeight": 0.3,
+    "keyword": false,
+    "topN": 10
+  },
+  "dataset": "questions-0520.json"
+}
