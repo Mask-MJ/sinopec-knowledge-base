@@ -103,13 +103,191 @@ describe('assistantService.findAllSessions', () => {
   });
 });
 
-describe('AssistantService KB prompt template', () => {
+describe('assistantService KB prompt template', () => {
   it('does not instruct the model to emit "知识库中未找到您要的答案" — that role is owned by RAGFlow empty_response', () => {
-    const prompt = (
-      AssistantService as unknown as { KB_CHAT_PROMPT: string }
-    ).KB_CHAT_PROMPT;
+    const prompt = (AssistantService as unknown as { KB_CHAT_PROMPT: string })
+      .KB_CHAT_PROMPT;
     expect(prompt).toBeTruthy();
     expect(prompt).not.toContain('知识库中未找到您要的答案');
     expect(prompt).toContain('知识库未给出');
+  });
+});
+
+describe('assistantService default model resolution', () => {
+  let service: AssistantService;
+  let configGet: ReturnType<typeof vi.fn>;
+  let ragflow: {
+    getLlmList: ReturnType<typeof vi.fn>;
+    request: ReturnType<typeof vi.fn>;
+  };
+  let prisma: ReturnType<typeof createMockPrismaService>;
+
+  beforeEach(async () => {
+    vi.clearAllMocks();
+    configGet = vi.fn().mockReturnValue(undefined);
+    ragflow = { request: vi.fn(), getLlmList: vi.fn() };
+    prisma = createMockPrismaService();
+    const module: TestingModule = await Test.createTestingModule({
+      providers: [
+        AssistantService,
+        { provide: PRISMA_SERVICE_TOKEN, useValue: prisma },
+        { provide: RagflowService, useValue: ragflow },
+        { provide: ConfigService, useValue: { get: configGet } },
+      ],
+    }).compile();
+    service = module.get(AssistantService);
+  });
+
+  describe('createGeneral', () => {
+    beforeEach(() => {
+      prisma.client.assistant.findFirst.mockResolvedValue(null);
+      ragflow.request.mockResolvedValue({ id: 'rf-new' });
+      prisma.client.assistant.create.mockResolvedValue({ id: 1 });
+    });
+
+    it('prefers ASSISTANT_DEFAULT_MODEL when set; skips RAGFlow llm list lookup', async () => {
+      configGet.mockImplementation((key: string) =>
+        key === 'ASSISTANT_DEFAULT_MODEL' ? 'qwen3@Xinference' : undefined,
+      );
+
+      await service.createGeneral(42);
+
+      expect(ragflow.getLlmList).not.toHaveBeenCalled();
+      expect(ragflow.request).toHaveBeenCalledWith(
+        'POST',
+        '/api/v1/chats',
+        expect.objectContaining({ llm_id: 'qwen3@Xinference' }),
+      );
+      expect(prisma.client.assistant.create).toHaveBeenCalledWith(
+        expect.objectContaining({
+          data: expect.objectContaining({ modelName: 'qwen3@Xinference' }),
+        }),
+      );
+    });
+
+    it('falls back to first available chat model from RAGFlow llm list when env unset', async () => {
+      ragflow.getLlmList.mockResolvedValue([
+        {
+          available: false,
+          fid: 'Xinference',
+          llm_name: 'qwen3-unavailable',
+          model_type: 'chat',
+        },
+        {
+          available: true,
+          fid: 'Xinference',
+          llm_name: 'bge-m3',
+          model_type: 'embedding',
+        },
+        {
+          available: true,
+          fid: 'Xinference',
+          llm_name: 'qwen3',
+          model_type: 'chat',
+        },
+        {
+          available: true,
+          fid: 'Other',
+          llm_name: 'second-chat',
+          model_type: 'chat',
+        },
+      ]);
+
+      await service.createGeneral(42);
+
+      expect(ragflow.getLlmList).toHaveBeenCalledTimes(1);
+      expect(ragflow.request).toHaveBeenCalledWith(
+        'POST',
+        '/api/v1/chats',
+        expect.objectContaining({ llm_id: 'qwen3@Xinference' }),
+      );
+    });
+
+    it('throws ServiceUnavailableException when no available chat model exists and no env override', async () => {
+      ragflow.getLlmList.mockResolvedValue([
+        {
+          available: true,
+          fid: 'Xinference',
+          llm_name: 'bge-m3',
+          model_type: 'embedding',
+        },
+        {
+          available: false,
+          fid: 'Xinference',
+          llm_name: 'qwen3',
+          model_type: 'chat',
+        },
+      ]);
+
+      await expect(service.createGeneral(42)).rejects.toThrow(
+        /未挂载任何可用 chat 模型/,
+      );
+      expect(ragflow.request).not.toHaveBeenCalled();
+      expect(prisma.client.assistant.create).not.toHaveBeenCalled();
+    });
+
+    it('returns existing general assistant without resolving model or hitting RAGFlow', async () => {
+      prisma.client.assistant.findFirst.mockResolvedValue({
+        id: 7,
+        userId: 42,
+        isGeneral: true,
+      });
+
+      const result = await service.createGeneral(42);
+
+      expect(result).toEqual(
+        expect.objectContaining({ id: 7, isGeneral: true }),
+      );
+      expect(ragflow.getLlmList).not.toHaveBeenCalled();
+      expect(ragflow.request).not.toHaveBeenCalled();
+    });
+  });
+
+  describe('create', () => {
+    beforeEach(() => {
+      ragflow.request.mockResolvedValue({ id: 'rf-new' });
+      prisma.client.assistant.create.mockResolvedValue({ id: 1 });
+    });
+
+    it('uses dto.modelName when caller provides it; skips both env and llm list lookup', async () => {
+      configGet.mockImplementation((key: string) =>
+        key === 'ASSISTANT_DEFAULT_MODEL' ? 'qwen3@Xinference' : undefined,
+      );
+
+      await service.create(createMockActiveUser(), {
+        name: '我的助手',
+        modelName: 'custom-llm@Local',
+      } as never);
+
+      expect(configGet).not.toHaveBeenCalledWith('ASSISTANT_DEFAULT_MODEL');
+      expect(ragflow.getLlmList).not.toHaveBeenCalled();
+      expect(ragflow.request).toHaveBeenCalledWith(
+        'POST',
+        '/api/v1/chats',
+        expect.objectContaining({ llm_id: 'custom-llm@Local' }),
+      );
+    });
+
+    it('falls back through env then RAGFlow llm list when dto.modelName missing', async () => {
+      ragflow.getLlmList.mockResolvedValue([
+        {
+          available: true,
+          fid: 'Xinference',
+          llm_name: 'qwen3',
+          model_type: 'chat',
+        },
+      ]);
+
+      await service.create(createMockActiveUser(), {
+        name: '无模型助手',
+      } as never);
+
+      expect(ragflow.getLlmList).toHaveBeenCalledTimes(1);
+      expect(ragflow.request).toHaveBeenCalledWith(
+        'POST',
+        '/api/v1/chats',
+        expect.objectContaining({ llm_id: 'qwen3@Xinference' }),
+      );
+    });
   });
 });
