@@ -55,7 +55,8 @@
     "defu",
     "llms",
     "aggs",
-    "docnm"
+    "docnm",
+    "qwen"
   ],
   "ignorePaths": [
     "**/*.log",

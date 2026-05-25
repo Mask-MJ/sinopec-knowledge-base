@@ -12,7 +12,13 @@ import type { PrismaService } from '@/common/database/prisma.extension';
 import type { ActiveUserData } from '@/modules/auth/interfaces/active-user-data.interface';
 import type { Response } from 'express';
 
-import { ForbiddenException, Inject, Injectable, Logger } from '@nestjs/common';
+import {
+  ForbiddenException,
+  Inject,
+  Injectable,
+  Logger,
+  ServiceUnavailableException,
+} from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 
 import { PRISMA_SERVICE_TOKEN } from '@/common/database/prisma.extension';
@@ -33,9 +39,6 @@ interface RagflowSessionRaw {
 export class AssistantService {
   /** 关联知识库时的默认空回复 */
   private static readonly DEFAULT_EMPTY_RESPONSE = '知识库中未找到您要的答案！';
-
-  /** 通用助手默认模型名称（后备值） — 优先取环境变量 ASSISTANT_DEFAULT_MODEL */
-  private static readonly DEFAULT_MODEL_NAME_FALLBACK = 'gpt-oss@Xinference';
 
   // ─── Private Helpers ──────────────────────────────
 
@@ -64,8 +67,6 @@ export class AssistantService {
 
   // ─── Completion (SSE 中间层) ──────────────────────
 
-  private readonly defaultModelName: string;
-
   private readonly logger = new Logger(AssistantService.name);
 
   // ─── Assistant CRUD ──────────────────────────────
@@ -73,12 +74,31 @@ export class AssistantService {
   constructor(
     @Inject(PRISMA_SERVICE_TOKEN) private readonly prisma: PrismaService,
     private readonly ragflow: RagflowService,
-    configService: ConfigService,
-  ) {
-    this.defaultModelName = configService.get<string>(
+    private readonly configService: ConfigService,
+  ) {}
+
+  /**
+   * 解析默认 LLM 模型 ID（格式 `<llm_name>@<provider_id>`）：
+   * 1. 优先使用 `ASSISTANT_DEFAULT_MODEL` 环境变量（部署侧固定）
+   * 2. 否则从 RAGFlow `GET /v1/llm/list` 拉首个可用 chat 模型
+   * 3. 实例未挂载任何可用 chat 模型时抛 ServiceUnavailableException
+   */
+  private async resolveDefaultModel(): Promise<string> {
+    const configured = this.configService.get<string>(
       'ASSISTANT_DEFAULT_MODEL',
-      AssistantService.DEFAULT_MODEL_NAME_FALLBACK,
     );
+    if (configured) return configured;
+
+    const list = await this.ragflow.getLlmList();
+    const chat = list.find(
+      (item) => item.model_type === 'chat' && item.available,
+    );
+    if (!chat) {
+      throw new ServiceUnavailableException(
+        'RAGFlow 实例未挂载任何可用 chat 模型，请先在 RAGFlow 添加模型或配置 ASSISTANT_DEFAULT_MODEL',
+      );
+    }
+    return `${chat.llm_name}@${chat.fid}`;
   }
 
   /**
@@ -166,7 +186,7 @@ export class AssistantService {
   }
 
   async create(user: ActiveUserData, dto: CreateAssistantDto) {
-    const modelName = dto.modelName || this.defaultModelName;
+    const modelName = dto.modelName || (await this.resolveDefaultModel());
     const hasKnowledgeBase = !!(dto.datasetIds && dto.datasetIds.length > 0);
     const prompt =
       dto.prompt ||
@@ -261,6 +281,7 @@ export class AssistantService {
     });
     if (existing) return existing;
 
+    const modelName = await this.resolveDefaultModel();
     const ragflowData = await this.ragflow.request<{ id: string }>(
       'POST',
       '/api/v1/chats',
@@ -268,7 +289,7 @@ export class AssistantService {
         name: '通用助手',
         description: '通用 AI 对话助手',
         dataset_ids: [],
-        llm_id: this.defaultModelName,
+        llm_id: modelName,
         prompt_config: AssistantService.toPromptConfig({
           prompt: AssistantService.GENERAL_CHAT_PROMPT,
           opener: AssistantService.DEFAULT_OPENER,
@@ -284,7 +305,7 @@ export class AssistantService {
           name: '通用助手',
           description: '通用 AI 对话助手',
           assistantId: ragflowData.id,
-          modelName: this.defaultModelName,
+          modelName,
           isGeneral: true,
           userId,
         },
