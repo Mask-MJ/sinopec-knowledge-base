@@ -13,11 +13,11 @@
 ## File Structure
 
 | 文件 | 责任 | 状态 |
-|---|---|---|
+| --- | --- | --- |
 | `apps/client/e2e/kb-bge-large-fullstack.spec.ts` | 单文件主 spec：登录 → 找 embedding id → 创建 KB → 上传 docx → parse → 创建 assistant → 创建 session → 跑 20 题 → 写 summary | **新增** |
-| `apps/client/e2e/fixtures/*.docx` | 6 份源 docx（fixtures/.gitignore 已排除入库；本地缓存）| 已有 3 份；任务 1 补齐到 6 份 |
+| `apps/client/e2e/fixtures/*.docx` | 6 份源 docx（fixtures/.gitignore 已排除入库；本地缓存） | 已有 3 份；任务 1 补齐到 6 份 |
 | `apps/client/playwright.prod.config.ts` | dotenvx 加载 + system Chrome | 已有，无需改 |
-| `apps/client/test-results/kb-bge-large-fullstack.json` | spec 产出 summary（被 .gitignore）| 运行期生成 |
+| `apps/client/test-results/kb-bge-large-fullstack.json` | spec 产出 summary（被 .gitignore） | 运行期生成 |
 | `turbo.json` | `globalEnv` 已含 `E2E_BASE_URL` / `E2E_ADMIN_USER` / `E2E_ADMIN_PASS` | 已有，无需改 |
 
 KB 与 assistant 的命名固定为"测试知识库 3" / "聊天助手 3"——若要复跑，先在 UI 上手工删掉它们或者改 spec 里的常量。spec 跑前会通过名字 list 检查；如果同名已存在，spec 报错让人决策（避免 silently 创建第二个同名）。
@@ -27,21 +27,22 @@ KB 与 assistant 的命名固定为"测试知识库 3" / "聊天助手 3"——�
 ## 已知值（spec 直接写死或 env 默认）
 
 | 名称 | 值 | 来源 |
-|---|---|---|
-| 业务 base URL | `http://39.96.194.119`（prod nginx）| `.env` `E2E_BASE_URL` |
+| --- | --- | --- |
+| 业务 base URL | `http://39.96.194.119`（prod nginx） | `.env` `E2E_BASE_URL` |
 | admin 凭据 | `admin` / `Admin@123` | `.env` |
-| 目标 embedding model id | `BAAI/bge-large-zh-v1.5___OpenAI-API@OpenAI-API-Compatible` | RAGFlow 已注册（实测 GET `/api/knowledge-base/llms` 返回 `available=1`）|
+| 目标 embedding model id | `BAAI/bge-large-zh-v1.5___OpenAI-API@OpenAI-API-Compatible` | RAGFlow 已注册（实测 GET `/api/knowledge-base/llms` 返回 `available=1`） |
 | 新 KB 名 | `测试知识库 3` | 用户指定 |
 | 新 assistant 名 | `聊天助手 3` | 用户指定 |
 | 6 份 fixtures docx | 3 份本地已有 + 3 份要从 RAGFlow MinIO bucket `6ec4cd18476611f1a9b8932ed31a3307` 拉 | 任务 1 |
 | chunk_method | `naive` | 业务 service 默认 |
-| parser_config | `DEFAULT_KB_PARSER_CONFIG`（DeepDOC + 512 + `\n` + raptor/graphrag OFF）| PR #24 业务层 service 浅合并 |
+| parser_config | `DEFAULT_KB_PARSER_CONFIG`（DeepDOC + 512 + `\n` + raptor/graphrag OFF） | PR #24 业务层 service 浅合并 |
 
 ---
 
 ## Task 1: 把缺失的 3 份 fixtures docx 从 minio 拉到本地
 
 **Files:**
+
 - 修改：`apps/client/e2e/fixtures/`（仅追加，不入库）
 
 - [ ] **Step 1: 列 fixtures 现有 docx**
@@ -92,6 +93,7 @@ git status --ignored apps/client/e2e/fixtures/ | head -10
 ## Task 2: 写 spec 骨架（仅 sign-in + embedding 探测，不调写操作）
 
 **Files:**
+
 - 创建：`apps/client/e2e/kb-bge-large-fullstack.spec.ts`
 
 - [ ] **Step 1: 创建 spec 骨架**
@@ -111,7 +113,13 @@ git status --ignored apps/client/e2e/fixtures/ | head -10
  */
 import type { APIRequestContext, PlaywrightWorkerArgs } from '@playwright/test';
 
-import { existsSync, mkdirSync, readdirSync, readFileSync, writeFileSync } from 'node:fs';
+import {
+  existsSync,
+  mkdirSync,
+  readdirSync,
+  readFileSync,
+  writeFileSync,
+} from 'node:fs';
 import { dirname, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
@@ -132,10 +140,8 @@ const BASE_URL = requireEnv('E2E_BASE_URL');
 const ADMIN_USER = requireEnv('E2E_ADMIN_USER');
 const ADMIN_PASS = requireEnv('E2E_ADMIN_PASS');
 const KB_NAME = process.env.E2E_NEW_KB_NAME ?? '测试知识库 3';
-const ASSISTANT_NAME =
-  process.env.E2E_NEW_ASSISTANT_NAME ?? '聊天助手 3';
-const EMBEDDING_HINT =
-  process.env.E2E_EMBEDDING_HINT ?? 'bge-large-zh-v1.5';
+const ASSISTANT_NAME = process.env.E2E_NEW_ASSISTANT_NAME ?? '聊天助手 3';
+const EMBEDDING_HINT = process.env.E2E_EMBEDDING_HINT ?? 'bge-large-zh-v1.5';
 
 const FIXTURES_DIR = resolve(__dirname, 'fixtures');
 const QUESTIONS_PATH = resolve(
@@ -247,6 +253,7 @@ pnpm exec eslint --max-warnings=0 e2e/kb-bge-large-fullstack.spec.ts
 ## Task 3: 加 KB 创建 + 重名守卫
 
 **Files:**
+
 - 修改：`apps/client/e2e/kb-bge-large-fullstack.spec.ts`
 
 - [ ] **Step 1: 把 skeleton 测试名改掉，扩展到创建 KB**
@@ -317,7 +324,10 @@ test('fullstack: create KB → upload → parse → create assistant → chat 20
     `[create] KB id=${newKb.id} datasetId=${newKb.datasetId} name=${newKb.name}`,
   );
   expect(newKb.id).toBeGreaterThan(0);
-  expect(newKb.datasetId, 'datasetId must come back from RAGFlow').toBeDefined();
+  expect(
+    newKb.datasetId,
+    'datasetId must come back from RAGFlow',
+  ).toBeDefined();
 
   await api.dispose();
 });
@@ -349,6 +359,7 @@ pnpm exec playwright test --config=playwright.prod.config.ts \
 ## Task 4: 加上传 + 触发 parse + 轮询逻辑
 
 **Files:**
+
 - 修改：`apps/client/e2e/kb-bge-large-fullstack.spec.ts`（在 KB 创建之后追加）
 
 - [ ] **Step 1: 在 test 体内 KB 创建之后追加上传逻辑**
@@ -356,80 +367,78 @@ pnpm exec playwright test --config=playwright.prod.config.ts \
 在 `await api.dispose();` 之前插入（暂时保留 dispose，等任务 5/6 之后再挪）：
 
 ```typescript
-  // ── 4. multipart upload all .docx fixtures to the new KB ────────────
-  const fixtures = readdirSync(FIXTURES_DIR).filter((f) => /\.docx?$/i.test(f));
-  expect(
-    fixtures.length,
-    'fixtures must contain at least one .docx',
-  ).toBeGreaterThanOrEqual(1);
-  console.log(`[upload] ${fixtures.length} docx files`);
+// ── 4. multipart upload all .docx fixtures to the new KB ────────────
+const fixtures = readdirSync(FIXTURES_DIR).filter((f) => /\.docx?$/i.test(f));
+expect(
+  fixtures.length,
+  'fixtures must contain at least one .docx',
+).toBeGreaterThanOrEqual(1);
+console.log(`[upload] ${fixtures.length} docx files`);
 
-  const form = new FormData();
-  for (const f of fixtures) {
-    const buf = readFileSync(resolve(FIXTURES_DIR, f));
-    form.append('files', new Blob([buf]), f);
-  }
-  const uploadResp = await api.post(
-    `/api/knowledge-base/${newKb.id}/documents`,
-    { multipart: form },
-  );
-  expect(
-    uploadResp.ok(),
-    `upload failed: ${uploadResp.status()} ${(await uploadResp.text()).slice(0, 200)}`,
-  ).toBe(true);
+const form = new FormData();
+for (const f of fixtures) {
+  const buf = readFileSync(resolve(FIXTURES_DIR, f));
+  form.append('files', new Blob([buf]), f);
+}
+const uploadResp = await api.post(`/api/knowledge-base/${newKb.id}/documents`, {
+  multipart: form,
+});
+expect(
+  uploadResp.ok(),
+  `upload failed: ${uploadResp.status()} ${(await uploadResp.text()).slice(0, 200)}`,
+).toBe(true);
 
-  // ── 5. fetch doc ids + trigger parse ────────────────────────────────
-  const docsResp = await api.get(
+// ── 5. fetch doc ids + trigger parse ────────────────────────────────
+const docsResp = await api.get(
+  `/api/knowledge-base/${newKb.id}/documents?page=1&pageSize=50`,
+);
+const docsJson = (await docsResp.json()) as { docs?: DocStatus[] };
+const docIds = (docsJson.docs ?? []).map((d) => d.id);
+expect(
+  docIds.length,
+  'every fixture should be uploaded',
+).toBeGreaterThanOrEqual(fixtures.length);
+
+const parseResp = await api.post(`/api/knowledge-base/${newKb.id}/parse`, {
+  data: { documentIds: docIds },
+});
+expect(parseResp.ok(), `parse trigger failed: ${parseResp.status()}`).toBe(
+  true,
+);
+console.log(`[parse] triggered for ${docIds.length} docs`);
+
+// ── 6. poll until every doc reaches a terminal state ────────────────
+const start = Date.now();
+let snapshot: DocStatus[] = [];
+while (Date.now() - start < PARSE_TIMEOUT_MS) {
+  const r = await api.get(
     `/api/knowledge-base/${newKb.id}/documents?page=1&pageSize=50`,
   );
-  const docsJson = (await docsResp.json()) as { docs?: DocStatus[] };
-  const docIds = (docsJson.docs ?? []).map((d) => d.id);
-  expect(
-    docIds.length,
-    'every fixture should be uploaded',
-  ).toBeGreaterThanOrEqual(fixtures.length);
+  const j = (await r.json()) as { docs?: DocStatus[] };
+  snapshot = j.docs ?? [];
+  const terminal = snapshot.every((d) =>
+    ['CANCEL', 'DONE', 'FAIL'].includes(d.run),
+  );
+  const summary = snapshot
+    .map(
+      (d) =>
+        `${d.name.slice(0, 22)}…=${d.run}/${Math.round(d.progress * 100)}%`,
+    )
+    .join('  ');
+  console.log(`[poll] ${summary}`);
+  if (terminal) break;
+  await new Promise((res) => setTimeout(res, POLL_INTERVAL_MS));
+}
 
-  const parseResp = await api.post(`/api/knowledge-base/${newKb.id}/parse`, {
-    data: { documentIds: docIds },
-  });
-  expect(
-    parseResp.ok(),
-    `parse trigger failed: ${parseResp.status()}`,
-  ).toBe(true);
-  console.log(`[parse] triggered for ${docIds.length} docs`);
-
-  // ── 6. poll until every doc reaches a terminal state ────────────────
-  const start = Date.now();
-  let snapshot: DocStatus[] = [];
-  while (Date.now() - start < PARSE_TIMEOUT_MS) {
-    const r = await api.get(
-      `/api/knowledge-base/${newKb.id}/documents?page=1&pageSize=50`,
-    );
-    const j = (await r.json()) as { docs?: DocStatus[] };
-    snapshot = j.docs ?? [];
-    const terminal = snapshot.every((d) =>
-      ['CANCEL', 'DONE', 'FAIL'].includes(d.run),
-    );
-    const summary = snapshot
-      .map(
-        (d) =>
-          `${d.name.slice(0, 22)}…=${d.run}/${Math.round(d.progress * 100)}%`,
-      )
-      .join('  ');
-    console.log(`[poll] ${summary}`);
-    if (terminal) break;
-    await new Promise((res) => setTimeout(res, POLL_INTERVAL_MS));
-  }
-
-  const failed = snapshot.filter((d) => d.run === 'FAIL');
-  expect(
-    failed.map((d) => `${d.name}: ${d.progress_msg ?? ''}`),
-    'no doc should fail to parse',
-  ).toEqual([]);
-  expect(
-    snapshot.filter((d) => d.run === 'DONE').length,
-    'every doc should reach DONE',
-  ).toBe(snapshot.length);
+const failed = snapshot.filter((d) => d.run === 'FAIL');
+expect(
+  failed.map((d) => `${d.name}: ${d.progress_msg ?? ''}`),
+  'no doc should fail to parse',
+).toEqual([]);
+expect(
+  snapshot.filter((d) => d.run === 'DONE').length,
+  'every doc should reach DONE',
+).toBe(snapshot.length);
 ```
 
 - [ ] **Step 2: 跑 lint + 单跑这段（任务 4 的局部状态会直接 dispose 退出）**
@@ -445,6 +454,7 @@ pnpm exec eslint --max-warnings=0 e2e/kb-bge-large-fullstack.spec.ts
 ## Task 5: 加 assistant 创建 + chat 全 20 题
 
 **Files:**
+
 - 修改：`apps/client/e2e/kb-bge-large-fullstack.spec.ts`（continued）
 
 - [ ] **Step 1: 在 parse 完成断言之后追加 assistant + chat 逻辑**
@@ -608,6 +618,7 @@ pnpm exec tsc --noEmit
 ## Task 6: 跑全流程 + 验证 summary
 
 **Files:**
+
 - 仅运行，不改文件
 
 - [ ] **Step 1: 跑全流程（预期 10-20 分钟）**
@@ -670,6 +681,7 @@ PY
 ## Task 7: 与 prod KB（bge-m3）的现有答案对比，给出报告
 
 **Files:**
+
 - 不改文件，只生成对比
 
 - [ ] **Step 1: 加载新旧两份 summary 对比**
@@ -708,6 +720,7 @@ PY
 ## Task 8: 提交 PR（可选）
 
 **Files:**
+
 - `apps/client/e2e/kb-bge-large-fullstack.spec.ts`
 - `apps/client/e2e/fixtures/.gitignore` （已 ignore 6 份 docx）
 - `.changeset/kb-bge-large-fullstack-e2e.md`
@@ -797,6 +810,7 @@ gh pr merge --squash --delete-branch
 **Placeholder 扫描**：所有 step 都有完整代码或精确命令，无 TODO / 待补 / "类似 Task N" 引用。✓
 
 **类型一致性**：
+
 - `KbItem.datasetId` / `CreatedKbResponse.datasetId` 都是 `string?`（通过实测 `GET /api/knowledge-base` 已确认 RAGFlow 返回 32-hex 字符串）
 - `LlmItem` 的 `available` 服务端实测返回 `1`（数字）当 truthy 用，类型 `boolean | number` 兼容
 - `DocStatus.run` 的终态枚举 `'CANCEL' | 'DONE' | 'FAIL'` 与 PR #14 / #18 spec 一致

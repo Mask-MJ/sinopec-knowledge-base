@@ -10,15 +10,16 @@
 
 **取代方案对比：**
 
-| 方案 | 工程量 | 修复范围 | 数据正确性 |
-|------|--------|----------|------------|
-| A Redis cache | ~80 行 | 仅最新一条 | 仍错位 |
-| B 自建 schema | ~2 天 | 全部 | 正确 |
-| **F 反向移位（本 plan）** | **~30 行 + 测试** | **全部** | **正确** |
+| 方案                      | 工程量            | 修复范围   | 数据正确性 |
+| ------------------------- | ----------------- | ---------- | ---------- |
+| A Redis cache             | ~80 行            | 仅最新一条 | 仍错位     |
+| B 自建 schema             | ~2 天             | 全部       | 正确       |
+| **F 反向移位（本 plan）** | **~30 行 + 测试** | **全部**   | **正确**   |
 
 **风险评估：** 假设 RAGFlow upstream 不修这个 merge bug。即使 RAGFlow 升级修了，最坏情况是我们的 shift 与新 merge 叠加再次错位 —— 用 spec 锁定行为，升级时跑一次回归测试即可发现。
 
 **Recon 证据（已在 prod RAGFlow MySQL 实测）:**
+
 - 1-轮 session: `JSON_LENGTH(message)=3, JSON_LENGTH(reference)=1`，merge 后开场白 has_ref=true、a1 has_ref=false
 - 47-msg session（23 轮 Q-A）: `JSON_LENGTH(message)=47, JSON_LENGTH(reference)=23`，merge 后 messages[0,2,4...44] 都有 ref、messages[46] 没有
 - RAGFlow 源码 `/ragflow/api/apps/sdk/session.py:609-660` 的 `list_session()` 函数 while loop 没跳开场白，确认 off-by-one
@@ -29,7 +30,7 @@
 ## File Structure
 
 | 路径 | 责任 | 改动类型 |
-|------|------|----------|
+| --- | --- | --- |
 | [apps/server/src/modules/assistant/normalize-reference.ts](apps/server/src/modules/assistant/normalize-reference.ts) | 把 `normalizeMessageReferences` 内部 "drop opener" 逻辑替换为 "shift forward" | Modify (函数签名不变) |
 | [apps/server/src/modules/assistant/normalize-reference.spec.ts](apps/server/src/modules/assistant/normalize-reference.spec.ts) | 重写测试：移位语义 + RAGFlow off-by-one quirk 模拟 | Modify |
 | [apps/server/src/modules/assistant/assistant.service.ts](apps/server/src/modules/assistant/assistant.service.ts) | 不改（normalize 函数签名兼容） | 不变 |
@@ -43,6 +44,7 @@
 ## Task 1: 写失败测试覆盖 RAGFlow off-by-one 移位修复（红）
 
 **Files:**
+
 - Modify: `apps/server/src/modules/assistant/normalize-reference.spec.ts`
 
 **Why this task exists:** 现有 spec 是按"RAGFlow 把 chunks 挂在正确的 assistant 上"假设设计的，但实测 RAGFlow 是错位挂的。我们需要新一组测试反映真实 off-by-one 输入，并断言 shift 后的输出。
@@ -255,6 +257,7 @@ Expected: 多个 test FAIL，提示 `result[2]?.reference?.chunks[0]?.id` 期望
 ## Task 2: 实现 shift forward 移位修复（绿）
 
 **Files:**
+
 - Modify: `apps/server/src/modules/assistant/normalize-reference.ts`
 
 **Why this task exists:** Task 1 锁定了"shift forward"语义。本任务只重写 normalize 函数主体，保持函数签名 / 入参 / 出参类型完全不变，让 service 层零改动。
@@ -353,6 +356,7 @@ Expected: 看 service spec 是否过。`assistant.service.spec.ts` 现在喂的�
 ## Task 3: 修复 service spec 让其反映 RAGFlow off-by-one 输入形态
 
 **Files:**
+
 - Modify: `apps/server/src/modules/assistant/assistant.service.spec.ts`
 
 **Why this task exists:** 现有 service spec 喂的 mock data 假设 RAGFlow 把 chunks 直接挂在"该回答"的 assistant 上，但真实 RAGFlow 是 off-by-one 挂。新的 shift 逻辑要求 spec 输入反映真实形态。
@@ -364,77 +368,77 @@ Expected: 看 service spec 是否过。`assistant.service.spec.ts` 现在喂的�
 Replace（原 it 内容）：
 
 ```typescript
-  it('normalizes flat chunk[] reference into { chunks, doc_aggs } per assistant message', async () => {
-    ragflow.request.mockResolvedValue([
-      {
-        id: 's1',
-        chat_id: 'rf-1',
-        name: '会话 1',
-        messages: [
-          { role: 'assistant', content: '你好！' },
-          { role: 'user', content: 'q1' },
-          {
-            role: 'assistant',
-            content: 'a1 [ID:0]',
-            reference: [
-              fakeChunk('c1', 'doc-A', 'A.docx'),
-              fakeChunk('c2', 'doc-A', 'A.docx'),
-              fakeChunk('c3', 'doc-B', 'B.docx'),
-            ],
-          },
-        ],
-      },
-    ]);
+it('normalizes flat chunk[] reference into { chunks, doc_aggs } per assistant message', async () => {
+  ragflow.request.mockResolvedValue([
+    {
+      id: 's1',
+      chat_id: 'rf-1',
+      name: '会话 1',
+      messages: [
+        { role: 'assistant', content: '你好！' },
+        { role: 'user', content: 'q1' },
+        {
+          role: 'assistant',
+          content: 'a1 [ID:0]',
+          reference: [
+            fakeChunk('c1', 'doc-A', 'A.docx'),
+            fakeChunk('c2', 'doc-A', 'A.docx'),
+            fakeChunk('c3', 'doc-B', 'B.docx'),
+          ],
+        },
+      ],
+    },
+  ]);
 
-    const result = await service.findAllSessions(1, createMockActiveUser(), {});
+  const result = await service.findAllSessions(1, createMockActiveUser(), {});
 
-    expect(result).toHaveLength(1);
-    const a1 = result[0]?.messages[2];
-    expect(a1?.reference?.chunks).toHaveLength(3);
-    expect(a1?.reference?.doc_aggs).toEqual([
-      { doc_id: 'doc-A', doc_name: 'A.docx', count: 2 },
-      { doc_id: 'doc-B', doc_name: 'B.docx', count: 1 },
-    ]);
-  });
+  expect(result).toHaveLength(1);
+  const a1 = result[0]?.messages[2];
+  expect(a1?.reference?.chunks).toHaveLength(3);
+  expect(a1?.reference?.doc_aggs).toEqual([
+    { doc_id: 'doc-A', doc_name: 'A.docx', count: 2 },
+    { doc_id: 'doc-B', doc_name: 'B.docx', count: 1 },
+  ]);
+});
 ```
 
 With（新 it 内容，模拟 RAGFlow 把 a1 真实引用错挂到开场白上）：
 
 ```typescript
-  it('shifts ragflow off-by-one reference: chunks misplaced on opener get assigned to a1, doc_aggs derived', async () => {
-    ragflow.request.mockResolvedValue([
-      {
-        id: 's1',
-        chat_id: 'rf-1',
-        name: '会话 1',
-        messages: [
-          // RAGFlow off-by-one：a1 的真实引用被挂到开场白上
-          {
-            role: 'assistant',
-            content: '你好！',
-            reference: [
-              fakeChunk('c1', 'doc-A', 'A.docx'),
-              fakeChunk('c2', 'doc-A', 'A.docx'),
-              fakeChunk('c3', 'doc-B', 'B.docx'),
-            ],
-          },
-          { role: 'user', content: 'q1' },
-          { role: 'assistant', content: 'a1 [ID:0]' },
-        ],
-      },
-    ]);
+it('shifts ragflow off-by-one reference: chunks misplaced on opener get assigned to a1, doc_aggs derived', async () => {
+  ragflow.request.mockResolvedValue([
+    {
+      id: 's1',
+      chat_id: 'rf-1',
+      name: '会话 1',
+      messages: [
+        // RAGFlow off-by-one：a1 的真实引用被挂到开场白上
+        {
+          role: 'assistant',
+          content: '你好！',
+          reference: [
+            fakeChunk('c1', 'doc-A', 'A.docx'),
+            fakeChunk('c2', 'doc-A', 'A.docx'),
+            fakeChunk('c3', 'doc-B', 'B.docx'),
+          ],
+        },
+        { role: 'user', content: 'q1' },
+        { role: 'assistant', content: 'a1 [ID:0]' },
+      ],
+    },
+  ]);
 
-    const result = await service.findAllSessions(1, createMockActiveUser(), {});
+  const result = await service.findAllSessions(1, createMockActiveUser(), {});
 
-    expect(result).toHaveLength(1);
-    expect(result[0]?.messages[0]).not.toHaveProperty('reference');
-    const a1 = result[0]?.messages[2];
-    expect(a1?.reference?.chunks).toHaveLength(3);
-    expect(a1?.reference?.doc_aggs).toEqual([
-      { doc_id: 'doc-A', doc_name: 'A.docx', count: 2 },
-      { doc_id: 'doc-B', doc_name: 'B.docx', count: 1 },
-    ]);
-  });
+  expect(result).toHaveLength(1);
+  expect(result[0]?.messages[0]).not.toHaveProperty('reference');
+  const a1 = result[0]?.messages[2];
+  expect(a1?.reference?.chunks).toHaveLength(3);
+  expect(a1?.reference?.doc_aggs).toEqual([
+    { doc_id: 'doc-A', doc_name: 'A.docx', count: 2 },
+    { doc_id: 'doc-B', doc_name: 'B.docx', count: 1 },
+  ]);
+});
 ```
 
 - [ ] **Step 2: 改写第二个 it `drops reference field for assistant messages where RAGFlow truncated persistence`**
@@ -444,46 +448,46 @@ With（新 it 内容，模拟 RAGFlow 把 a1 真实引用错挂到开场白上�
 Replace：
 
 ```typescript
-  it('drops reference field for assistant messages where RAGFlow truncated persistence', async () => {
-    ragflow.request.mockResolvedValue([
-      {
-        id: 's2',
-        chat_id: 'rf-1',
-        name: '截断会话',
-        messages: [
-          { role: 'assistant', content: '你好！' },
-          { role: 'user', content: 'q1' },
-          { role: 'assistant', content: 'truncated' },
-        ],
-      },
-    ]);
+it('drops reference field for assistant messages where RAGFlow truncated persistence', async () => {
+  ragflow.request.mockResolvedValue([
+    {
+      id: 's2',
+      chat_id: 'rf-1',
+      name: '截断会话',
+      messages: [
+        { role: 'assistant', content: '你好！' },
+        { role: 'user', content: 'q1' },
+        { role: 'assistant', content: 'truncated' },
+      ],
+    },
+  ]);
 
-    const result = await service.findAllSessions(1, createMockActiveUser(), {});
-    expect(result[0]?.messages[2]).not.toHaveProperty('reference');
-  });
+  const result = await service.findAllSessions(1, createMockActiveUser(), {});
+  expect(result[0]?.messages[2]).not.toHaveProperty('reference');
+});
 ```
 
 With：
 
 ```typescript
-  it('drops reference everywhere when RAGFlow has not yet attached any reference (new session, no completed Q-A)', async () => {
-    ragflow.request.mockResolvedValue([
-      {
-        id: 's2',
-        chat_id: 'rf-1',
-        name: '空会话',
-        messages: [
-          { role: 'assistant', content: '你好！' },
-          { role: 'user', content: 'q1' },
-          { role: 'assistant', content: 'truncated' },
-        ],
-      },
-    ]);
+it('drops reference everywhere when RAGFlow has not yet attached any reference (new session, no completed Q-A)', async () => {
+  ragflow.request.mockResolvedValue([
+    {
+      id: 's2',
+      chat_id: 'rf-1',
+      name: '空会话',
+      messages: [
+        { role: 'assistant', content: '你好！' },
+        { role: 'user', content: 'q1' },
+        { role: 'assistant', content: 'truncated' },
+      ],
+    },
+  ]);
 
-    const result = await service.findAllSessions(1, createMockActiveUser(), {});
-    expect(result[0]?.messages[0]).not.toHaveProperty('reference');
-    expect(result[0]?.messages[2]).not.toHaveProperty('reference');
-  });
+  const result = await service.findAllSessions(1, createMockActiveUser(), {});
+  expect(result[0]?.messages[0]).not.toHaveProperty('reference');
+  expect(result[0]?.messages[2]).not.toHaveProperty('reference');
+});
 ```
 
 - [ ] **Step 3: 跑测试，确认全绿**
@@ -531,6 +535,7 @@ EOF
 ## Task 4: Changeset
 
 **Files:**
+
 - Create: `.changeset/fix-ragflow-reference-shift.md`
 
 - [ ] **Step 1: 创建 changeset**
@@ -567,6 +572,7 @@ git commit -m "chore(@sinopec-kb/server): 🔨 add changeset for RAGFlow referen
 ## Task 5: 推送、PR、合并、部署、验证
 
 **Files:**
+
 - 不改代码
 
 - [ ] **Step 1: 切分支推送**
@@ -578,7 +584,7 @@ git push -u origin fix/shift-ragflow-reference
 
 - [ ] **Step 2: 开 PR**
 
-```bash
+````bash
 gh pr create --repo Mask-MJ/sinopec-knowledge-base \
   --base main \
   --head fix/shift-ragflow-reference \
@@ -606,17 +612,18 @@ gh pr create --repo Mask-MJ/sinopec-knowledge-base \
 ```bash
 pnpm -F @sinopec-kb/server vitest run src/modules/assistant/
 # 12 tests passed
-```
-EOF
-)"
-```
+````
+
+EOF )"
+
+````
 
 - [ ] **Step 3: squash merge**
 
 ```bash
 PR_NUMBER=$(gh pr list --repo Mask-MJ/sinopec-knowledge-base --head fix/shift-ragflow-reference --json number --jq '.[0].number')
 gh pr merge "$PR_NUMBER" --repo Mask-MJ/sinopec-knowledge-base --squash --delete-branch
-```
+````
 
 Expected: state=MERGED。
 

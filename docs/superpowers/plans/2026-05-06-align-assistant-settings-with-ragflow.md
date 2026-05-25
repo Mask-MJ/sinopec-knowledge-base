@@ -5,6 +5,7 @@
 **Goal:** 把项目内"聊天助手"的设置项对齐 RAGFlow 0.24 后台的全部核心字段（含 Rerank 模型），让"测试 2"等线上助手能从本项目 UI 直接配置 rerank、关键词检索、知识图谱、显示引文、多轮优化、跨语言搜索，不再需要登 RAGFlow 后台。
 
 **Architecture:**
+
 - 后端：在 `Assistant` Prisma 模型 + `CreateAssistantDto` + `AssistantService.create/update` 三处同步增加 6 个字段（`rerankId` / `keyword` / `useKnowledgeGraph` / `refineMultiturn` / `showQuote` / `crossLanguages`）。映射经 RAGFlow `web/src/interfaces/database/chat.ts` 的 `PromptConfig` 接口与 `web/src/components/rerank.tsx` 的 `rerankFormSchema` 实证：**只有 `rerankId` 走 RAGFlow body 顶层**，`keyword` / `useKnowledgeGraph` / `refineMultiturn` / `showQuote` / `crossLanguages` **全部都进 `prompt_config` 嵌套**。
 - 前端：扩展现有 `useLlmOptions` composable 的 `modelType` 联合类型加 `'rerank'`（不新建 composable，遵循 library-preference.md），抽屉表单补齐截图字段。
 - 数据：用 service 自身 `update()` API 把线上"测试 2"（assistantId `c52e3c2a487e11f1a9b8932ed31a3307`）的 `rerankId` 设为 `BAAI/bge-reranker-v2-m3___OpenAI-API@OpenAI-API-Compatible`——直接走 UI 抽屉点保存即可，不需要一次性脚本。
@@ -14,11 +15,13 @@
 **TDD Discipline:** 每个实现 Task 前都有一个 RED spec Task；TDD 验证后再写实现，最后 GREEN。一切核心改动（`toPromptConfig` / `create` / `createGeneral` / `update` 含 partial / DB 回滚分支）都先有断言。
 
 **PR 拆分（按 git-workflow.md 跨域拆分原则）：**
+
 - **PR 1 — Server**：Tasks 1-13（Prisma migration + DTO + Service + spec + verification）
 - **PR 2 — Client**：Tasks 14-19（OpenAPI 重生成 + i18n + 表单 + 抽常量），base = PR1 merge commit
 - **PR 3 — Eval**：Tasks 20-22（rerank 对照 config + dev/holdout 跑数）
 
 **Out of scope（列入 follow-up issue，不在本 plan 内做）：**
+
 - TTS 文本转语音（`prompt_config.tts`）
 - PageIndex（截图存在，RAGFlow 0.24 源码无对应字段，先调研）
 - Tavily API Key（`prompt_config.tavily_api_key`）
@@ -77,6 +80,7 @@
 按 git-workflow.md，feat 变更需要 changeset 在**第一个 feat commit 之前**建好（commitlint 检查 changeset 存在性时机）。
 
 **Files:**
+
 - Create: `.changeset/align-assistant-settings.md`
 
 - [ ] **Step 1: 跑 changeset CLI 选 minor**
@@ -104,6 +108,7 @@ git commit -m "chore(@sinopec-kb): 🔨 add changeset for assistant ragflow alig
 ### Task 2: Prisma 模型加 6 个字段 + migration
 
 **Files:**
+
 - Modify: `apps/server/prisma/models/assistant.prisma`
 - Create: `apps/server/prisma/migrations/<TS>_assistant_align_with_ragflow/migration.sql`
 
@@ -165,6 +170,7 @@ git commit -m "feat(@sinopec-kb/server): ✨ add ragflow-aligned columns to assi
 ### Task 3: 扩展 `CreateAssistantDto`
 
 **Files:**
+
 - Modify: `apps/server/src/modules/assistant/assistant.dto.ts`
 
 - [ ] **Step 1: 在 `CreateAssistantDto` 内追加 6 个字段（按字母序）**
@@ -244,6 +250,7 @@ git commit -m "feat(@sinopec-kb/server): ✨ add ragflow-aligned fields to assis
 ### Task 4: 扩展 `AssistantEntity`
 
 **Files:**
+
 - Modify: `apps/server/src/modules/assistant/assistant.entity.ts`
 
 - [ ] **Step 1: 给 `AssistantEntity` 加 6 个字段（按字母序）**
@@ -288,6 +295,7 @@ git commit -m "feat(@sinopec-kb/server): ✨ extend assistant entity with ragflo
 ### Task 5: 显式 `PromptConfig` / `ToPromptConfigInput` 类型
 
 **Files:**
+
 - Create: `apps/server/src/modules/assistant/prompt-config.types.ts`
 
 - [ ] **Step 1: 写新的类型文件**
@@ -344,6 +352,7 @@ git commit -m "types(@sinopec-kb/server): 🏷️ add PromptConfig & ToPromptCon
 ### Task 6: 【RED】 spec — `toPromptConfig` 输出全部字段
 
 **Files:**
+
 - Modify: `apps/server/src/modules/assistant/assistant.service.spec.ts`
 
 > Discipline：本 task 写测试且**让它失败**，下个 task 才写实现让它绿。
@@ -439,6 +448,7 @@ git commit -m "test(@sinopec-kb/server): ✅ add failing toPromptConfig spec for
 ### Task 7: 【GREEN】 重写 `toPromptConfig` + 用新 input 接口
 
 **Files:**
+
 - Modify: `apps/server/src/modules/assistant/assistant.service.ts`
 
 - [ ] **Step 1: import 新类型**
@@ -446,10 +456,7 @@ git commit -m "test(@sinopec-kb/server): ✅ add failing toPromptConfig spec for
 文件顶部 import 区追加：
 
 ```typescript
-import type {
-  PromptConfig,
-  ToPromptConfigInput,
-} from './prompt-config.types';
+import type { PromptConfig, ToPromptConfigInput } from './prompt-config.types';
 ```
 
 - [ ] **Step 2: 替换 `toPromptConfig` 实现**
@@ -492,6 +499,7 @@ pnpm -F @sinopec-kb/server exec tsc --noEmit
 ### Task 8: 【RED】 spec — `create()` / `createGeneral()` 透传新字段
 
 **Files:**
+
 - Modify: `apps/server/src/modules/assistant/assistant.service.spec.ts`
 
 - [ ] **Step 1: 在 spec 末尾追加 describe 块**
@@ -508,8 +516,7 @@ describe('AssistantService.create / createGeneral (RAGFlow body 形状)', () => 
       {
         name: 't',
         datasetIds: ['ds-1'],
-        rerankId:
-          'BAAI/bge-reranker-v2-m3___OpenAI-API@OpenAI-API-Compatible',
+        rerankId: 'BAAI/bge-reranker-v2-m3___OpenAI-API@OpenAI-API-Compatible',
         keyword: true,
         useKnowledgeGraph: true,
         refineMultiturn: false,
@@ -525,7 +532,7 @@ describe('AssistantService.create / createGeneral (RAGFlow body 形状)', () => 
     expect(body.rerank_id).toBe(
       'BAAI/bge-reranker-v2-m3___OpenAI-API@OpenAI-API-Compatible',
     );
-    expect(body.keyword).toBeUndefined();   // 不在顶层
+    expect(body.keyword).toBeUndefined(); // 不在顶层
     expect(body.prompt_config.keyword).toBe(true);
     expect(body.prompt_config.use_kg).toBe(true);
     expect(body.prompt_config.refine_multiturn).toBe(false);
@@ -570,6 +577,7 @@ pnpm -F @sinopec-kb/server vitest run \
 ### Task 9: 【GREEN】 实现 `create()` / `createGeneral()` 透传
 
 **Files:**
+
 - Modify: `apps/server/src/modules/assistant/assistant.service.ts`
 
 - [ ] **Step 1: 在 `create()` 头部解析新字段默认值**
@@ -577,11 +585,11 @@ pnpm -F @sinopec-kb/server vitest run \
 紧跟 `const opener = ...` 之后追加：
 
 ```typescript
-    const showQuote = dto.showQuote ?? true;
-    const useKnowledgeGraph = dto.useKnowledgeGraph ?? false;
-    const refineMultiturn = dto.refineMultiturn ?? true;
-    const crossLanguages = dto.crossLanguages ?? [];
-    const keyword = dto.keyword ?? false;
+const showQuote = dto.showQuote ?? true;
+const useKnowledgeGraph = dto.useKnowledgeGraph ?? false;
+const refineMultiturn = dto.refineMultiturn ?? true;
+const crossLanguages = dto.crossLanguages ?? [];
+const keyword = dto.keyword ?? false;
 ```
 
 - [ ] **Step 2: 改 `ragflow.request('POST', '/api/v1/chats', ...)` body**
@@ -589,43 +597,43 @@ pnpm -F @sinopec-kb/server vitest run \
 替换 181-208 行为：
 
 ```typescript
-    const ragflowData = await this.ragflow.request<{ id: string }>(
-      'POST',
-      '/api/v1/chats',
-      {
-        name: dto.name,
-        icon: dto.avatar,
-        description: dto.description,
-        dataset_ids: dto.datasetIds,
-        llm_id: modelName,
-        llm_setting: {
-          temperature: dto.temperature,
-          top_p: dto.topP,
-          presence_penalty: dto.presencePenalty,
-          frequency_penalty: dto.frequencyPenalty,
-          max_tokens: dto.maxTokens,
-        },
-        prompt_config: AssistantService.toPromptConfig({
-          prompt,
-          opener,
-          emptyResponse,
-          hasKnowledgeBase,
-          keyword,
-          showQuote,
-          useKnowledgeGraph,
-          refineMultiturn,
-          crossLanguages,
-        }),
-        similarity_threshold: dto.similarityThreshold,
-        // 数值无变换：DTO `keywordsSimilarityWeight` 直接对应 RAGFlow
-        // `vector_similarity_weight`（命名歧义见 plan follow-up；语义即"向量权重"，
-        // 与 i18n label 一致——值越大越偏向量相似度）
-        vector_similarity_weight: dto.keywordsSimilarityWeight,
-        top_n: dto.topN,
-        top_k: dto.topK,
-        rerank_id: dto.rerankId ?? '',
-      },
-    );
+const ragflowData = await this.ragflow.request<{ id: string }>(
+  'POST',
+  '/api/v1/chats',
+  {
+    name: dto.name,
+    icon: dto.avatar,
+    description: dto.description,
+    dataset_ids: dto.datasetIds,
+    llm_id: modelName,
+    llm_setting: {
+      temperature: dto.temperature,
+      top_p: dto.topP,
+      presence_penalty: dto.presencePenalty,
+      frequency_penalty: dto.frequencyPenalty,
+      max_tokens: dto.maxTokens,
+    },
+    prompt_config: AssistantService.toPromptConfig({
+      prompt,
+      opener,
+      emptyResponse,
+      hasKnowledgeBase,
+      keyword,
+      showQuote,
+      useKnowledgeGraph,
+      refineMultiturn,
+      crossLanguages,
+    }),
+    similarity_threshold: dto.similarityThreshold,
+    // 数值无变换：DTO `keywordsSimilarityWeight` 直接对应 RAGFlow
+    // `vector_similarity_weight`（命名歧义见 plan follow-up；语义即"向量权重"，
+    // 与 i18n label 一致——值越大越偏向量相似度）
+    vector_similarity_weight: dto.keywordsSimilarityWeight,
+    top_n: dto.topN,
+    top_k: dto.topK,
+    rerank_id: dto.rerankId ?? '',
+  },
+);
 ```
 
 > `keyword` 已经搬进 `toPromptConfig`，body 顶层不要再传——RAGFlow 0.24 PromptConfig 接口 `chat.ts:11` 实证。
@@ -669,27 +677,27 @@ pnpm -F @sinopec-kb/server vitest run \
 把 264-279 行 body 改为：
 
 ```typescript
-    const ragflowData = await this.ragflow.request<{ id: string }>(
-      'POST',
-      '/api/v1/chats',
-      {
-        name: '通用助手',
-        description: '通用 AI 对话助手',
-        dataset_ids: [],
-        llm_id: this.defaultModelName,
-        prompt_config: AssistantService.toPromptConfig({
-          prompt: AssistantService.GENERAL_CHAT_PROMPT,
-          opener: AssistantService.DEFAULT_OPENER,
-          emptyResponse: '',
-          hasKnowledgeBase: false,
-          keyword: false,
-          showQuote: false,
-          useKnowledgeGraph: false,
-          refineMultiturn: true,
-          crossLanguages: [],
-        }),
-      },
-    );
+const ragflowData = await this.ragflow.request<{ id: string }>(
+  'POST',
+  '/api/v1/chats',
+  {
+    name: '通用助手',
+    description: '通用 AI 对话助手',
+    dataset_ids: [],
+    llm_id: this.defaultModelName,
+    prompt_config: AssistantService.toPromptConfig({
+      prompt: AssistantService.GENERAL_CHAT_PROMPT,
+      opener: AssistantService.DEFAULT_OPENER,
+      emptyResponse: '',
+      hasKnowledgeBase: false,
+      keyword: false,
+      showQuote: false,
+      useKnowledgeGraph: false,
+      refineMultiturn: true,
+      crossLanguages: [],
+    }),
+  },
+);
 ```
 
 - [ ] **Step 5: 跑测试 + tsc，全绿**
@@ -714,6 +722,7 @@ git commit -m "feat(@sinopec-kb/server): ✨ sync rerank-aligned fields on assis
 ### Task 10: 【RED】 spec — `update()` partial + DB 回滚分支
 
 **Files:**
+
 - Modify: `apps/server/src/modules/assistant/assistant.service.spec.ts`
 
 - [ ] **Step 1: 末尾追加 describe**
@@ -756,8 +765,7 @@ describe('AssistantService.update (partial 回填 + 回滚)', () => {
     prisma.client.assistant.update.mockResolvedValue(existing);
 
     await service.update({ sub: 1 } as any, 1, {
-      rerankId:
-        'BAAI/bge-reranker-v2-m3___OpenAI-API@OpenAI-API-Compatible',
+      rerankId: 'BAAI/bge-reranker-v2-m3___OpenAI-API@OpenAI-API-Compatible',
     } as any);
 
     const putCall = ragflow.request.mock.calls.find(
@@ -848,6 +856,7 @@ pnpm -F @sinopec-kb/server vitest run src/modules/assistant/
 ### Task 11: 【GREEN】 `update()` 同步新字段 + 回滚补齐
 
 **Files:**
+
 - Modify: `apps/server/src/modules/assistant/assistant.service.ts:401-487`
 
 - [ ] **Step 1: 改 `prisma.client.assistant.update` 的 data**
@@ -920,11 +929,11 @@ pnpm -F @sinopec-kb/server vitest run src/modules/assistant/
 把当前 `this.logger.error(...回滚失败)` 那一行（rollback 内部 try-catch）改成：
 
 ```typescript
-        this.logger.error(
-          `[ALERT] DB 回滚也失败，本地与 RAGFlow 状态分歧 (id: ${id})。` +
-            `需人工核对：assistant.id=${id}, ragflowAssistantId=${assistant.assistantId}`,
-          rollbackError,
-        );
+this.logger.error(
+  `[ALERT] DB 回滚也失败，本地与 RAGFlow 状态分歧 (id: ${id})。` +
+    `需人工核对：assistant.id=${id}, ragflowAssistantId=${assistant.assistantId}`,
+  rollbackError,
+);
 ```
 
 > NestJS Logger 没有 `fatal` level。用 `[ALERT]` 前缀让 Loki/ELK 告警规则可识别；架构级改造（outbox/saga 把 RAGFlow 写入异步化）见 plan follow-up。
@@ -955,6 +964,7 @@ git commit -m "feat(@sinopec-kb/server): ✨ sync rerank-aligned fields on assis
 > 这条 task 应对 review #1。reviewer 担心字段名/语义反向。verify 是数值流转无 transform：spec 直接绿（断言现行实现），并加 service 注释固化语义。一旦未来有人加 `1 - x` 转换，spec 立刻 RED。
 
 **Files:**
+
 - Modify: `apps/server/src/modules/assistant/assistant.service.spec.ts`
 - Modify: `apps/server/src/modules/assistant/assistant.service.ts`（仅注释）
 
@@ -976,15 +986,23 @@ describe('AssistantService weight semantic invariant', () => {
 
   it('update: 同上，无变换', async () => {
     const existing = {
-      id: 1, assistantId: 'rag-id-1',
+      id: 1,
+      assistantId: 'rag-id-1',
       keywordsSimilarityWeight: 0.7,
-      datasetIds: [], rerankId: null, keyword: false,
-      useKnowledgeGraph: false, refineMultiturn: true,
-      showQuote: true, crossLanguages: [],
+      datasetIds: [],
+      rerankId: null,
+      keyword: false,
+      useKnowledgeGraph: false,
+      refineMultiturn: true,
+      showQuote: true,
+      crossLanguages: [],
       // ...其它字段沿用 fixture
     };
     prisma.client.assistant.findUniqueOrThrow.mockResolvedValue(existing);
-    prisma.client.user.findUniqueOrThrow.mockResolvedValue({ id: 1, isAdmin: true });
+    prisma.client.user.findUniqueOrThrow.mockResolvedValue({
+      id: 1,
+      isAdmin: true,
+    });
     prisma.client.assistant.update.mockResolvedValue(existing);
     await service.update({ sub: 1 } as any, 1, {
       keywordsSimilarityWeight: 0.5,
@@ -1010,9 +1028,9 @@ pnpm -F @sinopec-kb/server vitest run src/modules/assistant/
 Task 9 Step 2 已加注释：
 
 ```typescript
-        // 数值无变换：DTO `keywordsSimilarityWeight` 直接对应 RAGFlow
-        // `vector_similarity_weight`（命名歧义见 plan follow-up；语义即"向量权重"，
-        // 与 i18n label 一致——值越大越偏向量相似度）
+// 数值无变换：DTO `keywordsSimilarityWeight` 直接对应 RAGFlow
+// `vector_similarity_weight`（命名歧义见 plan follow-up；语义即"向量权重"，
+// 与 i18n label 一致——值越大越偏向量相似度）
 ```
 
 `update()` 等价位置补一份相同注释（Task 11 重写时也应该有；如果漏了，这里补上）。
@@ -1109,6 +1127,7 @@ CI 红：拉 log 自己定位。绿了进 PR2。
 ### Task 14: 扩展 `useLlmOptions` 加 'rerank' 类型
 
 **Files:**
+
 - Modify: `apps/client/src/composables/useLlmOptions.ts`
 
 > 遵循 library-preference.md：现有 composable 已支持按 `model_type` 过滤，仅 type union 缺 'rerank'。不新建 composable。
@@ -1148,6 +1167,7 @@ git commit -m "feat(@sinopec-kb/client): ✨ extend useLlmOptions to support rer
 ### Task 15: 重生成 OpenAPI 类型（先 SWC build）
 
 **Files:**
+
 - Modify (auto): `apps/client/src/types/openapi.d.ts`
 
 - [ ] **Step 1: 后端 build（让 SWC 出最新 `metadata.ts`）**
@@ -1209,6 +1229,7 @@ git commit -m "chore(@sinopec-kb/client): 🔨 regen openapi types for assistant
 ### Task 16: i18n（zh-CN + en-US）
 
 **Files:**
+
 - Modify: `apps/client/src/locales/langs/zh-CN/page/assistant.json`
 - Modify: `apps/client/src/locales/langs/en-US/page/assistant.json`
 
@@ -1284,6 +1305,7 @@ git commit -m "feat(@sinopec-kb/client): ✨ i18n keys for ragflow-aligned assis
 ### Task 17: 抽 `CROSS_LANGUAGE_OPTIONS` 常量
 
 **Files:**
+
 - Create: `apps/client/src/constants/ragflow.ts`
 
 - [ ] **Step 1: 写常量文件**
@@ -1321,15 +1343,13 @@ git commit -m "feat(@sinopec-kb/client): ✨ extract CROSS_LANGUAGE_OPTIONS cons
 ### Task 18: 抽屉表单补字段（含 pro-digit 数值约束）
 
 **Files:**
+
 - Modify: `apps/client/src/views/assistant/chat/[id].page.vue`
 
 - [ ] **Step 1: import 调整**
 
 ```typescript
-import {
-  useKnowledgeBaseOptions,
-  useLlmOptions,
-} from '@/composables';
+import { useKnowledgeBaseOptions, useLlmOptions } from '@/composables';
 import { CROSS_LANGUAGE_OPTIONS } from '@/constants/ragflow';
 ```
 
@@ -1347,141 +1367,141 @@ const { options: chatModelOptions, loading: llmLoading } =
 替换原 `pro-drawer-content` 内容：
 
 ```html
-        <pro-input :title="$t('page.assistant.name')" path="name" required />
-        <pro-input :title="$t('page.assistant.avatar')" path="avatar" />
-        <pro-textarea :title="$t('page.assistant.description')" path="description" />
-        <pro-textarea
-          :title="$t('page.assistant.empty_response')"
-          :tooltip="$t('page.assistant.empty_response_desc')"
-          path="emptyResponse"
-        />
-        <pro-textarea
-          :title="$t('page.assistant.opener')"
-          :tooltip="$t('page.assistant.opener_desc')"
-          path="opener"
-        />
-        <pro-switch
-          :title="$t('page.assistant.show_quote_field')"
-          :tooltip="$t('page.assistant.show_quote_field_desc')"
-          path="showQuote"
-        />
-        <pro-switch
-          :title="$t('page.assistant.keyword_search')"
-          :tooltip="$t('page.assistant.keyword_search_desc')"
-          path="keyword"
-        />
-        <pro-select
-          :title="$t('page.assistant.knowledgeBase')"
-          path="datasetIds"
-          :field-props="{
+<pro-input :title="$t('page.assistant.name')" path="name" required />
+<pro-input :title="$t('page.assistant.avatar')" path="avatar" />
+<pro-textarea :title="$t('page.assistant.description')" path="description" />
+<pro-textarea
+  :title="$t('page.assistant.empty_response')"
+  :tooltip="$t('page.assistant.empty_response_desc')"
+  path="emptyResponse"
+/>
+<pro-textarea
+  :title="$t('page.assistant.opener')"
+  :tooltip="$t('page.assistant.opener_desc')"
+  path="opener"
+/>
+<pro-switch
+  :title="$t('page.assistant.show_quote_field')"
+  :tooltip="$t('page.assistant.show_quote_field_desc')"
+  path="showQuote"
+/>
+<pro-switch
+  :title="$t('page.assistant.keyword_search')"
+  :tooltip="$t('page.assistant.keyword_search_desc')"
+  path="keyword"
+/>
+<pro-select
+  :title="$t('page.assistant.knowledgeBase')"
+  path="datasetIds"
+  :field-props="{
             options: kbOptions,
             loading: kbLoading,
             multiple: true,
             filterable: true,
             placeholder: '请选择关联知识库',
           }"
-        />
-        <pro-textarea
-          :title="$t('page.assistant.prompt')"
-          :tooltip="$t('page.assistant.prompt_desc')"
-          path="prompt"
-        />
-        <pro-digit
-          :title="$t('page.assistant.similarity_threshold')"
-          :tooltip="$t('page.assistant.similarity_threshold_desc')"
-          path="similarityThreshold"
-          :field-props="{ min: 0, max: 1, step: 0.05, precision: 2 }"
-        />
-        <pro-digit
-          :title="$t('page.assistant.vector_similarity_weight')"
-          :tooltip="$t('page.assistant.vector_similarity_weight_desc')"
-          path="keywordsSimilarityWeight"
-          :field-props="{ min: 0, max: 1, step: 0.05, precision: 2 }"
-        />
-        <pro-digit
-          :title="$t('page.assistant.top_n')"
-          :tooltip="$t('page.assistant.top_n_desc')"
-          path="topN"
-          :field-props="{ min: 1, max: 30, step: 1, precision: 0 }"
-        />
-        <pro-switch
-          :title="$t('page.assistant.refine_multiturn')"
-          :tooltip="$t('page.assistant.refine_multiturn_desc')"
-          path="refineMultiturn"
-        />
-        <pro-switch
-          :title="$t('page.assistant.use_knowledge_graph')"
-          :tooltip="$t('page.assistant.use_knowledge_graph_desc')"
-          path="useKnowledgeGraph"
-        />
-        <pro-select
-          :title="$t('page.assistant.rerank_model')"
-          :tooltip="$t('page.assistant.rerank_model_desc')"
-          path="rerankId"
-          :field-props="{
+/>
+<pro-textarea
+  :title="$t('page.assistant.prompt')"
+  :tooltip="$t('page.assistant.prompt_desc')"
+  path="prompt"
+/>
+<pro-digit
+  :title="$t('page.assistant.similarity_threshold')"
+  :tooltip="$t('page.assistant.similarity_threshold_desc')"
+  path="similarityThreshold"
+  :field-props="{ min: 0, max: 1, step: 0.05, precision: 2 }"
+/>
+<pro-digit
+  :title="$t('page.assistant.vector_similarity_weight')"
+  :tooltip="$t('page.assistant.vector_similarity_weight_desc')"
+  path="keywordsSimilarityWeight"
+  :field-props="{ min: 0, max: 1, step: 0.05, precision: 2 }"
+/>
+<pro-digit
+  :title="$t('page.assistant.top_n')"
+  :tooltip="$t('page.assistant.top_n_desc')"
+  path="topN"
+  :field-props="{ min: 1, max: 30, step: 1, precision: 0 }"
+/>
+<pro-switch
+  :title="$t('page.assistant.refine_multiturn')"
+  :tooltip="$t('page.assistant.refine_multiturn_desc')"
+  path="refineMultiturn"
+/>
+<pro-switch
+  :title="$t('page.assistant.use_knowledge_graph')"
+  :tooltip="$t('page.assistant.use_knowledge_graph_desc')"
+  path="useKnowledgeGraph"
+/>
+<pro-select
+  :title="$t('page.assistant.rerank_model')"
+  :tooltip="$t('page.assistant.rerank_model_desc')"
+  path="rerankId"
+  :field-props="{
             options: rerankOptions,
             loading: rerankLoading,
             clearable: true,
             filterable: true,
             placeholder: '不启用 rerank',
           }"
-        />
-        <pro-digit
-          :title="$t('page.assistant.top_k')"
-          :tooltip="$t('page.assistant.top_k_desc')"
-          path="topK"
-          :field-props="{ min: 1, max: 2048, step: 1, precision: 0 }"
-        />
-        <pro-select
-          :title="$t('page.assistant.cross_languages')"
-          :tooltip="$t('page.assistant.cross_languages_desc')"
-          path="crossLanguages"
-          :field-props="{
+/>
+<pro-digit
+  :title="$t('page.assistant.top_k')"
+  :tooltip="$t('page.assistant.top_k_desc')"
+  path="topK"
+  :field-props="{ min: 1, max: 2048, step: 1, precision: 0 }"
+/>
+<pro-select
+  :title="$t('page.assistant.cross_languages')"
+  :tooltip="$t('page.assistant.cross_languages_desc')"
+  path="crossLanguages"
+  :field-props="{
             multiple: true,
             clearable: true,
             options: CROSS_LANGUAGE_OPTIONS,
             placeholder: '请选择目标语言',
           }"
-        />
-        <pro-select
-          :title="$t('page.assistant.model')"
-          path="modelName"
-          :field-props="{
+/>
+<pro-select
+  :title="$t('page.assistant.model')"
+  path="modelName"
+  :field-props="{
             options: chatModelOptions,
             loading: llmLoading,
             filterable: true,
           }"
-        />
-        <pro-digit
-          :title="$t('page.assistant.temperature')"
-          :tooltip="$t('page.assistant.temperature_desc')"
-          path="temperature"
-          :field-props="{ min: 0, max: 2, step: 0.05, precision: 2 }"
-        />
-        <pro-digit
-          :title="$t('page.assistant.top_p')"
-          :tooltip="$t('page.assistant.top_p_desc')"
-          path="topP"
-          :field-props="{ min: 0, max: 1, step: 0.05, precision: 2 }"
-        />
-        <pro-digit
-          :title="$t('page.assistant.presence_penalty')"
-          :tooltip="$t('page.assistant.presence_penalty_desc')"
-          path="presencePenalty"
-          :field-props="{ min: -2, max: 2, step: 0.05, precision: 2 }"
-        />
-        <pro-digit
-          :title="$t('page.assistant.frequency_penalty')"
-          :tooltip="$t('page.assistant.frequency_penalty_desc')"
-          path="frequencyPenalty"
-          :field-props="{ min: -2, max: 2, step: 0.05, precision: 2 }"
-        />
-        <pro-digit
-          :title="$t('page.assistant.max_tokens')"
-          :tooltip="$t('page.assistant.max_tokens_desc')"
-          path="maxTokens"
-          :field-props="{ min: 1, max: 16384, step: 1, precision: 0 }"
-        />
+/>
+<pro-digit
+  :title="$t('page.assistant.temperature')"
+  :tooltip="$t('page.assistant.temperature_desc')"
+  path="temperature"
+  :field-props="{ min: 0, max: 2, step: 0.05, precision: 2 }"
+/>
+<pro-digit
+  :title="$t('page.assistant.top_p')"
+  :tooltip="$t('page.assistant.top_p_desc')"
+  path="topP"
+  :field-props="{ min: 0, max: 1, step: 0.05, precision: 2 }"
+/>
+<pro-digit
+  :title="$t('page.assistant.presence_penalty')"
+  :tooltip="$t('page.assistant.presence_penalty_desc')"
+  path="presencePenalty"
+  :field-props="{ min: -2, max: 2, step: 0.05, precision: 2 }"
+/>
+<pro-digit
+  :title="$t('page.assistant.frequency_penalty')"
+  :tooltip="$t('page.assistant.frequency_penalty_desc')"
+  path="frequencyPenalty"
+  :field-props="{ min: -2, max: 2, step: 0.05, precision: 2 }"
+/>
+<pro-digit
+  :title="$t('page.assistant.max_tokens')"
+  :tooltip="$t('page.assistant.max_tokens_desc')"
+  path="maxTokens"
+  :field-props="{ min: 1, max: 16384, step: 1, precision: 0 }"
+/>
 ```
 
 - [ ] **Step 3: 类型检查 + lint**
@@ -1514,6 +1534,7 @@ pnpm dev
 - [ ] **Step 2: 在 `/assistant/chat/<id>` 打开抽屉，**
 
 预期：
+
 - 截图里 P0/P1 全部字段可见
 - Rerank dropdown 加载至少一项（`BAAI/bge-reranker-v2-m3___OpenAI-API@OpenAI-API-Compatible`）
 - 选中后保存弹"更新成功"
@@ -1527,6 +1548,7 @@ ssh ragflow "docker exec docker-mysql-1 mysql -uroot -pinfini_rag_flow rag_flow 
 ```
 
 预期：
+
 - `rerank_id` 列从空变为 `BAAI/bge-reranker-v2-m3___OpenAI-API@OpenAI-API-Compatible`
 - `prompt_config` JSON 内出现新键 `keyword` / `use_kg` / `refine_multiturn` / `cross_languages`，且类型/值与 UI 一致（特别是 `cross_languages` 是 JSON Array 而非 string）
 
@@ -1570,6 +1592,7 @@ gh pr checks --watch
 ### Task 20: 写 rerank 对照 config
 
 **Files:**
+
 - Create: `apps/server/scripts/eval/configs/prod-test2-rerank.json`
 
 - [ ] **Step 1: 创建文件**
@@ -1630,6 +1653,7 @@ grep -E '(MRR|hit@|doc-match|answer-final)' \
 - [ ] **Step 3: 写结论到 PR 描述**
 
 判断：
+
 - 上升 → 在 PR 里建议把 `prod-test2.json` 替换为 rerank 版（**作为单独 follow-up issue，本 PR 不动 prod 基线**）
 - 持平/下降 → 列入 follow-up：跑 weight=0.5/0.7 三档对比
 
