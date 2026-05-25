@@ -1,9 +1,11 @@
 <script setup lang="ts">
+import { useFullscreen } from '@vueuse/core';
 import { NText } from 'naive-ui';
 
 import { SUPPORT_LANGUAGES } from '@/config/constants/app';
 import { $t } from '@/locales';
 
+import PreferencesDrawer from './PreferencesDrawer.vue';
 import Breadcrumb from './widgets/breadcrumb.vue';
 import Search from './widgets/search/global-search.vue';
 
@@ -11,6 +13,9 @@ const router = useRouter();
 const tabbarStore = useTabbarStore();
 const preferencesStore = usePreferencesStore();
 const userStore = useUserStore();
+
+const { isFullscreen, toggle: toggleFullscreen } = useFullscreen();
+const preferencesDrawerOpen = ref(false);
 const theme = computed(() =>
   preferencesStore.state.theme.mode === 'dark' ? 'dark' : 'light',
 );
@@ -139,6 +144,25 @@ function handleSelect(key: string) {
           ></i>
         </template>
       </NButton>
+      <NButton quaternary circle @click="toggleFullscreen">
+        <template #icon>
+          <i
+            :class="
+              isFullscreen ? 'i-lucide:minimize-2' : 'i-lucide:maximize-2'
+            "
+          ></i>
+        </template>
+      </NButton>
+      <NButton
+        quaternary
+        circle
+        :title="$t('preferences.title')"
+        @click="preferencesDrawerOpen = true"
+      >
+        <template #icon>
+          <i class="i-lucide:settings"></i>
+        </template>
+      </NButton>
       <n-dropdown :options="options" size="large" @select="handleSelect">
         <UserProfileAvatar
           class="cursor-pointer"
@@ -148,5 +172,6 @@ function handleSelect(key: string) {
         />
       </n-dropdown>
     </div>
+    <PreferencesDrawer v-model:show="preferencesDrawerOpen" />
   </NCard>
 </template>
