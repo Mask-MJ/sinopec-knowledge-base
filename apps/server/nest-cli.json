@@ -5,6 +5,11 @@
   "compilerOptions": {
     "builder": "swc",
     "typeCheck": true,
+    "assets": [
+      "common/chunk-tagger/dataset/sinopec-concept-dict.csv",
+      "common/chunk-tagger/dataset/sinopec-regex-catalog.json"
+    ],
+    "watchAssets": true,
     "plugins": [
       {
         "name": "@nestjs/swagger",
