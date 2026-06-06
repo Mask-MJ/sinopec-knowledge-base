@@ -1,8 +1,6 @@
 # 设计:chunk-tagger 工程化(全自动打 tag + 存量回填)
 
-> 日期:2026-06-06 · 分支:`feat/chunk-tagger-service`
-> 状态:设计已确认 + 已过 4 维对抗 review(v2 修订);待用户终审 → writing-plans
-> 修订记录:v2 根据对抗 review 修正 D3(放弃不存在的 ioredis Sorted Set,改 cache-manager KV)、chunk 接口字段映射、超时语义、轮询重入、鉴权体系、assets 落点等;并拆为 2 个实现计划。
+> 日期:2026-06-06 · 分支:`feat/chunk-tagger-service` 状态:设计已确认 + 已过 4 维对抗 review(v2 修订);待用户终审 → writing-plans 修订记录:v2 根据对抗 review 修正 D3(放弃不存在的 ioredis Sorted Set,改 cache-manager KV)、chunk 接口字段映射、超时语义、轮询重入、鉴权体系、assets 落点等;并拆为 2 个实现计划。
 
 ## 1. 背景
 
@@ -19,7 +17,7 @@
 - 文档 parse 完成后,后台**全自动**为其所有 chunk 写入 `important_keywords`。
 - 提供 admin 专用**回填接口**,对指定 KB 的存量(已 parse)文档全量补打。
 - 全自动与回填**复用同一套打 tag 引擎**(`tagDocument`),不写两份逻辑。
-- **不引入新 npm 包**:复用已装且已 wired 的 `@nestjs/schedule`、`@nestjs/cache-manager`(Redis 后端)、`p-limit`。**不动数据库 schema**。
+- **不引入新 npm 包**:复用已装且已 wired 的 `@nestjs/schedule`、`@nestjs/cache-manager`(Redis 后端)。并发用脚本验证过的手写分批(见 D5)。**不动数据库 schema**。
 
 **非目标(本期不做):**
 
@@ -30,13 +28,13 @@
 
 ## 3. 关键决策(已与需求方确认 + review 修订)
 
-| #   | 决策            | 选择                                                            | 理由                                                                                              |
-| --- | --------------- | --------------------------------------------------------------- | ------------------------------------------------------------------------------------------------- |
-| D1  | 触发粒度        | **全自动后台**(parse 完自动打)                                 | 需求方明确要求免人工干预                                                                          |
-| D2  | 存量覆盖        | **加内部回填接口**(admin)                                      | 纯全自动碰不到存量,部署后无法立即见效;回填补齐                                                   |
-| D3  | 待办状态持久化  | **cache-manager KV(单 JSON key)+ 进程内 mutex**〔v2 修正〕     | 项目 Redis 只经 `@nestjs/cache-manager`+`@keyv/redis` 暴露为 `CACHE_MANAGER`(get/set/del),**无 ioredis 客户端、无 Sorted Set 命令**。待办量小,单 key JSON 足够,真正零新基建,契合库优先+YAGNI |
-| D4  | 后台调度        | 复用 **`@nestjs/schedule` `@Interval`** + `pollOnce()` 可测分离 | 已装且 `ScheduleModule.forRoot()` 已注册;无需 BullMQ                                              |
-| D5  | 并发            | 复用已装 **`p-limit`** 替代脚本手写 `processBatch`              | 库优先                                                                                             |
+| # | 决策 | 选择 | 理由 |
+| --- | --- | --- | --- |
+| D1 | 触发粒度 | **全自动后台**(parse 完自动打) | 需求方明确要求免人工干预 |
+| D2 | 存量覆盖 | **加内部回填接口**(admin) | 纯全自动碰不到存量,部署后无法立即见效;回填补齐 |
+| D3 | 待办状态持久化 | **cache-manager KV(单 JSON key)+ 进程内 mutex**〔v2 修正〕 | 项目 Redis 只经 `@nestjs/cache-manager`+`@keyv/redis` 暴露为 `CACHE_MANAGER`(get/set/del),**无 ioredis 客户端、无 Sorted Set 命令**。待办量小,单 key JSON 足够,真正零新基建,契合库优先+YAGNI |
+| D4 | 后台调度 | 复用 **`@nestjs/schedule` `@Interval`** + `pollOnce()` 可测分离 | 已装且 `ScheduleModule.forRoot()` 已注册;无需 BullMQ |
+| D5 | 并发 | **保留脚本手写 `processBatch`**(slice + `Promise.all` 分批)〔v2.1 修正〕 | 已装 `p-limit@7` 是 **ESM-only**,与本项目 CommonJS(SWC)运行时 `require` 不兼容(`ERR_REQUIRE_ESM`);eval 脚本能 import 是因 tsx 跑 ESM。单 doc 限流需求简单,手写分批零依赖零风险,命中 library-preference 例外(库有硬性缺陷无法干净绕过) |
 
 > **v2 纠错说明**:v1 的 D3 写"复用已有 ioredis 跑 Sorted Set",经 review 核实 `ioredis` 虽列在 `package.json` 但 src 内**零 import**、从未 wire;Redis 全部经 cache-manager(底层 `@keyv/redis` = node-redis,非 ioredis)。`ZADD/ZRANGE/ZREM` 无客户端可用。故改为 cache-manager KV 方案。
 
@@ -44,18 +42,18 @@
 
 新增 `apps/server/src/common/chunk-tagger/`(纯能力,与 `common/docx-preprocess/` 平行):
 
-| 文件                                             | 职责                                                                                                          |
-| ------------------------------------------------ | ----------------------------------------------------------------------------------------------------------- |
-| `keyword-matcher.ts`                             | **纯函数**:`loadDict` / `loadRegex` / `matchChunk(text,...)` / `inferProjectKeywords(docName)`,从脚本抽出 |
-| `keyword-matcher.spec.ts`                        | 纯函数单测(fixture 驱动,不依赖真实字典词条)                                                               |
-| `chunk-tagger.service.ts`                        | `tagDocument(datasetId, docId, docName)`:列 chunk → match → PUT(p-limit 并发)。全自动 + 回填共用           |
-| `chunk-tagger.service.spec.ts`                   | mock `RagflowService`(用官方端点真实 schema),验证字段映射、并发、失败计数、汇总                            |
-| `chunk-tag-store.ts`                             | 待办存储:`@Inject(CACHE_MANAGER) Cache` + 进程内 mutex,封装 `enqueue/listPending/remove`(KV 读改写)       |
-| `chunk-tag-queue.service.ts`                     | `@Interval` 薄包装 + `pollOnce()` 轮询状态机(可单独 await 测)                                              |
-| `chunk-tag-queue.service.spec.ts`                | mock store + Ragflow,验证状态流转                                                                            |
-| `chunk-tagger.constants.ts`                      | 常量(轮询间隔 / 超时 / 并发 / maxKeywords)+ **`run` 状态枚举常量**,允许 env 覆盖                           |
-| `chunk-tagger.module.ts`                         | wiring,export `ChunkTaggerService` + `ChunkTagStore` + queue                                                |
-| `dataset/sinopec-concept-dict.csv`<br>`*.json`   | 字典资产,**从 `scripts/eval/dataset/` 移来作唯一真源**;eval 脚本改引用此处,避免漂移                       |
+| 文件 | 职责 |
+| --- | --- |
+| `keyword-matcher.ts` | **纯函数**:`loadDict` / `loadRegex` / `matchChunk(text,...)` / `inferProjectKeywords(docName)`,从脚本抽出 |
+| `keyword-matcher.spec.ts` | 纯函数单测(fixture 驱动,不依赖真实字典词条) |
+| `chunk-tagger.service.ts` | `tagDocument(datasetId, docId, docName)`:列 chunk → match → PUT(`processBatch` 分批并发)。全自动 + 回填共用 |
+| `chunk-tagger.service.spec.ts` | mock `RagflowService`(用官方端点真实 schema),验证字段映射、并发、失败计数、汇总 |
+| `chunk-tag-store.ts` | 待办存储:`@Inject(CACHE_MANAGER) Cache` + 进程内 mutex,封装 `enqueue/listPending/remove`(KV 读改写) |
+| `chunk-tag-queue.service.ts` | `@Interval` 薄包装 + `pollOnce()` 轮询状态机(可单独 await 测) |
+| `chunk-tag-queue.service.spec.ts` | mock store + Ragflow,验证状态流转 |
+| `chunk-tagger.constants.ts` | 常量(轮询间隔 / 超时 / 并发 / maxKeywords)+ **`run` 状态枚举常量**,允许 env 覆盖 |
+| `chunk-tagger.module.ts` | wiring,export `ChunkTaggerService` + `ChunkTagStore` + queue |
+| `dataset/sinopec-concept-dict.csv`<br>`*.json` | 字典资产,**从 `scripts/eval/dataset/` 移来作唯一真源**;eval 脚本改引用此处,避免漂移 |
 
 `KnowledgeBaseModule` 引入 `ChunkTaggerModule`:`parseDocuments` 成功后调 `store.enqueue`;`KnowledgeBaseController` 新增回填路由 + 只读状态路由。
 
@@ -72,7 +70,7 @@
    分页终止:累计达到 total 或返回空。
 2. projectKws = inferProjectKeywords(docName)
 3. 每个 chunk:kws = dedupe([...projectKws, ...matchChunk(content, dict, regex, MAX_KEYWORDS)]).slice(0, MAX_KEYWORDS)
-4. p-limit(CONCURRENCY) 并发:
+4. 分批并发(CONCURRENCY,沿用脚本 `processBatch`:slice + `Promise.all`):
    PUT /api/v1/datasets/:datasetId/documents/:docId/chunks/:id  body { important_keywords: kws }
    单 chunk 失败 → failed++ + 日志,不中断;命中 404(chunk 失效)同样计 failed,不致命。
 5. 汇总 { totalChunks, updated, empty, failed } → 结构化日志(logger.log)
@@ -83,7 +81,11 @@
 `parseDocuments` 改造控制流(关键:enqueue 绝不污染 parse 主流程):
 
 ```ts
-const result = await this.ragflow.request('POST', `/api/v1/datasets/${datasetId}/chunks`, { document_ids });
+const result = await this.ragflow.request(
+  'POST',
+  `/api/v1/datasets/${datasetId}/chunks`,
+  { document_ids },
+);
 try {
   await this.chunkTagStore.enqueue(datasetId, documentIds); // 仅 parse 触发成功后
 } catch (e) {
@@ -145,23 +147,23 @@ GET /api/knowledge-base/:id/keyword-tag-status   (admin)
 - 值:JSON 对象 `{ "<datasetId>:<docId>": <enqueuedAt ms>, ... }`
 - `cacheManager.set(key, obj)` **不传 ttl**(已确认 CacheModule 无默认 ttl,keyv 默认永不过期)→ 待办不会被动过期
 
-| 操作          | 实现(进程内 mutex 串行 read-modify-write,防 enqueue/poll 交错丢更新)            |
-| ------------- | ------------------------------------------------------------------------------- |
-| `enqueue`     | get → 对每个 member 写 `enqueuedAt`(已存在则覆盖时间戳,天然幂等)→ set         |
-| `listPending` | get → `Object.entries` 返回 `{member, enqueuedAt}[]`(为空返回 `[]`)            |
-| `remove`      | get → `delete obj[member]` → set                                                |
+| 操作 | 实现(进程内 mutex 串行 read-modify-write,防 enqueue/poll 交错丢更新) |
+| --- | --- |
+| `enqueue` | get → 对每个 member 写 `enqueuedAt`(已存在则覆盖时间戳,天然幂等)→ set |
+| `listPending` | get → `Object.entries` 返回 `{member, enqueuedAt}[]`(为空返回 `[]`) |
+| `remove` | get → `delete obj[member]` → set |
 
 > 待办量预期为"近期 parse / 回填的 doc 数"(数十量级),单 key 全量读写成本可忽略。单实例下 mutex 即可保证读改写原子;多实例见 §8。
 
 ## 7. 常量(`chunk-tagger.constants.ts`,允许 env 覆盖)
 
-| 常量               | 默认           | 说明                                       |
-| ------------------ | -------------- | ------------------------------------------ |
-| `POLL_INTERVAL_MS` | 30_000(30s)    | 轮询待办间隔                               |
-| `JOB_TIMEOUT_MS`   | 7_200_000(2h)  | **仅** RUNNING/UNSTART 未完成的最长等待    |
-| `CONCURRENCY`      | 5              | 单 doc 内 PUT chunk 的 p-limit 并发        |
-| `MAX_KEYWORDS`     | 30             | 单 chunk 最多 keyword 数                   |
-| `RUN`(枚举常量)   | `{ UNSTART, RUNNING, CANCEL, DONE, FAIL }` | 取值见 `docs/http_api_reference.md:1693`;避免内联字面量 |
+| 常量 | 默认 | 说明 |
+| --- | --- | --- |
+| `POLL_INTERVAL_MS` | 30_000(30s) | 轮询待办间隔 |
+| `JOB_TIMEOUT_MS` | 7_200_000(2h) | **仅** RUNNING/UNSTART 未完成的最长等待 |
+| `CONCURRENCY` | 5 | 单 doc 内 PUT chunk 的分批并发数(`processBatch`) |
+| `MAX_KEYWORDS` | 30 | 单 chunk 最多 keyword 数 |
+| `RUN`(枚举常量) | `{ UNSTART, RUNNING, CANCEL, DONE, FAIL }` | 取值见 `docs/http_api_reference.md:1693`;避免内联字面量 |
 
 ## 8. 错误处理与边界
 
@@ -208,13 +210,12 @@ GET /api/knowledge-base/:id/keyword-tag-status   (admin)
 }
 ```
 
-运行时:`join(__dirname, 'dataset', 'sinopec-concept-dict.csv')`(`__dirname` = `dist/common/chunk-tagger`)。
-**实现计划第一步**就跑 `pnpm build` + `ls dist/common/chunk-tagger/dataset/` 断言两文件存在(写任何业务代码前先锁死资产落点,并验证 SWC assets 语义,不假设 tsc 行为)。
+运行时:`join(__dirname, 'dataset', 'sinopec-concept-dict.csv')`(`__dirname` = `dist/common/chunk-tagger`)。 **实现计划第一步**就跑 `pnpm build` + `ls dist/common/chunk-tagger/dataset/` 断言两文件存在(写任何业务代码前先锁死资产落点,并验证 SWC assets 语义,不假设 tsc 行为)。
 
 ## 11. 测试策略(TDD,覆盖率 ≥ 80%)
 
 1. `keyword-matcher.spec.ts` —— 纯函数:用**内联 fixture**(临时 csv/json 字符串)驱动 `loadDict`/`loadRegex`/`matchChunk`/`inferProjectKeywords`,覆盖 dict 命中、regex matchAll、各项目分支、去重、cap 30、空匹配;**不对真实 dataset 词条断言**(避免字典内容变更打挂测试,真实文件存在性由 §11.5 覆盖)。
-2. `chunk-tagger.service.spec.ts` —— mock `RagflowService`,**用官方端点真实 schema(`{chunks:[{id,content}]}` 信封)**:验证字段映射(读 content/id)、分页、p-limit 并发(mock PUT 返回受控 deferred,断言未 resolve 时在途 PUT ≤ CONCURRENCY;若不稳则降级为"PUT 次数 = 非空 chunk 数 + failed 计数正确")、汇总统计。
+2. `chunk-tagger.service.spec.ts` —— mock `RagflowService`,**用官方端点真实 schema(`{chunks:[{id,content}]}` 信封)**:验证字段映射(读 content/id)、分页、汇总统计;并发用 `processBatch` 分批,断言**确定性指标**("PUT 次数 = 非空 chunk 数"、"failed 计数正确"),不做计时型在途断言。
 3. `chunk-tag-store.spec.ts` + `chunk-tag-queue.service.spec.ts` —— mock `CACHE_MANAGER`(`{get,set,del}`)+ Ragflow:验证 store 读改写幂等;`await pollOnce()` 驱动状态流转(`DONE→打tag→remove`、`FAIL/CANCEL→remove`、`NotFound→remove`、`RUNNING 未超时→保留`、`RUNNING 超时→remove告警`、`DONE 不受老化影响`)、`isPolling` 重入守卫。
 4. 回填鉴权 —— **service 单测**(非 controller):mock `prisma.user.findUniqueOrThrow` 返回 admin / 非 admin,断言非 admin 抛 `ForbiddenException`、admin 走到 `enqueue`。复用已有 `createMockAdminUser`/`createMockActiveUser`/`createMockPrismaService` 工厂。
 5. 资产打包 —— `pnpm build` 后断言 `dist/common/chunk-tagger/dataset/` 存在 csv/json(plan 验证步,跑在业务代码前)。
