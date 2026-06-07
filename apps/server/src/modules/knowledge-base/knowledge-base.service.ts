@@ -25,6 +25,7 @@ import {
   StreamableFile,
 } from '@nestjs/common';
 
+import { ChunkTagStore } from '@/common/chunk-tagger/chunk-tag-store';
 import { PRISMA_SERVICE_TOKEN } from '@/common/database/prisma.extension';
 import { DEFAULT_KB_PARSER_CONFIG } from '@/common/defaults/knowledge-base.defaults';
 import { DocxPreprocessService } from '@/common/docx-preprocess/docx-preprocess.service';
@@ -39,6 +40,7 @@ export class KnowledgeBaseService {
     @Inject(PRISMA_SERVICE_TOKEN) private readonly prisma: PrismaService,
     private readonly ragflow: RagflowService,
     private readonly docxPreprocess: DocxPreprocessService,
+    private readonly chunkTagStore: ChunkTagStore,
   ) {}
 
   // ─── Private Helpers ──────────────────────────────
@@ -253,11 +255,20 @@ export class KnowledgeBaseService {
     const kb = await this.assertOwnership(id, user);
     const datasetId = this.requireDatasetId(kb);
 
-    return this.ragflow.request(
+    const result = await this.ragflow.request(
       'POST',
       `/api/v1/datasets/${datasetId}/chunks`,
       { document_ids: documentIds },
     );
+    // 仅 parse 触发成功后入队;入队失败降级为 warn,绝不污染 parse 主流程
+    try {
+      await this.chunkTagStore.enqueue(datasetId, documentIds);
+    } catch (error) {
+      this.logger.warn(
+        `enqueue chunk-tag 待办失败(降级,可手动回填):${error instanceof Error ? error.message : String(error)}`,
+      );
+    }
+    return result;
   }
 
   async remove(id: number, user: ActiveUserData) {
