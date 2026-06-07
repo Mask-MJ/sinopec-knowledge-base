@@ -90,3 +90,71 @@ describe('knowledgeBaseService.parseDocuments', () => {
     expect(result).toEqual({ ok: true });
   });
 });
+
+describe('knowledgeBaseService.backfillKeywords', () => {
+  it('enqueues only DONE docs for an admin and returns counts', async () => {
+    prisma.client.user.findUniqueOrThrow.mockResolvedValue({
+      id: 1,
+      isAdmin: true,
+      deptId: null,
+    });
+    ragflow.request.mockResolvedValue({
+      docs: [
+        { id: 'd1', run: 'DONE' },
+        { id: 'd2', run: 'RUNNING' },
+        { id: 'd3', run: 'DONE' },
+      ],
+      total: 3,
+    });
+    chunkTagStore.enqueue.mockResolvedValue(undefined);
+
+    const r = await service.backfillKeywords(1, createMockActiveUser());
+
+    expect(chunkTagStore.enqueue).toHaveBeenCalledWith('ds1', ['d1', 'd3']);
+    expect(r).toEqual({ enqueued: 2, skipped: 1 });
+  });
+
+  it('throws ForbiddenException for a non-admin', async () => {
+    prisma.client.user.findUniqueOrThrow.mockResolvedValue({
+      id: 1,
+      isAdmin: false,
+      deptId: null,
+    });
+
+    await expect(
+      service.backfillKeywords(1, createMockActiveUser()),
+    ).rejects.toThrow('仅管理员可回填关键词');
+    expect(chunkTagStore.enqueue).not.toHaveBeenCalled();
+  });
+});
+
+describe('knowledgeBaseService.keywordTagStatus', () => {
+  it('counts only this dataset pending members for an admin', async () => {
+    prisma.client.user.findUniqueOrThrow.mockResolvedValue({
+      id: 1,
+      isAdmin: true,
+      deptId: null,
+    });
+    chunkTagStore.listPending.mockResolvedValue([
+      { member: 'ds1:d1', enqueuedAt: 1 },
+      { member: 'ds1:d2', enqueuedAt: 1 },
+      { member: 'ds9:d3', enqueuedAt: 1 },
+    ]);
+
+    const r = await service.keywordTagStatus(1, createMockActiveUser());
+
+    expect(r).toEqual({ pendingCount: 2 });
+  });
+
+  it('throws ForbiddenException for a non-admin', async () => {
+    prisma.client.user.findUniqueOrThrow.mockResolvedValue({
+      id: 1,
+      isAdmin: false,
+      deptId: null,
+    });
+
+    await expect(
+      service.keywordTagStatus(1, createMockActiveUser()),
+    ).rejects.toThrow('仅管理员可查看打 tag 状态');
+  });
+});

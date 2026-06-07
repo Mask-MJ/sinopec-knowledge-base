@@ -6,6 +6,8 @@ import {
   Controller,
   Delete,
   Get,
+  HttpCode,
+  HttpStatus,
   Param,
   Patch,
   Post,
@@ -165,6 +167,31 @@ export class KnowledgeBaseController {
     @Body() dto: ParseDocumentDto,
   ) {
     return this.knowledgeBaseService.parseDocuments(id, user, dto.documentIds);
+  }
+
+  /**
+   * 管理员回填知识库存量文档的关键词 tag
+   */
+  @AutoPermission()
+  @HttpCode(HttpStatus.ACCEPTED)
+  @Post(':id/backfill-keywords')
+  backfillKeywords(
+    @Param('id') id: number,
+    @ActiveUser() user: ActiveUserData,
+  ) {
+    return this.knowledgeBaseService.backfillKeywords(id, user);
+  }
+
+  /**
+   * 管理员查看知识库打 tag 待办状态
+   */
+  @AutoPermission()
+  @Get(':id/keyword-tag-status')
+  keywordTagStatus(
+    @Param('id') id: number,
+    @ActiveUser() user: ActiveUserData,
+  ) {
+    return this.knowledgeBaseService.keywordTagStatus(id, user);
   }
 
   /**

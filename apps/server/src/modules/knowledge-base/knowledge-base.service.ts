@@ -26,6 +26,7 @@ import {
 } from '@nestjs/common';
 
 import { ChunkTagStore } from '@/common/chunk-tagger/chunk-tag-store';
+import { RUN } from '@/common/chunk-tagger/chunk-tagger.constants';
 import { PRISMA_SERVICE_TOKEN } from '@/common/database/prisma.extension';
 import { DEFAULT_KB_PARSER_CONFIG } from '@/common/defaults/knowledge-base.defaults';
 import { DocxPreprocessService } from '@/common/docx-preprocess/docx-preprocess.service';
@@ -532,6 +533,59 @@ export class KnowledgeBaseService {
     );
   }
 
+  /**
+   * admin 回填:把该 KB 所有 run===DONE 的存量 doc 入队,轮询器后台统一打 tag。
+   * admin-only 接口直接查 kb + assertAdmin(只查一次 user);不走 assertOwnership
+   * ——其 owner/dept 判定对 admin-only 是死代码,且会多查一次 user(消除冗余)。
+   */
+  async backfillKeywords(
+    id: number,
+    user: ActiveUserData,
+  ): Promise<{ enqueued: number; skipped: number }> {
+    const kb = await this.prisma.client.knowledgeBase.findUniqueOrThrow({
+      where: { id },
+    });
+    await this.assertAdmin(user, '仅管理员可回填关键词');
+    const datasetId = this.requireDatasetId(kb);
+    const docs = await this.listAllDatasetDocs(datasetId);
+    const doneDocIds = docs.filter((d) => d.run === RUN.DONE).map((d) => d.id);
+    await this.chunkTagStore.enqueue(datasetId, doneDocIds);
+    return {
+      enqueued: doneDocIds.length,
+      skipped: docs.length - doneDocIds.length,
+    };
+  }
+
+  /** admin 只读:该 KB 当前在待办里的 doc 数(自证回填进度)。 */
+  async keywordTagStatus(
+    id: number,
+    user: ActiveUserData,
+  ): Promise<{ pendingCount: number }> {
+    const kb = await this.prisma.client.knowledgeBase.findUniqueOrThrow({
+      where: { id },
+    });
+    await this.assertAdmin(user, '仅管理员可查看打 tag 状态');
+    const datasetId = this.requireDatasetId(kb);
+    const prefix = `${datasetId}:`;
+    const pending = await this.chunkTagStore.listPending();
+    return {
+      pendingCount: pending.filter((p) => p.member.startsWith(prefix)).length,
+    };
+  }
+
+  /** admin 硬约束:查当前用户,非 admin 抛 ForbiddenException。 */
+  private async assertAdmin(
+    user: ActiveUserData,
+    message: string,
+  ): Promise<void> {
+    const userData = await this.prisma.client.user.findUniqueOrThrow({
+      where: { id: user.sub },
+    });
+    if (!userData.isAdmin) {
+      throw new ForbiddenException(message);
+    }
+  }
+
   private async assertOwnership(id: number, user: ActiveUserData) {
     const kb = await this.prisma.client.knowledgeBase.findUniqueOrThrow({
       where: { id },
@@ -561,5 +615,30 @@ export class KnowledgeBaseService {
       throw new ConflictException(`知识库 ${kb.id} 尚未与 RAGFlow 数据集同步`);
     }
     return kb.datasetId;
+  }
+
+  /** 分页拉全某 dataset 的 documents(total 缺失时只靠短页终止,不静默截断)。 */
+  private async listAllDatasetDocs(
+    datasetId: string,
+  ): Promise<{ id: string; run: string }[]> {
+    const all: { id: string; run: string }[] = [];
+    for (let page = 1; page < 1000; page++) {
+      const data = await this.ragflow.request<{
+        docs?: { id: string; run: string }[];
+        total?: number;
+      }>('GET', `/api/v1/datasets/${datasetId}/documents`, {
+        page,
+        page_size: 1000,
+      });
+      const docs = data.docs ?? [];
+      all.push(...docs);
+      if (
+        docs.length < 1000 ||
+        (data.total !== undefined && all.length >= data.total)
+      ) {
+        break;
+      }
+    }
+    return all;
   }
 }
