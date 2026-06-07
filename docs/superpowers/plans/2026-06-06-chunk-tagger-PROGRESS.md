@@ -14,7 +14,7 @@
 
 - Spec(已过 4 维对抗 review,v2.1):`docs/superpowers/specs/2026-06-06-chunk-tagger-service-design.md`
 - Plan 1 实现计划(6 个 TDD task,完整代码无 placeholder):`docs/superpowers/plans/2026-06-06-chunk-tagger-plan1-core.md`
-- Plan 2:**待写**(队列 + 轮询 + parse 自动入队 + 回填接口 + 只读状态接口)
+- Plan 2 实现计划(7 个 TDD task,完整代码无 placeholder):`docs/superpowers/plans/2026-06-07-chunk-tagger-plan2-queue.md` — **已写,待执行**
 
 ## 关键决策(D1–D5)
 
@@ -77,8 +77,8 @@ d271d70 feat: ✅ Task 3 — constants + matcher token (+ turbo.json globalEnv)
 ## 如何恢复执行(Plan 2)
 
 1. 确认分支:`git -C /root/code/sinopec-knowledge-base branch --show-current` → `feat/chunk-tagger-service`
-2. 先写 Plan 2(spec §13 之外的队列/轮询/接口部分),再续用 superpowers:subagent-driven-development 逐 task 执行。
-3. Plan 2 复用本计划产出的 `ChunkTaggerService.tagDocument(datasetId, docId, docName)`:
+2. Plan 2 计划已就绪(`2026-06-07-chunk-tagger-plan2-queue.md`,7 个 TDD task);续用 superpowers:subagent-driven-development 从 Task 1 逐 task 执行(每 task:implementer → spec review → code quality review)。命令更正、RAGFlow `run` 文本值、cache `del`、`assertOwnership` 不返 userData 等坑都已写进计划开头的"调研已确认的现状事实"。
+3. Plan 2 复用 Plan 1 产出的 `ChunkTaggerService.tagDocument(datasetId, docId, docName)`:
    - `ChunkTagStore`(cache-manager 待办,D3)+ 进程内 mutex
    - `pollOnce()` 轮询状态机(`@nestjs/schedule` `@Interval`,D4)
    - `parseDocuments` 成功后入队(全自动,D1)
