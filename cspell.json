@@ -56,7 +56,8 @@
     "llms",
     "aggs",
     "docnm",
-    "qwen"
+    "qwen",
+    "UNSTART"
   ],
   "ignorePaths": [
     "**/*.log",
