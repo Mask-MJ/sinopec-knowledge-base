@@ -109,7 +109,7 @@ export class ChunkTaggerService {
       all.push(...chunks);
       if (
         chunks.length < PAGE_SIZE ||
-        all.length >= (data.total ?? all.length)
+        (data.total !== undefined && all.length >= data.total)
       ) {
         return all;
       }

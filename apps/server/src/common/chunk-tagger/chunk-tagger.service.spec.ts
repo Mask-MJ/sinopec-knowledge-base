@@ -135,4 +135,31 @@ describe('chunkTaggerService.tagDocument', () => {
     const getCalls = ragflow.request.mock.calls.filter((c) => c[0] === 'GET');
     expect(getCalls.length).toBe(2);
   });
+
+  it('paginates via short-page when total is missing (no silent truncation)', async () => {
+    matcher.match.mockReturnValue(['k']);
+    // Pages WITHOUT a `total` field — must not stop after page 1
+    const page1 = {
+      chunks: Array.from({ length: 100 }, (_, i) => ({
+        id: `a${i}`,
+        content: 'x',
+      })),
+    };
+    const page2 = {
+      chunks: Array.from({ length: 30 }, (_, i) => ({
+        id: `b${i}`,
+        content: 'x',
+      })),
+    };
+    ragflow.request
+      .mockResolvedValueOnce(page1)
+      .mockResolvedValueOnce(page2)
+      .mockResolvedValue({});
+
+    const r = await service.tagDocument('ds1', 'doc1', 'X.docx');
+
+    expect(r.totalChunks).toBe(130);
+    const getCalls = ragflow.request.mock.calls.filter((c) => c[0] === 'GET');
+    expect(getCalls.length).toBe(2);
+  });
 });
