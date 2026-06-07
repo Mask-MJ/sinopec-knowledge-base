@@ -4,6 +4,8 @@ import { Module } from '@nestjs/common';
 
 import { RagflowModule } from '@/common/ragflow/ragflow.module';
 
+import { ChunkTagQueueService } from './chunk-tag-queue.service';
+import { ChunkTagStore } from './chunk-tag-store';
 import { KEYWORD_MATCHER, MAX_KEYWORDS } from './chunk-tagger.constants';
 import { ChunkTaggerService } from './chunk-tagger.service';
 import { createKeywordMatcher } from './keyword-matcher';
@@ -15,6 +17,8 @@ const DATASET_DIR = join(__dirname, 'dataset');
   imports: [RagflowModule],
   providers: [
     ChunkTaggerService,
+    ChunkTagStore,
+    ChunkTagQueueService,
     {
       provide: KEYWORD_MATCHER,
       useFactory: () =>
@@ -25,6 +29,6 @@ const DATASET_DIR = join(__dirname, 'dataset');
         ),
     },
   ],
-  exports: [ChunkTaggerService],
+  exports: [ChunkTaggerService, ChunkTagStore],
 })
 export class ChunkTaggerModule {}
