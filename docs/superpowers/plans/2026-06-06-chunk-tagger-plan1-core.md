@@ -30,6 +30,7 @@
 ## Task 1: 迁移字典资产 + 配置 nest-cli assets(先锁资产落点)
 
 **Files:**
+
 - Move: `apps/server/scripts/eval/dataset/sinopec-concept-dict.csv` → `apps/server/src/common/chunk-tagger/dataset/sinopec-concept-dict.csv`
 - Move: `apps/server/scripts/eval/dataset/sinopec-regex-catalog.json` → `apps/server/src/common/chunk-tagger/dataset/sinopec-regex-catalog.json`
 - Modify: `apps/server/nest-cli.json`
@@ -57,7 +58,7 @@ git mv scripts/eval/dataset/sinopec-regex-catalog.json src/common/chunk-tagger/d
     "typeCheck": true,
     "assets": [
       "common/chunk-tagger/dataset/sinopec-concept-dict.csv",
-      "common/chunk-tagger/dataset/sinopec-regex-catalog.json"
+      "common/chunk-tagger/dataset/sinopec-regex-catalog.json",
     ],
     "watchAssets": true,
     "plugins": [
@@ -65,12 +66,12 @@ git mv scripts/eval/dataset/sinopec-regex-catalog.json src/common/chunk-tagger/d
         "name": "@nestjs/swagger",
         "options": {
           "introspectComments": true,
-          "classValidatorShim": true
-        }
-      }
+          "classValidatorShim": true,
+        },
+      },
     ],
-    "deleteOutDir": true
-  }
+    "deleteOutDir": true,
+  },
 }
 ```
 
@@ -79,11 +80,13 @@ git mv scripts/eval/dataset/sinopec-regex-catalog.json src/common/chunk-tagger/d
 - [ ] **Step 3: build 并断言资产落到运行时期望的路径**
 
 Run:
+
 ```bash
 cd apps/server
 pnpm build
 ls -1 dist/common/chunk-tagger/dataset/
 ```
+
 Expected: 输出含 `sinopec-concept-dict.csv` 和 `sinopec-regex-catalog.json`(即落在 `dist/common/chunk-tagger/dataset/`,与运行时 `join(__dirname,'dataset',...)` 一致)。
 
 > 若资产被拍平到 `dist/` 根或多了层级,改用对象形式 `{ "include": "common/chunk-tagger/dataset/*", "outDir": "dist/common/chunk-tagger/dataset" }` 后重跑本步,直到 `ls` 命中正确路径。**写任何业务代码前必须先让这步绿。**
@@ -101,6 +104,7 @@ git commit -m "chore(@sinopec-kb/server): 🔨 move chunk-tagger dataset into sr
 ## Task 2: keyword-matcher 纯函数 + 单测(TDD)
 
 **Files:**
+
 - Create: `apps/server/src/common/chunk-tagger/keyword-matcher.ts`
 - Test: `apps/server/src/common/chunk-tagger/keyword-matcher.spec.ts`
 
@@ -198,8 +202,7 @@ describe('createKeywordMatcher (smoke, real dataset files)', () => {
 
 - [ ] **Step 2: 跑测试确认失败**
 
-Run: `pnpm -F @sinopec-kb/server vitest run src/common/chunk-tagger/keyword-matcher.spec.ts`
-Expected: FAIL —— `Cannot find module './keyword-matcher'`。
+Run: `pnpm -F @sinopec-kb/server vitest run src/common/chunk-tagger/keyword-matcher.spec.ts` Expected: FAIL —— `Cannot find module './keyword-matcher'`。
 
 - [ ] **Step 3: 写 keyword-matcher.ts**
 
@@ -325,8 +328,7 @@ export function createKeywordMatcher(
 
 - [ ] **Step 4: 跑测试确认通过**
 
-Run: `pnpm -F @sinopec-kb/server vitest run src/common/chunk-tagger/keyword-matcher.spec.ts`
-Expected: PASS（全部 describe 绿）。
+Run: `pnpm -F @sinopec-kb/server vitest run src/common/chunk-tagger/keyword-matcher.spec.ts` Expected: PASS（全部 describe 绿）。
 
 - [ ] **Step 5: Commit**
 
@@ -341,6 +343,7 @@ git commit -m "feat(@sinopec-kb/server): ✨ add chunk-tagger keyword-matcher pu
 ## Task 3: 常量 + matcher 注入 token
 
 **Files:**
+
 - Create: `apps/server/src/common/chunk-tagger/chunk-tagger.constants.ts`
 
 - [ ] **Step 1: 写 constants(Plan 1 仅需这三个;轮询/超时/RUN 枚举留 Plan 2)**
@@ -360,8 +363,7 @@ export const KEYWORD_MATCHER = Symbol('KEYWORD_MATCHER');
 
 - [ ] **Step 2: 类型检查通过**
 
-Run: `pnpm -F @sinopec-kb/server check:type`
-Expected: PASS（无类型错误）。
+Run: `pnpm -F @sinopec-kb/server check:type` Expected: PASS（无类型错误）。
 
 - [ ] **Step 3: Commit**
 
@@ -376,6 +378,7 @@ git commit -m "feat(@sinopec-kb/server): ✨ add chunk-tagger constants + matche
 ## Task 4: ChunkTaggerService.tagDocument + 单测(TDD)
 
 **Files:**
+
 - Create: `apps/server/src/common/chunk-tagger/chunk-tagger.service.ts`
 - Test: `apps/server/src/common/chunk-tagger/chunk-tagger.service.spec.ts`
 
@@ -482,11 +485,17 @@ describe('chunkTaggerService.tagDocument', () => {
   it('paginates until total reached', async () => {
     matcher.match.mockReturnValue(['k']);
     const page1 = {
-      chunks: Array.from({ length: 100 }, (_, i) => ({ id: `a${i}`, content: 'x' })),
+      chunks: Array.from({ length: 100 }, (_, i) => ({
+        id: `a${i}`,
+        content: 'x',
+      })),
       total: 150,
     };
     const page2 = {
-      chunks: Array.from({ length: 50 }, (_, i) => ({ id: `b${i}`, content: 'x' })),
+      chunks: Array.from({ length: 50 }, (_, i) => ({
+        id: `b${i}`,
+        content: 'x',
+      })),
       total: 150,
     };
     ragflow.request
@@ -505,8 +514,7 @@ describe('chunkTaggerService.tagDocument', () => {
 
 - [ ] **Step 2: 跑测试确认失败**
 
-Run: `pnpm -F @sinopec-kb/server vitest run src/common/chunk-tagger/chunk-tagger.service.spec.ts`
-Expected: FAIL —— `Cannot find module './chunk-tagger.service'`。
+Run: `pnpm -F @sinopec-kb/server vitest run src/common/chunk-tagger/chunk-tagger.service.spec.ts` Expected: FAIL —— `Cannot find module './chunk-tagger.service'`。
 
 - [ ] **Step 3: 写 chunk-tagger.service.ts**
 
@@ -517,7 +525,11 @@ import { Inject, Injectable, Logger } from '@nestjs/common';
 
 import { RagflowService } from '@/common/ragflow/ragflow.service';
 
-import { CONCURRENCY, KEYWORD_MATCHER, MAX_KEYWORDS } from './chunk-tagger.constants';
+import {
+  CONCURRENCY,
+  KEYWORD_MATCHER,
+  MAX_KEYWORDS,
+} from './chunk-tagger.constants';
 import { type KeywordMatcher, inferProjectKeywords } from './keyword-matcher';
 
 interface RagflowChunk {
@@ -565,7 +577,10 @@ export class ChunkTaggerService {
 
     await this.processBatch(chunks, CONCURRENCY, async (chunk) => {
       const matched = this.matcher.match(chunk.content ?? '');
-      const kws = [...new Set([...projectKws, ...matched])].slice(0, MAX_KEYWORDS);
+      const kws = [...new Set([...projectKws, ...matched])].slice(
+        0,
+        MAX_KEYWORDS,
+      );
       if (kws.length === 0) {
         result.empty++;
         return;
@@ -604,7 +619,10 @@ export class ChunkTaggerService {
       );
       const chunks = data?.chunks ?? [];
       all.push(...chunks);
-      if (chunks.length < PAGE_SIZE || all.length >= (data?.total ?? all.length)) {
+      if (
+        chunks.length < PAGE_SIZE ||
+        all.length >= (data?.total ?? all.length)
+      ) {
         break;
       }
     }
@@ -617,7 +635,9 @@ export class ChunkTaggerService {
     fn: (item: T) => Promise<void>,
   ): Promise<void> {
     for (let i = 0; i < items.length; i += concurrency) {
-      await Promise.all(items.slice(i, i + concurrency).map((item) => fn(item)));
+      await Promise.all(
+        items.slice(i, i + concurrency).map((item) => fn(item)),
+      );
     }
   }
 }
@@ -625,8 +645,7 @@ export class ChunkTaggerService {
 
 - [ ] **Step 4: 跑测试确认通过**
 
-Run: `pnpm -F @sinopec-kb/server vitest run src/common/chunk-tagger/chunk-tagger.service.spec.ts`
-Expected: PASS（5 个用例全绿）。
+Run: `pnpm -F @sinopec-kb/server vitest run src/common/chunk-tagger/chunk-tagger.service.spec.ts` Expected: PASS（5 个用例全绿）。
 
 - [ ] **Step 5: Commit**
 
@@ -641,6 +660,7 @@ git commit -m "feat(@sinopec-kb/server): ✨ add ChunkTaggerService.tagDocument"
 ## Task 5: ChunkTaggerModule wiring
 
 **Files:**
+
 - Create: `apps/server/src/common/chunk-tagger/chunk-tagger.module.ts`
 
 - [ ] **Step 1: 写 module**
@@ -682,11 +702,13 @@ export class ChunkTaggerModule {}
 - [ ] **Step 2: 类型检查 + 全量单测 + build 均通过**
 
 Run:
+
 ```bash
 pnpm -F @sinopec-kb/server check:type
 pnpm -F @sinopec-kb/server vitest run src/common/chunk-tagger
 pnpm -F @sinopec-kb/server build
 ```
+
 Expected: 三条全部 PASS（类型 0 错;chunk-tagger 全部用例绿;build 成功且 `dist/common/chunk-tagger/dataset/` 仍含两个字典文件)。
 
 - [ ] **Step 3: Commit**
@@ -702,6 +724,7 @@ git commit -m "feat(@sinopec-kb/server): ✨ wire ChunkTaggerModule"
 ## Task 6: eval 脚本复用 common 纯函数(消除字典/匹配逻辑漂移)
 
 **Files:**
+
 - Modify: `apps/server/scripts/eval/chunk-tagger.ts`
 
 > 现在 `scripts/eval/chunk-tagger.ts` 自带 `loadDict`/`loadRegex`/`matchChunk`/`inferProjectKeywords` 与 dataset 默认路径,迁移后这些定义重复且 dataset 路径已失效。改为复用 `common/chunk-tagger/keyword-matcher` 的同名函数,dataset 默认路径指向新位置。
@@ -747,16 +770,17 @@ const defaults: CliArgs = {
 - [ ] **Step 2: 验证脚本 import 链路正常(无参数应打印 usage 并退出)**
 
 Run:
+
 ```bash
 cd apps/server
 pnpm exec tsx scripts/eval/chunk-tagger.ts 2>&1 | head -3
 ```
+
 Expected: 打印以 `Usage: tsx chunk-tagger.ts --kb` 开头的用法说明并退出码 1（证明 import 解析成功、未因缺失模块报错）。
 
 - [ ] **Step 3: 类型检查通过**
 
-Run: `pnpm -F @sinopec-kb/server check:type`
-Expected: PASS。
+Run: `pnpm -F @sinopec-kb/server check:type` Expected: PASS。
 
 - [ ] **Step 4: Commit**
 
