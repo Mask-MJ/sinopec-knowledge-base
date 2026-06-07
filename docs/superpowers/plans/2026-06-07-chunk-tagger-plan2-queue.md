@@ -53,6 +53,7 @@
 ## Task 1: 扩展 constants（轮询间隔 / 超时 / RUN 枚举）
 
 **Files:**
+
 - Modify: `apps/server/src/common/chunk-tagger/chunk-tagger.constants.ts`
 - Modify: `turbo.json`
 
@@ -61,7 +62,6 @@
 在文件现有三个 export 之后追加:
 
 ```ts
-
 /** 轮询待办间隔(ms) */
 export const POLL_INTERVAL_MS = Number(
   process.env.CHUNK_TAG_POLL_INTERVAL_MS ?? 30_000,
@@ -102,10 +102,12 @@ export type RunStatus = (typeof RUN)[keyof typeof RUN];
 - [ ] **Step 3: 类型检查 + eslint**
 
 Run:
+
 ```bash
 pnpm -F @sinopec-kb/server typecheck 2>&1 | grep chunk-tagger || echo "NO chunk-tagger type errors"
 cd apps/server && pnpm exec eslint src/common/chunk-tagger/chunk-tagger.constants.ts
 ```
+
 Expected: `NO chunk-tagger type errors`;eslint 无输出。
 
 - [ ] **Step 4: Commit**
@@ -121,6 +123,7 @@ git commit -m "feat(@sinopec-kb/server): ✨ add chunk-tag poll/timeout/RUN cons
 ## Task 2: ChunkTagStore（cache-manager 待办 + 进程内 mutex）
 
 **Files:**
+
 - Create: `apps/server/src/common/chunk-tagger/chunk-tag-store.ts`
 - Test: `apps/server/src/common/chunk-tagger/chunk-tag-store.spec.ts`
 
@@ -154,10 +157,7 @@ describe('ChunkTagStore', () => {
     backing = {};
     vi.clearAllMocks();
     const moduleRef: TestingModule = await Test.createTestingModule({
-      providers: [
-        ChunkTagStore,
-        { provide: CACHE_MANAGER, useValue: cache },
-      ],
+      providers: [ChunkTagStore, { provide: CACHE_MANAGER, useValue: cache }],
     }).compile();
     store = moduleRef.get(ChunkTagStore);
   });
@@ -206,7 +206,10 @@ describe('ChunkTagStore', () => {
       await Promise.resolve();
       return backing[k];
     });
-    await Promise.all([store.enqueue('ds1', ['a']), store.enqueue('ds1', ['b'])]);
+    await Promise.all([
+      store.enqueue('ds1', ['a']),
+      store.enqueue('ds1', ['b']),
+    ]);
     const members = (await store.listPending()).map((p) => p.member).sort();
     expect(members).toEqual(['ds1:a', 'ds1:b']);
   });
@@ -215,8 +218,7 @@ describe('ChunkTagStore', () => {
 
 - [ ] **Step 2: 跑测试确认失败**
 
-Run: `cd apps/server && pnpm exec vitest run src/common/chunk-tagger/chunk-tag-store.spec.ts`
-Expected: FAIL —— `Cannot find module './chunk-tag-store'`。
+Run: `cd apps/server && pnpm exec vitest run src/common/chunk-tagger/chunk-tag-store.spec.ts` Expected: FAIL —— `Cannot find module './chunk-tag-store'`。
 
 - [ ] **Step 3: 写 `chunk-tag-store.ts`**
 
@@ -294,9 +296,7 @@ export class ChunkTagStore {
 
 - [ ] **Step 4: 跑测试确认通过**
 
-Run: `cd apps/server && pnpm exec vitest run src/common/chunk-tagger/chunk-tag-store.spec.ts`
-Expected: PASS(5 用例全绿)。
-再 `pnpm -F @sinopec-kb/server typecheck 2>&1 | grep chunk-tagger || echo OK` → 空;`cd apps/server && pnpm exec eslint src/common/chunk-tagger/chunk-tag-store.ts src/common/chunk-tagger/chunk-tag-store.spec.ts` → 无错误。
+Run: `cd apps/server && pnpm exec vitest run src/common/chunk-tagger/chunk-tag-store.spec.ts` Expected: PASS(5 用例全绿)。再 `pnpm -F @sinopec-kb/server typecheck 2>&1 | grep chunk-tagger || echo OK` → 空;`cd apps/server && pnpm exec eslint src/common/chunk-tagger/chunk-tag-store.ts src/common/chunk-tagger/chunk-tag-store.spec.ts` → 无错误。
 
 - [ ] **Step 5: Commit**
 
@@ -311,6 +311,7 @@ git commit -m "feat(@sinopec-kb/server): ✨ add ChunkTagStore cache-manager pen
 ## Task 3: ChunkTagQueueService（@Interval + pollOnce 状态机）
 
 **Files:**
+
 - Create: `apps/server/src/common/chunk-tagger/chunk-tag-queue.service.ts`
 - Test: `apps/server/src/common/chunk-tagger/chunk-tag-queue.service.spec.ts`
 
@@ -354,7 +355,9 @@ describe('ChunkTagQueueService.pollOnce', () => {
   });
 
   it('tags a DONE doc then removes it from pending', async () => {
-    store.listPending.mockResolvedValue([{ member: 'ds1:d1', enqueuedAt: 1000 }]);
+    store.listPending.mockResolvedValue([
+      { member: 'ds1:d1', enqueuedAt: 1000 },
+    ]);
     ragflow.request.mockResolvedValue({
       docs: [{ id: 'd1', name: 'X.docx', run: 'DONE' }],
       total: 1,
@@ -373,7 +376,9 @@ describe('ChunkTagQueueService.pollOnce', () => {
   });
 
   it('removes a FAIL doc without tagging', async () => {
-    store.listPending.mockResolvedValue([{ member: 'ds1:d1', enqueuedAt: 1000 }]);
+    store.listPending.mockResolvedValue([
+      { member: 'ds1:d1', enqueuedAt: 1000 },
+    ]);
     ragflow.request.mockResolvedValue({
       docs: [{ id: 'd1', name: 'X.docx', run: 'FAIL' }],
       total: 1,
@@ -385,8 +390,10 @@ describe('ChunkTagQueueService.pollOnce', () => {
     expect(store.remove).toHaveBeenCalledWith('ds1:d1');
   });
 
-  it('removes a doc that no longer exists (not in docs list)', async () => {
-    store.listPending.mockResolvedValue([{ member: 'ds1:d1', enqueuedAt: 1000 }]);
+  it('removes a doc that no longer exists (list succeeds but doc absent)', async () => {
+    store.listPending.mockResolvedValue([
+      { member: 'ds1:d1', enqueuedAt: 1000 },
+    ]);
     ragflow.request.mockResolvedValue({ docs: [], total: 0 });
 
     await service.pollOnce();
@@ -395,9 +402,24 @@ describe('ChunkTagQueueService.pollOnce', () => {
     expect(store.remove).toHaveBeenCalledWith('ds1:d1');
   });
 
+  it('keeps pending members when listing a dataset fails (transient, no delete)', async () => {
+    store.listPending.mockResolvedValue([
+      { member: 'ds1:d1', enqueuedAt: 1000 },
+    ]);
+    ragflow.request.mockRejectedValue(new Error('ragflow 503'));
+
+    await service.pollOnce();
+
+    // 列举失败是暂时性的:绝不能误删待办
+    expect(store.remove).not.toHaveBeenCalled();
+    expect(tagger.tagDocument).not.toHaveBeenCalled();
+  });
+
   it('keeps a RUNNING doc that has not timed out', async () => {
     vi.spyOn(Date, 'now').mockReturnValue(1000 + JOB_TIMEOUT_MS - 1);
-    store.listPending.mockResolvedValue([{ member: 'ds1:d1', enqueuedAt: 1000 }]);
+    store.listPending.mockResolvedValue([
+      { member: 'ds1:d1', enqueuedAt: 1000 },
+    ]);
     ragflow.request.mockResolvedValue({
       docs: [{ id: 'd1', name: 'X.docx', run: 'RUNNING' }],
       total: 1,
@@ -411,7 +433,9 @@ describe('ChunkTagQueueService.pollOnce', () => {
 
   it('removes a RUNNING doc that has timed out', async () => {
     vi.spyOn(Date, 'now').mockReturnValue(1000 + JOB_TIMEOUT_MS + 1);
-    store.listPending.mockResolvedValue([{ member: 'ds1:d1', enqueuedAt: 1000 }]);
+    store.listPending.mockResolvedValue([
+      { member: 'ds1:d1', enqueuedAt: 1000 },
+    ]);
     ragflow.request.mockResolvedValue({
       docs: [{ id: 'd1', name: 'X.docx', run: 'RUNNING' }],
       total: 1,
@@ -425,7 +449,9 @@ describe('ChunkTagQueueService.pollOnce', () => {
 
   it('tags a DONE doc even if its enqueuedAt is very old (timeout ignores DONE)', async () => {
     vi.spyOn(Date, 'now').mockReturnValue(1000 + JOB_TIMEOUT_MS * 10);
-    store.listPending.mockResolvedValue([{ member: 'ds1:d1', enqueuedAt: 1000 }]);
+    store.listPending.mockResolvedValue([
+      { member: 'ds1:d1', enqueuedAt: 1000 },
+    ]);
     ragflow.request.mockResolvedValue({
       docs: [{ id: 'd1', name: 'X.docx', run: 'DONE' }],
       total: 1,
@@ -444,7 +470,9 @@ describe('ChunkTagQueueService.pollOnce', () => {
   });
 
   it('keeps a doc with an unknown run value (does not remove)', async () => {
-    store.listPending.mockResolvedValue([{ member: 'ds1:d1', enqueuedAt: 1000 }]);
+    store.listPending.mockResolvedValue([
+      { member: 'ds1:d1', enqueuedAt: 1000 },
+    ]);
     ragflow.request.mockResolvedValue({
       docs: [{ id: 'd1', name: 'X.docx', run: '5' }],
       total: 1,
@@ -500,8 +528,7 @@ describe('ChunkTagQueueService.pollOnce', () => {
 
 - [ ] **Step 2: 跑测试确认失败**
 
-Run: `cd apps/server && pnpm exec vitest run src/common/chunk-tagger/chunk-tag-queue.service.spec.ts`
-Expected: FAIL —— `Cannot find module './chunk-tag-queue.service'`。
+Run: `cd apps/server && pnpm exec vitest run src/common/chunk-tagger/chunk-tag-queue.service.spec.ts` Expected: FAIL —— `Cannot find module './chunk-tag-queue.service'`。
 
 - [ ] **Step 3: 写 `chunk-tag-queue.service.ts`**
 
@@ -514,7 +541,11 @@ import { Interval } from '@nestjs/schedule';
 import { RagflowService } from '@/common/ragflow/ragflow.service';
 
 import { ChunkTagStore, type PendingItem } from './chunk-tag-store';
-import { JOB_TIMEOUT_MS, POLL_INTERVAL_MS, RUN } from './chunk-tagger.constants';
+import {
+  JOB_TIMEOUT_MS,
+  POLL_INTERVAL_MS,
+  RUN,
+} from './chunk-tagger.constants';
 import { ChunkTaggerService } from './chunk-tagger.service';
 
 interface RagflowDoc {
@@ -528,7 +559,7 @@ interface ListDocsResponse {
   total?: number;
 }
 
-/** 列 documents 的单页大小(单 KB 文档数,一页足够;超出则只覆盖首页,记 warn) */
+/** 分页列 documents 的单页步长 */
 const DOCS_PAGE_SIZE = 1000;
 
 /**
@@ -580,43 +611,61 @@ export class ChunkTagQueueService {
     }
   }
 
-  /** 按 datasetId 分组,每个 dataset 一次 GET documents,建 docId→doc 映射。 */
+  /**
+   * 按 datasetId 分组,每个 dataset 分页拉全 documents,建 docId→doc 映射。
+   * 列举**失败**(暂时性,如 RAGFlow 抖动/重启)时该 dataset 映射置 `null`,与
+   * "列举成功但 doc 不在列表"(doc 真删除)严格区分——前者保留待办下轮重试,
+   * 只有后者才 remove。绝不能让一次列举失败误删整批待办。
+   */
   private async loadDocMaps(
     pending: PendingItem[],
-  ): Promise<Map<string, Map<string, RagflowDoc>>> {
+  ): Promise<Map<string, Map<string, RagflowDoc> | null>> {
     const datasetIds = new Set(
       pending.map((p) => p.member.split(':')[0]).filter(Boolean),
     );
-    const maps = new Map<string, Map<string, RagflowDoc>>();
+    const maps = new Map<string, Map<string, RagflowDoc> | null>();
     for (const datasetId of datasetIds) {
       try {
-        const data = await this.ragflow.request<ListDocsResponse>(
-          'GET',
-          `/api/v1/datasets/${datasetId}/documents`,
-          { page: 1, page_size: DOCS_PAGE_SIZE },
-        );
-        const docs = data.docs ?? [];
-        if ((data.total ?? docs.length) > DOCS_PAGE_SIZE) {
-          this.logger.warn(
-            `dataset ${datasetId} 文档数 ${data.total} 超过单页 ${DOCS_PAGE_SIZE},本轮仅覆盖首页`,
-          );
-        }
+        const docs = await this.listAllDocs(datasetId);
         const byId = new Map<string, RagflowDoc>();
         for (const doc of docs) byId.set(doc.id, doc);
         maps.set(datasetId, byId);
       } catch (error) {
-        // 整个 dataset 列举失败(含 102 KB 已删):空映射,handlePending 按"doc 不存在"处理
-        this.logger.warn(`列 dataset ${datasetId} documents 失败:${this.msg(error)}`);
-        maps.set(datasetId, new Map());
+        // 列举失败是暂时性的:置 null,handlePending 保留该 dataset 的 member 下轮重试(不误删)
+        this.logger.warn(
+          `列 dataset ${datasetId} documents 失败(保留待办,下轮重试):${this.msg(error)}`,
+        );
+        maps.set(datasetId, null);
       }
     }
     return maps;
   }
 
+  /** 分页拉全某 dataset 的 documents(total 缺失时只靠短页终止,不静默截断)。 */
+  private async listAllDocs(datasetId: string): Promise<RagflowDoc[]> {
+    const all: RagflowDoc[] = [];
+    for (let page = 1; page < 1000; page++) {
+      const data = await this.ragflow.request<ListDocsResponse>(
+        'GET',
+        `/api/v1/datasets/${datasetId}/documents`,
+        { page, page_size: DOCS_PAGE_SIZE },
+      );
+      const docs = data.docs ?? [];
+      all.push(...docs);
+      if (
+        docs.length < DOCS_PAGE_SIZE ||
+        (data.total !== undefined && all.length >= data.total)
+      ) {
+        break;
+      }
+    }
+    return all;
+  }
+
   /** 对单个待办 doc 按 run 状态决策。抛出则由 pollOnce 的 per-member catch 兜住。 */
   private async handlePending(
     { member, enqueuedAt }: PendingItem,
-    docMaps: Map<string, Map<string, RagflowDoc>>,
+    docMaps: Map<string, Map<string, RagflowDoc> | null>,
     now: number,
   ): Promise<void> {
     const [datasetId, docId] = member.split(':');
@@ -624,15 +673,25 @@ export class ChunkTagQueueService {
       await this.store.remove(member);
       return;
     }
-    const doc = docMaps.get(datasetId)?.get(docId);
+    const docMap = docMaps.get(datasetId);
+    if (!docMap) {
+      // 该 dataset 本轮列举失败/缺失(暂时性):保留待办下轮重试,绝不误删
+      return;
+    }
+    const doc = docMap.get(docId);
     if (!doc) {
+      // 列举成功但 doc 不在列表:doc 真被删,移除
       await this.store.remove(member);
-      this.logger.warn(`待办 ${member} 对应 doc 不存在,移除`);
+      this.logger.warn(`待办 ${member} 对应 doc 已不存在,移除`);
       return;
     }
     switch (doc.run) {
       case RUN.DONE: {
-        const result = await this.tagger.tagDocument(datasetId, docId, doc.name);
+        const result = await this.tagger.tagDocument(
+          datasetId,
+          docId,
+          doc.name,
+        );
         await this.store.remove(member);
         this.logger.log(
           `已为 ${doc.name} 打 tag:total=${result.totalChunks} updated=${result.updated} failed=${result.failed}`,
@@ -671,9 +730,7 @@ export class ChunkTagQueueService {
 
 - [ ] **Step 4: 跑测试确认通过**
 
-Run: `cd apps/server && pnpm exec vitest run src/common/chunk-tagger/chunk-tag-queue.service.spec.ts`
-Expected: PASS(11 用例全绿)。
-再 `pnpm -F @sinopec-kb/server typecheck 2>&1 | grep chunk-tagger || echo OK` → 空;`cd apps/server && pnpm exec eslint src/common/chunk-tagger/chunk-tag-queue.service.ts src/common/chunk-tagger/chunk-tag-queue.service.spec.ts` → 无错误。
+Run: `cd apps/server && pnpm exec vitest run src/common/chunk-tagger/chunk-tag-queue.service.spec.ts` Expected: PASS(12 用例全绿)。再 `pnpm -F @sinopec-kb/server typecheck 2>&1 | grep chunk-tagger || echo OK` → 空;`cd apps/server && pnpm exec eslint src/common/chunk-tagger/chunk-tag-queue.service.ts src/common/chunk-tagger/chunk-tag-queue.service.spec.ts` → 无错误。
 
 > 若 eslint 因 `process.env`/`__dirname` 之外的规则(如 `@typescript-eslint/no-unnecessary-condition` 对 `data.docs ?? []`)报 warning,沿用 Plan 1 做法:接口字段标 optional(`docs?`/`total?` 已是)使防御 `?? []` 名正言顺。
 
@@ -690,6 +747,7 @@ git commit -m "feat(@sinopec-kb/server): ✨ add ChunkTagQueueService poll state
 ## Task 4: ChunkTaggerModule 接入 store + queue
 
 **Files:**
+
 - Modify: `apps/server/src/common/chunk-tagger/chunk-tagger.module.ts`
 
 - [ ] **Step 1: 更新 module**
@@ -738,13 +796,15 @@ export class ChunkTaggerModule {}
 - [ ] **Step 2: 类型检查 + 全量 chunk-tagger 单测 + build**
 
 Run:
+
 ```bash
 pnpm -F @sinopec-kb/server typecheck 2>&1 | grep chunk-tagger || echo "NO chunk-tagger type errors"
 cd apps/server && pnpm exec vitest run src/common/chunk-tagger
 cd /root/code/sinopec-knowledge-base && pnpm -F @sinopec-kb/server build
 ls -1 apps/server/dist/common/chunk-tagger/dataset/
 ```
-Expected: typecheck 无 chunk-tagger 错;chunk-tagger 全部单测绿(Plan1 19 + store 5 + queue 11 = 35);build 成功;dist dataset 仍含两个字典文件。
+
+Expected: typecheck 无 chunk-tagger 错;chunk-tagger 全部单测绿(Plan1 19 + store 5 + queue 12 = 36);build 成功;dist dataset 仍含两个字典文件。
 
 - [ ] **Step 3: Commit**
 
@@ -759,20 +819,26 @@ git commit -m "feat(@sinopec-kb/server): ✨ wire ChunkTagStore + queue into Chu
 ## Task 5: parseDocuments 成功后入队 + 单测
 
 **Files:**
+
 - Modify: `apps/server/src/modules/knowledge-base/knowledge-base.service.ts`
 - Test: `apps/server/src/modules/knowledge-base/knowledge-base.service.spec.ts`(新建)
 
 - [ ] **Step 1: 在 service 注入 `ChunkTagStore` 并改造 `parseDocuments`**
 
 1. 顶部 import 加(与现有 import 风格一致):
+
 ```ts
 import { ChunkTagStore } from '@/common/chunk-tagger/chunk-tag-store';
 ```
+
 2. constructor 末尾追加一个注入参数:
+
 ```ts
     private readonly chunkTagStore: ChunkTagStore,
 ```
+
 3. 把 `parseDocuments` 方法体改为(原来直接 `return this.ragflow.request(...)`):
+
 ```ts
   async parseDocuments(
     id: number,
@@ -817,9 +883,19 @@ import { KnowledgeBaseService } from './knowledge-base.service';
 
 describe('KnowledgeBaseService.parseDocuments', () => {
   const ragflow = { request: vi.fn() };
-  const chunkTagStore = { enqueue: vi.fn(), listPending: vi.fn(), remove: vi.fn() };
+  const chunkTagStore = {
+    enqueue: vi.fn(),
+    listPending: vi.fn(),
+    remove: vi.fn(),
+  };
   const docxPreprocess = {};
-  const kbRecord = { id: 1, datasetId: 'ds1', createBy: 'admin', permission: 'me', deptId: null };
+  const kbRecord = {
+    id: 1,
+    datasetId: 'ds1',
+    createBy: 'admin',
+    permission: 'me',
+    deptId: null,
+  };
   const prisma = {
     client: {
       knowledgeBase: { findUniqueOrThrow: vi.fn() },
@@ -831,7 +907,11 @@ describe('KnowledgeBaseService.parseDocuments', () => {
   beforeEach(async () => {
     vi.clearAllMocks();
     prisma.client.knowledgeBase.findUniqueOrThrow.mockResolvedValue(kbRecord);
-    prisma.client.user.findUniqueOrThrow.mockResolvedValue({ id: 1, isAdmin: true, deptId: null });
+    prisma.client.user.findUniqueOrThrow.mockResolvedValue({
+      id: 1,
+      isAdmin: true,
+      deptId: null,
+    });
     const moduleRef: TestingModule = await Test.createTestingModule({
       providers: [
         KnowledgeBaseService,
@@ -848,7 +928,10 @@ describe('KnowledgeBaseService.parseDocuments', () => {
     ragflow.request.mockResolvedValue({ ok: true });
     chunkTagStore.enqueue.mockResolvedValue(undefined);
 
-    const result = await service.parseDocuments(1, createMockActiveUser(), ['d1', 'd2']);
+    const result = await service.parseDocuments(1, createMockActiveUser(), [
+      'd1',
+      'd2',
+    ]);
 
     expect(ragflow.request).toHaveBeenCalledWith(
       'POST',
@@ -872,7 +955,9 @@ describe('KnowledgeBaseService.parseDocuments', () => {
     ragflow.request.mockResolvedValue({ ok: true });
     chunkTagStore.enqueue.mockRejectedValue(new Error('redis down'));
 
-    const result = await service.parseDocuments(1, createMockActiveUser(), ['d1']);
+    const result = await service.parseDocuments(1, createMockActiveUser(), [
+      'd1',
+    ]);
 
     expect(result).toEqual({ ok: true });
   });
@@ -882,10 +967,12 @@ describe('KnowledgeBaseService.parseDocuments', () => {
 - [ ] **Step 3: 跑测试 + 类型检查**
 
 Run:
+
 ```bash
 cd apps/server && pnpm exec vitest run src/modules/knowledge-base/knowledge-base.service.spec.ts
 cd /root/code/sinopec-knowledge-base && pnpm -F @sinopec-kb/server typecheck 2>&1 | grep knowledge-base || echo "NO knowledge-base type errors"
 ```
+
 Expected: 3 用例绿;typecheck 无 knowledge-base 新错误。
 
 > 注:`assertOwnership` 内部对 `kbRecord.createBy === user.username` 等判定;因 mock 的 user `findUniqueOrThrow` 返回 `isAdmin:true`,`assertOwnership` 在 isAdmin 分支直接返回 kb,不触发 owner/dept 判定。
@@ -903,6 +990,7 @@ git commit -m "feat(@sinopec-kb/server): ✨ enqueue chunk-tag after parse trigg
 ## Task 6: 回填 + 状态接口（service + controller + 鉴权单测）
 
 **Files:**
+
 - Modify: `apps/server/src/modules/knowledge-base/knowledge-base.service.ts`
 - Modify: `apps/server/src/modules/knowledge-base/knowledge-base.controller.ts`
 - Test: `apps/server/src/modules/knowledge-base/knowledge-base.service.spec.ts`(追加)
@@ -910,38 +998,74 @@ git commit -m "feat(@sinopec-kb/server): ✨ enqueue chunk-tag after parse trigg
 - [ ] **Step 1: service 加 `backfillKeywords` + `keywordTagStatus`**
 
 1. 顶部 import 加(`ForbiddenException` 若已 import 则跳过):
+
 ```ts
 import { ForbiddenException } from '@nestjs/common';
 import { RUN } from '@/common/chunk-tagger/chunk-tagger.constants';
 ```
-2. 在类内追加两个方法:
+
+2. 在类内追加两个私有 helper(`assertAdmin` / `listAllDatasetDocs`)和两个公开方法:
+
 ```ts
-  /** admin 回填:把该 KB 所有 run===DONE 的存量 doc 入队,轮询器后台统一打 tag。 */
-  async backfillKeywords(
-    id: number,
+  /** admin 硬约束:查当前用户,非 admin 抛 ForbiddenException。 */
+  private async assertAdmin(
     user: ActiveUserData,
-  ): Promise<{ enqueued: number; skipped: number }> {
-    const kb = await this.assertOwnership(id, user);
+    message: string,
+  ): Promise<void> {
     const userData = await this.prisma.client.user.findUniqueOrThrow({
       where: { id: user.sub },
     });
     if (!userData.isAdmin) {
-      throw new ForbiddenException('仅管理员可回填关键词');
+      throw new ForbiddenException(message);
     }
-    const datasetId = this.requireDatasetId(kb);
-    const data = await this.ragflow.request<{
-      docs?: { id: string; run: string }[];
-      total?: number;
-    }>('GET', `/api/v1/datasets/${datasetId}/documents`, {
-      page: 1,
-      page_size: 1000,
+  }
+
+  /** 分页拉全某 dataset 的 documents(total 缺失时只靠短页终止,不静默截断)。 */
+  private async listAllDatasetDocs(
+    datasetId: string,
+  ): Promise<{ id: string; run: string }[]> {
+    const all: { id: string; run: string }[] = [];
+    for (let page = 1; page < 1000; page++) {
+      const data = await this.ragflow.request<{
+        docs?: { id: string; run: string }[];
+        total?: number;
+      }>('GET', `/api/v1/datasets/${datasetId}/documents`, {
+        page,
+        page_size: 1000,
+      });
+      const docs = data.docs ?? [];
+      all.push(...docs);
+      if (
+        docs.length < 1000 ||
+        (data.total !== undefined && all.length >= data.total)
+      ) {
+        break;
+      }
+    }
+    return all;
+  }
+
+  /**
+   * admin 回填:把该 KB 所有 run===DONE 的存量 doc 入队,轮询器后台统一打 tag。
+   * admin-only 接口直接查 kb + assertAdmin(只查一次 user);不走 assertOwnership
+   * ——其 owner/dept 判定对 admin-only 是死代码,且会多查一次 user(消除冗余)。
+   */
+  async backfillKeywords(
+    id: number,
+    user: ActiveUserData,
+  ): Promise<{ enqueued: number; skipped: number }> {
+    const kb = await this.prisma.client.knowledgeBase.findUniqueOrThrow({
+      where: { id },
     });
-    const docs = data.docs ?? [];
-    const doneDocIds = docs
-      .filter((d) => d.run === RUN.DONE)
-      .map((d) => d.id);
+    await this.assertAdmin(user, '仅管理员可回填关键词');
+    const datasetId = this.requireDatasetId(kb);
+    const docs = await this.listAllDatasetDocs(datasetId);
+    const doneDocIds = docs.filter((d) => d.run === RUN.DONE).map((d) => d.id);
     await this.chunkTagStore.enqueue(datasetId, doneDocIds);
-    return { enqueued: doneDocIds.length, skipped: docs.length - doneDocIds.length };
+    return {
+      enqueued: doneDocIds.length,
+      skipped: docs.length - doneDocIds.length,
+    };
   }
 
   /** admin 只读:该 KB 当前在待办里的 doc 数(自证回填进度)。 */
@@ -949,13 +1073,10 @@ import { RUN } from '@/common/chunk-tagger/chunk-tagger.constants';
     id: number,
     user: ActiveUserData,
   ): Promise<{ pendingCount: number }> {
-    const kb = await this.assertOwnership(id, user);
-    const userData = await this.prisma.client.user.findUniqueOrThrow({
-      where: { id: user.sub },
+    const kb = await this.prisma.client.knowledgeBase.findUniqueOrThrow({
+      where: { id },
     });
-    if (!userData.isAdmin) {
-      throw new ForbiddenException('仅管理员可查看打 tag 状态');
-    }
+    await this.assertAdmin(user, '仅管理员可查看打 tag 状态');
     const datasetId = this.requireDatasetId(kb);
     const prefix = `${datasetId}:`;
     const pending = await this.chunkTagStore.listPending();
@@ -969,6 +1090,7 @@ import { RUN } from '@/common/chunk-tagger/chunk-tagger.constants';
 
 1. 顶部 import 确保有 `Get`、`HttpCode`、`HttpStatus`(从 `@nestjs/common`;若已 import 部分,补齐缺的)。
 2. 在 `KnowledgeBaseController` 类内追加(仿 `parseDocuments` 路由风格):
+
 ```ts
   @AutoPermission()
   @HttpCode(HttpStatus.ACCEPTED)
@@ -1001,7 +1123,11 @@ describe('KnowledgeBaseService.backfillKeywords', () => {
   // (一个 describe 包裹),使本 describe 也可见。
 
   it('enqueues only DONE docs for an admin and returns counts', async () => {
-    prisma.client.user.findUniqueOrThrow.mockResolvedValue({ id: 1, isAdmin: true, deptId: null });
+    prisma.client.user.findUniqueOrThrow.mockResolvedValue({
+      id: 1,
+      isAdmin: true,
+      deptId: null,
+    });
     ragflow.request.mockResolvedValue({
       docs: [
         { id: 'd1', run: 'DONE' },
@@ -1019,7 +1145,11 @@ describe('KnowledgeBaseService.backfillKeywords', () => {
   });
 
   it('throws ForbiddenException for a non-admin', async () => {
-    prisma.client.user.findUniqueOrThrow.mockResolvedValue({ id: 1, isAdmin: false, deptId: null });
+    prisma.client.user.findUniqueOrThrow.mockResolvedValue({
+      id: 1,
+      isAdmin: false,
+      deptId: null,
+    });
 
     await expect(
       service.backfillKeywords(1, createMockActiveUser()),
@@ -1030,7 +1160,11 @@ describe('KnowledgeBaseService.backfillKeywords', () => {
 
 describe('KnowledgeBaseService.keywordTagStatus', () => {
   it('counts only this dataset pending members for an admin', async () => {
-    prisma.client.user.findUniqueOrThrow.mockResolvedValue({ id: 1, isAdmin: true, deptId: null });
+    prisma.client.user.findUniqueOrThrow.mockResolvedValue({
+      id: 1,
+      isAdmin: true,
+      deptId: null,
+    });
     chunkTagStore.listPending.mockResolvedValue([
       { member: 'ds1:d1', enqueuedAt: 1 },
       { member: 'ds1:d2', enqueuedAt: 1 },
@@ -1043,7 +1177,11 @@ describe('KnowledgeBaseService.keywordTagStatus', () => {
   });
 
   it('throws ForbiddenException for a non-admin', async () => {
-    prisma.client.user.findUniqueOrThrow.mockResolvedValue({ id: 1, isAdmin: false, deptId: null });
+    prisma.client.user.findUniqueOrThrow.mockResolvedValue({
+      id: 1,
+      isAdmin: false,
+      deptId: null,
+    });
 
     await expect(
       service.keywordTagStatus(1, createMockActiveUser()),
@@ -1052,16 +1190,18 @@ describe('KnowledgeBaseService.keywordTagStatus', () => {
 });
 ```
 
-> **重要(避免 Task 5/6 spec 结构冲突)**:Task 5 把 `ragflow`/`chunkTagStore`/`prisma`/`service` 声明 + `beforeEach` 放在最外层文件作用域(一个顶层 `describe` 或直接文件级),使 Task 5 的 `parseDocuments` describe 与 Task 6 的两个 describe **共享同一套 mock 与 beforeEach**。实现 Task 6 时若发现 Task 5 的 mock 在内层 describe,先重构提升到共享作用域再追加。`assertOwnership` 里第一次 `user.findUniqueOrThrow`(取 isAdmin 做 ownership)与 backfill 里第二次(取 isAdmin 做硬约束)用的是同一 mock,`mockResolvedValue` 对两次调用都返回同值,故 admin/非 admin 用例都自洽。
+> **重要(避免 Task 5/6 spec 结构冲突)**:Task 5 把 `ragflow`/`chunkTagStore`/`prisma`/`service` 声明 + `beforeEach` 放在最外层文件作用域(一个顶层 `describe` 或直接文件级),使 Task 5 的 `parseDocuments` describe 与 Task 6 的两个 describe **共享同一套 mock 与 beforeEach**。实现 Task 6 时若发现 Task 5 的 mock 在内层 describe,先重构提升到共享作用域再追加。`backfillKeywords`/`keywordTagStatus` 直接 `knowledgeBase.findUniqueOrThrow`(取 kb)+ `assertAdmin`(取 user 判 isAdmin,**只查一次 user**);测试用 `prisma.client.user.findUniqueOrThrow.mockResolvedValue({ isAdmin })` 控制 admin/非 admin,`knowledgeBase.findUniqueOrThrow` 由 beforeEach mock 返回 kbRecord 即可。注意:回填/状态接口**不再调 `assertOwnership`**(admin-only 不需要 owner/dept 判定),故测试无需关心 ownership 分支。
 
 - [ ] **Step 4: 跑测试 + 类型检查 + eslint**
 
 Run:
+
 ```bash
 cd apps/server && pnpm exec vitest run src/modules/knowledge-base/knowledge-base.service.spec.ts
 cd /root/code/sinopec-knowledge-base && pnpm -F @sinopec-kb/server typecheck 2>&1 | grep knowledge-base || echo "NO knowledge-base type errors"
 cd apps/server && pnpm exec eslint src/modules/knowledge-base/knowledge-base.service.ts src/modules/knowledge-base/knowledge-base.controller.ts src/modules/knowledge-base/knowledge-base.service.spec.ts
 ```
+
 Expected: 全部 spec 绿(parse 3 + backfill 2 + status 2 = 7);typecheck 无 knowledge-base 新错误;eslint 无错误。
 
 - [ ] **Step 5: Commit**
@@ -1077,6 +1217,7 @@ git commit -m "feat(@sinopec-kb/server): ✨ add admin backfill + keyword-tag-st
 ## Task 7: KnowledgeBaseModule 接入 ChunkTaggerModule + 全量验证
 
 **Files:**
+
 - Modify: `apps/server/src/modules/knowledge-base/knowledge-base.module.ts`
 
 - [ ] **Step 1: imports 加 `ChunkTaggerModule`**
@@ -1086,6 +1227,7 @@ git commit -m "feat(@sinopec-kb/server): ✨ add admin backfill + keyword-tag-st
 ```ts
 import { ChunkTaggerModule } from '@/common/chunk-tagger/chunk-tagger.module';
 ```
+
 ```ts
   imports: [RagflowModule, DocxPreprocessModule, ChunkTaggerModule],
 ```
@@ -1095,11 +1237,13 @@ import { ChunkTaggerModule } from '@/common/chunk-tagger/chunk-tagger.module';
 - [ ] **Step 2: 全量类型检查 + 全量单测 + build + Nest 启动装配自检**
 
 Run:
+
 ```bash
 pnpm -F @sinopec-kb/server typecheck 2>&1 | grep -E 'chunk-tagger|knowledge-base' || echo "NO new type errors"
 cd apps/server && pnpm exec vitest run src/common/chunk-tagger src/modules/knowledge-base
 cd /root/code/sinopec-knowledge-base && pnpm -F @sinopec-kb/server build
 ```
+
 Expected: typecheck 无 chunk-tagger/knowledge-base 新错误(仅残留 pre-existing `run-via-server.ts:306`);chunk-tagger + knowledge-base 全部单测绿;build 成功。
 
 - [ ] **Step 3: (推荐)用一个最小 e2e/集成跑通 DI 装配**
@@ -1129,7 +1273,8 @@ git commit -m "feat(@sinopec-kb/server): ✨ wire ChunkTaggerModule into Knowled
 
 - **多实例**:`@Interval` + KV read-modify-write 在多实例下有竞态,`isPolling` 仅进程内;当前 sinopec 测试服单实例,`PUT important_keywords` 幂等(覆盖),最坏重复打一次无数据风险。将来多实例需 Redis 原生原子结构或分布式锁。
 - **doc/KB 删除不反向清待办**:轮询命中"doc 不存在"自愈移除。
-- **单 KB 文档数 > `DOCS_PAGE_SIZE`(1000)**:回填与 pollOnce 的 GET documents 仅覆盖首页并记 warn;超大 KB 需后续加分页。
+- **超大单 KB**:回填与 pollOnce 的列 documents 已**分页拉全**(`listAllDatasetDocs`/`listAllDocs`,单页步长 1000),不再静默截断;`for (let page<1000)` 是死循环兜底(覆盖到 10 万文档级)。
+- **pollOnce 列举失败 vs doc 真删除**:`loadDocMaps` 对列举失败的 dataset 置 `null`,`handlePending` 保留其 member 下轮重试;只有"列举成功但 doc 不在列表"才移除——一次 RAGFlow 抖动不会误删整批待办。
 - **constants 顶层读 env 的时序**(Plan 1 最终 review follow-up #1):本计划把 `ChunkTaggerModule` 接入 `KnowledgeBaseModule` 后,`POLL_INTERVAL_MS`/`JOB_TIMEOUT_MS`/`CONCURRENCY`/`MAX_KEYWORDS` 在 `require` 时即读 `process.env`。本项目 `config.module.ts` 在模块顶层 `dotenvxConfig()` 预加载 `.env`。若这些可选调优参数放真实环境变量(Docker env)则无时序问题;若放 `.env` 文件且 constants 先于 config.module 求值,会用默认值。**执行 Task 4/7 时留意**:如需用 `.env` 配这些值,把 env 读取移进各自的 `useFactory`/provider(而非模块顶层 const)。`@Interval(POLL_INTERVAL_MS)` 是装饰器入参,无法延迟求值——若需运行时可配轮询间隔,改用 `SchedulerRegistry.addInterval` 在 `onApplicationBootstrap` 动态注册(本期默认 30s 固定,不做)。
 
 ## Self-Review（writing-plans 自检）
@@ -1138,3 +1283,4 @@ git commit -m "feat(@sinopec-kb/server): ✨ wire ChunkTaggerModule into Knowled
 - **占位符扫描**:无 TBD/TODO;每个写代码步骤均含完整代码。✅
 - **类型一致**:`PendingItem{member,enqueuedAt}`、`ChunkTagStore.enqueue(datasetId,docIds)/listPending():PendingItem[]/remove(member)`、`RUN`/`RunStatus`、`tagDocument(datasetId,docId,docName)→{totalChunks,updated,empty,failed}`、`backfillKeywords→{enqueued,skipped}`、`keywordTagStatus→{pendingCount}` 跨 Task 一致。✅
 - **已知风险**:RUN 文本值已由 RAGFlow 源码(doc.py:627 映射)坐实;Task 5/6 共享 spec mock 作用域需实现时注意(已在 Task 6 Step 3 标注);DI 装配错误 build 抓不到,Task 7 Step 3 用启动自检兜底。
+- **Review 修订(2026-06-07,用户终审)**:① `loadDocMaps` 区分"列举失败(暂时性→保留待办)"与"doc 真删除(→移除)",避免 RAGFlow 抖动误删整批待办(Task 3,补 transient-failure 测试,queue 12 用例);② 回填/状态接口列 documents 改**分页拉全**,消除单页截断(Task 3 `listAllDocs` / Task 6 `listAllDatasetDocs`,均用 total 缺失只靠短页终止的安全终止条件);③ 回填/状态鉴权去冗余:admin-only 接口直接 `knowledgeBase.findUniqueOrThrow` + `assertAdmin`(只查一次 user),不走 `assertOwnership`(其 owner/dept 判定对 admin-only 是死代码且多查一次 user);④ `@Interval` 轮询间隔本期固定 30s(装饰器入参 import 时求值,运行时可配需 `SchedulerRegistry` 动态注册,记为 known boundary,本期不做)。
