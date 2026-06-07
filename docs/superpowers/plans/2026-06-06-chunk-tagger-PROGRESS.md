@@ -14,7 +14,12 @@
 
 - Spec(已过 4 维对抗 review,v2.1):`docs/superpowers/specs/2026-06-06-chunk-tagger-service-design.md`
 - Plan 1 实现计划(6 个 TDD task,完整代码无 placeholder):`docs/superpowers/plans/2026-06-06-chunk-tagger-plan1-core.md`
-- Plan 2 实现计划(7 个 TDD task,完整代码无 placeholder):`docs/superpowers/plans/2026-06-07-chunk-tagger-plan2-queue.md` — **已写,待执行**
+- Plan 2 实现计划(7 个 TDD task,完整代码无 placeholder,已过用户终审 + 4 处 review 修订):`docs/superpowers/plans/2026-06-07-chunk-tagger-plan2-queue.md`
+  - **执行进度(subagent-driven):**
+    - Task 1 ✅ `e9af4ba` — constants(POLL_INTERVAL_MS/JOB_TIMEOUT_MS/RUN/RunStatus)+ turbo globalEnv + cspell `UNSTART`
+    - Task 2 ✅ `d7b889a` — `ChunkTagStore`(cache-manager 单 key + mutex,enqueue/listPending/remove,5 测试绿;eslint 强制改成 immutable spread/解构,逻辑等价)
+    - **Task 3–7 待执行**,从 **Task 3(`ChunkTagQueueService` pollOnce 状态机,12 测试)** 续。后续:Task 4 module 接线 → Task 5 parseDocuments 入队 → Task 6 回填/状态接口 → Task 7 KnowledgeBaseModule 接入 + 全量验证 + Nest 启动自检。
+  - 计划开头"调研已确认的现状事实"已含所有坑(命令更正、RAGFlow `run` 文本值、cache `del`、`assertOwnership` 不返 userData、mock 内联等);review 修订记录见计划末尾 Self-Review。
 
 ## 关键决策(D1–D5)
 
