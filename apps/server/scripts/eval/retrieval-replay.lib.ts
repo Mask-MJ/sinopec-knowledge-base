@@ -10,3 +10,33 @@ export function parseIdList(csv: string): number[] {
     .map((s) => Number.parseInt(s, 10))
     .filter((n) => Number.isInteger(n));
 }
+
+export interface ReplayRetrievalParams {
+  keyword?: boolean;
+  rerankId?: string;
+  similarityThreshold?: number;
+  topK?: number;
+  topN?: number;
+  vectorSimilarityWeight?: number;
+}
+
+export function buildReplayBody(
+  question: string,
+  datasetIds: string[],
+  retrieval: ReplayRetrievalParams,
+  k: number,
+): Record<string, unknown> {
+  const body: Record<string, unknown> = {
+    question,
+    dataset_ids: datasetIds,
+    top_k: retrieval.topK ?? 1024,
+    similarity_threshold: retrieval.similarityThreshold ?? 0.2,
+    vector_similarity_weight: retrieval.vectorSimilarityWeight ?? 0.3,
+    keyword: retrieval.keyword ?? false,
+    page: 1,
+    page_size: k,
+    highlight: true,
+  };
+  if (retrieval.rerankId) body.rerank_id = retrieval.rerankId;
+  return body;
+}
