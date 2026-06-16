@@ -1,4 +1,3 @@
-/* eslint-disable no-console, @typescript-eslint/no-explicit-any, @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-member-access, @typescript-eslint/no-unsafe-return, @typescript-eslint/no-unsafe-argument, unicorn/no-process-exit, turbo/no-undeclared-env-vars */
 // cspell:disable-file
 // scripts/eval/ 是开发评测工具，file-level disable 说明见 run.ts。
 
@@ -39,4 +38,30 @@ export function buildReplayBody(
   };
   if (retrieval.rerankId) body.rerank_id = retrieval.rerankId;
   return body;
+}
+
+export interface ReplayChunk {
+  content: string;
+  documentName: string;
+  importantKeywords: string[];
+  positions?: number[];
+  rank: number;
+  similarity?: number;
+  termSimilarity?: number;
+  vectorSimilarity?: number;
+}
+
+export function mapChunk(raw: Record<string, any>, index: number): ReplayChunk {
+  const kw = raw.important_keywords ?? raw.important_kwd ?? [];
+  return {
+    rank: index + 1,
+    documentName:
+      raw.document_keyword ?? raw.document_name ?? raw.docnm_kwd ?? '',
+    content: raw.content ?? raw.content_with_weight ?? '',
+    importantKeywords: Array.isArray(kw) ? kw.filter(Boolean) : [],
+    similarity: raw.similarity,
+    vectorSimilarity: raw.vector_similarity,
+    termSimilarity: raw.term_similarity,
+    positions: raw.positions,
+  };
 }
