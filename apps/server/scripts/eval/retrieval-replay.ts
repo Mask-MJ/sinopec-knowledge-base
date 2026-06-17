@@ -1,10 +1,4 @@
-/* eslint-disable no-console, no-lone-blocks, @typescript-eslint/no-explicit-any, @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-member-access, @typescript-eslint/no-unsafe-return, @typescript-eslint/no-unsafe-argument, @typescript-eslint/use-unknown-in-catch-callback-variable, unicorn/no-process-exit, unicorn/prefer-module, turbo/no-undeclared-env-vars */
-import type {
-  ReplayChunk,
-  ReplayRetrievalParams,
-} from './retrieval-replay.lib';
-import type { QuestionRef } from './scoring';
-
+/* eslint-disable no-console, no-lone-blocks, @typescript-eslint/no-explicit-any, @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-member-access, @typescript-eslint/no-unsafe-argument, @typescript-eslint/no-unsafe-return, @typescript-eslint/use-unknown-in-catch-callback-variable, unicorn/no-process-exit, unicorn/prefer-module, turbo/no-undeclared-env-vars */
 // cspell:disable-file
 /**
  * 检索回放(只读 dump)：对指定题目拉 top-k chunk 完整证据，渲染成 markdown。
@@ -13,6 +7,12 @@ import type { QuestionRef } from './scoring';
  */
 import { mkdirSync, readFileSync, writeFileSync } from 'node:fs';
 import { resolve } from 'node:path';
+
+import type {
+  ReplayChunk,
+  ReplayRetrievalParams,
+} from './retrieval-replay.lib';
+import type { QuestionRef } from './scoring';
 
 import pLimit from 'p-limit';
 
