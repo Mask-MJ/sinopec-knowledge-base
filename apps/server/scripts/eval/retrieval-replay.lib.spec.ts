@@ -99,3 +99,29 @@ describe('mapChunk', () => {
     expect(c.importantKeywords).toEqual([]);
   });
 });
+
+import { isGoldDoc, truncateContent } from './retrieval-replay.lib';
+
+describe('truncateContent', () => {
+  it('collapses whitespace/newlines and keeps short text', () => {
+    expect(truncateContent('a\n b\tc')).toBe('a b c');
+  });
+  it('truncates with ellipsis at max', () => {
+    expect(truncateContent('abcdef', 3)).toBe('abc…');
+  });
+});
+
+describe('isGoldDoc', () => {
+  it('matches via normalized containment (extension/space-insensitive)', () => {
+    expect(
+      isGoldDoc('2022 顺北43 总结报告_noimg.docx', '2022顺北43总结报告'),
+    ).toBe(true);
+  });
+  it('returns false for unrelated docs', () => {
+    expect(isGoldDoc('页岩气采集报告', '顺北43总结报告')).toBe(false);
+  });
+  it('returns false when either side empty', () => {
+    expect(isGoldDoc('', 'x')).toBe(false);
+    expect(isGoldDoc('x', '')).toBe(false);
+  });
+});

@@ -1,6 +1,8 @@
 // cspell:disable-file
 // scripts/eval/ 是开发评测工具，file-level disable 说明见 run.ts。
 
+import { normalizeDocName } from './scoring';
+
 export function parseIdList(csv: string): number[] {
   return csv
     .split(',')
@@ -64,4 +66,17 @@ export function mapChunk(raw: Record<string, any>, index: number): ReplayChunk {
     termSimilarity: raw.term_similarity,
     positions: raw.positions,
   };
+}
+
+export function truncateContent(text: string, max = 200): string {
+  const flat = text.replaceAll(/\s+/g, ' ').trim();
+  return flat.length <= max ? flat : `${flat.slice(0, max)}…`;
+}
+
+export function isGoldDoc(documentName: string, refDoc: string): boolean {
+  if (!refDoc || !documentName) return false;
+  const cand = normalizeDocName(documentName);
+  const ref = normalizeDocName(refDoc);
+  if (!cand || !ref) return false;
+  return cand.includes(ref) || ref.includes(cand);
 }
