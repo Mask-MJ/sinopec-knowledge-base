@@ -8,12 +8,6 @@
 import { mkdirSync, readFileSync, writeFileSync } from 'node:fs';
 import { resolve } from 'node:path';
 
-import type {
-  ReplayChunk,
-  ReplayRetrievalParams,
-} from './retrieval-replay.lib';
-import type { QuestionRef } from './scoring';
-
 import pLimit from 'p-limit';
 
 import {
@@ -23,6 +17,11 @@ import {
   renderQuestionSection,
   renderReport,
 } from './retrieval-replay.lib';
+import type {
+  ReplayChunk,
+  ReplayRetrievalParams,
+} from './retrieval-replay.lib';
+import type { QuestionRef } from './scoring';
 
 interface ExperimentConfig {
   dataset?: string;
