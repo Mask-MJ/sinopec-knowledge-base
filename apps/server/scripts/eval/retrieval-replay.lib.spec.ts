@@ -1,11 +1,16 @@
+import type { ReplayChunk } from './retrieval-replay.lib';
+
 // cspell:disable-file
 import { describe, expect, it } from 'vitest';
 
 import {
+  aggregateDocs,
   buildReplayBody,
   isGoldDoc,
   mapChunk,
   parseIdList,
+  renderQuestionSection,
+  renderReport,
   truncateContent,
 } from './retrieval-replay.lib';
 
@@ -130,9 +135,6 @@ describe('isGoldDoc', () => {
   });
 });
 
-import { aggregateDocs } from './retrieval-replay.lib';
-import type { ReplayChunk } from './retrieval-replay.lib';
-
 const chunk = (rank: number, documentName: string): ReplayChunk => ({
   rank,
   documentName,
@@ -150,5 +152,99 @@ describe('aggregateDocs', () => {
   });
   it('returns [] for no chunks', () => {
     expect(aggregateDocs([])).toEqual([]);
+  });
+});
+
+const ref = { doc: '顺北43总结报告', section: '2.1 起止日期' };
+
+describe('renderQuestionSection', () => {
+  it('renders table, gold mark, and top_n cut line after row N', () => {
+    const chunks: ReplayChunk[] = [
+      {
+        rank: 1,
+        documentName: '页岩气报告',
+        content: 'x',
+        importantKeywords: [],
+        similarity: 0.4,
+        vectorSimilarity: 0.4,
+        termSimilarity: 0.4,
+      },
+      {
+        rank: 2,
+        documentName: '顺北43总结报告',
+        content: 'y',
+        importantKeywords: ['起止日期'],
+        similarity: 0.5,
+        vectorSimilarity: 0.5,
+        termSimilarity: 0.5,
+      },
+      {
+        rank: 3,
+        documentName: '其它',
+        content: 'z',
+        importantKeywords: [],
+        similarity: 0.3,
+        vectorSimilarity: 0.3,
+        termSimilarity: 0.3,
+      },
+    ];
+    const md = renderQuestionSection({
+      qid: 14,
+      topic: 'shunbei43',
+      question: 'q?',
+      reference: ref,
+      chunks,
+      topN: 2,
+    });
+    expect(md).toContain('## Q14');
+    expect(md).toContain('| # | sim | vec | term |');
+    expect(md).toMatch(/top_n=2 截断线/);
+    // gold doc row marked
+    expect(md).toMatch(/顺北43总结报告.*✅/);
+    // doc_aggs footer present
+    expect(md).toContain('doc_aggs');
+  });
+  it('renders error branch without table', () => {
+    const md = renderQuestionSection({
+      qid: 6,
+      topic: 't',
+      question: 'q',
+      reference: ref,
+      chunks: [],
+      topN: 10,
+      error: 'boom',
+    });
+    expect(md).toContain('⚠ 检索失败:boom');
+    expect(md).not.toContain('| # | sim');
+  });
+  it('renders empty-recall branch', () => {
+    const md = renderQuestionSection({
+      qid: 6,
+      topic: 't',
+      question: 'q',
+      reference: ref,
+      chunks: [],
+      topN: 10,
+    });
+    expect(md).toContain('（无召回结果）');
+  });
+});
+
+describe('renderReport', () => {
+  it('includes header, params, and sections', () => {
+    const md = renderReport(
+      {
+        experimentId: 'exp1',
+        generatedAt: '2026-06-16T00:00:00Z',
+        retrieval: { topN: 10 },
+        ids: [6, 14],
+        k: 30,
+      },
+      ['## Q6 body', '## Q14 body'],
+    );
+    expect(md).toContain('# 检索回放:exp1');
+    expect(md).toContain('Generated: 2026-06-16T00:00:00Z');
+    expect(md).toContain('"topN": 10');
+    expect(md).toContain('## Q6 body');
   });
 });
