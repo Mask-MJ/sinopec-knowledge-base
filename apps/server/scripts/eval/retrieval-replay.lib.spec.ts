@@ -1,7 +1,13 @@
 // cspell:disable-file
 import { describe, expect, it } from 'vitest';
 
-import { buildReplayBody, mapChunk, parseIdList } from './retrieval-replay.lib';
+import {
+  buildReplayBody,
+  isGoldDoc,
+  mapChunk,
+  parseIdList,
+  truncateContent,
+} from './retrieval-replay.lib';
 
 describe('parseIdList', () => {
   it('parses a csv of ids', () => {
@@ -100,8 +106,6 @@ describe('mapChunk', () => {
   });
 });
 
-import { isGoldDoc, truncateContent } from './retrieval-replay.lib';
-
 describe('truncateContent', () => {
   it('collapses whitespace/newlines and keeps short text', () => {
     expect(truncateContent('a\n b\tc')).toBe('a b c');
@@ -123,5 +127,28 @@ describe('isGoldDoc', () => {
   it('returns false when either side empty', () => {
     expect(isGoldDoc('', 'x')).toBe(false);
     expect(isGoldDoc('x', '')).toBe(false);
+  });
+});
+
+import { aggregateDocs } from './retrieval-replay.lib';
+import type { ReplayChunk } from './retrieval-replay.lib';
+
+const chunk = (rank: number, documentName: string): ReplayChunk => ({
+  rank,
+  documentName,
+  content: '',
+  importantKeywords: [],
+});
+
+describe('aggregateDocs', () => {
+  it('counts per document, sorted desc by count', () => {
+    const chunks = [chunk(1, 'A'), chunk(2, 'B'), chunk(3, 'A'), chunk(4, 'A')];
+    expect(aggregateDocs(chunks)).toEqual([
+      { doc: 'A', count: 3 },
+      { doc: 'B', count: 1 },
+    ]);
+  });
+  it('returns [] for no chunks', () => {
+    expect(aggregateDocs([])).toEqual([]);
   });
 });

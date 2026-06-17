@@ -80,3 +80,14 @@ export function isGoldDoc(documentName: string, refDoc: string): boolean {
   if (!cand || !ref) return false;
   return cand.includes(ref) || ref.includes(cand);
 }
+
+export function aggregateDocs(
+  chunks: ReplayChunk[],
+): { count: number; doc: string }[] {
+  const m = new Map<string, number>();
+  for (const c of chunks)
+    m.set(c.documentName, (m.get(c.documentName) ?? 0) + 1);
+  return [...m.entries()]
+    .map(([doc, count]) => ({ doc, count }))
+    .sort((a, b) => b.count - a.count);
+}
