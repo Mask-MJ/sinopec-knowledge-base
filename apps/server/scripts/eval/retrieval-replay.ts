@@ -1,4 +1,10 @@
-/* eslint-disable no-console, no-lone-blocks, @typescript-eslint/no-explicit-any, @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-member-access, @typescript-eslint/no-unsafe-argument, @typescript-eslint/no-unsafe-return, @typescript-eslint/use-unknown-in-catch-callback-variable, unicorn/no-process-exit, unicorn/prefer-module, turbo/no-undeclared-env-vars */
+/* eslint-disable no-lone-blocks, @typescript-eslint/no-explicit-any, @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-member-access, @typescript-eslint/no-unsafe-argument, @typescript-eslint/use-unknown-in-catch-callback-variable, unicorn/prefer-module */
+import type {
+  ReplayChunk,
+  ReplayRetrievalParams,
+} from './retrieval-replay.lib';
+import type { QuestionRef } from './scoring';
+
 // cspell:disable-file
 /**
  * 检索回放(只读 dump)：对指定题目拉 top-k chunk 完整证据，渲染成 markdown。
@@ -17,11 +23,6 @@ import {
   renderQuestionSection,
   renderReport,
 } from './retrieval-replay.lib';
-import type {
-  ReplayChunk,
-  ReplayRetrievalParams,
-} from './retrieval-replay.lib';
-import type { QuestionRef } from './scoring';
 
 interface ExperimentConfig {
   dataset?: string;
@@ -109,6 +110,10 @@ function parseArgs(argv: string[]) {
     console.error(
       'Usage: tsx retrieval-replay.ts --config <path> [--ids 6,14,18] [--k 30]',
     );
+    process.exit(1);
+  }
+  if (!Number.isInteger(k) || k <= 0) {
+    console.error('--k must be a positive integer');
     process.exit(1);
   }
   return { configPath, ids, k };

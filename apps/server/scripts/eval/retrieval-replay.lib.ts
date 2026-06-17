@@ -83,6 +83,11 @@ export function isGoldDoc(documentName: string, refDoc: string): boolean {
   return cand.includes(ref) || ref.includes(cand);
 }
 
+/**
+ * 自聚合：从本次召回的 chunks 直接统计每文档命中数（确定性、纯、可单测，
+ * 反映当前 page_size 下实际取回的分布）。刻意不读 RAGFlow 响应顶层的
+ * doc_aggs 字段——见 design review，属有意选择而非疏漏。
+ */
 export function aggregateDocs(
   chunks: ReplayChunk[],
 ): { count: number; doc: string }[] {
