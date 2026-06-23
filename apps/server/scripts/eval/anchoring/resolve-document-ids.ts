@@ -3,6 +3,8 @@ import type { ProjectAnchor } from './anchor-registry';
 /**
  * 把锚点 token（projectName/aliases/wellNumbers）与 dataset 文档名匹配，返回命中的 id。
  * 纯匹配、零 IO；datasetDocs 由调用方拉好后传入。无命中返回 []。
+ *
+ * 已知局限：子串匹配可能产生假阳性——若单个文档名同时包含两个不同项目名，该文档会被错误纳入非目标项目的过滤集。
  */
 export function resolveDocumentIds(
   anchor: ProjectAnchor,

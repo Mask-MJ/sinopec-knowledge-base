@@ -1,4 +1,5 @@
-/* eslint-disable no-lone-blocks, @typescript-eslint/no-explicit-any, @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-member-access, @typescript-eslint/no-unsafe-argument, @typescript-eslint/use-unknown-in-catch-callback-variable, unicorn/prefer-module */
+/* eslint-disable no-lone-blocks, no-console, @typescript-eslint/no-explicit-any, @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-member-access, @typescript-eslint/no-unsafe-argument, @typescript-eslint/use-unknown-in-catch-callback-variable, unicorn/no-process-exit, unicorn/prefer-module */
+import type { AnchorMode } from './anchoring/apply-anchoring';
 import type {
   ReplayChunk,
   ReplayRetrievalParams,
@@ -9,13 +10,15 @@ import type { QuestionRef } from './scoring';
 /**
  * 检索回放(只读 dump)：对指定题目拉 top-k chunk 完整证据，渲染成 markdown。
  * 用法: dotenvx run --env-file=.env.eval -- tsx scripts/eval/retrieval-replay.ts \
- *         --config <path> [--ids 6,14,18] [--k 30]
+ *         --config <path> [--ids 6,14,18] [--k 30] [--anchor off|rewrite|filter]
  */
 import { mkdirSync, readFileSync, writeFileSync } from 'node:fs';
 import { resolve } from 'node:path';
 
 import pLimit from 'p-limit';
 
+import { loadRegistry } from './anchoring/anchor-registry';
+import { applyAnchoring } from './anchoring/apply-anchoring';
 import {
   buildReplayBody,
   mapChunk,
@@ -86,9 +89,20 @@ function parseArgs(argv: string[]) {
   let configPath = '';
   let ids: number[] | undefined;
   let k = 30;
+  let anchorMode: AnchorMode = 'off';
   for (let i = 0; i < argv.length; i++) {
     const a = argv[i];
     switch (a) {
+      case '--anchor': {
+        {
+          const anchorArg = argv[++i] ?? '';
+          if (['filter', 'off', 'rewrite'].includes(anchorArg)) {
+            anchorMode = anchorArg as AnchorMode;
+          }
+          // No default
+        }
+        break;
+      }
       case '--config': {
         configPath = argv[++i] ?? '';
         break;
@@ -108,7 +122,7 @@ function parseArgs(argv: string[]) {
   }
   if (!configPath) {
     console.error(
-      'Usage: tsx retrieval-replay.ts --config <path> [--ids 6,14,18] [--k 30]',
+      'Usage: tsx retrieval-replay.ts --config <path> [--ids 6,14,18] [--k 30] [--anchor off|rewrite|filter]',
     );
     process.exit(1);
   }
@@ -116,17 +130,61 @@ function parseArgs(argv: string[]) {
     console.error('--k must be a positive integer');
     process.exit(1);
   }
-  return { configPath, ids, k };
+  return { anchorMode, configPath, ids, k };
 }
 
 async function callRetrievalFull(
   question: string,
   cfg: ExperimentConfig,
   k: number,
+  documentIds?: string[],
 ): Promise<ReplayChunk[]> {
   const body = buildReplayBody(question, cfg.datasetIds, cfg.retrieval, k);
+  if (documentIds && documentIds.length > 0) {
+    body.document_ids = documentIds;
+  }
   const data = await api<{ chunks?: any[] }>('POST', '/api/v1/retrieval', body);
   return (data.chunks ?? []).map((c, i) => mapChunk(c, i));
+}
+
+/**
+ * 在 section 的第一行（## Q…）后插入 anchor 标注行，追加到紧随其后的第一个空行之后。
+ */
+function injectAnchorLine(section: string, anchorLine: string): string {
+  // section 头部形如 "## Q{n} · {topic}\n\n**问题**:…"
+  // 在 "## Q…" 行和空行之后（即第一个 \n\n 后）插入 anchor 行
+  const firstDoubleNewline = section.indexOf('\n\n');
+  if (firstDoubleNewline === -1) {
+    return `${section}\n${anchorLine}\n`;
+  }
+  const before = section.slice(0, firstDoubleNewline + 2);
+  const after = section.slice(firstDoubleNewline + 2);
+  return `${before}${anchorLine}\n\n${after}`;
+}
+
+async function fetchDatasetDocs(
+  datasetIds: string[],
+): Promise<{ id: string; name: string }[]> {
+  const all: { id: string; name: string }[] = [];
+  for (const dsId of datasetIds) {
+    let page = 1;
+    for (;;) {
+      const data = await api<{ docs?: any[] }>(
+        'GET',
+        `/api/v1/datasets/${dsId}/documents?page=${page}&page_size=1000`,
+      );
+      const docs = data.docs ?? [];
+      for (const d of docs) {
+        all.push({
+          id: d.id as string,
+          name: (d.name ?? d.file_name ?? '') as string,
+        });
+      }
+      if (docs.length < 1000) break;
+      page++;
+    }
+  }
+  return all;
 }
 
 async function main(): Promise<void> {
@@ -139,8 +197,23 @@ async function main(): Promise<void> {
     process.exit(1);
   }
 
-  const { configPath, ids, k } = parseArgs(process.argv.slice(2));
+  const { anchorMode, configPath, ids, k } = parseArgs(process.argv.slice(2));
   const cfg: ExperimentConfig = JSON.parse(readFileSync(configPath, 'utf8'));
+
+  const registry =
+    anchorMode === 'off'
+      ? []
+      : loadRegistry(
+          JSON.parse(
+            readFileSync(
+              resolve(__dirname, 'configs/anchor-registry.json'),
+              'utf8',
+            ),
+          ),
+        );
+
+  const datasetDocs: { id: string; name: string }[] =
+    anchorMode === 'filter' ? await fetchDatasetDocs(cfg.datasetIds) : [];
   const datasetFile = cfg.dataset ?? 'questions.json';
   const set: QuestionSet = JSON.parse(
     readFileSync(resolve(__dirname, 'dataset', datasetFile), 'utf8'),
@@ -174,28 +247,45 @@ async function main(): Promise<void> {
   const sections = await Promise.all(
     questions.map((q) =>
       limit(async () => {
+        const anchored = applyAnchoring(
+          q.question,
+          registry,
+          datasetDocs,
+          anchorMode,
+        );
+        const anchorLabel = anchored.anchor?.projectName ?? 'none';
+        const anchorLine = `anchor: ${anchorLabel}  mode: ${anchorMode}  rewritten: ${anchored.question}`;
         try {
-          const chunks = await callRetrievalFull(q.question, cfg, k);
+          const chunks = await callRetrievalFull(
+            anchored.question,
+            cfg,
+            k,
+            anchored.documentIds && anchored.documentIds.length > 0
+              ? anchored.documentIds
+              : undefined,
+          );
           console.log(`  ✓ Q${q.id} chunks=${chunks.length}`);
-          return renderQuestionSection({
+          const section = renderQuestionSection({
             qid: q.id,
             topic: q.topic,
-            question: q.question,
+            question: anchored.question,
             reference: q.reference,
             chunks,
             topN,
           });
+          return injectAnchorLine(section, anchorLine);
         } catch (error) {
           console.error(`  ✗ Q${q.id} ERROR:`, (error as Error).message);
-          return renderQuestionSection({
+          const section = renderQuestionSection({
             qid: q.id,
             topic: q.topic,
-            question: q.question,
+            question: anchored.question,
             reference: q.reference,
             chunks: [],
             topN,
             error: (error as Error).message,
           });
+          return injectAnchorLine(section, anchorLine);
         }
       }),
     ),
