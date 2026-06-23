@@ -13,7 +13,7 @@ describe('loadRegistry', () => {
     ];
     const result = loadRegistry(raw);
     expect(result).toHaveLength(1);
-    expect(result[0].projectName).toBe('顺北43');
+    expect(result[0]?.projectName).toBe('顺北43');
   });
 
   it('accepts empty aliases / wellNumbers arrays', () => {

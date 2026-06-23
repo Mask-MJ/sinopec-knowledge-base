@@ -12,7 +12,7 @@ interface ScoredAnchor {
 export function detectAnchor(
   question: string,
   registry: ProjectAnchor[],
-): ProjectAnchor | null {
+): null | ProjectAnchor {
   const matches: ScoredAnchor[] = [];
   for (const anchor of registry) {
     const tokens = [
@@ -30,12 +30,13 @@ export function detectAnchor(
       matches.push({ anchor, score });
     }
   }
-  if (matches.length === 0) {
-    return null;
-  }
   matches.sort((a, b) => b.score - a.score);
-  if (matches.length > 1 && matches[1].score === matches[0].score) {
+  const [top, second] = matches;
+  if (!top) {
     return null;
   }
-  return matches[0].anchor;
+  if (second && second.score === top.score) {
+    return null;
+  }
+  return top.anchor;
 }
