@@ -1,0 +1,27 @@
+[
+  {
+    "projectName": "顺北43",
+    "aliases": ["顺北43井区", "SB43"],
+    "wellNumbers": ["顺北43"]
+  },
+  {
+    "projectName": "顺北42",
+    "aliases": ["顺北42井区", "SB42"],
+    "wellNumbers": ["顺北42"]
+  },
+  {
+    "projectName": "顺北21",
+    "aliases": ["顺北21井区", "SB21"],
+    "wellNumbers": ["顺北21"]
+  },
+  {
+    "projectName": "张集东",
+    "aliases": ["张集东三维", "张集东工区"],
+    "wellNumbers": []
+  },
+  {
+    "projectName": "页岩气",
+    "aliases": ["页岩气地震攻关", "2014年页岩气"],
+    "wellNumbers": []
+  }
+]
