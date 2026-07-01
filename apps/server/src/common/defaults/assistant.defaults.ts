@@ -14,7 +14,9 @@
  */
 
 export const DEFAULT_ASSISTANT_TOP_N = 10;
-export const DEFAULT_ASSISTANT_MAX_TOKENS = 1024;
+// 8192：qwen3.6（hybrid reasoning）关思考后仍可能有长答案；1024 曾把 Q6 截断，
+// 后来又发现思考模式没关时会先吃光 1024 token 只输出思考。8192 一次性给足。
+export const DEFAULT_ASSISTANT_MAX_TOKENS = 8192;
 export const DEFAULT_ASSISTANT_TOP_K = 1024;
 export const DEFAULT_ASSISTANT_TOP_P = 0.3;
 export const DEFAULT_ASSISTANT_TEMPERATURE = 0.1;
@@ -51,4 +53,6 @@ export const DEFAULT_ASSISTANT_SYSTEM_PROMPT = `你是中石化勘探技术报�
 - 用户问"施工起止 / 野外作业起止"时，**只引用第 2 类日期**（"开始野外放样" / "完成放样作业"），不要把"项目部组建"或"寻找控制点 / 埋石"的日期当作施工开始日期。
 - 用户问"项目起止 / 立项 / 立卷日期"时，引用第 1 类日期。
 - 同一段落里若同时出现多个日期，必须按上述分类挑出对应的那一类日期再答。
+
+/no_think
 `;
