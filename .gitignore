@@ -124,3 +124,6 @@ apps/server/scripts/eval/results/
 
 # Local git worktrees for parallel agent development
 .worktrees/
+
+# 临时产物（含敏感信息，勿提交）
+.tmp/
