@@ -1,0 +1,16 @@
+{
+  "experimentId": "0520-baseline-rerank",
+  "_desc": "rerank 对照实验:在 0520-baseline 基础上加 bge-reranker-v2-m3,量化 rerank 对 0520 失败题(Q24/Q28/Q38/Q39)的检索改善。reranker 同 prod-v2-topn10-rerank。",
+  "datasetIds": ["e6a74a2453f311f1a1ac51b09f8da739"],
+  "assistantId": "b7e94c58476611f1a9b8932ed31a3307",
+  "split": "all",
+  "retrieval": {
+    "topK": 1024,
+    "similarityThreshold": 0.2,
+    "vectorSimilarityWeight": 0.3,
+    "keyword": false,
+    "topN": 10,
+    "rerankId": "BAAI/bge-reranker-v2-m3___OpenAI-API"
+  },
+  "dataset": "questions-0520.json"
+}
