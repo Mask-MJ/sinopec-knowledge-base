@@ -1,7 +1,6 @@
 # 检索回放工具(retrieval-replay)设计
 
-> 状态:已确认设计,待转实现计划。
-> 作者会话:2026-06-16。关联文档:[rag-eval-cross-standard-0522-vs-0607.md](../../rag-eval-cross-standard-0522-vs-0607.md) §3。
+> 状态:已确认设计,待转实现计划。作者会话:2026-06-16。关联文档:[rag-eval-cross-standard-0522-vs-0607.md](../../rag-eval-cross-standard-0522-vs-0607.md) §3。
 
 ## 1. 背景与动机
 
@@ -45,7 +44,7 @@
 宋工/文档表的 50 题就是 eval 题集,拆成两套:
 
 | 文档表编号 | eval 题集 | 局部 id | KB(datasetId) | config |
-|---|---|---|---|---|
+| --- | --- | --- | --- | --- |
 | Q1–Q20 | `questions.json` | 1–20 一一对应 | 0420 KB `6ec4…` | `configs/prod-v2-topn10.json` |
 | Q21–Q50 | `questions-0520.json` | `Q − 20` | 0520 KB `e6a7…` | `configs/0520-baseline.json` |
 

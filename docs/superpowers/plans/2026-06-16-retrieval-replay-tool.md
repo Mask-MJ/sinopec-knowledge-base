@@ -31,6 +31,7 @@
 ### Task 1: lib 骨架 + `parseIdList`
 
 **Files:**
+
 - Create: `apps/server/scripts/eval/retrieval-replay.lib.ts`
 - Test: `apps/server/scripts/eval/retrieval-replay.lib.spec.ts`
 
@@ -62,8 +63,7 @@ describe('parseIdList', () => {
 
 - [ ] **Step 2: Run test to verify it fails**
 
-Run: `pnpm -F @sinopec-kb/server vitest run scripts/eval/retrieval-replay.lib.spec.ts`
-Expected: FAIL — cannot find module `./retrieval-replay.lib` (or `parseIdList` is not a function).
+Run: `pnpm -F @sinopec-kb/server vitest run scripts/eval/retrieval-replay.lib.spec.ts` Expected: FAIL — cannot find module `./retrieval-replay.lib` (or `parseIdList` is not a function).
 
 - [ ] **Step 3: Write minimal implementation**
 
@@ -86,8 +86,7 @@ export function parseIdList(csv: string): number[] {
 
 - [ ] **Step 4: Run test to verify it passes**
 
-Run: `pnpm -F @sinopec-kb/server vitest run scripts/eval/retrieval-replay.lib.spec.ts`
-Expected: PASS (4 passed).
+Run: `pnpm -F @sinopec-kb/server vitest run scripts/eval/retrieval-replay.lib.spec.ts` Expected: PASS (4 passed).
 
 - [ ] **Step 5: Commit**
 
@@ -101,6 +100,7 @@ git commit -m "test(@sinopec-kb/server): ✅ add retrieval-replay lib skeleton +
 ### Task 2: `buildReplayBody`
 
 **Files:**
+
 - Modify: `apps/server/scripts/eval/retrieval-replay.lib.ts`
 - Test: `apps/server/scripts/eval/retrieval-replay.lib.spec.ts`
 
@@ -131,7 +131,13 @@ describe('buildReplayBody', () => {
     const body = buildReplayBody(
       'q?',
       ['ds1'],
-      { topK: 256, similarityThreshold: 0.35, vectorSimilarityWeight: 0.5, keyword: true, rerankId: 'rk1' },
+      {
+        topK: 256,
+        similarityThreshold: 0.35,
+        vectorSimilarityWeight: 0.5,
+        keyword: true,
+        rerankId: 'rk1',
+      },
       10,
     );
     expect(body).toMatchObject({
@@ -148,8 +154,7 @@ describe('buildReplayBody', () => {
 
 - [ ] **Step 2: Run test to verify it fails**
 
-Run: `pnpm -F @sinopec-kb/server vitest run scripts/eval/retrieval-replay.lib.spec.ts`
-Expected: FAIL — `buildReplayBody` is not exported.
+Run: `pnpm -F @sinopec-kb/server vitest run scripts/eval/retrieval-replay.lib.spec.ts` Expected: FAIL — `buildReplayBody` is not exported.
 
 - [ ] **Step 3: Write minimal implementation**
 
@@ -189,8 +194,7 @@ export function buildReplayBody(
 
 - [ ] **Step 4: Run test to verify it passes**
 
-Run: `pnpm -F @sinopec-kb/server vitest run scripts/eval/retrieval-replay.lib.spec.ts`
-Expected: PASS.
+Run: `pnpm -F @sinopec-kb/server vitest run scripts/eval/retrieval-replay.lib.spec.ts` Expected: PASS.
 
 - [ ] **Step 5: Commit**
 
@@ -204,6 +208,7 @@ git commit -m "test(@sinopec-kb/server): ✅ add buildReplayBody"
 ### Task 3: `mapChunk`(完整保留 chunk + 字段别名兜底)
 
 **Files:**
+
 - Modify: `apps/server/scripts/eval/retrieval-replay.lib.ts`
 - Test: `apps/server/scripts/eval/retrieval-replay.lib.spec.ts`
 
@@ -237,7 +242,11 @@ describe('mapChunk', () => {
     });
   });
   it('falls back across field name aliases', () => {
-    const raw = { docnm_kwd: 'docB', content_with_weight: 'w', important_kwd: ['k'] };
+    const raw = {
+      docnm_kwd: 'docB',
+      content_with_weight: 'w',
+      important_kwd: ['k'],
+    };
     const c = mapChunk(raw, 4);
     expect(c.rank).toBe(5);
     expect(c.documentName).toBe('docB');
@@ -255,8 +264,7 @@ describe('mapChunk', () => {
 
 - [ ] **Step 2: Run test to verify it fails**
 
-Run: `pnpm -F @sinopec-kb/server vitest run scripts/eval/retrieval-replay.lib.spec.ts`
-Expected: FAIL — `mapChunk` is not exported.
+Run: `pnpm -F @sinopec-kb/server vitest run scripts/eval/retrieval-replay.lib.spec.ts` Expected: FAIL — `mapChunk` is not exported.
 
 - [ ] **Step 3: Write minimal implementation**
 
@@ -278,7 +286,8 @@ export function mapChunk(raw: Record<string, any>, index: number): ReplayChunk {
   const kw = raw.important_keywords ?? raw.important_kwd ?? [];
   return {
     rank: index + 1,
-    documentName: raw.document_keyword ?? raw.document_name ?? raw.docnm_kwd ?? '',
+    documentName:
+      raw.document_keyword ?? raw.document_name ?? raw.docnm_kwd ?? '',
     content: raw.content ?? raw.content_with_weight ?? '',
     importantKeywords: Array.isArray(kw) ? kw.filter(Boolean) : [],
     similarity: raw.similarity,
@@ -291,8 +300,7 @@ export function mapChunk(raw: Record<string, any>, index: number): ReplayChunk {
 
 - [ ] **Step 4: Run test to verify it passes**
 
-Run: `pnpm -F @sinopec-kb/server vitest run scripts/eval/retrieval-replay.lib.spec.ts`
-Expected: PASS.
+Run: `pnpm -F @sinopec-kb/server vitest run scripts/eval/retrieval-replay.lib.spec.ts` Expected: PASS.
 
 - [ ] **Step 5: Commit**
 
@@ -306,6 +314,7 @@ git commit -m "test(@sinopec-kb/server): ✅ add mapChunk with field-alias fallb
 ### Task 4: `truncateContent` + `isGoldDoc`
 
 **Files:**
+
 - Modify: `apps/server/scripts/eval/retrieval-replay.lib.ts`
 - Test: `apps/server/scripts/eval/retrieval-replay.lib.spec.ts`
 
@@ -327,7 +336,9 @@ describe('truncateContent', () => {
 
 describe('isGoldDoc', () => {
   it('matches via normalized containment (extension/space-insensitive)', () => {
-    expect(isGoldDoc('2022 顺北43 总结报告_noimg.docx', '2022顺北43总结报告')).toBe(true);
+    expect(
+      isGoldDoc('2022 顺北43 总结报告_noimg.docx', '2022顺北43总结报告'),
+    ).toBe(true);
   });
   it('returns false for unrelated docs', () => {
     expect(isGoldDoc('页岩气采集报告', '顺北43总结报告')).toBe(false);
@@ -341,8 +352,7 @@ describe('isGoldDoc', () => {
 
 - [ ] **Step 2: Run test to verify it fails**
 
-Run: `pnpm -F @sinopec-kb/server vitest run scripts/eval/retrieval-replay.lib.spec.ts`
-Expected: FAIL — `truncateContent` / `isGoldDoc` not exported.
+Run: `pnpm -F @sinopec-kb/server vitest run scripts/eval/retrieval-replay.lib.spec.ts` Expected: FAIL — `truncateContent` / `isGoldDoc` not exported.
 
 - [ ] **Step 3: Write minimal implementation**
 
@@ -371,8 +381,7 @@ export function isGoldDoc(documentName: string, refDoc: string): boolean {
 
 - [ ] **Step 4: Run test to verify it passes**
 
-Run: `pnpm -F @sinopec-kb/server vitest run scripts/eval/retrieval-replay.lib.spec.ts`
-Expected: PASS.
+Run: `pnpm -F @sinopec-kb/server vitest run scripts/eval/retrieval-replay.lib.spec.ts` Expected: PASS.
 
 - [ ] **Step 5: Commit**
 
@@ -386,6 +395,7 @@ git commit -m "test(@sinopec-kb/server): ✅ add truncateContent + isGoldDoc"
 ### Task 5: `aggregateDocs`
 
 **Files:**
+
 - Modify: `apps/server/scripts/eval/retrieval-replay.lib.ts`
 - Test: `apps/server/scripts/eval/retrieval-replay.lib.spec.ts`
 
@@ -398,7 +408,10 @@ import { aggregateDocs } from './retrieval-replay.lib';
 import type { ReplayChunk } from './retrieval-replay.lib';
 
 const chunk = (rank: number, documentName: string): ReplayChunk => ({
-  rank, documentName, content: '', importantKeywords: [],
+  rank,
+  documentName,
+  content: '',
+  importantKeywords: [],
 });
 
 describe('aggregateDocs', () => {
@@ -417,17 +430,19 @@ describe('aggregateDocs', () => {
 
 - [ ] **Step 2: Run test to verify it fails**
 
-Run: `pnpm -F @sinopec-kb/server vitest run scripts/eval/retrieval-replay.lib.spec.ts`
-Expected: FAIL — `aggregateDocs` not exported.
+Run: `pnpm -F @sinopec-kb/server vitest run scripts/eval/retrieval-replay.lib.spec.ts` Expected: FAIL — `aggregateDocs` not exported.
 
 - [ ] **Step 3: Write minimal implementation**
 
 Append to `retrieval-replay.lib.ts`:
 
 ```ts
-export function aggregateDocs(chunks: ReplayChunk[]): { count: number; doc: string }[] {
+export function aggregateDocs(
+  chunks: ReplayChunk[],
+): { count: number; doc: string }[] {
   const m = new Map<string, number>();
-  for (const c of chunks) m.set(c.documentName, (m.get(c.documentName) ?? 0) + 1);
+  for (const c of chunks)
+    m.set(c.documentName, (m.get(c.documentName) ?? 0) + 1);
   return [...m.entries()]
     .map(([doc, count]) => ({ doc, count }))
     .sort((a, b) => b.count - a.count);
@@ -436,8 +451,7 @@ export function aggregateDocs(chunks: ReplayChunk[]): { count: number; doc: stri
 
 - [ ] **Step 4: Run test to verify it passes**
 
-Run: `pnpm -F @sinopec-kb/server vitest run scripts/eval/retrieval-replay.lib.spec.ts`
-Expected: PASS.
+Run: `pnpm -F @sinopec-kb/server vitest run scripts/eval/retrieval-replay.lib.spec.ts` Expected: PASS.
 
 - [ ] **Step 5: Commit**
 
@@ -451,6 +465,7 @@ git commit -m "test(@sinopec-kb/server): ✅ add aggregateDocs"
 ### Task 6: `renderQuestionSection` + `renderReport`
 
 **Files:**
+
 - Modify: `apps/server/scripts/eval/retrieval-replay.lib.ts`
 - Test: `apps/server/scripts/eval/retrieval-replay.lib.spec.ts`
 
@@ -466,11 +481,42 @@ const ref = { doc: '顺北43总结报告', section: '2.1 起止日期' };
 describe('renderQuestionSection', () => {
   it('renders table, gold mark, and top_n cut line after row N', () => {
     const chunks: ReplayChunk[] = [
-      { rank: 1, documentName: '页岩气报告', content: 'x', importantKeywords: [], similarity: 0.4, vectorSimilarity: 0.4, termSimilarity: 0.4 },
-      { rank: 2, documentName: '顺北43总结报告', content: 'y', importantKeywords: ['起止日期'], similarity: 0.5, vectorSimilarity: 0.5, termSimilarity: 0.5 },
-      { rank: 3, documentName: '其它', content: 'z', importantKeywords: [], similarity: 0.3, vectorSimilarity: 0.3, termSimilarity: 0.3 },
+      {
+        rank: 1,
+        documentName: '页岩气报告',
+        content: 'x',
+        importantKeywords: [],
+        similarity: 0.4,
+        vectorSimilarity: 0.4,
+        termSimilarity: 0.4,
+      },
+      {
+        rank: 2,
+        documentName: '顺北43总结报告',
+        content: 'y',
+        importantKeywords: ['起止日期'],
+        similarity: 0.5,
+        vectorSimilarity: 0.5,
+        termSimilarity: 0.5,
+      },
+      {
+        rank: 3,
+        documentName: '其它',
+        content: 'z',
+        importantKeywords: [],
+        similarity: 0.3,
+        vectorSimilarity: 0.3,
+        termSimilarity: 0.3,
+      },
     ];
-    const md = renderQuestionSection({ qid: 14, topic: 'shunbei43', question: 'q?', reference: ref, chunks, topN: 2 });
+    const md = renderQuestionSection({
+      qid: 14,
+      topic: 'shunbei43',
+      question: 'q?',
+      reference: ref,
+      chunks,
+      topN: 2,
+    });
     expect(md).toContain('## Q14');
     expect(md).toContain('| # | sim | vec | term |');
     expect(md).toMatch(/top_n=2 截断线/);
@@ -480,12 +526,27 @@ describe('renderQuestionSection', () => {
     expect(md).toContain('doc_aggs');
   });
   it('renders error branch without table', () => {
-    const md = renderQuestionSection({ qid: 6, topic: 't', question: 'q', reference: ref, chunks: [], topN: 10, error: 'boom' });
+    const md = renderQuestionSection({
+      qid: 6,
+      topic: 't',
+      question: 'q',
+      reference: ref,
+      chunks: [],
+      topN: 10,
+      error: 'boom',
+    });
     expect(md).toContain('⚠ 检索失败:boom');
     expect(md).not.toContain('| # | sim');
   });
   it('renders empty-recall branch', () => {
-    const md = renderQuestionSection({ qid: 6, topic: 't', question: 'q', reference: ref, chunks: [], topN: 10 });
+    const md = renderQuestionSection({
+      qid: 6,
+      topic: 't',
+      question: 'q',
+      reference: ref,
+      chunks: [],
+      topN: 10,
+    });
     expect(md).toContain('（无召回结果）');
   });
 });
@@ -493,7 +554,13 @@ describe('renderQuestionSection', () => {
 describe('renderReport', () => {
   it('includes header, params, and sections', () => {
     const md = renderReport(
-      { experimentId: 'exp1', generatedAt: '2026-06-16T00:00:00Z', retrieval: { topN: 10 }, ids: [6, 14], k: 30 },
+      {
+        experimentId: 'exp1',
+        generatedAt: '2026-06-16T00:00:00Z',
+        retrieval: { topN: 10 },
+        ids: [6, 14],
+        k: 30,
+      },
       ['## Q6 body', '## Q14 body'],
     );
     expect(md).toContain('# 检索回放:exp1');
@@ -506,8 +573,7 @@ describe('renderReport', () => {
 
 - [ ] **Step 2: Run test to verify it fails**
 
-Run: `pnpm -F @sinopec-kb/server vitest run scripts/eval/retrieval-replay.lib.spec.ts`
-Expected: FAIL — `renderQuestionSection` / `renderReport` not exported.
+Run: `pnpm -F @sinopec-kb/server vitest run scripts/eval/retrieval-replay.lib.spec.ts` Expected: FAIL — `renderQuestionSection` / `renderReport` not exported.
 
 - [ ] **Step 3: Write minimal implementation**
 
@@ -520,7 +586,7 @@ import type { QuestionRef } from './scoring';
 
 Append:
 
-```ts
+````ts
 export interface QuestionSectionInput {
   chunks: ReplayChunk[];
   error?: string;
@@ -546,7 +612,10 @@ export function renderQuestionSection(input: QuestionSectionInput): string {
   const lines: string[] = [];
   lines.push(`## Q${qid} · ${topic}`, '');
   lines.push(`**问题**:${question}`, '');
-  lines.push(`**Gold**:doc=${reference.doc || '(无)'} | section=${reference.section || '(无)'}`, '');
+  lines.push(
+    `**Gold**:doc=${reference.doc || '(无)'} | section=${reference.section || '(无)'}`,
+    '',
+  );
 
   if (error) {
     lines.push(`⚠ 检索失败:${error}`, '');
@@ -572,11 +641,17 @@ export function renderQuestionSection(input: QuestionSectionInput): string {
   for (const c of chunks) {
     lines.push(renderChunkRow(c, reference.doc));
     if (c.rank === topN && chunks.length > topN) {
-      lines.push(`| — | — | — | — | ─── top_n=${topN} 截断线(以下不进 LLM)─── | — | — | — |`);
+      lines.push(
+        `| — | — | — | — | ─── top_n=${topN} 截断线(以下不进 LLM)─── | — | — | — |`,
+      );
     }
   }
   const aggs = aggregateDocs(chunks);
-  lines.push('', `**doc_aggs**:${aggs.map((a) => `${a.doc}×${a.count}`).join(' / ')}`, '');
+  lines.push(
+    '',
+    `**doc_aggs**:${aggs.map((a) => `${a.doc}×${a.count}`).join(' / ')}`,
+    '',
+  );
   return lines.join('\n');
 }
 
@@ -592,16 +667,24 @@ export function renderReport(meta: ReportMeta, sections: string[]): string {
   const head: string[] = [];
   head.push(`# 检索回放:${meta.experimentId}`, '');
   head.push(`Generated: ${meta.generatedAt}`, '');
-  head.push(`Question ids: ${meta.ids.join(', ')}  |  k(page_size): ${meta.k}`, '');
-  head.push('## 检索参数', '```json', JSON.stringify(meta.retrieval, null, 2), '```', '');
+  head.push(
+    `Question ids: ${meta.ids.join(', ')}  |  k(page_size): ${meta.k}`,
+    '',
+  );
+  head.push(
+    '## 检索参数',
+    '```json',
+    JSON.stringify(meta.retrieval, null, 2),
+    '```',
+    '',
+  );
   return `${head.join('\n')}\n${sections.join('\n')}\n`;
 }
-```
+````
 
 - [ ] **Step 4: Run test to verify it passes**
 
-Run: `pnpm -F @sinopec-kb/server vitest run scripts/eval/retrieval-replay.lib.spec.ts`
-Expected: PASS (all suites).
+Run: `pnpm -F @sinopec-kb/server vitest run scripts/eval/retrieval-replay.lib.spec.ts` Expected: PASS (all suites).
 
 - [ ] **Step 5: Commit**
 
@@ -615,6 +698,7 @@ git commit -m "test(@sinopec-kb/server): ✅ add renderQuestionSection + renderR
 ### Task 7: 主脚本 `retrieval-replay.ts`(IO 编排)
 
 **Files:**
+
 - Create: `apps/server/scripts/eval/retrieval-replay.ts`
 
 > 该脚本是 IO 编排(fetch/读盘/写盘/process),不做单测;由 Task 8 端到端验证。
@@ -643,7 +727,10 @@ import {
   renderQuestionSection,
   renderReport,
 } from './retrieval-replay.lib';
-import type { ReplayChunk, ReplayRetrievalParams } from './retrieval-replay.lib';
+import type {
+  ReplayChunk,
+  ReplayRetrievalParams,
+} from './retrieval-replay.lib';
 import type { QuestionRef } from './scoring';
 
 interface ExperimentConfig {
@@ -673,21 +760,32 @@ const PROD_BLACKLIST = (process.env.RAGFLOW_PROD_KEY_BLACKLIST ?? '')
   .map((s) => s.trim())
   .filter(Boolean);
 
-async function api<T>(method: string, path: string, body?: unknown): Promise<T> {
+async function api<T>(
+  method: string,
+  path: string,
+  body?: unknown,
+): Promise<T> {
   const r = await fetch(HOST + path, {
     method,
-    headers: { Authorization: `Bearer ${API_KEY}`, 'Content-Type': 'application/json' },
+    headers: {
+      Authorization: `Bearer ${API_KEY}`,
+      'Content-Type': 'application/json',
+    },
     body: body ? JSON.stringify(body) : undefined,
   });
   const text = await r.text();
-  if (!r.ok) throw new Error(`${method} ${path} HTTP ${r.status}: ${text.slice(0, 200)}`);
+  if (!r.ok)
+    throw new Error(
+      `${method} ${path} HTTP ${r.status}: ${text.slice(0, 200)}`,
+    );
   let j: any;
   try {
     j = JSON.parse(text);
   } catch {
     throw new Error(`${method} ${path} non-JSON: ${text.slice(0, 200)}`);
   }
-  if (j.code !== 0) throw new Error(`${method} ${path} code=${j.code}: ${j.message ?? ''}`);
+  if (j.code !== 0)
+    throw new Error(`${method} ${path} code=${j.code}: ${j.message ?? ''}`);
   return j.data as T;
 }
 
@@ -702,7 +800,9 @@ function parseArgs(argv: string[]) {
     else if (a === '--k') k = Number.parseInt(argv[++i] ?? '30', 10);
   }
   if (!configPath) {
-    console.error('Usage: tsx retrieval-replay.ts --config <path> [--ids 6,14,18] [--k 30]');
+    console.error(
+      'Usage: tsx retrieval-replay.ts --config <path> [--ids 6,14,18] [--k 30]',
+    );
     process.exit(1);
   }
   return { configPath, ids, k };
@@ -736,12 +836,16 @@ async function main(): Promise<void> {
   );
 
   const split = cfg.split ?? 'all';
-  const selectedIds = ids ?? (split === 'all' ? set.questions.map((q) => q.id) : set.splits[split]);
+  const selectedIds =
+    ids ??
+    (split === 'all' ? set.questions.map((q) => q.id) : set.splits[split]);
 
   const known = new Set(set.questions.map((q) => q.id));
   const missing = selectedIds.filter((id) => !known.has(id));
   if (missing.length > 0) {
-    console.error(`Unknown question ids in ${datasetFile}: ${missing.join(', ')}`);
+    console.error(
+      `Unknown question ids in ${datasetFile}: ${missing.join(', ')}`,
+    );
     process.exit(1);
   }
   const questions = set.questions.filter((q) => selectedIds.includes(q.id));
@@ -749,7 +853,9 @@ async function main(): Promise<void> {
   const outputDir = resolve(__dirname, 'results', `${cfg.experimentId}-replay`);
   mkdirSync(outputDir, { recursive: true });
 
-  console.log(`\nReplay: ${cfg.experimentId}  dataset=${datasetFile}  ids=${selectedIds.join(',')}  k=${k}`);
+  console.log(
+    `\nReplay: ${cfg.experimentId}  dataset=${datasetFile}  ids=${selectedIds.join(',')}  k=${k}`,
+  );
   console.log(`Host: ...${HOST.slice(-25)}  Key: ...${API_KEY.slice(-4)}\n`);
 
   const topN = cfg.retrieval.topN ?? 10;
@@ -761,14 +867,23 @@ async function main(): Promise<void> {
           const chunks = await callRetrievalFull(q.question, cfg, k);
           console.log(`  ✓ Q${q.id} chunks=${chunks.length}`);
           return renderQuestionSection({
-            qid: q.id, topic: q.topic, question: q.question,
-            reference: q.reference, chunks, topN,
+            qid: q.id,
+            topic: q.topic,
+            question: q.question,
+            reference: q.reference,
+            chunks,
+            topN,
           });
         } catch (error) {
           console.error(`  ✗ Q${q.id} ERROR:`, (error as Error).message);
           return renderQuestionSection({
-            qid: q.id, topic: q.topic, question: q.question,
-            reference: q.reference, chunks: [], topN, error: (error as Error).message,
+            qid: q.id,
+            topic: q.topic,
+            question: q.question,
+            reference: q.reference,
+            chunks: [],
+            topN,
+            error: (error as Error).message,
           });
         }
       }),
@@ -776,7 +891,13 @@ async function main(): Promise<void> {
   );
 
   const report = renderReport(
-    { experimentId: cfg.experimentId, generatedAt: new Date().toISOString(), retrieval: cfg.retrieval, ids: selectedIds, k },
+    {
+      experimentId: cfg.experimentId,
+      generatedAt: new Date().toISOString(),
+      retrieval: cfg.retrieval,
+      ids: selectedIds,
+      k,
+    },
     sections,
   );
   const outPath = resolve(outputDir, 'replay.md');
@@ -792,8 +913,7 @@ main().catch((error) => {
 
 - [ ] **Step 2: Typecheck the new files**
 
-Run: `pnpm -F @sinopec-kb/server typecheck`
-Expected: PASS (no errors referencing `retrieval-replay*`). If the project typecheck excludes `scripts/`, instead run `pnpm -F @sinopec-kb/server exec tsc --noEmit scripts/eval/retrieval-replay.ts scripts/eval/retrieval-replay.lib.ts` and expect no errors.
+Run: `pnpm -F @sinopec-kb/server typecheck` Expected: PASS (no errors referencing `retrieval-replay*`). If the project typecheck excludes `scripts/`, instead run `pnpm -F @sinopec-kb/server exec tsc --noEmit scripts/eval/retrieval-replay.ts scripts/eval/retrieval-replay.lib.ts` and expect no errors.
 
 - [ ] **Step 3: Commit**
 
@@ -810,38 +930,40 @@ git commit -m "test(@sinopec-kb/server): ✅ add retrieval-replay main script"
 
 - [ ] **Step 1: Confirm `.env.eval` exists and points at tailnet ragflow**
 
-Run: `test -f apps/server/.env.eval && grep -c RAGFLOW_HOST apps/server/.env.eval`
-Expected: prints `1` (file exists with RAGFLOW_HOST). If missing, copy from `apps/server/scripts/eval/.env.eval.example` and fill `RAGFLOW_HOST=http://ragflow:9380` + a **non-production** `RAGFLOW_API_KEY`.
+Run: `test -f apps/server/.env.eval && grep -c RAGFLOW_HOST apps/server/.env.eval` Expected: prints `1` (file exists with RAGFLOW_HOST). If missing, copy from `apps/server/scripts/eval/.env.eval.example` and fill `RAGFLOW_HOST=http://ragflow:9380` + a **non-production** `RAGFLOW_API_KEY`.
 
 - [ ] **Step 2: Run replay on the 0420 failed questions**
 
 Run:
+
 ```bash
 cd apps/server && RAGFLOW_HOST=${RAGFLOW_HOST:-http://ragflow:9380} \
   dotenvx run --env-file=.env.eval -- \
   tsx scripts/eval/retrieval-replay.ts --config scripts/eval/configs/prod-v2-topn10.json --ids 6,14,18 --k 30
 ```
+
 Expected: console shows `✓ Q6 chunks=…`, `✓ Q14 …`, `✓ Q18 …` and `Wrote …/results/prod-v2-topn10-replay/replay.md`.
 
 - [ ] **Step 3: Inspect the report; verify chunk evidence is real**
 
-Run: `sed -n '1,60p' apps/server/scripts/eval/results/prod-v2-topn10-replay/replay.md`
-Expected: each Q section has a populated top-k table with non-empty `来源文档` and `content 摘要` columns, a `top_n=10 截断线` row, and a `doc_aggs` footer.
-**If `来源文档` or `content 摘要` columns are empty** → RAGFlow returned different field names; note the actual keys (e.g. log one raw chunk) and extend the fallback chains in `mapChunk` (Task 3), then re-run. Do not mark complete until columns are populated.
+Run: `sed -n '1,60p' apps/server/scripts/eval/results/prod-v2-topn10-replay/replay.md` Expected: each Q section has a populated top-k table with non-empty `来源文档` and `content 摘要` columns, a `top_n=10 截断线` row, and a `doc_aggs` footer. **If `来源文档` or `content 摘要` columns are empty** → RAGFlow returned different field names; note the actual keys (e.g. log one raw chunk) and extend the fallback chains in `mapChunk` (Task 3), then re-run. Do not mark complete until columns are populated.
 
 - [ ] **Step 4: Run replay on the 0520 failed questions**
 
 Run:
+
 ```bash
 cd apps/server && RAGFLOW_HOST=${RAGFLOW_HOST:-http://ragflow:9380} \
   dotenvx run --env-file=.env.eval -- \
   tsx scripts/eval/retrieval-replay.ts --config scripts/eval/configs/0520-baseline.json --ids 4,8,18,19 --k 30
 ```
+
 Expected: `Wrote …/results/0520-baseline-replay/replay.md` with the four sections populated.
 
 - [ ] **Step 5: Confirm results are gitignored or commit intentionally**
 
 Run: `git check-ignore apps/server/scripts/eval/results/prod-v2-topn10-replay/replay.md && echo IGNORED || echo TRACKED`
+
 - If `IGNORED`: nothing to commit (consistent with existing `results/` handling). Done.
 - If `TRACKED`: decide with the user whether to commit the generated `replay.md` evidence or add `results/*-replay/` to `scripts/eval/.gitignore`. Default: leave generated reports untracked.
 
@@ -855,7 +977,7 @@ Run: `git check-ignore apps/server/scripts/eval/results/prod-v2-topn10-replay/re
 
 ## 失败题运行速查
 
-| KB | config | --ids | 对应文档表题号 |
-|---|---|---|---|
-| 0420 | `configs/prod-v2-topn10.json` | `6,14,18` | Q6 / Q14 / Q18 |
-| 0520 | `configs/0520-baseline.json` | `4,8,18,19` | Q24 / Q28 / Q38 / Q39 |
+| KB   | config                        | --ids       | 对应文档表题号        |
+| ---- | ----------------------------- | ----------- | --------------------- |
+| 0420 | `configs/prod-v2-topn10.json` | `6,14,18`   | Q6 / Q14 / Q18        |
+| 0520 | `configs/0520-baseline.json`  | `4,8,18,19` | Q24 / Q28 / Q38 / Q39 |
