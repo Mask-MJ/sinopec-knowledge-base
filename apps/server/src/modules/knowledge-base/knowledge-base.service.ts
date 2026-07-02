@@ -66,6 +66,31 @@ export class KnowledgeBaseService {
     );
   }
 
+  /**
+   * admin 回填:把该 KB 所有 run===DONE 的存量 doc 入队,轮询器后台统一打 tag。
+   * admin-only 接口直接查 kb + assertAdmin(只查一次 user);不走 assertOwnership
+   * ——其 owner/dept 判定对 admin-only 是死代码,且会多查一次 user(消除冗余)。
+   */
+  async backfillKeywords(
+    id: number,
+    user: ActiveUserData,
+  ): Promise<{ enqueued: number; skipped: number }> {
+    const kb = await this.prisma.client.knowledgeBase.findUniqueOrThrow({
+      where: { id },
+    });
+    await this.assertAdmin(user, '仅管理员可回填关键词');
+    const datasetId = this.requireDatasetId(kb);
+    const docs = await this.listAllDatasetDocs(datasetId);
+    const doneDocIds = docs.filter((d) => d.run === RUN.DONE).map((d) => d.id);
+    await this.chunkTagStore.enqueue(datasetId, doneDocIds);
+    return {
+      enqueued: doneDocIds.length,
+      skipped: docs.length - doneDocIds.length,
+    };
+  }
+
+  // ─── Chunk Management ─────────────────────────────
+
   async create(user: ActiveUserData, dto: CreateKnowledgeBaseDto) {
     const userData = await this.prisma.client.user.findUniqueOrThrow({
       where: { id: user.sub },
@@ -134,7 +159,7 @@ export class KnowledgeBaseService {
     }
   }
 
-  // ─── Chunk Management ─────────────────────────────
+  // ─── Dataset CRUD ────────────────────────────────
 
   async downloadDocument(
     id: number,
@@ -161,8 +186,6 @@ export class KnowledgeBaseService {
       type: result.contentType,
     });
   }
-
-  // ─── Dataset CRUD ────────────────────────────────
 
   async findAll(user: ActiveUserData, dto: QueryKnowledgeBaseDto) {
     const { name, current, pageSize } = dto;
@@ -246,6 +269,23 @@ export class KnowledgeBaseService {
       'GET',
       `/api/v1/datasets/${datasetId}/metadata/summary`,
     );
+  }
+
+  /** admin 只读:该 KB 当前在待办里的 doc 数(自证回填进度)。 */
+  async keywordTagStatus(
+    id: number,
+    user: ActiveUserData,
+  ): Promise<{ pendingCount: number }> {
+    const kb = await this.prisma.client.knowledgeBase.findUniqueOrThrow({
+      where: { id },
+    });
+    await this.assertAdmin(user, '仅管理员可查看打 tag 状态');
+    const datasetId = this.requireDatasetId(kb);
+    const prefix = `${datasetId}:`;
+    const pending = await this.chunkTagStore.listPending();
+    return {
+      pendingCount: pending.filter((p) => p.member.startsWith(prefix)).length,
+    };
   }
 
   async parseDocuments(
@@ -533,46 +573,6 @@ export class KnowledgeBaseService {
     );
   }
 
-  /**
-   * admin 回填:把该 KB 所有 run===DONE 的存量 doc 入队,轮询器后台统一打 tag。
-   * admin-only 接口直接查 kb + assertAdmin(只查一次 user);不走 assertOwnership
-   * ——其 owner/dept 判定对 admin-only 是死代码,且会多查一次 user(消除冗余)。
-   */
-  async backfillKeywords(
-    id: number,
-    user: ActiveUserData,
-  ): Promise<{ enqueued: number; skipped: number }> {
-    const kb = await this.prisma.client.knowledgeBase.findUniqueOrThrow({
-      where: { id },
-    });
-    await this.assertAdmin(user, '仅管理员可回填关键词');
-    const datasetId = this.requireDatasetId(kb);
-    const docs = await this.listAllDatasetDocs(datasetId);
-    const doneDocIds = docs.filter((d) => d.run === RUN.DONE).map((d) => d.id);
-    await this.chunkTagStore.enqueue(datasetId, doneDocIds);
-    return {
-      enqueued: doneDocIds.length,
-      skipped: docs.length - doneDocIds.length,
-    };
-  }
-
-  /** admin 只读:该 KB 当前在待办里的 doc 数(自证回填进度)。 */
-  async keywordTagStatus(
-    id: number,
-    user: ActiveUserData,
-  ): Promise<{ pendingCount: number }> {
-    const kb = await this.prisma.client.knowledgeBase.findUniqueOrThrow({
-      where: { id },
-    });
-    await this.assertAdmin(user, '仅管理员可查看打 tag 状态');
-    const datasetId = this.requireDatasetId(kb);
-    const prefix = `${datasetId}:`;
-    const pending = await this.chunkTagStore.listPending();
-    return {
-      pendingCount: pending.filter((p) => p.member.startsWith(prefix)).length,
-    };
-  }
-
   /** admin 硬约束:查当前用户,非 admin 抛 ForbiddenException。 */
   private async assertAdmin(
     user: ActiveUserData,
@@ -607,16 +607,6 @@ export class KnowledgeBaseService {
     return kb;
   }
 
-  private requireDatasetId(kb: {
-    datasetId: null | string;
-    id: number;
-  }): string {
-    if (!kb.datasetId) {
-      throw new ConflictException(`知识库 ${kb.id} 尚未与 RAGFlow 数据集同步`);
-    }
-    return kb.datasetId;
-  }
-
   /** 分页拉全某 dataset 的 documents(total 缺失时只靠短页终止,不静默截断)。 */
   private async listAllDatasetDocs(
     datasetId: string,
@@ -640,5 +630,15 @@ export class KnowledgeBaseService {
       }
     }
     return all;
+  }
+
+  private requireDatasetId(kb: {
+    datasetId: null | string;
+    id: number;
+  }): string {
+    if (!kb.datasetId) {
+      throw new ConflictException(`知识库 ${kb.id} 尚未与 RAGFlow 数据集同步`);
+    }
+    return kb.datasetId;
   }
 }
