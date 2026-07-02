@@ -1,0 +1,15 @@
+{
+  "experimentId": "prod-v2-topn10-rerank",
+  "_desc": "rerank 对照实验:在 prod-v2-topn10 基础上加 bge-reranker-v2-m3,量化 rerank 对 0420 失败题(Q6/Q14/Q18)的检索改善。reranker 取自评测 RAGFlow 已挂的 OpenAI-API-Compatible 工厂(2026-06-22 ssh 核实 avail=True)。",
+  "datasetIds": ["6ec4cd18476611f1a9b8932ed31a3307"],
+  "assistantId": "b7e94c58476611f1a9b8932ed31a3307",
+  "split": "all",
+  "retrieval": {
+    "topK": 1024,
+    "similarityThreshold": 0.2,
+    "vectorSimilarityWeight": 0.3,
+    "keyword": false,
+    "topN": 10,
+    "rerankId": "BAAI/bge-reranker-v2-m3___OpenAI-API"
+  }
+}
