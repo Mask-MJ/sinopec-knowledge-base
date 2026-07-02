@@ -57,7 +57,8 @@
     "aggs",
     "docnm",
     "qwen",
-    "UNSTART"
+    "UNSTART",
+    "reentrancy"
   ],
   "ignorePaths": [
     "**/*.log",

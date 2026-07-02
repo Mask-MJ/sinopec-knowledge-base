@@ -1,0 +1,122 @@
+<mxfile host="app.diagrams.net">
+  <diagram name="RAGFlow 数据流转" id="ragflow-dataflow">
+    <mxGraphModel dx="1024" dy="720" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1840" pageHeight="1080" math="0" shadow="0">
+      <root>
+        <mxCell id="0"/>
+        <mxCell id="1" parent="0"/>
+
+        <mxCell id="title" value="RAGFlow 端到端数据流转：建库期（构建）→ 扁平索引 → 查询期（检索）" style="text;html=1;align=center;verticalAlign=middle;fontStyle=1;fontSize=18;" parent="1" vertex="1">
+          <mxGeometry x="40" y="20" width="1760" height="36" as="geometry"/>
+        </mxCell>
+
+        <!-- ===================== 分区 A：建库期 ===================== -->
+        <mxCell id="A_bg" value="① 建库期 / 构建期（文档入库时一次性完成；父子结构与 RAPTOR/GraphRAG 都在这里产生）" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;opacity=30;verticalAlign=top;align=left;fontStyle=1;fontSize=13;spacingLeft=10;spacingTop=6;" parent="1" vertex="1">
+          <mxGeometry x="40" y="70" width="1760" height="300" as="geometry"/>
+        </mxCell>
+
+        <mxCell id="lbl_raptor" value="RAPTOR ▸ 构建期 · 语义驱动 · 打分【前】铺池" style="text;html=1;align=left;fontStyle=2;fontSize=11;fontColor=#D79B00;" parent="1" vertex="1">
+          <mxGeometry x="860" y="126" width="240" height="22" as="geometry"/>
+        </mxCell>
+        <mxCell id="lbl_graph" value="GraphRAG ▸ 很慢 · 默认关" style="text;html=1;align=left;fontStyle=2;fontSize=11;fontColor=#666666;" parent="1" vertex="1">
+          <mxGeometry x="1130" y="126" width="190" height="22" as="geometry"/>
+        </mxCell>
+
+        <mxCell id="B1" value="文档上传&#10;(.docx 先 pandoc 规范化)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;fontSize=12;" parent="1" vertex="1">
+          <mxGeometry x="70" y="160" width="140" height="70" as="geometry"/>
+        </mxCell>
+        <mxCell id="B2" value="DeepDOC 解析&#10;OCR + Layout + TSR&#10;→ 带坐标结构化块" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;fontSize=12;" parent="1" vertex="1">
+          <mxGeometry x="230" y="160" width="160" height="70" as="geometry"/>
+        </mxCell>
+        <mxCell id="B3" value="chunk_method 切分&#10;naive / qa / table / book / laws…&#10;→ 叶子块" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;fontSize=12;" parent="1" vertex="1">
+          <mxGeometry x="430" y="160" width="190" height="70" as="geometry"/>
+        </mxCell>
+        <mxCell id="B4" value="嵌入 q_{dim}_vec&#10;(叶子块向量)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;fontSize=12;" parent="1" vertex="1">
+          <mxGeometry x="660" y="160" width="160" height="70" as="geometry"/>
+        </mxCell>
+        <mxCell id="B5" value="RAPTOR（可选）&#10;读已嵌入叶子 → UMAP+GMM 聚类&#10;→ LLM 摘要 → 嵌入 → 拍扁写回&#10;(打 raptor_kwd，层级边不落库)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffe6cc;strokeColor=#d79b00;fontSize=11;" parent="1" vertex="1">
+          <mxGeometry x="860" y="160" width="250" height="70" as="geometry"/>
+        </mxCell>
+        <mxCell id="B6" value="GraphRAG（可选）&#10;实体 / 关系 / community report" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f5f5f5;strokeColor=#666666;fontSize=11;" parent="1" vertex="1">
+          <mxGeometry x="1130" y="160" width="180" height="70" as="geometry"/>
+        </mxCell>
+        <mxCell id="B7" value="写入&#10;ES / Infinity 索引" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#b0c4de;strokeColor=#6c8ebf;fontStyle=1;fontSize=12;" parent="1" vertex="1">
+          <mxGeometry x="1350" y="160" width="150" height="70" as="geometry"/>
+        </mxCell>
+
+        <mxCell id="N_b3" value="hierarchical_merge → 产出 mom_id 父子结构（子块持父引用，仅章节型文档有）" style="text;html=1;align=left;fontSize=10;fontColor=#666666;" parent="1" vertex="1">
+          <mxGeometry x="430" y="248" width="240" height="40" as="geometry"/>
+        </mxCell>
+        <mxCell id="N_b5" value="层级关系只在内存、建完即弃 → 检索时拍扁（collapsed tree）" style="text;html=1;align=left;fontSize=10;fontColor=#D79B00;" parent="1" vertex="1">
+          <mxGeometry x="830" y="248" width="280" height="40" as="geometry"/>
+        </mxCell>
+
+        <mxCell id="eB1B2" style="endArrow=block;html=1;strokeColor=#6c8ebf;" parent="1" source="B1" target="B2" edge="1"><mxGeometry relative="1" as="geometry"/></mxCell>
+        <mxCell id="eB2B3" style="endArrow=block;html=1;strokeColor=#6c8ebf;" parent="1" source="B2" target="B3" edge="1"><mxGeometry relative="1" as="geometry"/></mxCell>
+        <mxCell id="eB3B4" style="endArrow=block;html=1;strokeColor=#6c8ebf;" parent="1" source="B3" target="B4" edge="1"><mxGeometry relative="1" as="geometry"/></mxCell>
+        <mxCell id="eB4B5" value="读已嵌入叶子块" style="endArrow=block;html=1;strokeColor=#6c8ebf;fontSize=10;" parent="1" source="B4" target="B5" edge="1"><mxGeometry relative="1" as="geometry"/></mxCell>
+        <mxCell id="eB5B6" value="(可选)" style="endArrow=block;html=1;strokeColor=#999999;dashed=1;fontSize=10;" parent="1" source="B5" target="B6" edge="1"><mxGeometry relative="1" as="geometry"/></mxCell>
+        <mxCell id="eB6B7" style="endArrow=block;html=1;strokeColor=#6c8ebf;" parent="1" source="B6" target="B7" edge="1"><mxGeometry relative="1" as="geometry"/></mxCell>
+
+        <!-- ===================== 中间枢纽：扁平池 ===================== -->
+        <mxCell id="IDX" value="ES / Infinity 索引 ＝ 扁平候选池&#10;【 叶子块 ＋ RAPTOR 摘要块 （＋父块） 同住一个索引 】 · 向量列 q_{dim}_vec · raptor_kwd 仅供删除定位（不参与检索分层）" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fff2cc;strokeColor=#d6b656;fontStyle=1;fontSize=13;" parent="1" vertex="1">
+          <mxGeometry x="300" y="400" width="1240" height="90" as="geometry"/>
+        </mxCell>
+
+        <mxCell id="eB7IDX" value="叶子 + 摘要 同入一索引" style="endArrow=block;html=1;strokeColor=#6c8ebf;fontSize=10;" parent="1" source="B7" target="IDX" edge="1"><mxGeometry relative="1" as="geometry"/></mxCell>
+        <mxCell id="eB5IDX" value="打分【前】· 拍扁铺池" style="endArrow=block;html=1;strokeColor=#d79b00;dashed=1;fontStyle=2;fontSize=10;fontColor=#D79B00;" parent="1" source="B5" target="IDX" edge="1"><mxGeometry relative="1" as="geometry"/></mxCell>
+
+        <!-- ===================== 分区 B：查询期 ===================== -->
+        <mxCell id="C_bg" value="② 查询期 / 检索期（每次提问实时；父子映射在这里对结果重组，RAPTOR 此刻不做事、只是被召回）" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;opacity=30;verticalAlign=top;align=left;fontStyle=1;fontSize=13;spacingLeft=10;spacingTop=6;" parent="1" vertex="1">
+          <mxGeometry x="40" y="530" width="1760" height="320" as="geometry"/>
+        </mxCell>
+
+        <mxCell id="lbl_pc" value="父子映射 ▸ 检索期 · 规则驱动 · 打分【后】重组" style="text;html=1;align=left;fontStyle=2;fontSize=11;fontColor=#9673A6;" parent="1" vertex="1">
+          <mxGeometry x="710" y="588" width="240" height="22" as="geometry"/>
+        </mxCell>
+
+        <mxCell id="Q1" value="用户提问" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;fontSize=12;" parent="1" vertex="1">
+          <mxGeometry x="70" y="630" width="120" height="80" as="geometry"/>
+        </mxCell>
+        <mxCell id="Q2" value="混合检索打分器&#10;BM25 ＋ 向量相似度&#10;FusionExpr 0.05 : 0.95" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fff2cc;strokeColor=#d6b656;fontStyle=1;fontSize=12;" parent="1" vertex="1">
+          <mxGeometry x="220" y="630" width="210" height="80" as="geometry"/>
+        </mxCell>
+        <mxCell id="Q3" value="topN 候选&#10;（叶子块 ＋ RAPTOR 摘要块&#10;混在同一个列表）" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;fontSize=12;" parent="1" vertex="1">
+          <mxGeometry x="470" y="630" width="200" height="80" as="geometry"/>
+        </mxCell>
+        <mxCell id="Q4" value="retrieval_by_children&#10;命中叶子 --mom_id--&gt; 取父块原文&#10;折叠替换（不新增条目）" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#e1d5e7;strokeColor=#9673a6;fontSize=11;" parent="1" vertex="1">
+          <mxGeometry x="710" y="630" width="220" height="80" as="geometry"/>
+        </mxCell>
+        <mxCell id="Q5" value="可选扩展&#10;toc / GraphRAG&#10;community / Tavily" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f5f5f5;strokeColor=#666666;fontSize=11;" parent="1" vertex="1">
+          <mxGeometry x="970" y="630" width="170" height="80" as="geometry"/>
+        </mxCell>
+        <mxCell id="Q6" value="组装上下文&#10;global：RAPTOR 摘要块&#10;＋ local：父块原文" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;fontSize=12;" parent="1" vertex="1">
+          <mxGeometry x="1180" y="630" width="210" height="80" as="geometry"/>
+        </mxCell>
+        <mxCell id="Q7" value="LLM 生成&#10;→ 双层引用回填&#10;→ 返回前端（[ID:n] + 坐标跳转）" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;fontStyle=1;fontSize=12;" parent="1" vertex="1">
+          <mxGeometry x="1430" y="630" width="220" height="80" as="geometry"/>
+        </mxCell>
+
+        <mxCell id="N_q2" value="只在扁平池打分 · 不认识任何树" style="text;html=1;align=left;fontSize=10;fontColor=#B85450;fontStyle=1;" parent="1" vertex="1">
+          <mxGeometry x="220" y="715" width="210" height="30" as="geometry"/>
+        </mxCell>
+        <mxCell id="N_q4" value="无损 · 父块原文 · 2 层（子→父）· 摘要块无 mom_id 跳过" style="text;html=1;align=left;fontSize=10;fontColor=#9673A6;" parent="1" vertex="1">
+          <mxGeometry x="710" y="715" width="240" height="30" as="geometry"/>
+        </mxCell>
+
+        <mxCell id="eIDXQ2" value="候选池" style="endArrow=block;html=1;strokeColor=#d6b656;fontSize=10;exitX=0.1;exitY=1;entryX=0.5;entryY=0;" parent="1" source="IDX" target="Q2" edge="1"><mxGeometry relative="1" as="geometry"/></mxCell>
+        <mxCell id="eQ1Q2" style="endArrow=block;html=1;strokeColor=#82b366;" parent="1" source="Q1" target="Q2" edge="1"><mxGeometry relative="1" as="geometry"/></mxCell>
+        <mxCell id="eQ2Q3" value="FusionExpr 取 topN" style="endArrow=block;html=1;strokeColor=#82b366;fontSize=10;" parent="1" source="Q2" target="Q3" edge="1"><mxGeometry relative="1" as="geometry"/></mxCell>
+        <mxCell id="eQ3Q4" style="endArrow=block;html=1;strokeColor=#82b366;" parent="1" source="Q3" target="Q4" edge="1"><mxGeometry relative="1" as="geometry"/></mxCell>
+        <mxCell id="eQ4Q5" style="endArrow=block;html=1;strokeColor=#82b366;dashed=1;" parent="1" source="Q4" target="Q5" edge="1"><mxGeometry relative="1" as="geometry"/></mxCell>
+        <mxCell id="eQ5Q6" style="endArrow=block;html=1;strokeColor=#82b366;" parent="1" source="Q5" target="Q6" edge="1"><mxGeometry relative="1" as="geometry"/></mxCell>
+        <mxCell id="eQ6Q7" style="endArrow=block;html=1;strokeColor=#82b366;" parent="1" source="Q6" target="Q7" edge="1"><mxGeometry relative="1" as="geometry"/></mxCell>
+
+        <!-- ===================== 底部核心洞察 ===================== -->
+        <mxCell id="INSIGHT" value="核心洞察：BM25 ＋ 向量相似度 ＝ 打分器，自始至终只在『扁平候选池』上排序，不认识任何树。&#10;&#10;• RAPTOR（构建期 · 语义 · 有损 · N 层）：打分【前】把摘要块拍扁铺进池 → 与叶子块同台竞争 topN。&#10;• 父子映射（检索期 · 规则 · 无损 · 2 层）：打分【后】用 mom_id 把命中叶子块折叠成父块原文；不新增条目、不碰 RAPTOR 摘要块。&#10;&#10;→ 二者可组合但不平级。最终上下文里：RAPTOR 摘要块＝全局视角（答概括/汇总），父块原文＝局部完整（答细节），互补共存。" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f8cecc;strokeColor=#b85450;align=left;verticalAlign=top;fontSize=12;spacingLeft=12;spacingTop=8;" parent="1" vertex="1">
+          <mxGeometry x="40" y="880" width="1760" height="160" as="geometry"/>
+        </mxCell>
+
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>
