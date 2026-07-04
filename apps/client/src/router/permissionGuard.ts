@@ -140,8 +140,11 @@ function setupAccessGuard(router: Router) {
       return { path: DEFAULT_HOME_PATH, replace: true };
     }
 
-    // 没有 redirect 参数，直接放行当前导航
-    return true;
+    // 权限/菜单刚初始化完成，重新发起一次到目标路由的导航，确保侧栏菜单等
+    // 依赖权限状态的视图在状态已就绪时挂载（修复首登左侧菜单不渲染、需手动
+    // 刷新才出现的问题）。二次导航时 isAccessChecked 已为 true，会在上方提前
+    // return true，不会造成死循环。
+    return { ...to, replace: true };
   });
 }
 

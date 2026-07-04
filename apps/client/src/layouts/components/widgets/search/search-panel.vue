@@ -18,7 +18,14 @@ const searchHistory = useLocalStorage<MenuInfo[]>(
   [],
 );
 const activeIndex = ref(-1);
-const searchItems = shallowRef<MenuInfo[]>([]);
+// 响应式派生：菜单由路由守卫异步填充，用 computed 才能在菜单到达后自动更新；
+// 旧实现是 onMounted 里一次性赋值，菜单后到时搜索项不会刷新。
+const searchItems = computed<MenuInfo[]>(() =>
+  userStore.accessMenus.map((item) => ({
+    ...item,
+    name: $t(item?.name),
+  })),
+);
 const searchResults = ref<MenuInfo[]>([]);
 
 const handleSearch = useThrottleFn(search, 200);
@@ -180,12 +187,6 @@ watch(
 );
 
 onMounted(() => {
-  searchItems.value = userStore.accessMenus.map((item: MenuInfo) => {
-    return {
-      ...item,
-      name: $t(item?.name),
-    };
-  });
   // 如果有初始关键词，进行搜索
   if (searchHistory.value.length > 0) {
     searchResults.value = searchHistory.value;
