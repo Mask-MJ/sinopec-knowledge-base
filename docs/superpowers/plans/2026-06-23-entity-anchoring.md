@@ -47,11 +47,13 @@
 ## Task 1: anchor-registry（类型 + 校验 + seed 配置）
 
 **Files:**
+
 - Create: `apps/server/scripts/eval/anchoring/anchor-registry.ts`
 - Create: `apps/server/scripts/eval/configs/anchor-registry.json`
 - Test: `apps/server/scripts/eval/anchoring/anchor-registry.spec.ts`
 
 **Interfaces:**
+
 - Consumes: 无。
 - Produces: `interface ProjectAnchor { projectName: string; aliases: string[]; wellNumbers: string[] }`；`loadRegistry(raw: unknown): ProjectAnchor[]`。
 
@@ -66,7 +68,11 @@ import { loadRegistry } from './anchor-registry';
 describe('loadRegistry', () => {
   it('parses a valid registry array', () => {
     const raw = [
-      { projectName: '顺北43', aliases: ['顺北43井区'], wellNumbers: ['顺北43'] },
+      {
+        projectName: '顺北43',
+        aliases: ['顺北43井区'],
+        wellNumbers: ['顺北43'],
+      },
     ];
     const result = loadRegistry(raw);
     expect(result).toHaveLength(1);
@@ -91,8 +97,7 @@ describe('loadRegistry', () => {
 
 - [ ] **Step 2: 跑测试确认失败**
 
-Run: `pnpm -F @sinopec-kb/server vitest run scripts/eval/anchoring/anchor-registry.spec.ts`
-Expected: FAIL — `Cannot find module './anchor-registry'`。
+Run: `pnpm -F @sinopec-kb/server vitest run scripts/eval/anchoring/anchor-registry.spec.ts` Expected: FAIL — `Cannot find module './anchor-registry'`。
 
 - [ ] **Step 3: 写最小实现**
 
@@ -135,7 +140,10 @@ export function loadRegistry(raw: unknown): ProjectAnchor[] {
     return {
       projectName: record.projectName,
       aliases: assertStringArray(record.aliases, `${where}.aliases`),
-      wellNumbers: assertStringArray(record.wellNumbers, `${where}.wellNumbers`),
+      wellNumbers: assertStringArray(
+        record.wellNumbers,
+        `${where}.wellNumbers`,
+      ),
     };
   });
 }
@@ -146,11 +154,31 @@ export function loadRegistry(raw: unknown): ProjectAnchor[] {
 ```json
 // apps/server/scripts/eval/configs/anchor-registry.json
 [
-  { "projectName": "顺北43", "aliases": ["顺北43井区", "SB43"], "wellNumbers": ["顺北43"] },
-  { "projectName": "顺北42", "aliases": ["顺北42井区", "SB42"], "wellNumbers": ["顺北42"] },
-  { "projectName": "顺北21", "aliases": ["顺北21井区", "SB21"], "wellNumbers": ["顺北21"] },
-  { "projectName": "张集东", "aliases": ["张集东三维", "张集东工区"], "wellNumbers": [] },
-  { "projectName": "页岩气", "aliases": ["页岩气地震攻关", "2014年页岩气"], "wellNumbers": [] }
+  {
+    "projectName": "顺北43",
+    "aliases": ["顺北43井区", "SB43"],
+    "wellNumbers": ["顺北43"]
+  },
+  {
+    "projectName": "顺北42",
+    "aliases": ["顺北42井区", "SB42"],
+    "wellNumbers": ["顺北42"]
+  },
+  {
+    "projectName": "顺北21",
+    "aliases": ["顺北21井区", "SB21"],
+    "wellNumbers": ["顺北21"]
+  },
+  {
+    "projectName": "张集东",
+    "aliases": ["张集东三维", "张集东工区"],
+    "wellNumbers": []
+  },
+  {
+    "projectName": "页岩气",
+    "aliases": ["页岩气地震攻关", "2014年页岩气"],
+    "wellNumbers": []
+  }
 ]
 ```
 
@@ -158,8 +186,7 @@ export function loadRegistry(raw: unknown): ProjectAnchor[] {
 
 - [ ] **Step 5: 跑测试确认通过**
 
-Run: `pnpm -F @sinopec-kb/server vitest run scripts/eval/anchoring/anchor-registry.spec.ts`
-Expected: PASS（4 passed）。
+Run: `pnpm -F @sinopec-kb/server vitest run scripts/eval/anchoring/anchor-registry.spec.ts` Expected: PASS（4 passed）。
 
 - [ ] **Step 6: 提交**
 
@@ -173,10 +200,12 @@ git commit -m "feat(@sinopec-kb/server): ✨ add anchor registry type + fail-fas
 ## Task 2: detectAnchor
 
 **Files:**
+
 - Create: `apps/server/scripts/eval/anchoring/detect-anchor.ts`
 - Test: `apps/server/scripts/eval/anchoring/detect-anchor.spec.ts`
 
 **Interfaces:**
+
 - Consumes: `ProjectAnchor` from `./anchor-registry`。
 - Produces: `detectAnchor(question: string, registry: ProjectAnchor[]): ProjectAnchor | null`。
 
@@ -191,8 +220,16 @@ import type { ProjectAnchor } from './anchor-registry';
 import { detectAnchor } from './detect-anchor';
 
 const registry: ProjectAnchor[] = [
-  { projectName: '顺北43', aliases: ['顺北43井区', 'SB43'], wellNumbers: ['顺北43'] },
-  { projectName: '顺北42', aliases: ['顺北42井区', 'SB42'], wellNumbers: ['顺北42'] },
+  {
+    projectName: '顺北43',
+    aliases: ['顺北43井区', 'SB43'],
+    wellNumbers: ['顺北43'],
+  },
+  {
+    projectName: '顺北42',
+    aliases: ['顺北42井区', 'SB42'],
+    wellNumbers: ['顺北42'],
+  },
   { projectName: '张集东', aliases: ['张集东三维'], wellNumbers: [] },
   { projectName: '页岩气', aliases: ['页岩气地震攻关'], wellNumbers: [] },
 ];
@@ -228,8 +265,7 @@ describe('detectAnchor', () => {
 
 - [ ] **Step 2: 跑测试确认失败**
 
-Run: `pnpm -F @sinopec-kb/server vitest run scripts/eval/anchoring/detect-anchor.spec.ts`
-Expected: FAIL — `Cannot find module './detect-anchor'`。
+Run: `pnpm -F @sinopec-kb/server vitest run scripts/eval/anchoring/detect-anchor.spec.ts` Expected: FAIL — `Cannot find module './detect-anchor'`。
 
 - [ ] **Step 3: 写最小实现**
 
@@ -280,8 +316,7 @@ export function detectAnchor(
 
 - [ ] **Step 4: 跑测试确认通过**
 
-Run: `pnpm -F @sinopec-kb/server vitest run scripts/eval/anchoring/detect-anchor.spec.ts`
-Expected: PASS（5 passed）。
+Run: `pnpm -F @sinopec-kb/server vitest run scripts/eval/anchoring/detect-anchor.spec.ts` Expected: PASS（5 passed）。
 
 - [ ] **Step 5: 提交**
 
@@ -295,10 +330,12 @@ git commit -m "feat(@sinopec-kb/server): ✨ add detectAnchor most-specific matc
 ## Task 3: anchorQuery
 
 **Files:**
+
 - Create: `apps/server/scripts/eval/anchoring/anchor-query.ts`
 - Test: `apps/server/scripts/eval/anchoring/anchor-query.spec.ts`
 
 **Interfaces:**
+
 - Consumes: `ProjectAnchor` from `./anchor-registry`。
 - Produces: `anchorQuery(question: string, anchor: ProjectAnchor | null): string`。
 
@@ -342,8 +379,7 @@ describe('anchorQuery', () => {
 
 - [ ] **Step 2: 跑测试确认失败**
 
-Run: `pnpm -F @sinopec-kb/server vitest run scripts/eval/anchoring/anchor-query.spec.ts`
-Expected: FAIL — `Cannot find module './anchor-query'`。
+Run: `pnpm -F @sinopec-kb/server vitest run scripts/eval/anchoring/anchor-query.spec.ts` Expected: FAIL — `Cannot find module './anchor-query'`。
 
 - [ ] **Step 3: 写最小实现**
 
@@ -372,8 +408,7 @@ export function anchorQuery(
 
 - [ ] **Step 4: 跑测试确认通过**
 
-Run: `pnpm -F @sinopec-kb/server vitest run scripts/eval/anchoring/anchor-query.spec.ts`
-Expected: PASS（3 passed）。
+Run: `pnpm -F @sinopec-kb/server vitest run scripts/eval/anchoring/anchor-query.spec.ts` Expected: PASS（3 passed）。
 
 - [ ] **Step 5: 提交**
 
@@ -387,10 +422,12 @@ git commit -m "feat(@sinopec-kb/server): ✨ add anchorQuery keyword-biasing rew
 ## Task 4: resolveDocumentIds
 
 **Files:**
+
 - Create: `apps/server/scripts/eval/anchoring/resolve-document-ids.ts`
 - Test: `apps/server/scripts/eval/anchoring/resolve-document-ids.spec.ts`
 
 **Interfaces:**
+
 - Consumes: `ProjectAnchor` from `./anchor-registry`。
 - Produces: `resolveDocumentIds(anchor: ProjectAnchor, datasetDocs: { id: string; name: string }[]): string[]`。
 
@@ -438,8 +475,7 @@ describe('resolveDocumentIds', () => {
 
 - [ ] **Step 2: 跑测试确认失败**
 
-Run: `pnpm -F @sinopec-kb/server vitest run scripts/eval/anchoring/resolve-document-ids.spec.ts`
-Expected: FAIL — `Cannot find module './resolve-document-ids'`。
+Run: `pnpm -F @sinopec-kb/server vitest run scripts/eval/anchoring/resolve-document-ids.spec.ts` Expected: FAIL — `Cannot find module './resolve-document-ids'`。
 
 - [ ] **Step 3: 写最小实现**
 
@@ -472,8 +508,7 @@ export function resolveDocumentIds(
 
 - [ ] **Step 4: 跑测试确认通过**
 
-Run: `pnpm -F @sinopec-kb/server vitest run scripts/eval/anchoring/resolve-document-ids.spec.ts`
-Expected: PASS（3 passed）。
+Run: `pnpm -F @sinopec-kb/server vitest run scripts/eval/anchoring/resolve-document-ids.spec.ts` Expected: PASS（3 passed）。
 
 - [ ] **Step 5: 提交**
 
@@ -487,10 +522,12 @@ git commit -m "feat(@sinopec-kb/server): ✨ add resolveDocumentIds filename mat
 ## Task 5: applyAnchoring 编排器
 
 **Files:**
+
 - Create: `apps/server/scripts/eval/anchoring/apply-anchoring.ts`
 - Test: `apps/server/scripts/eval/anchoring/apply-anchoring.spec.ts`
 
 **Interfaces:**
+
 - Consumes: `detectAnchor`、`anchorQuery`、`resolveDocumentIds`、`ProjectAnchor`。
 - Produces:
   - `type AnchorMode = 'filter' | 'off' | 'rewrite'`
@@ -549,8 +586,7 @@ describe('applyAnchoring', () => {
 
 - [ ] **Step 2: 跑测试确认失败**
 
-Run: `pnpm -F @sinopec-kb/server vitest run scripts/eval/anchoring/apply-anchoring.spec.ts`
-Expected: FAIL — `Cannot find module './apply-anchoring'`。
+Run: `pnpm -F @sinopec-kb/server vitest run scripts/eval/anchoring/apply-anchoring.spec.ts` Expected: FAIL — `Cannot find module './apply-anchoring'`。
 
 - [ ] **Step 3: 写最小实现**
 
@@ -597,8 +633,7 @@ export function applyAnchoring(
 
 - [ ] **Step 4: 跑测试确认通过**
 
-Run: `pnpm -F @sinopec-kb/server vitest run scripts/eval/anchoring/apply-anchoring.spec.ts`
-Expected: PASS（4 passed）。
+Run: `pnpm -F @sinopec-kb/server vitest run scripts/eval/anchoring/apply-anchoring.spec.ts` Expected: PASS（4 passed）。
 
 - [ ] **Step 5: 提交**
 
@@ -612,9 +647,11 @@ git commit -m "feat(@sinopec-kb/server): ✨ add applyAnchoring orchestrator (of
 ## Task 6: 把 `--anchor` 挂进 retrieval-replay 评测
 
 **Files:**
+
 - Modify: `apps/server/scripts/eval/retrieval-replay.ts`
 
 **Interfaces:**
+
 - Consumes: `applyAnchoring` from `./anchoring/apply-anchoring`、`loadRegistry` from `./anchoring/anchor-registry`。
 - Produces: 评测脚本支持 `--anchor <off|rewrite|filter>`（默认 `off`）。
 
@@ -622,8 +659,7 @@ git commit -m "feat(@sinopec-kb/server): ✨ add applyAnchoring orchestrator (of
 
 - [ ] **Step 1: 读取集成点**
 
-Run: `sed -n '70,222p' apps/server/scripts/eval/retrieval-replay.ts`（记下参数解析与逐题检索循环的确切行号）。
-另读 `retrieval-replay.lib.ts` 确认 `buildReplayBody` 的入参（question / document_ids 字段名）。
+Run: `sed -n '70,222p' apps/server/scripts/eval/retrieval-replay.ts`（记下参数解析与逐题检索循环的确切行号）。另读 `retrieval-replay.lib.ts` 确认 `buildReplayBody` 的入参（question / document_ids 字段名）。
 
 - [ ] **Step 2: 加 import 与参数解析**
 
@@ -671,23 +707,23 @@ const datasetDocs: { id: string; name: string }[] =
 在构建每题检索 body 前：
 
 ```typescript
-const anchored = applyAnchoring(row.question, registry, datasetDocs, anchorMode);
+const anchored = applyAnchoring(
+  row.question,
+  registry,
+  datasetDocs,
+  anchorMode,
+);
 // 用 anchored.question 替换原 question 喂给 buildReplayBody；
 // anchored.documentIds 非空时塞进检索 body 的 document_ids 字段。
 ```
 
-并在该题的 replay.md section 头部追加一行标注：
-`anchor: <projectName|none>  mode: <mode>  rewritten: <anchored.question>`。
+并在该题的 replay.md section 头部追加一行标注： `anchor: <projectName|none>  mode: <mode>  rewritten: <anchored.question>`。
 
 > `fetchDatasetDocs` 若脚本未现成：用已存在的 `api<T>()` 仿 `apps/server/src/modules/knowledge-base/knowledge-base.service.ts:611` 的 `listAllDatasetDocs` 分页（page_size 1000、按短页终止）拉 `GET /api/v1/datasets/{id}/documents` 的 `{ docs: { id, name }[] }`，映射成 `{ id, name }`。多 datasetId 时拉全并 concat。
 
 - [ ] **Step 4: 编译检查 + 干跑验证**
 
-Run: `pnpm -F @sinopec-kb/server exec tsc --noEmit -p tsconfig.json`（确认无类型错误）。
-Run（基线，确认未回归）: `cd apps/server && dotenvx run --env-file=.env.eval -- tsx scripts/eval/retrieval-replay.ts --config scripts/eval/configs/<现有cfg>.json --ids 14 --k 30`
-Expected: 正常产出 replay.md，section 头出现 `anchor: none  mode: off`。
-Run（改写）: 同上加 `--anchor rewrite`
-Expected: Q14 section 头 `anchor: 顺北43  mode: rewrite  rewritten: 顺北43 ...`，改写 query 生效。
+Run: `pnpm -F @sinopec-kb/server exec tsc --noEmit -p tsconfig.json`（确认无类型错误）。Run（基线，确认未回归）: `cd apps/server && dotenvx run --env-file=.env.eval -- tsx scripts/eval/retrieval-replay.ts --config scripts/eval/configs/<现有cfg>.json --ids 14 --k 30` Expected: 正常产出 replay.md，section 头出现 `anchor: none  mode: off`。Run（改写）: 同上加 `--anchor rewrite` Expected: Q14 section 头 `anchor: 顺北43  mode: rewrite  rewritten: 顺北43 ...`，改写 query 生效。
 
 - [ ] **Step 5: 提交**
 
@@ -719,6 +755,7 @@ git commit -m "feat(@sinopec-kb/server): ✨ wire --anchor off/rewrite/filter in
 ## Self-Review
 
 **Spec coverage:**
+
 - §3.1 anchor-registry → Task 1 ✅（zod 改手写校验，Global Constraints 已注明偏离）
 - §3.2 detectAnchor → Task 2 ✅
 - §3.3 anchorQuery → Task 3 ✅
