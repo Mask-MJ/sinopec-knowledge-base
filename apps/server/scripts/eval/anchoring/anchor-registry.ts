@@ -6,7 +6,7 @@ export interface ProjectAnchor {
 
 function assertStringArray(value: unknown, where: string): string[] {
   if (!Array.isArray(value)) {
-    throw new Error(`${where} must be an array`);
+    throw new TypeError(`${where} must be an array`);
   }
   value.forEach((item, index) => {
     if (typeof item !== 'string' || item.length === 0) {
@@ -18,7 +18,7 @@ function assertStringArray(value: unknown, where: string): string[] {
 
 export function loadRegistry(raw: unknown): ProjectAnchor[] {
   if (!Array.isArray(raw)) {
-    throw new Error('anchor registry must be an array');
+    throw new TypeError('anchor registry must be an array');
   }
   return raw.map((item, index) => {
     const where = `anchor registry[${index}]`;

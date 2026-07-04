@@ -7,7 +7,7 @@ import { resolveDocumentIds } from './resolve-document-ids';
 export type AnchorMode = 'filter' | 'off' | 'rewrite';
 
 export interface AnchoredRetrieval {
-  anchor: ProjectAnchor | null;
+  anchor: null | ProjectAnchor;
   documentIds?: string[];
   question: string;
 }

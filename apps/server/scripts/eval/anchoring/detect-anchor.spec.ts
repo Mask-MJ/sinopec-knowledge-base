@@ -1,6 +1,6 @@
-import { describe, expect, it } from 'vitest';
-
 import type { ProjectAnchor } from './anchor-registry';
+
+import { describe, expect, it } from 'vitest';
 
 import { detectAnchor } from './detect-anchor';
 
