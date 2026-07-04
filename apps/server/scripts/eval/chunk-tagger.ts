@@ -13,20 +13,15 @@
 //   RAGFLOW_HOST       (e.g. http://100.64.0.4:9380)
 //   RAGFLOW_API_KEY
 
-import { readFileSync, writeFileSync } from 'node:fs';
+import { writeFileSync } from 'node:fs';
 import { resolve } from 'node:path';
 
-interface RegexPattern {
-  name: string;
-  pattern: string;
-  tags: string[];
-}
-
-interface CompiledRegex {
-  name: string;
-  re: RegExp;
-  tags: string[];
-}
+import {
+  inferProjectKeywords,
+  loadDict,
+  loadRegex,
+  matchChunk,
+} from '../../src/common/chunk-tagger/keyword-matcher';
 
 interface Chunk {
   chunk_id: string;
@@ -51,8 +46,16 @@ interface CliArgs {
 function parseArgs(argv: string[]): CliArgs {
   const defaults: CliArgs = {
     kb: '',
-    dictPath: resolve(__dirname, 'dataset', 'sinopec-concept-dict.csv'),
-    regexPath: resolve(__dirname, 'dataset', 'sinopec-regex-catalog.json'),
+    dictPath: resolve(
+      __dirname,
+      '../../src/common/chunk-tagger/dataset',
+      'sinopec-concept-dict.csv',
+    ),
+    regexPath: resolve(
+      __dirname,
+      '../../src/common/chunk-tagger/dataset',
+      'sinopec-regex-catalog.json',
+    ),
     maxKeywords: 30,
     concurrency: 5,
   };
@@ -132,56 +135,6 @@ async function api<T>(
   return j.data as T;
 }
 
-function loadDict(path: string): Map<string, string[]> {
-  const csv = readFileSync(path, 'utf8');
-  const lines = csv.split('\n').slice(1).filter(Boolean);
-  const map = new Map<string, string[]>();
-  for (const line of lines) {
-    const [term, tagStr] = line.split(',');
-    if (!term || !tagStr) continue;
-    map.set(
-      term.trim(),
-      tagStr
-        .split(';')
-        .map((t) => t.trim())
-        .filter(Boolean),
-    );
-  }
-  return map;
-}
-
-function loadRegex(path: string): CompiledRegex[] {
-  const arr = JSON.parse(readFileSync(path, 'utf8')) as RegexPattern[];
-  return arr.map((r) => ({
-    name: r.name,
-    re: new RegExp(r.pattern, 'g'),
-    tags: r.tags ?? [],
-  }));
-}
-
-function matchChunk(
-  text: string,
-  dict: Map<string, string[]>,
-  regexes: CompiledRegex[],
-  maxKeywords: number,
-): string[] {
-  const keywords = new Set<string>();
-  const tags = new Set<string>();
-  for (const [term, ts] of dict) {
-    if (text.includes(term)) {
-      keywords.add(term);
-      for (const t of ts) tags.add(t);
-    }
-  }
-  for (const { re, tags: rTags } of regexes) {
-    const matches = [...text.matchAll(re)].slice(0, 8);
-    if (matches.length === 0) continue;
-    for (const m of matches) keywords.add(m[0].trim());
-    for (const t of rTags) tags.add(t);
-  }
-  return [...keywords, ...tags].slice(0, maxKeywords);
-}
-
 async function processBatch<T>(
   items: T[],
   concurrency: number,
@@ -204,37 +157,6 @@ async function listDocs(kbId: string): Promise<DocSummary[]> {
     `/api/v1/datasets/${kbId}/documents?page_size=200`,
   );
   return Array.isArray(data) ? data : (data?.docs ?? []);
-}
-
-/**
- * 从 doc 文件名推断"归属项目"——返回应该被作为强制 important_keyword
- * 加到该 doc 所有 chunks 上的项目名（含同义/简称变体）。
- *
- * 这解决"chunk 文本没提项目名 → 被同语义但错项目的 chunk 抢检索"问题。
- * 例：方山新井 doc 的"浅表层"段落如果不显式说"方山新井"，会被张集东
- * 同主题段落超越，因为张集东 doc 该段描写更详细。
- */
-function inferProjectKeywords(docName: string): string[] {
-  const rules: Array<[RegExp, string[]]> = [
-    [/顺8井北/, ['顺8井北', '顺8井北三维']],
-    [/顺中二期|顺中2期/, ['顺中二期', '顺中2期']],
-    [/顺中(?!二期)/, ['顺中', '顺中三维', '顺中一期']],
-    [/顺北42井东?/, ['顺北42井东', '顺北42']],
-    [/顺北43井东?/, ['顺北43井东', '顺北43']],
-    [/顺北21井区?/, ['顺北21', '顺北21井区']],
-    [/帅垛西/, ['帅垛西', '帅垛西三维']],
-    [/史家堡|草舍/, ['史家堡', '草舍', '史家堡-草舍']],
-    [/永安/, ['永安', '永安三维']],
-    [/宿南/, ['宿南二维', '宿南']],
-    [/张集东/, ['张集东', '张集东三维']],
-    [/方山新井/, ['方山新井']],
-    [/中21井区?/, ['中21井区', '中21']],
-    [/页岩气|彭水/, ['页岩气', '彭水']],
-  ];
-  for (const [re, kws] of rules) {
-    if (re.test(docName)) return kws;
-  }
-  return [];
 }
 
 async function listChunks(docId: string): Promise<Chunk[]> {

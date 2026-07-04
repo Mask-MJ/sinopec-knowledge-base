@@ -6,6 +6,8 @@ import {
   Controller,
   Delete,
   Get,
+  HttpCode,
+  HttpStatus,
   Param,
   Patch,
   Post,
@@ -71,6 +73,19 @@ export class KnowledgeBaseController {
   // ─── Dataset CRUD ────────────────────────────────
 
   /**
+   * 管理员回填知识库存量文档的关键词 tag
+   */
+  @AutoPermission()
+  @HttpCode(HttpStatus.ACCEPTED)
+  @Post(':id/backfill-keywords')
+  backfillKeywords(
+    @Param('id') id: number,
+    @ActiveUser() user: ActiveUserData,
+  ) {
+    return this.knowledgeBaseService.backfillKeywords(id, user);
+  }
+
+  /**
    * 创建知识库
    */
   @ApiCreatedResponse({ type: KnowledgeBaseEntity })
@@ -120,6 +135,8 @@ export class KnowledgeBaseController {
     return this.knowledgeBaseService.findAllChunks(id, user, documentId, dto);
   }
 
+  // ─── Document Management ──────────────────────────
+
   /**
    * 获取知识库文件列表
    */
@@ -131,8 +148,6 @@ export class KnowledgeBaseController {
   ) {
     return this.knowledgeBaseService.findAllDocuments(id, user, dto);
   }
-
-  // ─── Document Management ──────────────────────────
 
   /**
    * 获取知识库详情
@@ -152,6 +167,18 @@ export class KnowledgeBaseController {
     @ActiveUser() user: ActiveUserData,
   ) {
     return this.knowledgeBaseService.getMetadataSummary(id, user);
+  }
+
+  /**
+   * 管理员查看知识库打 tag 待办状态
+   */
+  @AutoPermission()
+  @Get(':id/keyword-tag-status')
+  keywordTagStatus(
+    @Param('id') id: number,
+    @ActiveUser() user: ActiveUserData,
+  ) {
+    return this.knowledgeBaseService.keywordTagStatus(id, user);
   }
 
   /**
