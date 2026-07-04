@@ -1,5 +1,6 @@
 import { Module } from '@nestjs/common';
 
+import { ChunkTaggerModule } from '@/common/chunk-tagger/chunk-tagger.module';
 import { DocxPreprocessModule } from '@/common/docx-preprocess/docx-preprocess.module';
 import { RagflowModule } from '@/common/ragflow/ragflow.module';
 
@@ -8,7 +9,7 @@ import { KnowledgeBaseService } from './knowledge-base.service';
 import { LlmController } from './llm.controller';
 
 @Module({
-  imports: [RagflowModule, DocxPreprocessModule],
+  imports: [RagflowModule, DocxPreprocessModule, ChunkTaggerModule],
   controllers: [LlmController, KnowledgeBaseController],
   providers: [KnowledgeBaseService],
 })
