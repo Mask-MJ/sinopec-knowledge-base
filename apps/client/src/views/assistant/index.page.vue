@@ -46,6 +46,7 @@ const getData = async () => {
   try {
     const { data } = await getAssistantList({
       name: searchQuery.value,
+      pageSize: 1000,
     });
     assistantList.value = data?.list ?? [];
   } finally {
