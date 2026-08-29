@@ -23,6 +23,12 @@ import { ConfigService } from '@nestjs/config';
 
 import { PRISMA_SERVICE_TOKEN } from '@/common/database/prisma.extension';
 import { RagflowService } from '@/common/ragflow/ragflow.service';
+import {
+  assertCanShareAs,
+  buildVisibilityWhere,
+  canEditResource,
+  canViewResource,
+} from '@/modules/auth/authorization/resource-visibility';
 
 import { normalizeMessageReferences } from './normalize-reference';
 
@@ -103,16 +109,15 @@ export class AssistantService {
     dto: CreateCompletionsDto,
     res: Response,
   ) {
-    const assistant = await this.prisma.client.assistant.findUniqueOrThrow({
-      where: { id },
-    });
+    const assistant = await this.assertCanView(id, user);
 
     // 非流式模式：返回 JSON
     if (dto.stream === false) {
       const result = await this.ragflow.request(
         'POST',
-        `/api/v1/chats/${assistant.assistantId}/completions`,
+        '/api/v1/chat/completions',
         {
+          chat_id: assistant.assistantId,
           question: dto.question,
           stream: false,
           session_id: dto.sessionId,
@@ -125,8 +130,9 @@ export class AssistantService {
     // 流式模式：SSE
     const ragflowStream = await this.ragflow.requestStream(
       'POST',
-      `/api/v1/chats/${assistant.assistantId}/completions`,
+      '/api/v1/chat/completions',
       {
+        chat_id: assistant.assistantId,
         question: dto.question,
         stream: true,
         session_id: dto.sessionId,
@@ -162,6 +168,11 @@ export class AssistantService {
   }
 
   async create(user: ActiveUserData, dto: CreateAssistantDto) {
+    const userData = await this.prisma.client.user.findUniqueOrThrow({
+      where: { id: user.sub },
+    });
+    assertCanShareAs(userData, dto.permission, '助手');
+
     const modelName = dto.modelName || (await this.resolveDefaultModel());
     const hasKnowledgeBase = !!(dto.datasetIds && dto.datasetIds.length > 0);
     const prompt =
@@ -224,6 +235,8 @@ export class AssistantService {
           opener,
           prompt,
           datasetIds: dto.datasetIds ?? [],
+          deptId: dto.permission === 'team' ? userData.deptId : null,
+          permission: dto.permission ?? 'me',
           userId: user.sub,
         },
       });
@@ -297,9 +310,7 @@ export class AssistantService {
   }
 
   async createSession(id: number, user: ActiveUserData, dto: CreateSessionDto) {
-    const assistant = await this.prisma.client.assistant.findUniqueOrThrow({
-      where: { id },
-    });
+    const assistant = await this.assertCanView(id, user);
 
     return this.ragflow.request(
       'POST',
@@ -317,12 +328,10 @@ export class AssistantService {
       where: { id: user.sub },
     });
 
-    const where = userData.isAdmin
-      ? { name: { contains: name, mode: 'insensitive' as const } }
-      : {
-          name: { contains: name, mode: 'insensitive' as const },
-          userId: user.sub,
-        };
+    const where = {
+      name: { contains: name, mode: 'insensitive' as const },
+      ...buildVisibilityWhere(userData, { userId: user.sub }),
+    };
 
     const [list, meta] = await this.prisma.client.assistant
       .paginate({ where })
@@ -336,9 +345,7 @@ export class AssistantService {
     user: ActiveUserData,
     dto: QuerySessionDto,
   ) {
-    const assistant = await this.prisma.client.assistant.findUniqueOrThrow({
-      where: { id },
-    });
+    const assistant = await this.assertCanView(id, user);
 
     const sessions = await this.ragflow.request<RagflowSessionRaw[]>(
       'GET',
@@ -358,11 +365,11 @@ export class AssistantService {
   }
 
   async findOne(id: number, user: ActiveUserData) {
-    return this.assertOwnership(id, user);
+    return this.assertCanView(id, user);
   }
 
   async remove(id: number, user: ActiveUserData) {
-    const assistant = await this.assertOwnership(id, user);
+    const assistant = await this.assertCanEdit(id, user);
 
     // DB-first
     const deleted = await this.prisma.client.assistant.delete({
@@ -386,7 +393,7 @@ export class AssistantService {
   }
 
   async removeSession(id: number, user: ActiveUserData, sessionId: string) {
-    const assistant = await this.assertOwnership(id, user);
+    const assistant = await this.assertCanEdit(id, user);
 
     return this.ragflow.request(
       'DELETE',
@@ -396,7 +403,22 @@ export class AssistantService {
   }
 
   async update(user: ActiveUserData, id: number, dto: UpdateAssistantDto) {
-    const assistant = await this.assertOwnership(id, user);
+    const assistant = await this.assertCanEdit(id, user);
+
+    // 变更共享档位时同步 deptId，避免留下 deptId=null 的「团队助手」
+    let permissionPatch:
+      | undefined
+      | { deptId: null | number; permission: string };
+    if (dto.permission !== undefined) {
+      const userData = await this.prisma.client.user.findUniqueOrThrow({
+        where: { id: user.sub },
+      });
+      assertCanShareAs(userData, dto.permission, '助手');
+      permissionPatch = {
+        deptId: dto.permission === 'team' ? userData.deptId : null,
+        permission: dto.permission,
+      };
+    }
 
     // DB-first
     const updated = await this.prisma.client.assistant.update({
@@ -419,6 +441,7 @@ export class AssistantService {
         opener: dto.opener,
         prompt: dto.prompt,
         datasetIds: dto.datasetIds,
+        ...permissionPatch,
       },
     });
 
@@ -483,13 +506,16 @@ export class AssistantService {
     return updated;
   }
 
-  async updateSession(id: number, sessionId: string, dto: UpdateSessionDto) {
-    const assistant = await this.prisma.client.assistant.findUniqueOrThrow({
-      where: { id },
-    });
+  async updateSession(
+    id: number,
+    user: ActiveUserData,
+    sessionId: string,
+    dto: UpdateSessionDto,
+  ) {
+    const assistant = await this.assertCanView(id, user);
 
     await this.ragflow.request(
-      'PUT',
+      'PATCH',
       `/api/v1/chats/${assistant.assistantId}/sessions/${sessionId}`,
       { name: dto.name },
     );
@@ -497,18 +523,32 @@ export class AssistantService {
     return { message: '更新会话成功' };
   }
 
-  private async assertOwnership(id: number, user: ActiveUserData) {
+  /** 写入类操作：共享只放宽读，改 / 删仅创建者与 admin。 */
+  private async assertCanEdit(id: number, user: ActiveUserData) {
+    const { assistant, isOwner, userData } = await this.loadForAccess(id, user);
+    if (!canEditResource(userData, isOwner)) {
+      throw new ForbiddenException('无权操作此助手');
+    }
+    return assistant;
+  }
+
+  /** 读取 / 使用类操作：创建者、admin 及通过共享可见的用户都放行。 */
+  private async assertCanView(id: number, user: ActiveUserData) {
+    const { assistant, isOwner, userData } = await this.loadForAccess(id, user);
+    if (!canViewResource(assistant, userData, isOwner)) {
+      throw new ForbiddenException('无权访问此助手');
+    }
+    return assistant;
+  }
+
+  private async loadForAccess(id: number, user: ActiveUserData) {
     const assistant = await this.prisma.client.assistant.findUniqueOrThrow({
       where: { id },
     });
     const userData = await this.prisma.client.user.findUniqueOrThrow({
       where: { id: user.sub },
     });
-    if (userData.isAdmin) return assistant;
-    if (assistant.userId !== user.sub) {
-      throw new ForbiddenException('无权操作此助手');
-    }
-    return assistant;
+    return { assistant, isOwner: assistant.userId === user.sub, userData };
   }
 
   /**

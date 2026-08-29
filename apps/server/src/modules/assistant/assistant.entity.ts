@@ -13,6 +13,9 @@ export class AssistantEntity implements Assistant {
   /** RAGFlow 关联的数据集ID列表 */
   datasetIds: string[];
 
+  /** 所属部门ID（仅 permission="team" 时有意义） */
+  deptId: null | number;
+
   /** 助手描述 */
   description: null | string;
 
@@ -42,6 +45,9 @@ export class AssistantEntity implements Assistant {
 
   /** 开场问候语 */
   opener: null | string;
+
+  /** 访问权限：me 仅自己 / team 本部门 / public 全公司 */
+  permission: string;
 
   /** 存在惩罚 */
   presencePenalty: number;

@@ -46,7 +46,45 @@ describe('assistantService.findAllSessions', () => {
     prisma.client.assistant.findUniqueOrThrow.mockResolvedValue({
       id: 1,
       assistantId: 'rf-1',
+      deptId: null,
+      permission: 'me',
+      userId: 1,
     });
+    prisma.client.user.findUniqueOrThrow.mockResolvedValue({
+      deptId: null,
+      id: 1,
+      isAdmin: false,
+    });
+  });
+
+  it('拒绝非创建者读取私有助手的会话（此前该入口无任何权限校验）', async () => {
+    prisma.client.assistant.findUniqueOrThrow.mockResolvedValue({
+      id: 1,
+      assistantId: 'rf-1',
+      deptId: null,
+      permission: 'me',
+      userId: 99,
+    });
+
+    await expect(
+      service.findAllSessions(1, createMockActiveUser(), {}),
+    ).rejects.toThrow(/无权访问此助手/);
+    expect(ragflow.request).not.toHaveBeenCalled();
+  });
+
+  it('public 助手允许非创建者使用', async () => {
+    prisma.client.assistant.findUniqueOrThrow.mockResolvedValue({
+      id: 1,
+      assistantId: 'rf-1',
+      deptId: null,
+      permission: 'public',
+      userId: 99,
+    });
+    ragflow.request.mockResolvedValue([]);
+
+    await expect(
+      service.findAllSessions(1, createMockActiveUser(), {}),
+    ).resolves.toEqual([]);
   });
 
   it('shifts ragflow off-by-one reference: chunks misplaced on opener get assigned to a1, doc_aggs derived', async () => {

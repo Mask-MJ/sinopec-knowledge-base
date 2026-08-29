@@ -127,6 +127,8 @@ export interface components {
             createdAt: string;
             /** @description RAGFlow 关联的数据集ID列表 */
             datasetIds: string[];
+            /** @description 所属部门ID（仅 permission="team" 时有意义） */
+            deptId: number | null;
             /** @description 助手描述 */
             description: string | null;
             /** @description 空响应返回内容 */
@@ -147,6 +149,8 @@ export interface components {
             name: string;
             /** @description 开场问候语 */
             opener: string | null;
+            /** @description 访问权限：me 仅自己 / team 本部门 / public 全公司 */
+            permission: string;
             /** @description 存在惩罚 */
             presencePenalty: number;
             /** @description 提示词模板 */
@@ -223,6 +227,12 @@ export interface components {
              * @example 你好，我是你的助手。
              */
             opener?: string;
+            /**
+             * @description 助手访问权限：me 仅自己 / team 本部门 / public 全公司
+             * @example me
+             * @enum {string}
+             */
+            permission?: "me" | "team" | "public";
             /**
              * @description 存在惩罚
              * @example 0.4
@@ -414,6 +424,12 @@ export interface components {
              * @example 你好，我是你的助手。
              */
             opener?: string;
+            /**
+             * @description 助手访问权限：me 仅自己 / team 本部门 / public 全公司
+             * @example me
+             * @enum {string}
+             */
+            permission?: "me" | "team" | "public";
             /**
              * @description 存在惩罚
              * @example 0.4

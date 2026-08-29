@@ -30,5 +30,5 @@ model KnowledgeBase {
   updatedAt      DateTime @updatedAt
   /// 所属部门ID
   deptId         Int?
-  dept           Dept?    @relation(fields: [deptId], references: [id], onDelete: Cascade)
+  dept           Dept?    @relation(fields: [deptId], references: [id], onDelete: SetNull)
 }

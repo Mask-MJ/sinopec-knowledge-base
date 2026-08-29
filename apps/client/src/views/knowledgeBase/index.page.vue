@@ -203,6 +203,10 @@ onMounted(async () => {
               label: $t('page.knowledgeBase.permission.team'),
               value: 'team',
             },
+            {
+              label: $t('page.knowledgeBase.permission.public'),
+              value: 'public',
+            },
           ],
         }"
       />

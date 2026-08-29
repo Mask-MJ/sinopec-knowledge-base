@@ -1,4 +1,7 @@
+import type { ResourcePermission } from '@/modules/auth/authorization/resource-visibility';
+
 import {
+  ApiProperty,
   IntersectionType,
   OmitType,
   PartialType,
@@ -16,6 +19,7 @@ import {
 } from 'class-validator';
 
 import { PaginateDto } from '@/common/dto/base.dto';
+import { RESOURCE_PERMISSIONS } from '@/modules/auth/authorization/resource-visibility';
 
 // ─── Dataset DTO ─────────────────────────────────
 
@@ -82,9 +86,10 @@ export class CreateKnowledgeBaseDto {
    * 权限标识
    * @example 'me'
    */
-  @IsIn(['me', 'team'])
+  @ApiProperty({ enum: RESOURCE_PERMISSIONS, required: false })
+  @IsIn(RESOURCE_PERMISSIONS)
   @IsOptional()
-  permission?: 'me' | 'team';
+  permission?: ResourcePermission;
 }
 
 export class QueryKnowledgeBaseDto extends IntersectionType(

@@ -166,9 +166,10 @@ export class AssistantController {
   @Patch(':id/sessions/:sessionId')
   updateSession(
     @Param('id') id: number,
+    @ActiveUser() user: ActiveUserData,
     @Param('sessionId') sessionId: string,
     @Body() dto: UpdateSessionDto,
   ) {
-    return this.assistantService.updateSession(id, sessionId, dto);
+    return this.assistantService.updateSession(id, user, sessionId, dto);
   }
 }

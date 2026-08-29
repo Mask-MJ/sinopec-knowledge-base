@@ -44,6 +44,11 @@ model Assistant {
   createdAt                DateTime @default(now())
   /// 更新时间
   updatedAt                DateTime @updatedAt
+  /// 助手访问权限 "me" | "team" | "public"
+  permission               String   @default("me")
+  /// 所属部门ID（仅 permission="team" 时有意义）
+  deptId                   Int?
+  dept                     Dept?    @relation(fields: [deptId], references: [id], onDelete: SetNull)
   /// 所属用户ID
   userId                   Int
   user                     User     @relation(fields: [userId], references: [id], onDelete: Cascade)

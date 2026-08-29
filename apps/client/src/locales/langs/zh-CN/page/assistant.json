@@ -3,6 +3,12 @@
   "editAssistant": "聊天设置",
   "addAssistant": "新建助手",
   "name": "助手名称",
+  "permission": {
+    "title": "权限",
+    "me": "个人",
+    "team": "部门",
+    "public": "全公司"
+  },
   "model": "聊天模型",
   "description": "助手描述",
   "empty_response": "空响应",

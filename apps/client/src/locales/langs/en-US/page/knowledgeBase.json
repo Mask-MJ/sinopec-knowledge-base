@@ -20,7 +20,8 @@
   "permission": {
     "title": "Permission",
     "me": "Personal",
-    "team": "Team"
+    "team": "Team",
+    "public": "Company-wide"
   },
   "chunk_method": {
     "title": "Chunk Method"
