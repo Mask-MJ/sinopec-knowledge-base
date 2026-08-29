@@ -166,7 +166,9 @@ export function useChat(
         updateAssistantMessage({
           loading: false,
           thinkingStatus: 'end',
-          reference: ref ? (structuredClone(toRaw(ref)) as Reference) : undefined,
+          reference: ref
+            ? (structuredClone(toRaw(ref)) as Reference)
+            : undefined,
         });
       }
       activeAssistantIndex = -1;
