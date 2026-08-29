@@ -32,6 +32,16 @@ export interface RagflowLlmItem {
   tags?: string;
 }
 
+/** RAGFlow 0.26 `GET /api/v1/models` 返回的模型项 */
+export interface RagflowModelItem {
+  instance_id: string;
+  instance_name: string;
+  model_type: string[];
+  name: string;
+  provider_id: string;
+  provider_name: string;
+}
+
 /** RAGFlow 健康检查响应 */
 interface HealthStatus {
   db: string;
@@ -39,6 +49,31 @@ interface HealthStatus {
   redis: string;
   status: string;
   storage: string;
+}
+
+/**
+ * 把 `GET /api/v1/models` 的 provider/instance 模型项摊平成 RagflowLlmItem。
+ *
+ * `fid` 拼进模型引用（`<llm_name>@<fid>`）。RAGFlow 解析引用时右对齐取字段：
+ * 两段 `model@provider` 会把 instance 名当成 `default`，而实例真名不是
+ * `default` 时它抛 `LookupError: Instance default not found`（源码虽有
+ * 「provider 下仅一个 active 实例就回退」的分支，实测并未生效）。
+ * 因此带出实例名拼成三段 `model@instance@provider`，不依赖那个回退。
+ * 老实例没有 instance_name 时退回两段，保持兼容。
+ */
+export function toLlmItems(models: RagflowModelItem[]): RagflowLlmItem[] {
+  return models.flatMap((model) =>
+    (model.model_type ?? []).map((type) => ({
+      // 能出现在该接口里的模型都是租户已挂载的，视为可用
+      available: true,
+      fid: model.instance_name
+        ? `${model.instance_name}@${model.provider_name}`
+        : model.provider_name,
+      llm_name: model.name,
+      model_type: type,
+      status: '1',
+    })),
+  );
 }
 
 @Injectable()
@@ -106,15 +141,18 @@ export class RagflowService {
 
   /**
    * 获取已配置的 LLM 模型列表
-   * 调用 RAGFlow 内部接口 GET /v1/llm/list
-   * 返回按 provider 分组的模型列表，每个模型包含 llm_name / model_type / fid 等字段
+   *
+   * RAGFlow 0.26 起模型改由 provider/instance 机制管理，旧的 `GET /v1/llm/list`
+   * 读的是 `tenant_llm` 表、在新机制下恒为空，因此改用 `GET /api/v1/models`。
+   * 新接口返回扁平数组且 `model_type` 是数组（一个模型可同时是 chat 和 image2text），
+   * 这里按 type 展开成每类一条，保持 RagflowLlmItem 的既有形状不变。
    */
   async getLlmList(): Promise<RagflowLlmItem[]> {
     this.ensureConfigured();
-    const url = `${this.host}/v1/llm/list`;
+    const url = `${this.host}/api/v1/models`;
     try {
       const response = await this.httpService.axiosRef.get<
-        RagflowResponse<Record<string, RagflowLlmItem[]>>
+        RagflowResponse<RagflowModelItem[]>
       >(url, {
         headers: this.getHeaders(),
         timeout: 10_000,
@@ -127,8 +165,7 @@ export class RagflowService {
         );
       }
 
-      const grouped = response.data.data;
-      return Object.values(grouped).flat();
+      return toLlmItems(response.data.data ?? []);
     } catch (error) {
       if (
         error instanceof BadRequestException ||
@@ -147,7 +184,7 @@ export class RagflowService {
    * 健康检查
    */
   async healthCheck(): Promise<HealthStatus> {
-    const url = `${this.host}/v1/system/healthz`;
+    const url = `${this.host}/api/v1/system/healthz`;
     try {
       const response = await this.httpService.axiosRef.get<HealthStatus>(url, {
         timeout: 5000,
