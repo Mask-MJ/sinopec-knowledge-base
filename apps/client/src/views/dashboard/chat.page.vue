@@ -1,25 +1,36 @@
 <script setup lang="ts">
+import type { AssistantInfo } from '@/api/assistant';
+
+import { getAssistantList, getOrCreateGeneralAssistant } from '@/api/assistant';
 import ChatPanel from '@/components/chat/ChatPanel.vue';
 import ChatSidebar from '@/components/chat/ChatSidebar.vue';
 
-// 通用聊天的模型选项 = 后端预建的全局助手记录 id（每个助手的 RAGFlow chat
-// 绑定不同的 llm_id，切换下拉即切换后端助手 → 切换模型）。
-// ponytail: 写死全局助手 id，沿用线上既有做法。普通用户的 findAll 只返回自己的
-//   助手，取不到这些全局共享助手，所以无法动态拉列表，只能写死。
-//   新增一个模型 = 后端建一条助手记录后，把 { label, value: 新id } 加到这里。
-const REPORT_AGENT_ASSISTANT_ID = 12; // kb 库「agent」助手 id（RAGFlow chat 绑定 production-report-agent）
-
-const MODEL_OPTIONS = [
-  { label: 'DeepSeek', value: 1 },
-  { label: '长城大模型', value: 2 },
-  { label: 'agent', value: REPORT_AGENT_ASSISTANT_ID },
-].filter((o) => o.value > 0); // 未配置（id<=0）的选项不渲染，避免选中后 500
-
-const assistantId = ref<number>(MODEL_OPTIONS[0]?.value ?? 0);
+// 通用聊天的可选助手 = 当前用户可见的助手列表（每个助手的 RAGFlow chat 绑定不同
+// llm_id，切换下拉即切换后端助手 → 切换模型）。
+// 全新环境里 Assistant 表是空的，此时用 POST /assistant/general 幂等创建一个通用
+// 助手兜底，避免页面因拿不到助手 id 而直接 404 打不开。
+const assistantOptions = ref<{ label: string; value: number }[]>([]);
+const assistantId = ref(0);
 const activeId = ref<string>();
 
 const sidebarRef = ref<InstanceType<typeof ChatSidebar> | null>(null);
 const activeSession = computed(() => sidebarRef.value?.activeSession);
+
+onMounted(async () => {
+  const { data } = await getAssistantList({ pageSize: 1000 });
+  let list: AssistantInfo[] = data?.list ?? [];
+
+  if (list.length === 0) {
+    const { data: general } = await getOrCreateGeneralAssistant();
+    if (general) list = [general];
+  }
+
+  assistantOptions.value = list.map(({ id, name }) => ({
+    label: name,
+    value: id,
+  }));
+  assistantId.value = assistantOptions.value[0]?.value ?? 0;
+});
 </script>
 
 <template>
@@ -45,7 +56,7 @@ const activeSession = computed(() => sidebarRef.value?.activeSession);
             v-model:value="assistantId"
             class="w-36"
             size="small"
-            :options="MODEL_OPTIONS"
+            :options="assistantOptions"
           />
         </div>
 
