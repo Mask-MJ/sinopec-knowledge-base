@@ -131,9 +131,18 @@ export function useChat(
   }
 
   // Watch SSE stream content changes
-  watch(sseStream.content, (text) => {
-    if (activeAssistantIndex < 0 || !text) return;
-    const [reasoning, content, isThinking] = parseThinkContent(text);
+  //
+  // RAGFlow 0.26 起，推理模型的思考由 start_to_think / end_to_think 标记事件划分，
+  // useSSEStream 已按标记把它分流到 reasoning。仍保留 parseThinkContent，用于
+  // 兼容以 `<think>` 文本形式返回思考的情况（旧版本 / legacy 流式模式）。
+  watch([sseStream.content, sseStream.reasoning], ([text, streamReasoning]) => {
+    if (activeAssistantIndex < 0) return;
+    if (!text && !streamReasoning) return;
+    const [inlineReasoning, content, isInlineThinking] =
+      parseThinkContent(text);
+    const reasoning = streamReasoning || inlineReasoning;
+    // 思考已开始但正文还没出来 = 仍在思考
+    const isThinking = isInlineThinking || (!!reasoning && !content);
     let thinkingStatus: 'end' | 'start' | 'thinking' = 'start';
     if (isThinking) thinkingStatus = 'thinking';
     else if (reasoning) thinkingStatus = 'end';

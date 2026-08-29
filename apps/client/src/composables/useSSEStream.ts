@@ -31,9 +31,14 @@ export interface Reference {
  * RAGFlow SSE format:
  *   data: {"data":{"answer":"text chunk", "reference": {...}}}
  *   data: {"data":true}   ← stream end signal
+ *
+ * 推理模型（DeepSeek 等）的思考过程由 `start_to_think` / `end_to_think` 两个标记
+ * 事件包裹（RAGFlow 0.26 起改用结构化标记，不再是 `<think>` 文本）。两个标记之间
+ * 的 answer 属于思考、不是答案，分流到 `reasoning`，否则整段推理独白会混进正文。
  */
 export function useSSEStream() {
   const content = ref('');
+  const reasoning = ref('');
   const isStreaming = ref(false);
   const error = ref<null | string>(null);
   const reference = ref<null | Reference>(null);
@@ -42,6 +47,7 @@ export function useSSEStream() {
 
   function reset() {
     content.value = '';
+    reasoning.value = '';
     error.value = null;
     reference.value = null;
   }
@@ -61,6 +67,7 @@ export function useSSEStream() {
     const reader = stream.getReader();
 
     let buffer = '';
+    let inThinking = false;
 
     /** Returns true when the stream-end sentinel `data:true` is seen. */
     const processLine = (line: string): boolean => {
@@ -70,18 +77,29 @@ export function useSSEStream() {
       if (!raw) return false;
       try {
         const parsed = JSON.parse(raw) as {
-          data: true | { answer: string; reference?: Record<string, unknown> };
+          data:
+            | true
+            | {
+                answer: string;
+                end_to_think?: boolean;
+                reference?: Record<string, unknown>;
+                start_to_think?: boolean;
+              };
         };
         if (parsed.data === true) {
           isStreaming.value = false;
           return true;
         }
         if (typeof parsed.data === 'object') {
+          // 标记事件自身的 answer 为空串，先切状态再分流即可。
+          if (parsed.data.start_to_think) inThinking = true;
+          if (parsed.data.end_to_think) inThinking = false;
           if ('answer' in parsed.data) {
             const answer = parsed.data.answer;
+            const target = inThinking ? reasoning : content;
             // RAGFlow may send accumulated text or delta text.
-            if (answer.startsWith(content.value)) content.value = answer;
-            else content.value += answer;
+            if (answer.startsWith(target.value)) target.value = answer;
+            else target.value += answer;
           }
           const ref = parsed.data.reference;
           if (
@@ -138,6 +156,7 @@ export function useSSEStream() {
 
   return {
     content: readonly(content),
+    reasoning: readonly(reasoning),
     isStreaming: readonly(isStreaming),
     error: readonly(error),
     reference: readonly(reference),
