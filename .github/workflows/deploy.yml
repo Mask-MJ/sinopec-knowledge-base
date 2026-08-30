@@ -13,7 +13,9 @@ name: Deploy
 
 on:
   push:
-    branches: [main]
+    # workflow_dispatch 只对默认分支上的 workflow 定义生效，这个分支合进 main
+    # 之前手动触发不可用，先靠 push 触发；合并后可把此分支从列表里去掉。
+    branches: [main, fix/assistant-list-pagesize]
   workflow_dispatch:
     inputs:
       ref:
@@ -57,6 +59,8 @@ jobs:
           DEPLOY_HOST: ${{ secrets.DEPLOY_HOST }}
           DEPLOY_USER: ${{ secrets.DEPLOY_USER }}
           DEPLOY_SSH_KEY: ${{ secrets.DEPLOY_SSH_KEY }}
+          GHCR_ACTOR: ${{ github.actor }}
+          GHCR_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           set -euo pipefail
           mkdir -p ~/.ssh
@@ -65,9 +69,17 @@ jobs:
 
           ssh -i ~/.ssh/deploy_key -o StrictHostKeyChecking=accept-new \
               -o ConnectTimeout=15 "$DEPLOY_USER@$DEPLOY_HOST" \
-              bash -euo pipefail -s -- "$IMAGE_LC" "${{ github.sha }}" <<'REMOTE'
+              bash -euo pipefail -s -- "$IMAGE_LC" "${{ github.sha }}" \
+                                      "$GHCR_ACTOR" "$GHCR_TOKEN" <<'REMOTE'
           IMAGE_LC="$1"
           SHA="$2"
+          ACTOR="$3"
+          TOKEN="$4"
+
+          # package 首次推送后默认 private，需登录才能 pull。用的是 job 级
+          # GITHUB_TOKEN，job 结束即失效；用完立刻 logout。
+          trap 'docker logout ghcr.io >/dev/null 2>&1 || true' EXIT
+          echo "$TOKEN" | docker login ghcr.io -u "$ACTOR" --password-stdin
 
           # 留回滚点：现役镜像另打一个 tag，健康检查失败时切回去
           docker tag sinopec-kb-app:latest sinopec-kb-app:rollback 2>/dev/null || true
