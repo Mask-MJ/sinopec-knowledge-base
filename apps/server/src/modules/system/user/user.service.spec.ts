@@ -8,6 +8,7 @@ import { vi } from 'vitest';
 import { PRISMA_SERVICE_TOKEN } from '@/common/database/prisma.extension';
 import { HashingService } from '@/common/hashing';
 import { MinioService } from '@/common/minio/minio.service';
+import { AssistantService } from '@/modules/assistant/assistant.service';
 import { ActiveUserData } from '@/modules/auth/interfaces/active-user-data.interface';
 
 import { CreateUserDto, QueryUserDto, UpdateUserDto } from './user.dto';
@@ -55,6 +56,11 @@ describe('userService', () => {
     getUrl: vi.fn().mockResolvedValue('http://minio/avatar.jpg'),
   };
 
+  // UserService.create 建完用户后会给他建一个通用助手（失败只记日志，不影响主流程）
+  const mockAssistantService = {
+    createGeneral: vi.fn(),
+  };
+
   const mockPaginate = {
     withPages: vi.fn().mockResolvedValue([[], { total: 0 }]),
   };
@@ -78,6 +84,10 @@ describe('userService', () => {
         {
           provide: MinioService,
           useValue: mockMinioService,
+        },
+        {
+          provide: AssistantService,
+          useValue: mockAssistantService,
         },
       ],
     }).compile();
@@ -106,14 +116,32 @@ describe('userService', () => {
         roleIds: [1],
       };
 
+      const created = Object.assign({}, createUserDto, { id: 42 });
       mockPrismaService.client.user.findUnique.mockResolvedValue(null);
-      mockPrismaService.client.user.create.mockResolvedValue(createUserDto);
+      mockPrismaService.client.user.create.mockResolvedValue(created);
 
       const result = await service.create(createUserDto);
 
       expect(hashingService.hash).toHaveBeenCalledWith('password');
       expect(prismaService.client.user.create).toHaveBeenCalled();
-      expect(result).toEqual(createUserDto);
+      expect(mockAssistantService.createGeneral).toHaveBeenCalledWith(42);
+      expect(result).toEqual(created);
+    });
+
+    it('should still create the user if the general assistant fails', async () => {
+      const createUserDto: CreateUserDto = {
+        username: 'newuser',
+        password: 'password',
+        nickname: 'New User',
+      };
+      const created = Object.assign({}, createUserDto, { id: 43 });
+      mockPrismaService.client.user.findUnique.mockResolvedValue(null);
+      mockPrismaService.client.user.create.mockResolvedValue(created);
+      mockAssistantService.createGeneral.mockRejectedValueOnce(
+        new Error('ragflow down'),
+      );
+
+      await expect(service.create(createUserDto)).resolves.toEqual(created);
     });
 
     it('should throw ConflictException if user exists', async () => {
