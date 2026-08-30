@@ -387,6 +387,8 @@ describe('assistantService 会话归属（RAGFlow 0.27 起无法在其侧按用�
       unknown
     >;
     expect(params).not.toHaveProperty('user_id');
+    // RAGFlow 的 REST_API_MAX_PAGE_SIZE=100，超了它直接抛 ValueError
+    expect(params?.page_size as number).toBeLessThanOrEqual(100);
   });
 
   it('归属表上线前的会话回退给助手创建者，不凭空消失', async () => {

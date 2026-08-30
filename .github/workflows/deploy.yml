@@ -67,8 +67,13 @@ jobs:
           printf '%s\n' "$DEPLOY_SSH_KEY" > ~/.ssh/deploy_key
           chmod 600 ~/.ssh/deploy_key
 
+          # 首次 pull 是全量（约 1.5GB @1.3MB/s ≈ 20 分钟），期间 docker 的进度
+          # 输出会被缓冲、连接上长时间没数据，中间设备会把 SSH 掐断（实测
+          # Broken pipe）。ServerAlive 是协议层心跳，独立于数据流，30 分钟容忍。
           ssh -i ~/.ssh/deploy_key -o StrictHostKeyChecking=accept-new \
-              -o ConnectTimeout=15 "$DEPLOY_USER@$DEPLOY_HOST" \
+              -o ConnectTimeout=15 \
+              -o ServerAliveInterval=20 -o ServerAliveCountMax=90 \
+              "$DEPLOY_USER@$DEPLOY_HOST" \
               bash -euo pipefail -s -- "$IMAGE_LC" "${{ github.sha }}" \
                                       "$GHCR_ACTOR" "$GHCR_TOKEN" <<'REMOTE'
           IMAGE_LC="$1"

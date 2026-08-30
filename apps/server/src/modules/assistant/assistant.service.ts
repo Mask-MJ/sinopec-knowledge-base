@@ -71,8 +71,12 @@ export class AssistantService {
   ].join('\n');
 
   /** 关联知识库时的默认空回复 */
-  /** 单次从 RAGFlow 取回的会话上限，取回后本地按归属过滤。 */
-  private static readonly SESSION_FETCH_LIMIT = 200;
+  /**
+   * 单次从 RAGFlow 取回的会话上限，取回后本地按归属过滤。
+   * 不能超过 RAGFlow 的 REST_API_MAX_PAGE_SIZE(=100)，否则它直接抛
+   * `page_size must be less than or equal to 100`。
+   */
+  private static readonly SESSION_FETCH_LIMIT = 100;
 
   // ─── Completion (SSE 中间层) ──────────────────────
 
