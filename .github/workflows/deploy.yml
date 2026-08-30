@@ -11,11 +11,14 @@
 # 依赖控制：除 actions/checkout 外不使用任何第三方 action。
 name: Deploy
 
+# ⚠️ 暂不自动触发。链路本身已验证可用（构建 / 推送 / SSH / 健康检查 / 回滚
+# 都跑通，SSH keepalive 也顶住了 17 分钟不断线），但 registry 选错了：实测
+# GHCR 到目标机器只有 35KB/s（本机直传是 4.3MB/s），拉完一次要 6 小时，且
+# SSH 断开不会中断远程 docker pull，失败会留下吃带宽的孤儿进程。
+#
+# 启用前需要把 registry 换成与目标机器同区域的阿里云 ACR（走内网），改动为
+# IMAGE 地址与登录凭据两处；届时再把 push 触发加回来。
 on:
-  push:
-    # workflow_dispatch 只对默认分支上的 workflow 定义生效，这个分支合进 main
-    # 之前手动触发不可用，先靠 push 触发；合并后可把此分支从列表里去掉。
-    branches: [main, fix/assistant-list-pagesize]
   workflow_dispatch:
     inputs:
       ref:
