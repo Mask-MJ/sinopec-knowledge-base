@@ -1,24 +1,19 @@
-# 构建应用镜像推到 GHCR，再 SSH 到目标机器 pull 并重建容器。
+# 目标机器自行 git pull 并构建，runner 只当触发器。
 #
-# 为什么走 registry 而不是 docker save/load 直传：镜像 1.58GB，其中 node_modules
-# 层就占 851MB，而每次代码改动真正变化的只有十几 MB。save/load 不做增量、每次全量
-# 传输；registry 按层去重，目标机器只拉变化的层。那台机器公网带宽约 1.3MB/s，
-# 全量约 20 分钟、增量约 10 秒。
+# 为什么不在 runner 上构建再传镜像：镜像 1.58GB，其中 node_modules 层就占
+# 851MB，而每次代码改动真正变化的只有十几 MB。试过 GHCR，实测目标机器只有
+# 35KB/s（本机 tailnet 直传是 4.3MB/s），拉一次要 6 小时。
 #
-# 目标机器连不上 github.com（实测超时），所以不能用 self-hosted runner；
-# 但 ghcr.io 可达，因此由 runner 主动 SSH 过去触发 pull。
+# 目标机器拉代码只要几秒（部分克隆），且 docker 层缓存会让 pnpm install 在
+# 依赖未变时直接命中，只重新编译前后端。构建用 nice 降优先级，避免抢占同机
+# 运行的 RAGFlow / ES / MySQL。
 #
-# 依赖控制：除 actions/checkout 外不使用任何第三方 action。
+# 依赖控制：不使用任何第三方 action。
 name: Deploy
 
-# ⚠️ 暂不自动触发。链路本身已验证可用（构建 / 推送 / SSH / 健康检查 / 回滚
-# 都跑通，SSH keepalive 也顶住了 17 分钟不断线），但 registry 选错了：实测
-# GHCR 到目标机器只有 35KB/s（本机直传是 4.3MB/s），拉完一次要 6 小时，且
-# SSH 断开不会中断远程 docker pull，失败会留下吃带宽的孤儿进程。
-#
-# 启用前需要把 registry 换成与目标机器同区域的阿里云 ACR（走内网），改动为
-# IMAGE 地址与登录凭据两处；届时再把 push 触发加回来。
 on:
+  push:
+    branches: [main]
   workflow_dispatch:
     inputs:
       ref:
@@ -30,72 +25,43 @@ concurrency:
   group: deploy-${{ github.ref }}
   cancel-in-progress: false
 
-env:
-  IMAGE: ghcr.io/${{ github.repository_owner }}/sinopec-kb-app
-
 jobs:
   deploy:
     runs-on: ubuntu-latest
-    permissions:
-      contents: read
-      packages: write
+    timeout-minutes: 45
 
     steps:
-      - uses: actions/checkout@v4
-        with:
-          ref: ${{ github.event.inputs.ref || github.ref }}
-
-      - name: 构建并推送镜像
-        env:
-          GHCR_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: |
-          set -euo pipefail
-          IMAGE_LC=$(echo "$IMAGE" | tr '[:upper:]' '[:lower:]')
-          echo "IMAGE_LC=$IMAGE_LC" >> "$GITHUB_ENV"
-          echo "$GHCR_TOKEN" | docker login ghcr.io -u "${{ github.actor }}" --password-stdin
-          docker build -t "$IMAGE_LC:${{ github.sha }}" -t "$IMAGE_LC:latest" .
-          docker push "$IMAGE_LC:${{ github.sha }}"
-          docker push "$IMAGE_LC:latest"
-
       - name: 部署到目标机器
         env:
           DEPLOY_HOST: ${{ secrets.DEPLOY_HOST }}
           DEPLOY_USER: ${{ secrets.DEPLOY_USER }}
           DEPLOY_SSH_KEY: ${{ secrets.DEPLOY_SSH_KEY }}
-          GHCR_ACTOR: ${{ github.actor }}
-          GHCR_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          DEPLOY_REF: ${{ github.event.inputs.ref || 'main' }}
         run: |
           set -euo pipefail
           mkdir -p ~/.ssh
           printf '%s\n' "$DEPLOY_SSH_KEY" > ~/.ssh/deploy_key
           chmod 600 ~/.ssh/deploy_key
 
-          # 首次 pull 是全量（约 1.5GB @1.3MB/s ≈ 20 分钟），期间 docker 的进度
-          # 输出会被缓冲、连接上长时间没数据，中间设备会把 SSH 掐断（实测
-          # Broken pipe）。ServerAlive 是协议层心跳，独立于数据流，30 分钟容忍。
+          # 构建期间输出有间隔，ServerAlive 是协议层心跳，防中间设备掐断
           ssh -i ~/.ssh/deploy_key -o StrictHostKeyChecking=accept-new \
               -o ConnectTimeout=15 \
               -o ServerAliveInterval=20 -o ServerAliveCountMax=90 \
               "$DEPLOY_USER@$DEPLOY_HOST" \
-              bash -euo pipefail -s -- "$IMAGE_LC" "${{ github.sha }}" \
-                                      "$GHCR_ACTOR" "$GHCR_TOKEN" <<'REMOTE'
-          IMAGE_LC="$1"
-          SHA="$2"
-          ACTOR="$3"
-          TOKEN="$4"
+              bash -euo pipefail -s -- "$DEPLOY_REF" <<'REMOTE'
+          REF="$1"
+          cd /opt/sinopec-kb-src
 
-          # package 首次推送后默认 private，需登录才能 pull。用的是 job 级
-          # GITHUB_TOKEN，job 结束即失效；用完立刻 logout。
-          trap 'docker logout ghcr.io >/dev/null 2>&1 || true' EXIT
-          echo "$TOKEN" | docker login ghcr.io -u "$ACTOR" --password-stdin
+          git fetch --prune origin
+          git reset --hard "origin/$REF"
+          echo "已切到 $(git rev-parse --short HEAD) ($REF)"
 
           # 留回滚点：现役镜像另打一个 tag，健康检查失败时切回去
           docker tag sinopec-kb-app:latest sinopec-kb-app:rollback 2>/dev/null || true
 
-          docker pull "$IMAGE_LC:$SHA"
-          docker tag "$IMAGE_LC:$SHA" sinopec-kb-app:latest
+          # nice 降优先级：这台机器同时跑着 RAGFlow / ES / MySQL
+          nice -n 10 docker compose -p sinopec-kb build app
 
-          cd /opt/sinopec-kb
           docker compose -p sinopec-kb up -d app
 
           # entrypoint 会先跑 prisma migrate deploy 再启动，等 healthcheck 转绿
@@ -115,7 +81,7 @@ jobs:
             exit 1
           fi
 
-          echo "部署成功：$SHA"
+          echo "部署成功：$(git rev-parse --short HEAD)"
           docker image prune -f --filter 'until=168h' || true
           REMOTE
 
