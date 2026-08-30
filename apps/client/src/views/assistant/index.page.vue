@@ -165,6 +165,18 @@ watchEffect(() => {
     >
       <pro-input :title="$t('page.assistant.name')" path="name" required />
       <pro-select
+        :title="$t('page.assistant.permission.title')"
+        required
+        path="permission"
+        :field-props="{
+          options: [
+            { label: $t('page.assistant.permission.me'), value: 'me' },
+            { label: $t('page.assistant.permission.team'), value: 'team' },
+            { label: $t('page.assistant.permission.public'), value: 'public' },
+          ],
+        }"
+      />
+      <pro-select
         :title="$t('page.assistant.model')"
         path="modelName"
         :field-props="{

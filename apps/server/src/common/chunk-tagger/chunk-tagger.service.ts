@@ -73,7 +73,7 @@ export class ChunkTaggerService {
       }
       try {
         await this.ragflow.request(
-          'PUT',
+          'PATCH',
           `/api/v1/datasets/${datasetId}/documents/${docId}/chunks/${chunk.id}`,
           { important_keywords: kws },
         );
@@ -81,7 +81,7 @@ export class ChunkTaggerService {
       } catch (error) {
         result.failed++;
         this.logger.warn(
-          `PUT chunk ${chunk.id} 失败: ${error instanceof Error ? error.message : String(error)}`,
+          `PATCH chunk ${chunk.id} 失败: ${error instanceof Error ? error.message : String(error)}`,
         );
       }
     });

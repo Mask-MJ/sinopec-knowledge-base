@@ -32,6 +32,12 @@ import { DEFAULT_KB_PARSER_CONFIG } from '@/common/defaults/knowledge-base.defau
 import { DocxPreprocessService } from '@/common/docx-preprocess/docx-preprocess.service';
 import { RagflowService } from '@/common/ragflow/ragflow.service';
 import { sanitizeFilename } from '@/common/utils';
+import {
+  assertCanShareAs,
+  buildVisibilityWhere,
+  canEditResource,
+  canViewResource,
+} from '@/modules/auth/authorization/resource-visibility';
 
 @Injectable()
 export class KnowledgeBaseService {
@@ -52,7 +58,7 @@ export class KnowledgeBaseService {
     documentId: string,
     dto: AddChunkDto,
   ) {
-    const kb = await this.assertOwnership(id, user);
+    const kb = await this.assertCanEdit(id, user);
     const datasetId = this.requireDatasetId(kb);
 
     return this.ragflow.request(
@@ -97,13 +103,7 @@ export class KnowledgeBaseService {
       include: { dept: true },
     });
 
-    if (
-      dto.permission === 'team' &&
-      !userData.isAdmin &&
-      !userData.isDeptAdmin
-    ) {
-      throw new ForbiddenException('仅部门主管可创建部门公开知识库');
-    }
+    assertCanShareAs(userData, dto.permission, '知识库');
 
     const parserConfig = {
       ...DEFAULT_KB_PARSER_CONFIG,
@@ -118,7 +118,6 @@ export class KnowledgeBaseService {
         chunk_method: dto.chunkMethod,
         parser_config: parserConfig,
         description: dto.description,
-        permission: dto.permission,
         avatar: dto.avatar,
       },
     );
@@ -166,7 +165,7 @@ export class KnowledgeBaseService {
     user: ActiveUserData,
     documentId: string,
   ): Promise<StreamableFile> {
-    const kb = await this.assertOwnership(id, user);
+    const kb = await this.assertCanView(id, user);
     const datasetId = this.requireDatasetId(kb);
 
     const result = await this.ragflow.downloadFile(
@@ -191,24 +190,12 @@ export class KnowledgeBaseService {
     const { name, current, pageSize } = dto;
     const userData = await this.prisma.client.user.findUniqueOrThrow({
       where: { id: user.sub },
-      include: { dept: true },
     });
 
-    const nameFilter = {
+    const where = {
       name: { contains: name, mode: 'insensitive' as const },
+      ...buildVisibilityWhere(userData, { createBy: userData.username }),
     };
-
-    const where = userData.isAdmin
-      ? nameFilter
-      : {
-          ...nameFilter,
-          OR: [
-            { createBy: userData.username },
-            ...(userData.deptId
-              ? [{ deptId: userData.deptId, permission: 'team' }]
-              : []),
-          ],
-        };
 
     const [list, meta] = await this.prisma.client.knowledgeBase
       .paginate({ where, orderBy: { order: 'asc' } })
@@ -223,7 +210,7 @@ export class KnowledgeBaseService {
     documentId: string,
     dto: QueryChunkDto,
   ) {
-    const kb = await this.assertOwnership(id, user);
+    const kb = await this.assertCanView(id, user);
     const datasetId = this.requireDatasetId(kb);
 
     return this.ragflow.request(
@@ -243,7 +230,7 @@ export class KnowledgeBaseService {
     user: ActiveUserData,
     dto: QueryDocumentDto,
   ) {
-    const kb = await this.assertOwnership(id, user);
+    const kb = await this.assertCanView(id, user);
     const datasetId = this.requireDatasetId(kb);
 
     return this.ragflow.request(
@@ -258,11 +245,11 @@ export class KnowledgeBaseService {
   }
 
   async findOne(id: number, user: ActiveUserData) {
-    return this.assertOwnership(id, user);
+    return this.assertCanView(id, user);
   }
 
   async getMetadataSummary(id: number, user: ActiveUserData) {
-    const kb = await this.assertOwnership(id, user);
+    const kb = await this.assertCanView(id, user);
     const datasetId = this.requireDatasetId(kb);
 
     return this.ragflow.request(
@@ -293,7 +280,7 @@ export class KnowledgeBaseService {
     user: ActiveUserData,
     documentIds: string[],
   ) {
-    const kb = await this.assertOwnership(id, user);
+    const kb = await this.assertCanEdit(id, user);
     const datasetId = this.requireDatasetId(kb);
 
     const result = await this.ragflow.request(
@@ -313,7 +300,7 @@ export class KnowledgeBaseService {
   }
 
   async remove(id: number, user: ActiveUserData) {
-    const kb = await this.assertOwnership(id, user);
+    const kb = await this.assertCanEdit(id, user);
 
     // DB-first: 先删本地
     const deleted = await this.prisma.client.knowledgeBase.delete({
@@ -343,7 +330,7 @@ export class KnowledgeBaseService {
     documentId: string,
     dto: DeleteChunkDto,
   ) {
-    const kb = await this.assertOwnership(id, user);
+    const kb = await this.assertCanEdit(id, user);
     const datasetId = this.requireDatasetId(kb);
 
     return this.ragflow.request(
@@ -358,7 +345,7 @@ export class KnowledgeBaseService {
     user: ActiveUserData,
     documentIds: string[],
   ) {
-    const kb = await this.assertOwnership(id, user);
+    const kb = await this.assertCanEdit(id, user);
     const datasetId = this.requireDatasetId(kb);
 
     return this.ragflow.request(
@@ -380,20 +367,13 @@ export class KnowledgeBaseService {
       });
       const userData = await this.prisma.client.user.findUniqueOrThrow({
         where: { id: user.sub },
-        include: { dept: true },
       });
-      if (!userData.isAdmin) {
-        for (const kb of kbs) {
-          const isOwner = kb.createBy === user.username;
-          const isSameDept =
-            kb.permission === 'team' &&
-            kb.deptId !== null &&
-            kb.deptId === userData.deptId;
-          if (!isOwner && !isSameDept) {
-            throw new ForbiddenException(
-              `无权检索知识库 (datasetId: ${kb.datasetId})`,
-            );
-          }
+      for (const kb of kbs) {
+        const isOwner = kb.createBy === user.username;
+        if (!canViewResource(kb, userData, isOwner)) {
+          throw new ForbiddenException(
+            `无权检索知识库 (datasetId: ${kb.datasetId})`,
+          );
         }
       }
     }
@@ -417,7 +397,7 @@ export class KnowledgeBaseService {
     user: ActiveUserData,
     documentIds: string[],
   ) {
-    const kb = await this.assertOwnership(id, user);
+    const kb = await this.assertCanEdit(id, user);
     const datasetId = this.requireDatasetId(kb);
 
     return this.ragflow.request(
@@ -433,7 +413,7 @@ export class KnowledgeBaseService {
     documentId: string,
     status: string,
   ) {
-    const kb = await this.assertOwnership(id, user);
+    const kb = await this.assertCanEdit(id, user);
     const datasetId = this.requireDatasetId(kb);
 
     return this.ragflow.request(
@@ -444,15 +424,22 @@ export class KnowledgeBaseService {
   }
 
   async update(user: ActiveUserData, id: number, dto: UpdateKnowledgeBaseDto) {
-    const kb = await this.assertOwnership(id, user);
+    const kb = await this.assertCanEdit(id, user);
 
-    if (dto.permission === 'team') {
+    // 变更共享档位时同步 deptId：否则 me → team 会留下 deptId=null 的记录，
+    // 那种「团队知识库」除创建者外谁都看不到。
+    let permissionPatch:
+      | undefined
+      | { deptId: null | number; permission: string };
+    if (dto.permission !== undefined) {
       const userData = await this.prisma.client.user.findUniqueOrThrow({
         where: { id: user.sub },
       });
-      if (!userData.isAdmin && !userData.isDeptAdmin) {
-        throw new ForbiddenException('仅部门主管可将知识库设为部门公开');
-      }
+      assertCanShareAs(userData, dto.permission, '知识库');
+      permissionPatch = {
+        deptId: dto.permission === 'team' ? userData.deptId : null,
+        permission: dto.permission,
+      };
     }
 
     // DB-first: 先更新本地
@@ -464,7 +451,7 @@ export class KnowledgeBaseService {
         description: dto.description,
         chunkMethod: dto.chunkMethod,
         parserConfig: dto.parserConfig,
-        permission: dto.permission,
+        ...permissionPatch,
         order: dto.order,
         updateBy: user.username,
       },
@@ -478,7 +465,6 @@ export class KnowledgeBaseService {
           chunk_method: dto.chunkMethod,
           parser_config: dto.parserConfig,
           description: dto.description,
-          permission: dto.permission,
           avatar: dto.avatar,
         });
       } catch (error) {
@@ -491,6 +477,7 @@ export class KnowledgeBaseService {
             description: kb.description,
             chunkMethod: kb.chunkMethod,
             parserConfig: kb.parserConfig as object | undefined,
+            deptId: kb.deptId,
             permission: kb.permission,
             order: kb.order,
             updateBy: kb.updateBy,
@@ -510,11 +497,11 @@ export class KnowledgeBaseService {
     chunkId: string,
     dto: UpdateChunkDto,
   ) {
-    const kb = await this.assertOwnership(id, user);
+    const kb = await this.assertCanEdit(id, user);
     const datasetId = this.requireDatasetId(kb);
 
     return this.ragflow.request(
-      'PUT',
+      'PATCH',
       `/api/v1/datasets/${datasetId}/documents/${documentId}/chunks/${chunkId}`,
       {
         content: dto.content,
@@ -530,11 +517,11 @@ export class KnowledgeBaseService {
     documentId: string,
     dto: UpdateDocumentDto,
   ) {
-    const kb = await this.assertOwnership(id, user);
+    const kb = await this.assertCanEdit(id, user);
     const datasetId = this.requireDatasetId(kb);
 
     return this.ragflow.request(
-      'PUT',
+      'PATCH',
       `/api/v1/datasets/${datasetId}/documents/${documentId}`,
       {
         name: dto.name,
@@ -550,7 +537,7 @@ export class KnowledgeBaseService {
     user: ActiveUserData,
     files: Express.Multer.File[],
   ) {
-    const kb = await this.assertOwnership(id, user);
+    const kb = await this.assertCanEdit(id, user);
     const datasetId = this.requireDatasetId(kb);
 
     // RAGFlow 0.24 deepdoc DocxParser drops digits in many table cells, so
@@ -586,23 +573,20 @@ export class KnowledgeBaseService {
     }
   }
 
-  private async assertOwnership(id: number, user: ActiveUserData) {
-    const kb = await this.prisma.client.knowledgeBase.findUniqueOrThrow({
-      where: { id },
-    });
-    const userData = await this.prisma.client.user.findUniqueOrThrow({
-      where: { id: user.sub },
-      include: { dept: true },
-    });
-    if (userData.isAdmin) return kb;
-    // TODO: 当前使用 createBy(username) 判断所有权，若支持用户名修改需迁移为 userId 外键
-    const isOwner = kb.createBy === user.username;
-    const isSameDept =
-      kb.permission === 'team' &&
-      kb.deptId !== null &&
-      kb.deptId === userData.deptId;
-    if (!isOwner && !isSameDept) {
+  /** 写入类操作：共享只放宽读，改 / 删仅创建者与 admin。 */
+  private async assertCanEdit(id: number, user: ActiveUserData) {
+    const { isOwner, kb, userData } = await this.loadForAccess(id, user);
+    if (!canEditResource(userData, isOwner)) {
       throw new ForbiddenException('无权操作此知识库');
+    }
+    return kb;
+  }
+
+  /** 读取类操作：创建者、admin 及通过共享可见的用户都放行。 */
+  private async assertCanView(id: number, user: ActiveUserData) {
+    const { isOwner, kb, userData } = await this.loadForAccess(id, user);
+    if (!canViewResource(kb, userData, isOwner)) {
+      throw new ForbiddenException('无权访问此知识库');
     }
     return kb;
   }
@@ -630,6 +614,17 @@ export class KnowledgeBaseService {
       }
     }
     return all;
+  }
+
+  private async loadForAccess(id: number, user: ActiveUserData) {
+    const kb = await this.prisma.client.knowledgeBase.findUniqueOrThrow({
+      where: { id },
+    });
+    const userData = await this.prisma.client.user.findUniqueOrThrow({
+      where: { id: user.sub },
+    });
+    // TODO: 当前使用 createBy(username) 判断所有权，若支持用户名修改需迁移为 userId 外键
+    return { isOwner: kb.createBy === user.username, kb, userData };
   }
 
   private requireDatasetId(kb: {

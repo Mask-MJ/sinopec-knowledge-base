@@ -78,4 +78,25 @@ describe('useSSEStream', () => {
     expect(sse.reference.value?.chunks).toHaveLength(1);
     expect(sse.reference.value?.chunks[0]?.id).toBe('flush');
   });
+
+  it('routes reasoning-model thinking into reasoning, keeping content clean', async () => {
+    // RAGFlow 0.26 wraps a reasoning model's chain-of-thought between
+    // start_to_think / end_to_think marker events instead of <think> text.
+    // Without honouring them the whole monologue lands in the answer body.
+    const stream = makeStream([
+      'data:{"code":0,"data":{"answer":"","start_to_think":true}}\n\n',
+      'data:{"code":0,"data":{"answer":"我们需要先看知识库"}}\n\n',
+      'data:{"code":0,"data":{"answer":"，再决定引用格式。"}}\n\n',
+      'data:{"code":0,"data":{"answer":"","end_to_think":true}}\n\n',
+      'data:{"code":0,"data":{"answer":"最大炮检距为6000m"}}\n\n',
+      'data:{"code":0,"data":{"answer":" [ID:0]。"}}\n\n',
+      'data:{"code":0,"data":true}',
+    ]);
+
+    const sse = useSSEStream();
+    await sse.startStream(stream);
+
+    expect(sse.content.value).toBe('最大炮检距为6000m [ID:0]。');
+    expect(sse.reasoning.value).toBe('我们需要先看知识库，再决定引用格式。');
+  });
 });

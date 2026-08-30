@@ -1,8 +1,16 @@
-import { IntersectionType, PartialType, PickType } from '@nestjs/swagger';
+import type { ResourcePermission } from '@/modules/auth/authorization/resource-visibility';
+
+import {
+  ApiProperty,
+  IntersectionType,
+  PartialType,
+  PickType,
+} from '@nestjs/swagger';
 import { Type } from 'class-transformer';
 import {
   IsArray,
   IsBoolean,
+  IsIn,
   IsNumber,
   IsOptional,
   IsString,
@@ -21,6 +29,7 @@ import {
   DEFAULT_ASSISTANT_TOP_P,
 } from '@/common/defaults/assistant.defaults';
 import { PaginateDto } from '@/common/dto/base.dto';
+import { RESOURCE_PERMISSIONS } from '@/modules/auth/authorization/resource-visibility';
 
 // ─── Assistant DTO ───────────────────────────────
 
@@ -108,6 +117,15 @@ export class CreateAssistantDto {
   @IsOptional()
   @IsString()
   opener?: string;
+
+  /**
+   * 助手访问权限：me 仅自己 / team 本部门 / public 全公司
+   * @example 'me'
+   */
+  @ApiProperty({ enum: RESOURCE_PERMISSIONS, required: false })
+  @IsIn(RESOURCE_PERMISSIONS)
+  @IsOptional()
+  permission?: ResourcePermission;
 
   /**
    * 存在惩罚

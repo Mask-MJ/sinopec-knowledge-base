@@ -3,6 +3,12 @@
   "editAssistant": "Chat Settings",
   "addAssistant": "New Assistant",
   "name": "Assistant Name",
+  "permission": {
+    "title": "Permission",
+    "me": "Personal",
+    "team": "Team",
+    "public": "Company-wide"
+  },
   "model": "Chat Model",
   "description": "Description",
   "empty_response": "Empty Response",

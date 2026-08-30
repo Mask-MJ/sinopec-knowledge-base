@@ -1,3 +1,4 @@
+import { BadRequestException } from '@nestjs/common';
 import { EventEmitter2 } from '@nestjs/event-emitter';
 import { Test, TestingModule } from '@nestjs/testing';
 import { vi } from 'vitest';
@@ -64,6 +65,7 @@ describe('menuService', () => {
       const createMenuDto: CreateMenuDto = {
         name: 'Dashboard',
         path: '/dashboard',
+        title: 'menu.dashboard',
         type: 'menu',
         order: 1,
         status: true,
@@ -80,6 +82,21 @@ describe('menuService', () => {
         }),
       });
       expect(result).toEqual(createMenuDto);
+    });
+
+    it('should reject a non-button menu without title', async () => {
+      const createMenuDto: CreateMenuDto = {
+        name: 'Dashboard',
+        path: '/dashboard',
+        type: 'menu',
+        order: 1,
+        status: true,
+      };
+
+      await expect(service.create(createMenuDto)).rejects.toThrow(
+        BadRequestException,
+      );
+      expect(prismaService.client.menu.create).not.toHaveBeenCalled();
     });
 
     it('should create a basic menu if no path provided', async () => {

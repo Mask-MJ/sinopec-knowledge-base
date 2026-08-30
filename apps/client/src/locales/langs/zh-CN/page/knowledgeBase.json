@@ -20,7 +20,8 @@
   "permission": {
     "title": "权限",
     "me": "个人",
-    "team": "部门"
+    "team": "部门",
+    "public": "全公司"
   },
   "chunk_method": {
     "title": "分块方式"

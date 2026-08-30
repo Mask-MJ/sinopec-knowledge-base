@@ -90,6 +90,7 @@ type MockModelMethods = Record<PrismaMethod, MockFn> & Record<string, MockFn>;
 /** 已知 model — 新增 model 只改这里，Proxy 保证运行时任意属性都可用 */
 type MockPrismaClient = Record<
   | 'assistant'
+  | 'assistantSession'
   | 'dept'
   | 'dict'
   | 'dictData'

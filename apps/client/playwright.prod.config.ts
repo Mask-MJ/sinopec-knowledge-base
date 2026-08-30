@@ -27,7 +27,9 @@ export default defineConfig({
   workers: 1,
   reporter: [['list'], ['html', { open: 'never' }]],
   use: {
-    actionTimeout: 30_000,
+    // 目标环境带宽差异很大（内网/公网 ECS），大附件上传 30s 常不够；
+    // 用 E2E_ACTION_TIMEOUT_MS 覆盖。
+    actionTimeout: Number(process.env.E2E_ACTION_TIMEOUT_MS ?? 30_000),
     baseURL,
     trace: 'retain-on-failure',
     screenshot: 'only-on-failure',

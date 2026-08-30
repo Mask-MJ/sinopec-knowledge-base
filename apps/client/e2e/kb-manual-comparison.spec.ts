@@ -31,22 +31,15 @@ import { fileURLToPath } from 'node:url';
 
 import { expect, test } from '@playwright/test';
 
+import { DOCS_DIR, isCorpusDoc, requireEnv } from './_batch.js';
+
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
-
-function requireEnv(name: string): string {
-  const value = process.env[name];
-  if (!value) {
-    throw new Error(`${name} must be set (see apps/client/.env.example)`);
-  }
-  return value;
-}
 
 const BASE_URL = requireEnv('E2E_BASE_URL');
 const ADMIN_USER = requireEnv('E2E_ADMIN_USER');
 const ADMIN_PASS = requireEnv('E2E_ADMIN_PASS');
 const KB_NAME = process.env.E2E_KB_NAME ?? `e2e-manual-${Date.now()}`;
-const FIXTURES_DIR = resolve(__dirname, 'fixtures');
 const TEST_RESULTS_DIR = resolve(__dirname, '../test-results');
 const SUMMARY_FILE = resolve(TEST_RESULTS_DIR, 'kb-manual-comparison.json');
 const PARSE_TIMEOUT_MS = Number(process.env.E2E_PARSE_TIMEOUT_MS ?? 600_000);
@@ -162,10 +155,10 @@ test('create manual-parser KB, upload, parse, wait until DONE', async ({
   page,
   playwright,
 }) => {
-  const fixtures = readdirSync(FIXTURES_DIR).filter((f) => /\.docx?$/i.test(f));
+  const fixtures = readdirSync(DOCS_DIR).filter((f) => isCorpusDoc(f));
   expect(
     fixtures.length,
-    'fixtures must contain at least one .docx',
+    `${DOCS_DIR} must contain at least one corpus document`,
   ).toBeGreaterThanOrEqual(1);
 
   const api = await newAuthedApi(playwright);
@@ -228,7 +221,7 @@ test('create manual-parser KB, upload, parse, wait until DONE', async ({
   await expect(page.locator('.n-modal-mask').last()).toBeVisible();
 
   const fileInput = page.locator('.n-upload input[type="file"]').first();
-  await fileInput.setInputFiles(fixtures.map((f) => resolve(FIXTURES_DIR, f)));
+  await fileInput.setInputFiles(fixtures.map((f) => resolve(DOCS_DIR, f)));
 
   const [uploadResp] = await Promise.all([
     page.waitForResponse(

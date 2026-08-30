@@ -14,6 +14,7 @@ export interface paths {
         /** 获取知识库列表 */
         get: operations["KnowledgeBaseController_findAll"];
         put?: never;
+        /** 创建知识库 */
         post: operations["KnowledgeBaseController_create"];
         delete?: never;
         options?: never;
@@ -61,6 +62,7 @@ export interface paths {
             path?: never;
             cookie?: never;
         };
+        /** 获取知识库详情 */
         get: operations["KnowledgeBaseController_findOne"];
         put?: never;
         post?: never;
@@ -72,6 +74,22 @@ export interface paths {
         patch: operations["KnowledgeBaseController_update"];
         trace?: never;
     };
+    "/api/knowledge-base/{id}/backfill-keywords": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: operations["KnowledgeBaseController_backfillKeywords"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/knowledge-base/{id}/documents": {
         parameters: {
             query?: never;
@@ -79,7 +97,6 @@ export interface paths {
             path?: never;
             cookie?: never;
         };
-        /** 获取知识库文件列表 */
         get: operations["KnowledgeBaseController_findAllDocuments"];
         put?: never;
         /** 上传文件到指定知识库 */
@@ -160,6 +177,23 @@ export interface paths {
         head?: never;
         /** 切换知识库文档启用状态 */
         patch: operations["KnowledgeBaseController_toggleDocumentStatus"];
+        trace?: never;
+    };
+    "/api/knowledge-base/{id}/keyword-tag-status": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** 管理员查看知识库打 tag 待办状态 */
+        get: operations["KnowledgeBaseController_keywordTagStatus"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
         trace?: never;
     };
     "/api/knowledge-base/{id}/metadata/summary": {
@@ -258,8 +292,9 @@ export interface components {
             /**
              * @description 权限标识
              * @example me
+             * @enum {string}
              */
-            permission?: Record<string, never>;
+            permission?: "me" | "team" | "public";
         };
         DeleteChunkDto: {
             /**
@@ -459,8 +494,9 @@ export interface components {
             /**
              * @description 权限标识
              * @example me
+             * @enum {string}
              */
-            permission?: Record<string, never>;
+            permission?: "me" | "team" | "public";
         };
     };
     responses: never;
@@ -638,6 +674,25 @@ export interface operations {
                 content: {
                     "application/json": components["schemas"]["KnowledgeBaseEntity"];
                 };
+            };
+        };
+    };
+    KnowledgeBaseController_backfillKeywords: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            202: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
             };
         };
     };
@@ -899,6 +954,25 @@ export interface operations {
                 content: {
                     "application/json": Record<string, never>;
                 };
+            };
+        };
+    };
+    KnowledgeBaseController_keywordTagStatus: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
             };
         };
     };

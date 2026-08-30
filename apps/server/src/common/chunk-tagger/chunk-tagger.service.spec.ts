@@ -23,7 +23,7 @@ describe('chunkTaggerService.tagDocument', () => {
     service = moduleRef.get(ChunkTaggerService);
   });
 
-  it('lists chunks, matches, PUTs important_keywords per non-empty chunk', async () => {
+  it('lists chunks, matches, PATCHes important_keywords per non-empty chunk', async () => {
     matcher.match.mockReturnValue(['kw1']);
     ragflow.request
       .mockResolvedValueOnce({
@@ -38,9 +38,9 @@ describe('chunkTaggerService.tagDocument', () => {
     const r = await service.tagDocument('ds1', 'doc1', 'X.docx');
 
     expect(r).toEqual({ totalChunks: 2, updated: 2, empty: 0, failed: 0 });
-    expect(ragflow.request).toHaveBeenCalledTimes(3); // 1 GET + 2 PUT
+    expect(ragflow.request).toHaveBeenCalledTimes(3); // 1 GET + 2 PATCH
     expect(ragflow.request).toHaveBeenCalledWith(
-      'PUT',
+      'PATCH',
       '/api/v1/datasets/ds1/documents/doc1/chunks/c1',
       { important_keywords: ['kw1'] },
     );
@@ -56,7 +56,7 @@ describe('chunkTaggerService.tagDocument', () => {
     const r = await service.tagDocument('ds1', 'doc1', '未知.docx');
 
     expect(r).toEqual({ totalChunks: 1, updated: 0, empty: 1, failed: 0 });
-    expect(ragflow.request).toHaveBeenCalledTimes(1); // only GET, no PUT
+    expect(ragflow.request).toHaveBeenCalledTimes(1); // only GET, no PATCH
   });
 
   it('injects project keywords even when matcher returns empty', async () => {
@@ -69,13 +69,13 @@ describe('chunkTaggerService.tagDocument', () => {
 
     expect(r.updated).toBe(1);
     expect(ragflow.request).toHaveBeenCalledWith(
-      'PUT',
+      'PATCH',
       '/api/v1/datasets/ds1/documents/doc1/chunks/c1',
       { important_keywords: ['顺8井北', '顺8井北三维'] },
     );
   });
 
-  it('counts failed when a PUT rejects, without aborting siblings', async () => {
+  it('counts failed when a PATCH rejects, without aborting siblings', async () => {
     matcher.match.mockReturnValue(['kw']);
     ragflow.request
       .mockResolvedValueOnce({

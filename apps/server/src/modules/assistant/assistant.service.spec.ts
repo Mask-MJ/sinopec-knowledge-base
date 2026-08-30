@@ -46,7 +46,46 @@ describe('assistantService.findAllSessions', () => {
     prisma.client.assistant.findUniqueOrThrow.mockResolvedValue({
       id: 1,
       assistantId: 'rf-1',
+      deptId: null,
+      permission: 'me',
+      userId: 1,
     });
+    prisma.client.user.findUniqueOrThrow.mockResolvedValue({
+      deptId: null,
+      id: 1,
+      isAdmin: false,
+    });
+    prisma.client.assistantSession.findMany.mockResolvedValue([]);
+  });
+
+  it('拒绝非创建者读取私有助手的会话（此前该入口无任何权限校验）', async () => {
+    prisma.client.assistant.findUniqueOrThrow.mockResolvedValue({
+      id: 1,
+      assistantId: 'rf-1',
+      deptId: null,
+      permission: 'me',
+      userId: 99,
+    });
+
+    await expect(
+      service.findAllSessions(1, createMockActiveUser(), {}),
+    ).rejects.toThrow(/无权访问此助手/);
+    expect(ragflow.request).not.toHaveBeenCalled();
+  });
+
+  it('public 助手允许非创建者使用', async () => {
+    prisma.client.assistant.findUniqueOrThrow.mockResolvedValue({
+      id: 1,
+      assistantId: 'rf-1',
+      deptId: null,
+      permission: 'public',
+      userId: 99,
+    });
+    ragflow.request.mockResolvedValue([]);
+
+    await expect(
+      service.findAllSessions(1, createMockActiveUser(), {}),
+    ).resolves.toEqual([]);
   });
 
   it('shifts ragflow off-by-one reference: chunks misplaced on opener get assigned to a1, doc_aggs derived', async () => {
@@ -288,6 +327,104 @@ describe('assistantService default model resolution', () => {
         '/api/v1/chats',
         expect.objectContaining({ llm_id: 'qwen3@Xinference' }),
       );
+    });
+  });
+});
+
+describe('assistantService 会话归属（RAGFlow 0.27 起无法在其侧按用户隔离）', () => {
+  let service: AssistantService;
+  const ragflow = { request: vi.fn() };
+  const prisma = createMockPrismaService();
+
+  beforeEach(async () => {
+    vi.clearAllMocks();
+    const module: TestingModule = await Test.createTestingModule({
+      providers: [
+        AssistantService,
+        { provide: PRISMA_SERVICE_TOKEN, useValue: prisma },
+        { provide: RagflowService, useValue: ragflow },
+        { provide: ConfigService, useValue: { get: () => 'test-model' } },
+      ],
+    }).compile();
+    service = module.get(AssistantService);
+
+    // 公共助手，创建者是 99；当前用户 sub=1
+    prisma.client.assistant.findUniqueOrThrow.mockResolvedValue({
+      id: 1,
+      assistantId: 'rf-1',
+      deptId: null,
+      permission: 'public',
+      userId: 99,
+    });
+    prisma.client.user.findUniqueOrThrow.mockResolvedValue({
+      deptId: null,
+      id: 1,
+      isAdmin: false,
+    });
+  });
+
+  it('共享助手下只返回自己的会话', async () => {
+    prisma.client.assistantSession.findMany.mockResolvedValue([
+      { sessionId: 's-mine', userId: 1 },
+      { sessionId: 's-other', userId: 2 },
+    ]);
+    ragflow.request.mockResolvedValue([
+      { id: 's-mine', messages: [], name: '我的' },
+      { id: 's-other', messages: [], name: '别人的' },
+    ]);
+
+    const r = await service.findAllSessions(1, createMockActiveUser(), {});
+    expect(r.map((s) => s.id)).toEqual(['s-mine']);
+  });
+
+  it('查询不再带 user_id——RAGFlow 会丢弃写入值，按它过滤必然为空', async () => {
+    prisma.client.assistantSession.findMany.mockResolvedValue([]);
+    ragflow.request.mockResolvedValue([]);
+
+    await service.findAllSessions(1, createMockActiveUser(), {});
+    const params = ragflow.request.mock.calls[0]?.[2] as Record<
+      string,
+      unknown
+    >;
+    expect(params).not.toHaveProperty('user_id');
+    // RAGFlow 的 REST_API_MAX_PAGE_SIZE=100，超了它直接抛 ValueError
+    expect(params?.page_size as number).toBeLessThanOrEqual(100);
+  });
+
+  it('归属表上线前的会话回退给助手创建者，不凭空消失', async () => {
+    prisma.client.assistantSession.findMany.mockResolvedValue([]);
+    ragflow.request.mockResolvedValue([
+      { id: 's-legacy', messages: [], name: '旧会话' },
+    ]);
+
+    expect(
+      await service.findAllSessions(1, createMockActiveUser(), {}),
+    ).toEqual([]);
+    const asOwner = await service.findAllSessions(
+      1,
+      createMockActiveUser({ sub: 99 }),
+      {},
+    );
+    expect(asOwner.map((s) => s.id)).toEqual(['s-legacy']);
+  });
+
+  it('不能删别人的会话', async () => {
+    prisma.client.assistantSession.findMany.mockResolvedValue([
+      { sessionId: 's-other', userId: 2 },
+    ]);
+
+    await expect(
+      service.removeSession(1, createMockActiveUser(), 's-other'),
+    ).rejects.toThrow(/无权操作此会话/);
+    expect(ragflow.request).not.toHaveBeenCalled();
+  });
+
+  it('建会话时登记归属', async () => {
+    ragflow.request.mockResolvedValue({ id: 's-new' });
+
+    await service.createSession(1, createMockActiveUser(), {});
+    expect(prisma.client.assistantSession.create).toHaveBeenCalledWith({
+      data: { assistantId: 1, sessionId: 's-new', userId: 1 },
     });
   });
 });

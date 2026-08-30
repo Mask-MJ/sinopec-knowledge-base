@@ -28,16 +28,10 @@ import { fileURLToPath } from 'node:url';
 
 import { expect, test } from '@playwright/test';
 
+import { QUESTIONS_PATH, requireEnv } from './_batch.js';
+
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
-
-function requireEnv(name: string): string {
-  const value = process.env[name];
-  if (!value) {
-    throw new Error(`${name} must be set (see apps/client/.env.example)`);
-  }
-  return value;
-}
 
 const BASE_URL = requireEnv('E2E_BASE_URL');
 const ADMIN_USER = requireEnv('E2E_ADMIN_USER');
@@ -45,10 +39,6 @@ const ADMIN_PASS = requireEnv('E2E_ADMIN_PASS');
 
 const PROD_DATASET_ID =
   process.env.E2E_PROD_DATASET_ID ?? '6ec4cd18476611f1a9b8932ed31a3307';
-const QUESTIONS_PATH = resolve(
-  __dirname,
-  '../../server/scripts/eval/dataset/questions.json',
-);
 const TEST_RESULTS_DIR = resolve(__dirname, '../test-results');
 const SUMMARY_FILE = resolve(TEST_RESULTS_DIR, 'chat-eval-all-questions.json');
 const PER_QUESTION_TIMEOUT_MS = Number(
@@ -110,7 +100,7 @@ test('chat through every question via business API end-to-end', async ({
   const questions = file.questions;
   expect(
     questions.length,
-    'questions.json must contain at least one question',
+    `${QUESTIONS_PATH} must contain at least one question`,
   ).toBeGreaterThan(0);
   console.log(`[plan] ${questions.length} questions to chat through`);
 

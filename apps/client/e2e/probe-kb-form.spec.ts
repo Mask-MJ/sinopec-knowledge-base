@@ -15,13 +15,7 @@
  */
 import { expect, test } from '@playwright/test';
 
-function requireEnv(name: string): string {
-  const value = process.env[name];
-  if (!value) {
-    throw new Error(`${name} must be set (see apps/client/.env.example)`);
-  }
-  return value;
-}
+import { requireEnv } from './_batch.js';
 
 const BASE_URL = requireEnv('E2E_BASE_URL');
 const ADMIN_USER = requireEnv('E2E_ADMIN_USER');
