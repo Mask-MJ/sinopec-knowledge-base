@@ -1,8 +1,8 @@
 // cspell:ignore tiktoken
 /**
  * E2E (business-API): 从零搭一个用 BAAI/bge-large-zh-v1.5 做 embedding 的
- * "测试知识库 3"，上传 fixtures/ 下的全部 docx，触发 parse，再建关联到该
- * KB 的"聊天助手 3"，跑 questions.json 全 20 题真问真答。整套流程都走
+ * "测试知识库 3"，上传 E2E_DOCS_DIR 指向的那批语料 docx，触发 parse，再建
+ * 关联到该 KB 的"聊天助手 3"，跑 E2E_QUESTIONS_FILE 全部题目真问真答。整套流程都走
  * sinopec-kb 业务 API，跟用户在 UI 走的路径完全一致。
  *
  * Run:
@@ -23,16 +23,10 @@ import { fileURLToPath } from 'node:url';
 
 import { expect, test } from '@playwright/test';
 
+import { DOCS_DIR, isCorpusDoc, QUESTIONS_PATH, requireEnv } from './_batch.js';
+
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
-
-function requireEnv(name: string): string {
-  const value = process.env[name];
-  if (!value) {
-    throw new Error(`${name} must be set (see apps/client/.env.example)`);
-  }
-  return value;
-}
 
 const BASE_URL = requireEnv('E2E_BASE_URL');
 const ADMIN_USER = requireEnv('E2E_ADMIN_USER');
@@ -41,11 +35,6 @@ const KB_NAME = process.env.E2E_NEW_KB_NAME ?? '测试知识库 3';
 const ASSISTANT_NAME = process.env.E2E_NEW_ASSISTANT_NAME ?? '聊天助手 3';
 const EMBEDDING_HINT = process.env.E2E_EMBEDDING_HINT ?? 'bge-large-zh-v1.5';
 
-const FIXTURES_DIR = resolve(__dirname, 'fixtures');
-const QUESTIONS_PATH = resolve(
-  __dirname,
-  '../../server/scripts/eval/dataset/questions.json',
-);
 const TEST_RESULTS_DIR = resolve(__dirname, '../test-results');
 const SUMMARY_FILE = resolve(TEST_RESULTS_DIR, 'kb-bge-large-fullstack.json');
 const PARSE_TIMEOUT_MS = Number(process.env.E2E_PARSE_TIMEOUT_MS ?? 900_000);
@@ -174,17 +163,17 @@ test('fullstack: create KB → upload → parse → create assistant → chat 20
     'datasetId must come back from RAGFlow',
   ).toBeDefined();
 
-  // ── 4. multipart upload all .docx fixtures to the new KB ────────────
-  const fixtures = readdirSync(FIXTURES_DIR).filter((f) => /\.docx?$/i.test(f));
+  // ── 4. multipart upload all .docx corpus files to the new KB ────────
+  const fixtures = readdirSync(DOCS_DIR).filter((f) => isCorpusDoc(f));
   expect(
     fixtures.length,
-    'fixtures must contain at least one .docx',
+    `${DOCS_DIR} must contain at least one corpus document`,
   ).toBeGreaterThanOrEqual(1);
-  console.log(`[upload] ${fixtures.length} docx files`);
+  console.log(`[upload] ${fixtures.length} corpus files`);
 
   const form = new FormData();
   for (const f of fixtures) {
-    const buf = readFileSync(resolve(FIXTURES_DIR, f));
+    const buf = readFileSync(resolve(DOCS_DIR, f));
     form.append('files', new Blob([buf]), f);
   }
   const uploadResp = await api.post(
