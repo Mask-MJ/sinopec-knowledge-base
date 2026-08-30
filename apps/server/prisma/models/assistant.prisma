@@ -1,7 +1,7 @@
 /// 聊天助手信息表
 model Assistant {
   /// 助手ID
-  id                       Int      @id @default(autoincrement())
+  id                       Int                @id @default(autoincrement())
   /// 助手名称
   name                     String
   /// 助手头像
@@ -11,23 +11,23 @@ model Assistant {
   /// 聊天模型名称（格式: model_name@provider）
   modelName                String
   /// 控制模型预测的随机性
-  temperature              Float    @default(0.1)
+  temperature              Float              @default(0.1)
   /// 核心采样
-  topP                     Float    @default(0.3)
+  topP                     Float              @default(0.3)
   /// 存在惩罚
-  presencePenalty          Float    @default(0.4)
+  presencePenalty          Float              @default(0.4)
   /// 频率惩罚
-  frequencyPenalty         Float    @default(0.7)
+  frequencyPenalty         Float              @default(0.7)
   /// 最大生成长度
-  maxTokens                Int      @default(512)
+  maxTokens                Int                @default(512)
   /// 加权关键字相似度
-  similarityThreshold      Float    @default(0.2)
+  similarityThreshold      Float              @default(0.2)
   /// 关键词相似度权重
-  keywordsSimilarityWeight Float    @default(0.7)
+  keywordsSimilarityWeight Float              @default(0.7)
   /// 生成的回复数量
-  topN                     Int      @default(6)
+  topN                     Int                @default(6)
   /// 重新排序或选择前 k 个项目
-  topK                     Int      @default(1024)
+  topK                     Int                @default(1024)
   /// 空响应返回内容
   emptyResponse            String?
   /// 开场问候语
@@ -35,21 +35,22 @@ model Assistant {
   /// 提示词模板
   prompt                   String?
   /// RAGFlow 关联的数据集ID列表
-  datasetIds               String[] @default([])
+  datasetIds               String[]           @default([])
   /// 是否为通用助手（每个用户仅一个）
-  isGeneral                Boolean  @default(false)
+  isGeneral                Boolean            @default(false)
   /// RAGFlow 关联助手ID
   assistantId              String?
   /// 创建时间
-  createdAt                DateTime @default(now())
+  createdAt                DateTime           @default(now())
   /// 更新时间
-  updatedAt                DateTime @updatedAt
+  updatedAt                DateTime           @updatedAt
   /// 助手访问权限 "me" | "team" | "public"
-  permission               String   @default("me")
+  permission               String             @default("me")
   /// 所属部门ID（仅 permission="team" 时有意义）
   deptId                   Int?
-  dept                     Dept?    @relation(fields: [deptId], references: [id], onDelete: SetNull)
+  dept                     Dept?              @relation(fields: [deptId], references: [id], onDelete: SetNull)
   /// 所属用户ID
   userId                   Int
-  user                     User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  user                     User               @relation(fields: [userId], references: [id], onDelete: Cascade)
+  sessions                 AssistantSession[]
 }

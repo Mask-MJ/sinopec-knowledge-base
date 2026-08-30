@@ -43,14 +43,13 @@ interface RagflowSessionRaw {
 
 @Injectable()
 export class AssistantService {
-  /** 关联知识库时的默认空回复 */
   private static readonly DEFAULT_EMPTY_RESPONSE = '知识库中未找到您要的答案！';
-
-  // ─── Private Helpers ──────────────────────────────
 
   /** 默认开场白 */
   private static readonly DEFAULT_OPENER =
     '你好！我是你的助理，有什么可以帮到你的吗？';
+
+  // ─── Private Helpers ──────────────────────────────
 
   /** 通用聊天（无知识库）的默认系统提示词 */
   private static readonly GENERAL_CHAT_PROMPT =
@@ -70,6 +69,10 @@ export class AssistantService {
     '知识库内容：',
     '{knowledge}',
   ].join('\n');
+
+  /** 关联知识库时的默认空回复 */
+  /** 单次从 RAGFlow 取回的会话上限，取回后本地按归属过滤。 */
+  private static readonly SESSION_FETCH_LIMIT = 200;
 
   // ─── Completion (SSE 中间层) ──────────────────────
 
@@ -312,14 +315,38 @@ export class AssistantService {
   async createSession(id: number, user: ActiveUserData, dto: CreateSessionDto) {
     const assistant = await this.assertCanView(id, user);
 
-    return this.ragflow.request(
+    // 不再传 user_id：RAGFlow 0.27 起把它硬编码成 API key 所属用户，传了也被丢弃。
+    const session = await this.ragflow.request<{ id: string }>(
       'POST',
       `/api/v1/chats/${assistant.assistantId}/sessions`,
-      {
-        name: dto.name ?? '新会话',
-        user_id: String(user.sub),
-      },
+      { name: dto.name ?? '新会话' },
     );
+
+    try {
+      await this.prisma.client.assistantSession.create({
+        data: { assistantId: id, sessionId: session.id, userId: user.sub },
+      });
+    } catch (error) {
+      this.logger.error(
+        `会话归属登记失败，回滚 RAGFlow 会话: ${session.id}`,
+        error,
+      );
+      try {
+        await this.ragflow.request(
+          'DELETE',
+          `/api/v1/chats/${assistant.assistantId}/sessions`,
+          { ids: [session.id] },
+        );
+      } catch (rollbackError) {
+        this.logger.error(
+          `RAGFlow 会话回滚失败，孤儿会话: ${session.id}`,
+          rollbackError,
+        );
+      }
+      throw error;
+    }
+
+    return session;
   }
 
   async findAll(user: ActiveUserData, dto: QueryAssistantDto) {
@@ -346,19 +373,26 @@ export class AssistantService {
     dto: QuerySessionDto,
   ) {
     const assistant = await this.assertCanView(id, user);
+    const ownerOf = await this.sessionOwnerResolver(id, assistant.userId);
 
+    // ponytail: 一次取至多 SESSION_FETCH_LIMIT 条再本地按归属过滤。RAGFlow 的
+    //   list sessions 只能按单个 id 取、不支持批量，会话量超过这个上界时要改成
+    //   以本地归属表为准的游标分页。
     const sessions = await this.ragflow.request<RagflowSessionRaw[]>(
       'GET',
       `/api/v1/chats/${assistant.assistantId}/sessions`,
       {
-        page: dto.page ?? 1,
-        page_size: dto.pageSize ?? 30,
-        user_id: String(user.sub),
+        page: 1,
+        page_size: AssistantService.SESSION_FETCH_LIMIT,
         name: dto.name,
       },
     );
 
-    return sessions.map((s) => ({
+    const mine = sessions.filter((s) => ownerOf(s.id) === user.sub);
+    const page = dto.page ?? 1;
+    const pageSize = dto.pageSize ?? 30;
+
+    return mine.slice((page - 1) * pageSize, page * pageSize).map((s) => ({
       ...s,
       messages: normalizeMessageReferences(s.messages ?? []),
     }));
@@ -393,13 +427,20 @@ export class AssistantService {
   }
 
   async removeSession(id: number, user: ActiveUserData, sessionId: string) {
-    const assistant = await this.assertCanEdit(id, user);
+    const assistant = await this.assertCanView(id, user);
+    await this.assertOwnsSession(id, assistant.userId, user, sessionId);
 
-    return this.ragflow.request(
+    const removed = await this.ragflow.request(
       'DELETE',
       `/api/v1/chats/${assistant.assistantId}/sessions`,
       { ids: [sessionId] },
     );
+
+    await this.prisma.client.assistantSession.deleteMany({
+      where: { sessionId },
+    });
+
+    return removed;
   }
 
   async update(user: ActiveUserData, id: number, dto: UpdateAssistantDto) {
@@ -513,6 +554,7 @@ export class AssistantService {
     dto: UpdateSessionDto,
   ) {
     const assistant = await this.assertCanView(id, user);
+    await this.assertOwnsSession(id, assistant.userId, user, sessionId);
 
     await this.ragflow.request(
       'PATCH',
@@ -539,6 +581,26 @@ export class AssistantService {
       throw new ForbiddenException('无权访问此助手');
     }
     return assistant;
+  }
+
+  /**
+   * 校验会话归当前用户所有。
+   *
+   * 会话是私人对话内容，这里不给 admin 特权：共享助手下各人只能读写自己的会话。
+   */
+  private async assertOwnsSession(
+    assistantId: number,
+    assistantOwnerId: number,
+    user: ActiveUserData,
+    sessionId: string,
+  ): Promise<void> {
+    const ownerOf = await this.sessionOwnerResolver(
+      assistantId,
+      assistantOwnerId,
+    );
+    if (ownerOf(sessionId) !== user.sub) {
+      throw new ForbiddenException('无权操作此会话');
+    }
   }
 
   private async loadForAccess(id: number, user: ActiveUserData) {
@@ -573,5 +635,23 @@ export class AssistantService {
       );
     }
     return `${chat.llm_name}@${chat.fid}`;
+  }
+
+  /**
+   * 取该助手下「会话 → 归属用户」的查询函数。
+   *
+   * 归属表上线前建的会话没有记录，回退到助手创建者——共享是后加的能力，
+   * 那些会话必然是创建者建的，这样历史会话不会凭空消失。
+   */
+  private async sessionOwnerResolver(
+    assistantId: number,
+    assistantOwnerId: number,
+  ): Promise<(sessionId: string) => number> {
+    const rows = await this.prisma.client.assistantSession.findMany({
+      select: { sessionId: true, userId: true },
+      where: { assistantId },
+    });
+    const owners = new Map(rows.map((r) => [r.sessionId, r.userId]));
+    return (sessionId: string) => owners.get(sessionId) ?? assistantOwnerId;
   }
 }
