@@ -39,6 +39,8 @@ const ADMIN_PASS = requireEnv('E2E_ADMIN_PASS');
 
 const PROD_DATASET_ID =
   process.env.E2E_PROD_DATASET_ID ?? '6ec4cd18476611f1a9b8932ed31a3307';
+/** 同一个 KB 挂多个助手做参数对照（如不同 topN）时，用名字精确指定跑哪个。 */
+const ASSISTANT_NAME = process.env.E2E_ASSISTANT_NAME ?? '';
 const TEST_RESULTS_DIR = resolve(__dirname, '../test-results');
 const SUMMARY_FILE = resolve(TEST_RESULTS_DIR, 'chat-eval-all-questions.json');
 const PER_QUESTION_TIMEOUT_MS = Number(
@@ -111,9 +113,15 @@ test('chat through every question via business API end-to-end', async ({
   const listResp = await api.get('/api/assistant?page=1&pageSize=50');
   const listJson = (await listResp.json()) as { list?: AssistantItem[] };
   const all = listJson.list ?? [];
-  const wired = all.find((a) => a.datasetIds.includes(PROD_DATASET_ID));
+  const wired = ASSISTANT_NAME
+    ? all.find((a) => a.name === ASSISTANT_NAME)
+    : all.find((a) => a.datasetIds.includes(PROD_DATASET_ID));
   if (!wired) {
-    throw new Error(`no assistant wired to dataset ${PROD_DATASET_ID}`);
+    throw new Error(
+      ASSISTANT_NAME
+        ? `no assistant named "${ASSISTANT_NAME}"; have: ${all.map((a) => a.name).join(', ')}`
+        : `no assistant wired to dataset ${PROD_DATASET_ID}`,
+    );
   }
   console.log(`[discover] using assistant id=${wired.id} name="${wired.name}"`);
 
