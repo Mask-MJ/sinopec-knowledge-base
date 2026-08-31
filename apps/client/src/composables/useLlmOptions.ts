@@ -4,9 +4,9 @@ import { getLlmList } from '@/api/knowledgeBase';
 
 /**
  * 获取 RAGFlow 已配置的 LLM 模型，按 model_type 分组为下拉选项
- * @param modelType - 过滤模型类型，如 'chat' | 'embedding'
+ * @param modelType - 过滤模型类型，如 'chat' | 'embedding' | 'rerank'
  */
-export function useLlmOptions(modelType?: 'chat' | 'embedding') {
+export function useLlmOptions(modelType?: 'chat' | 'embedding' | 'rerank') {
   const loading = ref(false);
   const llmList = ref<RagflowLlmItem[]>([]);
 

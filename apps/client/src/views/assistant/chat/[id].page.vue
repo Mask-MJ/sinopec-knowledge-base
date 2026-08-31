@@ -4,7 +4,7 @@ import { createProDrawerForm } from 'pro-naive-ui';
 import { getAssistantDetail, updateAssistant } from '@/api/assistant';
 import ChatPanel from '@/components/chat/ChatPanel.vue';
 import ChatSidebar from '@/components/chat/ChatSidebar.vue';
-import { useKnowledgeBaseOptions } from '@/composables';
+import { useKnowledgeBaseOptions, useLlmOptions } from '@/composables';
 
 const router = useRouter();
 const loading = ref(false);
@@ -31,6 +31,8 @@ onMounted(async () => {
 });
 
 const { options: kbOptions, loading: kbLoading } = useKnowledgeBaseOptions();
+const { options: rerankOptions, loading: rerankLoading } =
+  useLlmOptions('rerank');
 
 const sidebarRef = ref<InstanceType<typeof ChatSidebar> | null>(null);
 
@@ -149,6 +151,17 @@ const openSettings = async () => {
           :title="$t('page.assistant.top_n')"
           :tooltip="$t('page.assistant.top_n_desc')"
           path="topN"
+        />
+        <pro-select
+          :title="$t('page.assistant.rerank_id')"
+          :tooltip="$t('page.assistant.rerank_id_desc')"
+          path="rerankId"
+          :field-props="{
+            options: rerankOptions,
+            loading: rerankLoading,
+            clearable: true,
+            placeholder: '不启用重排序',
+          }"
         />
         <pro-digit
           :title="$t('page.assistant.top_p')"
