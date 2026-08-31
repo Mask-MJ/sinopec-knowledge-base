@@ -26,6 +26,8 @@
   "vector_similarity_weight_desc": "Weight for vector cosine similarity in the hybrid scoring. Sum with keyword similarity weight equals 1.0.",
   "top_n": "Top N",
   "top_n_desc": "Only these 'Top N' chunks above the similarity threshold will be provided to the LLM.",
+  "rerank_id": "Rerank Model",
+  "rerank_id_desc": "Re-scores the retrieved candidate chunks before the Top N are handed to the LLM. Leave empty to disable and rely on the hybrid vector/keyword ranking alone.",
   "top_p": "Top P",
   "top_p_desc": "Also known as 'nucleus sampling', sets a threshold to select a smaller set of words for sampling.",
   "temperature": "Temperature",
