@@ -307,6 +307,78 @@ describe('assistantService default model resolution', () => {
       );
     });
 
+    it('resolves rerank from the RAGFlow instance when caller omits it and a KB is attached', async () => {
+      ragflow.getLlmList.mockResolvedValue([
+        {
+          available: true,
+          fid: 'siliconflow@SILICONFLOW',
+          llm_name: 'BAAI/bge-reranker-v2-m3',
+          model_type: 'rerank',
+        },
+      ]);
+
+      await service.create(createMockActiveUser(), {
+        datasetIds: ['kb-1'],
+        modelName: 'custom-llm@Local',
+        name: '带知识库的助手',
+      } as never);
+
+      expect(ragflow.request).toHaveBeenCalledWith(
+        'POST',
+        '/api/v1/chats',
+        expect.objectContaining({
+          rerank_id: 'BAAI/bge-reranker-v2-m3@siliconflow@SILICONFLOW',
+        }),
+      );
+    });
+
+    it('leaves rerank off instead of failing when the instance has no rerank model', async () => {
+      // 内网那套 RAGFlow 没有 SiliconFlow provider：rerank 缺失只该降级，不该建不出助手
+      ragflow.getLlmList.mockResolvedValue([
+        {
+          available: true,
+          fid: 'Xinference',
+          llm_name: 'qwen3',
+          model_type: 'chat',
+        },
+      ]);
+
+      await service.create(createMockActiveUser(), {
+        datasetIds: ['kb-1'],
+        modelName: 'custom-llm@Local',
+        name: '无重排实例上的助手',
+      } as never);
+
+      expect(ragflow.request).toHaveBeenCalledWith(
+        'POST',
+        '/api/v1/chats',
+        expect.objectContaining({ rerank_id: '' }),
+      );
+    });
+
+    it('passes rerankId through to RAGFlow as rerank_id and persists it', async () => {
+      await service.create(createMockActiveUser(), {
+        modelName: 'custom-llm@Local',
+        name: '带重排的助手',
+        rerankId: 'BAAI/bge-reranker-v2-m3@siliconflow@SILICONFLOW',
+      } as never);
+
+      expect(ragflow.request).toHaveBeenCalledWith(
+        'POST',
+        '/api/v1/chats',
+        expect.objectContaining({
+          rerank_id: 'BAAI/bge-reranker-v2-m3@siliconflow@SILICONFLOW',
+        }),
+      );
+      expect(prisma.client.assistant.create).toHaveBeenCalledWith(
+        expect.objectContaining({
+          data: expect.objectContaining({
+            rerankId: 'BAAI/bge-reranker-v2-m3@siliconflow@SILICONFLOW',
+          }),
+        }),
+      );
+    });
+
     it('falls back through env then RAGFlow llm list when dto.modelName missing', async () => {
       ragflow.getLlmList.mockResolvedValue([
         {

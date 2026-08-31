@@ -25,6 +25,9 @@ export const DOCS_DIR = resolve(
   process.env.E2E_DOCS_DIR ?? 'test-docs/0420',
 );
 
+/** 批次名（DOCS_DIR 的最后一段），用于给结果文件命名，避免多批互相覆盖。 */
+export const BATCH_LABEL = DOCS_DIR.split('/').pop() ?? 'unknown';
+
 /** 题集 JSON，与 DOCS_DIR 配套切换。 */
 export const QUESTIONS_PATH = resolve(
   __dirname,

@@ -145,6 +145,18 @@ export class CreateAssistantDto {
   prompt?: string = DEFAULT_ASSISTANT_SYSTEM_PROMPT;
 
   /**
+   * 重排序模型，格式 `model@instance@provider`。
+   *
+   * 不传 = 由服务端按 RAGFlow 实例上实际挂载的模型决定（见
+   * `resolveDefaultRerankId`）；显式传空串 = 明确不启用 rerank。
+   * 这两者语义不同，所以这里刻意不给默认值。
+   * @example 'BAAI/bge-reranker-v2-m3@siliconflow@SILICONFLOW'
+   */
+  @IsOptional()
+  @IsString()
+  rerankId?: string;
+
+  /**
    * 加权关键字相似度
    * @example 0.2
    */

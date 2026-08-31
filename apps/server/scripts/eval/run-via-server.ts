@@ -14,6 +14,8 @@
 // 环境（仅 LLM judge 需要，judge 还是直接打 RAGFlow，不走 server）：
 //   RAGFLOW_HOST, RAGFLOW_API_KEY, RAGFLOW_JUDGE_ASSISTANT_ID
 
+import type { FactItem, NotContainItem } from './scoring';
+
 import { existsSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs';
 import { resolve } from 'node:path';
 
@@ -123,8 +125,8 @@ interface QuestionRow {
   answer?: { raw?: string };
   id: number;
   llmJudgeRubric?: string;
-  mustContain?: string[];
-  mustNotContain?: string[];
+  mustContain?: FactItem[];
+  mustNotContain?: NotContainItem[];
   question: string;
   reference?: { doc?: string; section?: string };
   topic: string;

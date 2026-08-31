@@ -1,7 +1,7 @@
 {
   "version": "0.1.0",
   "source": "test-docs/0820/RAG问题和参考答案-data32.docx",
-  "generatedAt": "2026-08-30T10:09:48.475Z",
+  "generatedAt": "2026-08-31T09:31:23.038Z",
   "splits": {
     "dev": [
       1,
@@ -719,16 +719,6 @@
           "type": "number",
           "unit": "次",
           "context": "在457次以上≥设计覆盖次数5/6（"
-        },
-        {
-          "pattern": "3362",
-          "type": "number",
-          "context": "技术规范及设计要求。项目自评一级品"
-        },
-        {
-          "pattern": "3337",
-          "type": "number",
-          "context": "一级品率94.63%，监督评价一级品"
         }
       ],
       "mustNotContain": [],
@@ -782,21 +772,6 @@
           "type": "number",
           "unit": "%",
           "context": "）：154119除以154350等于"
-        },
-        {
-          "pattern": "15433",
-          "type": "number",
-          "context": "收率（实际回收数量除以应回收数量）："
-        },
-        {
-          "pattern": "15435",
-          "type": "number",
-          "context": "量除以应回收数量）：154331除以"
-        },
-        {
-          "pattern": "15411",
-          "type": "number",
-          "context": "率（数据完整节点数除以应回收数量）："
         }
       ],
       "mustNotContain": [],
@@ -1361,29 +1336,14 @@
           "context": "1、在"
         },
         {
-          "pattern": "10151578",
-          "type": "number",
-          "context": "1、在101514996-"
-        },
-        {
           "pattern": "101515796",
           "type": "number",
           "context": "515788铺设口字型单串检波器，在"
         },
         {
-          "pattern": "10151658",
-          "type": "number",
-          "context": "型单串检波器，在101515796-"
-        },
-        {
           "pattern": "101516596",
           "type": "number",
           "context": "516588铺设吕字型两串检波器，在"
-        },
-        {
-          "pattern": "10151738",
-          "type": "number",
-          "context": "型两串检波器，在101516596-"
         }
       ],
       "mustNotContain": [],

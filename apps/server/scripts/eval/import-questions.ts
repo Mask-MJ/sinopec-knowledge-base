@@ -276,8 +276,12 @@ function autoMustContain(answer: string): FactItem[] {
     numberSpans.push([nm.index, nm.index + num.length]);
   }
 
-  // bare number：跳过被 numUnitRe 已覆盖（含子串）的位置
-  const bareNumRe = /(?<![A-Z0-9.])(\d{4,})(?!\s*[A-Z一-龥%°])/gi;
+  // bare number：跳过被 numUnitRe 已覆盖（含子串）的位置。
+  //
+  // `(?!\d)` 不能省：没有它时，"101515788铺设" 会因后瞻 (?!\s*[一-龥]) 失败而
+  // 回溯，匹配出更短的 "10151578"——一个原文里根本不存在的数字，于是造出永远
+  // 无法命中的必答事实。0820 题集 114 条数值里曾有 8 条是这么来的，必然判 0。
+  const bareNumRe = /(?<![A-Z0-9.])(\d{4,})(?!\d)(?!\s*[A-Z一-龥%°])/gi;
   let bm: null | RegExpExecArray;
   while ((bm = bareNumRe.exec(answer)) !== null) {
     const num = bm[1];

@@ -23,7 +23,13 @@ import { fileURLToPath } from 'node:url';
 
 import { expect, test } from '@playwright/test';
 
-import { DOCS_DIR, isCorpusDoc, QUESTIONS_PATH, requireEnv } from './_batch.js';
+import {
+  BATCH_LABEL,
+  DOCS_DIR,
+  isCorpusDoc,
+  QUESTIONS_PATH,
+  requireEnv,
+} from './_batch.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
@@ -33,10 +39,16 @@ const ADMIN_USER = requireEnv('E2E_ADMIN_USER');
 const ADMIN_PASS = requireEnv('E2E_ADMIN_PASS');
 const KB_NAME = process.env.E2E_NEW_KB_NAME ?? '测试知识库 3';
 const ASSISTANT_NAME = process.env.E2E_NEW_ASSISTANT_NAME ?? '聊天助手 3';
-const EMBEDDING_HINT = process.env.E2E_EMBEDDING_HINT ?? 'bge-large-zh-v1.5';
+// 不写死模型名：生产挂什么 embedding 会变（曾是 bge-large-zh-v1.5，现在是
+// qwen3.7-text-embedding），写死会让 spec 在换模型后直接挂。留空就取第一个
+// 可用的；要精确指定再传 E2E_EMBEDDING_HINT。
+const EMBEDDING_HINT = process.env.E2E_EMBEDDING_HINT ?? '';
 
 const TEST_RESULTS_DIR = resolve(__dirname, '../test-results');
-const SUMMARY_FILE = resolve(TEST_RESULTS_DIR, 'kb-bge-large-fullstack.json');
+const SUMMARY_FILE = resolve(
+  TEST_RESULTS_DIR,
+  `kb-bge-large-fullstack-${BATCH_LABEL}.json`,
+);
 const PARSE_TIMEOUT_MS = Number(process.env.E2E_PARSE_TIMEOUT_MS ?? 900_000);
 const PER_QUESTION_TIMEOUT_MS = Number(
   process.env.E2E_CHAT_QUESTION_TIMEOUT_MS ?? 90_000,
@@ -106,14 +118,19 @@ test('fullstack: create KB → upload → parse → create assistant → chat 20
   const llms = await api.get('/api/knowledge-base/llms');
   expect(llms.ok(), 'GET /api/knowledge-base/llms must succeed').toBe(true);
   const items = (await llms.json()) as LlmItem[];
-  const embedding = items.find(
-    (m) =>
-      m.model_type === 'embedding' &&
-      m.available &&
-      (m.llm_name ?? '').includes(EMBEDDING_HINT),
+  const embeddings = items.filter(
+    (m) => m.model_type === 'embedding' && m.available,
   );
+  const embedding = EMBEDDING_HINT
+    ? embeddings.find((m) => (m.llm_name ?? '').includes(EMBEDDING_HINT))
+    : embeddings[0];
   if (!embedding) {
-    throw new Error(`no embedding model matching ${EMBEDDING_HINT} found`);
+    const available = embeddings.map((m) => m.llm_name).join(', ') || '(无)';
+    throw new Error(
+      EMBEDDING_HINT
+        ? `no embedding model matching "${EMBEDDING_HINT}"; available: ${available}`
+        : `no available embedding model on the server`,
+    );
   }
   const embeddingId = `${embedding.llm_name}@${embedding.fid}`;
   console.log(`[discover] embedding id = ${embeddingId}`);
@@ -130,21 +147,27 @@ test('fullstack: create KB → upload → parse → create assistant → chat 20
   }
 
   // ── 3. create the KB ────────────────────────────────────────────────
-  // bge-large-zh-v1.5 hard-caps at 512 tokens, and the bge tokenizer
-  // counts Chinese ~1.5–2× heavier than tiktoken (which RAGFlow uses
-  // for chunk_token_num). Drop to 128 and broaden delimiter to also
-  // split at sentence punctuation so single long Chinese paragraphs
-  // get cut at 句号/感叹号/问号 instead of sliding past 512 bge tokens.
+  // 不传 parserConfig：让后端套用 knowledge-base.defaults.ts 的线上冠军配置
+  // （chunk_token_num=512 / delimiter='\n' / layout_recognize=DeepDOC）。
+  //
+  // 这里曾硬传 chunk_token_num=128 + 句读 delimiter，是为 bge-large-zh-v1.5
+  // 的 512 token 硬上限调的；embedding 换成 qwen3.7 后该约束早已不存在，而
+  // 硬编码留着，导致 e2e 长期测的是一个被削弱的配置而非线上真实配置。
+  // 2026-08-30 同语料同题集实测（0820，32 题）：
+  //   chunk 128 → 5067 片 / 103 token 每片 / 53.5 分
+  //   chunk 512 → 1409 片 / 333 token 每片 / 70.4 分（救回 7 题）
+  //   chunk 1024 → 714 片 / 642 token 每片 / 71.7 分（相对 512 仅 +1.3，噪声内）
+  // 要再做这类切片对照实验，用 E2E_CHUNK_TOKEN_NUM 覆盖。
+  const chunkTokenNum = Number(process.env.E2E_CHUNK_TOKEN_NUM) || 0;
   const createKb = await api.post('/api/knowledge-base', {
     data: {
       name: KB_NAME,
       permission: 'me',
       chunkMethod: 'naive',
       embeddingModel: embeddingId,
-      parserConfig: {
-        chunk_token_num: 128,
-        delimiter: '\n。！？!?.',
-      },
+      ...(chunkTokenNum > 0
+        ? { parserConfig: { chunk_token_num: chunkTokenNum } }
+        : {}),
     },
   });
   const createKbText = createKb.ok() ? '' : await createKb.text();
