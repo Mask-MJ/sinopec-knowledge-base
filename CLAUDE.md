@@ -61,15 +61,16 @@ pnpm -F @sinopec-kb/client openapi
 
 路由通过 `RouterModule.register()` 在 `app.module.ts` 中集中注册，所有 API 挂载在 `/api` 前缀下：
 
-| 路由前缀 | 模块 | 说明 |
-|----------|------|------|
-| `/auth` | AuthModule | JWT 认证 |
-| `/system` | SystemModule | 用户/角色/菜单/部门/岗位/字典 |
-| `/monitor` | MonitorModule | 操作日志/登录日志/系统信息 |
-| `/knowledge-base` | KnowledgeBaseModule | 知识库管理 |
-| `/assistant` | AssistantModule | AI 助手 |
+| 路由前缀          | 模块                | 说明                          |
+| ----------------- | ------------------- | ----------------------------- |
+| `/auth`           | AuthModule          | JWT 认证                      |
+| `/system`         | SystemModule        | 用户/角色/菜单/部门/岗位/字典 |
+| `/monitor`        | MonitorModule       | 操作日志/登录日志/系统信息    |
+| `/knowledge-base` | KnowledgeBaseModule | 知识库管理                    |
+| `/assistant`      | AssistantModule     | AI 助手                       |
 
 **Common 层** (`src/common/`)：
+
 - `config/` — 环境变量验证 (class-validator)，启动时校验所有必需环境变量
 - `database/` — Prisma 扩展客户端，集成 `prisma-extension-pagination` 和 `@prisma/adapter-pg` (连接池)
 - `ragflow/` — RAGFlow API 封装 (HTTP client)
@@ -79,6 +80,7 @@ pnpm -F @sinopec-kb/client openapi
 - `filters/` / `response/` — 异常过滤器和分页响应
 
 **Prisma 配置**：
+
 - Schema 拆分为多文件：`prisma/models/*.prisma`
 - 生成目标：`src/prisma/generated/`
 - 启用 `typedSql` preview feature
@@ -111,7 +113,7 @@ pnpm -F @sinopec-kb/client openapi
 `docker-compose.yaml`（include `docker-compose.infra.yaml`）起 5 个容器，同处 `sinopec-kb` bridge 网络：
 
 | 容器 | 说明 |
-|------|------|
+| --- | --- |
 | `sinopec-kb-nginx` | 唯一对外端口 `${NGINX_PORT:-80}`，反代 `/api/` 到 app + 托管前端静态资源 |
 | `sinopec-kb-app` | NestJS 后端 (3001)，不直接暴露端口 |
 | `sinopec-kb-postgres` / `-redis` / `-minio` | 基础设施，dev 环境用 `pnpm docker:dev` 单独起同一份 infra 文件 |
