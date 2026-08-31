@@ -55,6 +55,9 @@ export class AssistantEntity implements Assistant {
   /** 提示词模板 */
   prompt: null | string;
 
+  /** 重排序模型（`model@instance@provider`），空串表示不启用 */
+  rerankId: string;
+
   /** 加权关键字相似度 */
   similarityThreshold: number;
 

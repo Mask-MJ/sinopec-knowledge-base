@@ -28,6 +28,8 @@ model Assistant {
   topN                     Int                @default(6)
   /// 重新排序或选择前 k 个项目
   topK                     Int                @default(1024)
+  /// 重排序模型（格式 `model@instance@provider`；空串 = 不启用，走纯向量+关键字混合排序）
+  rerankId                 String             @default("")
   /// 空响应返回内容
   emptyResponse            String?
   /// 开场问候语

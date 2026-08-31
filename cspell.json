@@ -58,7 +58,7 @@
     "docnm",
     "qwen",
     "UNSTART",
-    "reentrancy"
+    "reentrancy", "rerank", "reranker"
   ],
   "ignorePaths": [
     "**/*.log",

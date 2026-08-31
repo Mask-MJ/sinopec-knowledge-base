@@ -36,6 +36,14 @@ class EnvironmentVariables {
   @IsString()
   ASSISTANT_DEFAULT_MODEL?: string;
 
+  /**
+   * 助手默认 rerank 模型引用（格式 `<llm_name>@<fid>`）。
+   * 不配 = 按 RAGFlow 实例上实际挂载的模型自动选；配空串 = 显式关闭重排序。
+   */
+  @IsOptional()
+  @IsString()
+  ASSISTANT_DEFAULT_RERANK?: string;
+
   @IsInt()
   AUTH_BCRYPT_SALT!: number;
 

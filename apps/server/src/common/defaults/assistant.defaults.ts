@@ -13,7 +13,9 @@
  *   923 字符版本
  */
 
-export const DEFAULT_ASSISTANT_TOP_N = 10;
+// 30：见下方 DEFAULT_ASSISTANT_RERANK_ID 的实测表。top_n 提的是召回覆盖面
+// （跨项目类 5.0 → 38.3），与 rerank 提的精度是两件事，两个一起开才到 82.3。
+export const DEFAULT_ASSISTANT_TOP_N = 30;
 // 8192：qwen3.6（hybrid reasoning）关思考后仍可能有长答案；1024 曾把 Q6 截断，
 // 后来又发现思考模式没关时会先吃光 1024 token 只输出思考。8192 一次性给足。
 export const DEFAULT_ASSISTANT_MAX_TOKENS = 8192;
@@ -23,6 +25,21 @@ export const DEFAULT_ASSISTANT_TEMPERATURE = 0.1;
 export const DEFAULT_ASSISTANT_PRESENCE_PENALTY = 0.4;
 export const DEFAULT_ASSISTANT_FREQUENCY_PENALTY = 0.7;
 export const DEFAULT_ASSISTANT_SIMILARITY_THRESHOLD = 0.2;
+// 建助手时若调用方没指定 rerank，优先尝试的模型引用。注意这里**不是**兜底值：
+// 实例没挂它时 `resolveDefaultRerankId()` 会退到实例上任一可用 rerank 模型，
+// 再没有就不启用——内网那套 RAGFlow 没有 SiliconFlow provider，写死会让建助手
+// 直接失败在 RAGFlow 的模型校验上。部署侧要固定用别的模型，配 `ASSISTANT_DEFAULT_RERANK`。
+//
+// 2026-08-31 实测（0820 语料 / 32 题 / chunk 512，LLM judge 同一口径，单变量对照）：
+//   top_n=10          62.0    top_n=10 + rerank    70.9
+//   top_n=20          68.5    top_n=30 + rerank    82.3
+//   top_n=30          71.7
+// rerank 与 top_n 提升的是不同的题、可叠加：rerank 提 top-k 内的精度（简答
+// 68.8→91.2、检索边界 65.0→91.2），top_n 提召回覆盖面（跨项目 5.0→38.3）。
+// 两者同开时 5 个题型全部改善，无此消彼长。
+export const DEFAULT_ASSISTANT_RERANK_ID =
+  'BAAI/bge-reranker-v2-m3@siliconflow@SILICONFLOW';
+
 // 注意：keywordsSimilarityWeight 是 RAGFlow 的 vector_similarity_weight 反向语义。
 // 业务层 DTO 沿用现有命名 / 值（0.7），不在本默认表里改动。
 export const DEFAULT_ASSISTANT_KEYWORDS_SIMILARITY_WEIGHT = 0.7;

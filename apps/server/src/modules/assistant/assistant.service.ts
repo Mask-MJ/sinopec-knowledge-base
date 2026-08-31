@@ -9,6 +9,7 @@ import type {
 } from './assistant.dto';
 import type { RagflowRawMessage } from './normalize-reference';
 import type { PrismaService } from '@/common/database/prisma.extension';
+import type { RagflowLlmItem } from '@/common/ragflow/ragflow.service';
 import type { ActiveUserData } from '@/modules/auth/interfaces/active-user-data.interface';
 import type { Response } from 'express';
 
@@ -22,6 +23,7 @@ import {
 import { ConfigService } from '@nestjs/config';
 
 import { PRISMA_SERVICE_TOKEN } from '@/common/database/prisma.extension';
+import { DEFAULT_ASSISTANT_RERANK_ID } from '@/common/defaults/assistant.defaults';
 import { RagflowService } from '@/common/ragflow/ragflow.service';
 import {
   assertCanShareAs,
@@ -182,6 +184,11 @@ export class AssistantService {
 
     const modelName = dto.modelName || (await this.resolveDefaultModel());
     const hasKnowledgeBase = !!(dto.datasetIds && dto.datasetIds.length > 0);
+    // rerank 只在挂了知识库时才有意义——没有检索环节就没有可重排的东西，
+    // 顺带省掉无知识库助手那一次 RAGFlow 模型列表查询。
+    const rerankId =
+      dto.rerankId ??
+      (hasKnowledgeBase ? await this.resolveDefaultRerankId() : '');
     const prompt =
       dto.prompt ||
       (hasKnowledgeBase
@@ -218,6 +225,7 @@ export class AssistantService {
         vector_similarity_weight: dto.keywordsSimilarityWeight,
         top_n: dto.topN,
         top_k: dto.topK,
+        rerank_id: rerankId,
       },
     );
 
@@ -238,6 +246,7 @@ export class AssistantService {
           keywordsSimilarityWeight: dto.keywordsSimilarityWeight,
           topN: dto.topN,
           topK: dto.topK,
+          rerankId,
           emptyResponse,
           opener,
           prompt,
@@ -482,6 +491,7 @@ export class AssistantService {
         keywordsSimilarityWeight: dto.keywordsSimilarityWeight,
         topN: dto.topN,
         topK: dto.topK,
+        rerankId: dto.rerankId,
         emptyResponse: dto.emptyResponse,
         opener: dto.opener,
         prompt: dto.prompt,
@@ -518,6 +528,7 @@ export class AssistantService {
             vector_similarity_weight: dto.keywordsSimilarityWeight,
             top_n: dto.topN,
             top_k: dto.topK,
+            rerank_id: dto.rerankId,
           },
         );
       } catch (error) {
@@ -538,6 +549,7 @@ export class AssistantService {
             keywordsSimilarityWeight: assistant.keywordsSimilarityWeight,
             topN: assistant.topN,
             topK: assistant.topK,
+            rerankId: assistant.rerankId,
             emptyResponse: assistant.emptyResponse,
             opener: assistant.opener,
             prompt: assistant.prompt,
@@ -639,6 +651,49 @@ export class AssistantService {
       );
     }
     return `${chat.llm_name}@${chat.fid}`;
+  }
+
+  /**
+   * 解析默认 rerank 模型引用（格式 `<llm_name>@<fid>`）。
+   *
+   * 与 `resolveDefaultModel` 的区别：rerank 是可选能力，实例没挂 rerank 模型时
+   * 退化成不启用，而不是抛错——chat 模型缺失助手根本没法用，rerank 缺失只是回到
+   * 纯向量 + 关键字混合排序，仍然可用。内网部署的那套 RAGFlow 就没有
+   * SiliconFlow provider。
+   *
+   * 1. `ASSISTANT_DEFAULT_RERANK` 环境变量（部署侧固定，空串即显式关闭）
+   * 2. 实例上挂了 `DEFAULT_ASSISTANT_RERANK_ID` 那个模型就用它
+   * 3. 否则退到实例上任一可用 rerank 模型
+   * 4. 一个都没有 → 空串，不启用
+   */
+  private async resolveDefaultRerankId(): Promise<string> {
+    const configured = this.configService.get<string>(
+      'ASSISTANT_DEFAULT_RERANK',
+    );
+    if (configured !== undefined) return configured;
+
+    let available: RagflowLlmItem[];
+    try {
+      const list = await this.ragflow.getLlmList();
+      available = list.filter(
+        (item) => item.model_type === 'rerank' && item.available,
+      );
+    } catch (error) {
+      // rerank 是可选增强，拉不到模型列表不该连累助手创建本身
+      this.logger.warn('拉取 RAGFlow 模型列表失败，本次不启用 rerank', error);
+      return '';
+    }
+
+    const picked =
+      available.find(
+        (item) =>
+          `${item.llm_name}@${item.fid}` === DEFAULT_ASSISTANT_RERANK_ID,
+      ) ?? available[0];
+    if (!picked) {
+      this.logger.log('RAGFlow 实例未挂载 rerank 模型，助手将不启用重排序');
+      return '';
+    }
+    return `${picked.llm_name}@${picked.fid}`;
   }
 
   /**
