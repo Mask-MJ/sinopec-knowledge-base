@@ -1,4 +1,4 @@
-/* eslint-disable unicorn/prefer-module , unicorn/no-process-exit , unicorn/prefer-single-call , no-console , no-lone-blocks , eqeqeq , @typescript-eslint/no-explicit-any , @typescript-eslint/no-unsafe-assignment , @typescript-eslint/no-unsafe-member-access , @typescript-eslint/no-unsafe-argument , @typescript-eslint/no-unsafe-return , @typescript-eslint/restrict-template-expressions , @typescript-eslint/use-unknown-in-catch-callback-variable , turbo/no-undeclared-env-vars */
+/* eslint-disable unicorn/prefer-module , unicorn/no-process-exit , unicorn/prefer-single-call , no-console , no-lone-blocks , eqeqeq , @typescript-eslint/no-explicit-any , @typescript-eslint/no-unsafe-assignment , @typescript-eslint/no-unsafe-member-access , @typescript-eslint/no-unsafe-argument , @typescript-eslint/no-unsafe-return , @typescript-eslint/restrict-template-expressions , @typescript-eslint/use-unknown-in-catch-callback-variable */
 // cspell:disable-file
 // scripts/eval/ 是开发评测工具，按照 ESLint config-protection 钩子要求，
 // 不修改 eslint.config.mjs ignores；改用 file-level disable 注释。
@@ -14,6 +14,10 @@ import { resolve } from 'node:path';
 
 import pLimit from 'p-limit';
 
+import {
+  DEFAULT_ASSISTANT_FREQUENCY_PENALTY,
+  DEFAULT_ASSISTANT_PRESENCE_PENALTY,
+} from '../../src/common/defaults/assistant.defaults';
 import {
   averageScores,
   parseJudgeScore,
@@ -291,8 +295,10 @@ async function syncAssistantConfig(cfg: ExperimentConfig): Promise<void> {
     llm_setting: {
       temperature: curLlm.temperature ?? 0.1,
       top_p: curLlm.top_p ?? 0.3,
-      presence_penalty: curLlm.presence_penalty ?? 0.4,
-      frequency_penalty: curLlm.frequency_penalty ?? 0.7,
+      presence_penalty:
+        curLlm.presence_penalty ?? DEFAULT_ASSISTANT_PRESENCE_PENALTY,
+      frequency_penalty:
+        curLlm.frequency_penalty ?? DEFAULT_ASSISTANT_FREQUENCY_PENALTY,
       max_tokens: curLlm.max_tokens ?? 512,
     },
     similarity_threshold: cfg.retrieval.similarityThreshold ?? 0.2,

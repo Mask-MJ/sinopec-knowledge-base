@@ -1,3 +1,4 @@
+// cspell:ignore logit XNUMX
 /**
  * sinopec-kb 默认助手参数（中石化勘探技术报告 RAG 场景调优过的一套）。
  *
@@ -22,8 +23,19 @@ export const DEFAULT_ASSISTANT_MAX_TOKENS = 8192;
 export const DEFAULT_ASSISTANT_TOP_K = 1024;
 export const DEFAULT_ASSISTANT_TOP_P = 0.3;
 export const DEFAULT_ASSISTANT_TEMPERATURE = 0.1;
+// 0.4：presence_penalty 是**一次性**惩罚（token 出现过就固定扣分，不随次数累加），
+// 不会像 frequency_penalty 那样雪崩，保留 RAGFlow 出厂值。
 export const DEFAULT_ASSISTANT_PRESENCE_PENALTY = 0.4;
-export const DEFAULT_ASSISTANT_FREQUENCY_PENALTY = 0.7;
+// 0：**不要再调高**。frequency_penalty 是**累加式**惩罚（logit -= fp x 出现次数），
+// 本场景恰好是最坏组合——答案长、`[ID:n]` 引用几十次、中文标点高频重复。RAGFlow
+// 出厂的 0.7（"精确"档）会把 `ID` / 数字 / `、` / `。` 逐个罚出 top_p=0.3 的候选
+// 窗口，模型只能从长尾捡 token：先退化成空引用 `[]`，再雪崩成 `suite_suite__text__`
+// / `XNUMX` / `xxxx` 一类乱码，一路刷到长度上限（线上 2026-08-30、09-01 各出现一次）。
+//
+// 2026-09-01 线上单变量对照（同一助手 / 同一问题 / 只改本参数）：
+//   fp=0.7 → 1639 字，完整 [ID:n] 22 个、被烧成空壳的 [] 16 个，后半段顿号句号消失
+//   fp=0   → 2171 字，完整 [ID:n] 47 个、空 [] 0 个，全程正常
+export const DEFAULT_ASSISTANT_FREQUENCY_PENALTY = 0;
 export const DEFAULT_ASSISTANT_SIMILARITY_THRESHOLD = 0.2;
 // 建助手时若调用方没指定 rerank，优先尝试的模型引用。注意这里**不是**兜底值：
 // 实例没挂它时 `resolveDefaultRerankId()` 会退到实例上任一可用 rerank 模型，
