@@ -281,47 +281,62 @@ async function syncAssistantConfig(cfg: ExperimentConfig): Promise<void> {
   // 关键：RAGFlow PUT 是全量替换，遗漏的字段会回到默认值。
   // 必须先 GET 拿现有配置（特别是 prompt_config / llm_setting），再 merge 检索参数后 PUT，
   // 否则会把 prompt 清空。
-  const existing = await api<any[]>(
-    'GET',
-    `/api/v1/chats?id=${cfg.assistantId}`,
-  );
-  const cur = existing[0] ?? {};
-  const curPrompt = cur.prompt ?? {};
+  const existing = await api<any>('GET', `/api/v1/chats?id=${cfg.assistantId}`);
+  // RAGFlow 0.27 起 data 是 { chats, total }；0.26 及更早直接返回数组。
+  const chats: any[] = Array.isArray(existing)
+    ? existing
+    : (existing?.chats ?? []);
+  const cur = chats[0];
+  // 拿不到现有配置就必须停下。PUT 是全量替换，带着兜底值写回去会把线上助手的
+  // 模型绑定和 prompt 一起冲掉 —— 0.27 改返回结构时就差点这么干（兜底的
+  // `deepseek-chat@DeepSeek` 恰好不存在、PUT 被 RAGFlow 拒了才没酿成事故）。
+  if (!cur) {
+    throw new Error(
+      `assistant ${cfg.assistantId} not found in GET /api/v1/chats; refusing to PUT defaults over it`,
+    );
+  }
+  // 0.27 把配置平铺成 llm_id / llm_setting / prompt_config；
+  // 0.26 及更早是嵌套的 llm{model_name,...} 与 prompt{prompt, variables,...}。
   const curLlm = cur.llm ?? {};
+  const curPrompt = cur.prompt ?? {};
+  const curSetting = cur.llm_setting ?? curLlm;
+  const llmId = cur.llm_id ?? curLlm.model_name;
+  const promptConfig = cur.prompt_config ?? {
+    empty_response: curPrompt.empty_response ?? '',
+    opener: curPrompt.opener ?? '',
+    parameters: curPrompt.variables ?? [{ key: 'knowledge', optional: false }],
+    quote: curPrompt.show_quote ?? true,
+    refine_multiturn: curPrompt.refine_multiturn ?? true,
+    system: curPrompt.prompt ?? '',
+  };
+  if (!llmId || !promptConfig.system) {
+    throw new Error(
+      `assistant ${cfg.assistantId}: GET returned no llm_id / system prompt (RAGFlow response shape changed?); refusing to PUT and wipe them`,
+    );
+  }
   const body: Record<string, unknown> = {
     name: cur.name ?? 'assistant',
     dataset_ids: cfg.datasetIds,
-    llm_id: curLlm.model_name ?? 'deepseek-chat@DeepSeek',
+    llm_id: llmId,
     llm_setting: {
-      temperature: curLlm.temperature ?? 0.1,
-      top_p: curLlm.top_p ?? 0.3,
+      temperature: curSetting.temperature ?? 0.1,
+      top_p: curSetting.top_p ?? 0.3,
       presence_penalty:
-        curLlm.presence_penalty ?? DEFAULT_ASSISTANT_PRESENCE_PENALTY,
+        curSetting.presence_penalty ?? DEFAULT_ASSISTANT_PRESENCE_PENALTY,
       frequency_penalty:
-        curLlm.frequency_penalty ?? DEFAULT_ASSISTANT_FREQUENCY_PENALTY,
-      max_tokens: curLlm.max_tokens ?? 512,
+        curSetting.frequency_penalty ?? DEFAULT_ASSISTANT_FREQUENCY_PENALTY,
+      max_tokens: curSetting.max_tokens ?? 512,
     },
     similarity_threshold: cfg.retrieval.similarityThreshold ?? 0.2,
     vector_similarity_weight: cfg.retrieval.vectorSimilarityWeight ?? 0.3,
     top_k: cfg.retrieval.topK ?? 1024,
     top_n: cfg.retrieval.topN ?? 6,
-    // RAGFlow 字段命名错位：GET 返回 prompt.prompt（system 字符串），
-    // PUT 接受 prompt_config.system —— 必须做映射
-    prompt_config: {
-      system: curPrompt.prompt ?? '',
-      parameters: curPrompt.variables ?? [
-        { key: 'knowledge', optional: false },
-      ],
-      empty_response: curPrompt.empty_response ?? '',
-      opener: curPrompt.opener ?? '',
-      quote: curPrompt.show_quote ?? true,
-      refine_multiturn: curPrompt.refine_multiturn ?? true,
-    },
+    prompt_config: promptConfig,
   };
   if (cfg.retrieval.rerankId) body.rerank_id = cfg.retrieval.rerankId;
   await api('PUT', `/api/v1/chats/${cfg.assistantId}`, body);
   console.log(
-    `  assistant synced: top_k=${body.top_k} thr=${body.similarity_threshold} w=${body.vector_similarity_weight} top_n=${body.top_n}  prompt_len=${(curPrompt.prompt ?? '').length}`,
+    `  assistant synced: top_k=${body.top_k} thr=${body.similarity_threshold} w=${body.vector_similarity_weight} top_n=${body.top_n}  prompt_len=${promptConfig.system.length}`,
   );
 }
 

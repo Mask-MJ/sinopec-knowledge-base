@@ -1,0 +1,15 @@
+{
+  "experimentId": "0820-512-topn30-rerank-fp0",
+  "_desc": "frequency_penalty 0.7 -> 0 之后的回归跑批。检索参数与线上助手『聊天助手-0820-512-topN30』逐项一致（top_n=30 + bge-reranker-v2-m3），只有 llm_setting.frequency_penalty 变了。对照基线：同配置 fp=0.7 时 82.3（2026-08-31）。",
+  "datasetIds": ["0942c210a48111f1b93817f5117875d6"],
+  "assistantId": "69c7be68a53211f1b93817f5117875d6",
+  "split": "all",
+  "retrieval": {
+    "topK": 1024,
+    "similarityThreshold": 0.2,
+    "vectorSimilarityWeight": 0.7,
+    "keyword": false,
+    "topN": 30,
+    "rerankId": "BAAI/bge-reranker-v2-m3@siliconflow@SILICONFLOW"
+  }
+}
