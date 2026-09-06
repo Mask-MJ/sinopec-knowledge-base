@@ -354,6 +354,31 @@ describe('scoreAnswer', () => {
     expect(r.finalScore).toBe(1);
   });
 });
+describe('normalizeDocName 跨库文件名差异', () => {
+  // 同一份文档导入不同知识库时，文件名转换方式不同：题集里的 reference.doc 用原始
+  // docx 名（全角括号、顿号），而库里可能已被转成下划线。归一化漏掉这些标点，会让
+  // 检索指标把命中判成未命中 —— 82 题全量库上一次就误判了 15 题。
+  const same = (a: string, b: string) =>
+    normalizeDocName(a) === normalizeDocName(b);
+
+  it('全角括号 vs 下划线', () => {
+    expect(same('梁北二井（12采区）三维地震勘探试验总结', '梁北二井_12采区_三维地震勘探试验总结.md')).toBe(true);
+  });
+
+  it('半角括号 vs 下划线', () => {
+    expect(same('…煤层气二维地震采集项目总结报告(end)', '…煤层气二维地震采集项目总结报告_end_.md')).toBe(true);
+  });
+
+  it('顿号 vs 下划线', () => {
+    expect(same('安徽潘谢东二维地震采集、处理、解释作业与服务采集施工设计(更新)', '安徽潘谢东二维地震采集_处理_解释作业与服务采集施工设计_更新_.md')).toBe(true);
+  });
+
+  it('不同文档不会被归一成同一个', () => {
+    expect(same('顺北42井东三维地震勘探项目', '顺北43井东三维地震勘探项目')).toBe(false);
+    expect(same('2016年顺8井北三维', '2017年顺中三维')).toBe(false);
+  });
+});
+
 describe('inlineTableUnits', () => {
   // Q26 实证：答案把统计数字排成 Markdown 表格，单位留在表头（"数量（个）"），
   // 单元格里只剩裸数字。规则分要求数字与单位紧邻，于是整张表一个都匹配不上 ——
@@ -407,6 +432,25 @@ describe('unitsCompatible', () => {
   it('炮 ↔ 个 (勘探场景同义)', () => {
     expect(unitsCompatible('炮', '个')).toBe(true);
     expect(unitsCompatible('个', '炮')).toBe(true);
+  });
+  // 勘探语料里「接收点总数 236232 个」与「236232 点」是同一件事。缺这条映射时，
+  // 模型用更专业的「点」反而被判未命中（v7 实测 Q12 因此从 1.00 掉到 0.86）。
+  it('点 ↔ 个（物理点/接收点场景同义）', () => {
+    expect(unitsCompatible('个', '点')).toBe(true);
+    expect(unitsCompatible('点', '个')).toBe(true);
+  });
+  it('matchesFact: 236232 个 命中 236232 点', () => {
+    expect(
+      matchesFact('接收点总数（接收总点数）：236232点', {
+        pattern: '236232',
+        type: 'number',
+        unit: '个',
+      }),
+    ).toBe(true);
+  });
+  it('点 不与长度/百分比等其它单位组混淆', () => {
+    expect(unitsCompatible('m', '点')).toBe(false);
+    expect(unitsCompatible('%', '点')).toBe(false);
   });
   it('米类同组', () => {
     expect(unitsCompatible('m', 'mm')).toBe(true);

@@ -126,6 +126,8 @@ export function normalizeUnit(unit: null | string | undefined): string {
 const UNIT_GROUPS: Record<string, number> = {
   炮: 1,
   个: 1,
+  // 「接收点总数 236232 个」与「236232 点」在勘探语料里是同一件事
+  点: 1,
   次: 1,
   束: 1,
   道: 1,
@@ -190,11 +192,17 @@ export function normalizeWell(s: string): string {
 }
 
 export function normalizeDocName(s: string): string {
-  return s
-    .replace(/_noimg(?=\.|$)/, '')
-    .replace(/\.(docx|pdf|md|txt)$/i, '')
-    .replaceAll(/\s+/g, '')
-    .toLowerCase();
+  return (
+    s
+      .replace(/_noimg(?=\.|$)/, '')
+      .replace(/\.(docx|pdf|md|txt)$/i, '')
+      // 同一份文档导入不同知识库时，文件名里的括号和顿号常被转成下划线
+      // （`梁北二井（12采区）` → `梁北二井_12采区_`）。这纯属排版差异，不抹掉的话
+      // 检索指标会把命中判成未命中 —— 82 题全量库上一次误判了 15 题。
+      // 只去分隔性标点，数字与文字保留，`顺北42` 和 `顺北43` 依旧区分得开。
+      .replaceAll(/[\s_\-—()（）[\]【】、,，]/g, '')
+      .toLowerCase()
+  );
 }
 
 export function cleanText(text: string): string {
@@ -210,7 +218,7 @@ export function cleanText(text: string): string {
 }
 
 const NUMBER_TOKEN_RE =
-  /(\d{1,3}(?:,\d{3})+|\d+(?:\.\d+)?)\s*([万亿千])?\s*(km²|km2|km\^2|平方千米|平方公里|m²|m2|m\^2|平方米|km|千米|公里|[m米次个束炮道根站线%°度d天年月日]|metre|meter|mm|毫米|m\/s)?/g;
+  /(\d{1,3}(?:,\d{3})+|\d+(?:\.\d+)?)\s*([万亿千])?\s*(km²|km2|km\^2|平方千米|平方公里|m²|m2|m\^2|平方米|km|千米|公里|[m米次个点束炮道根站线%°度d天年月日]|metre|meter|mm|毫米|m\/s)?/g;
 
 const MULTIPLIER_MAP: Record<string, number> = {
   万: 1e4,
