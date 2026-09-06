@@ -23,7 +23,10 @@ import {
 import { ConfigService } from '@nestjs/config';
 
 import { PRISMA_SERVICE_TOKEN } from '@/common/database/prisma.extension';
-import { DEFAULT_ASSISTANT_RERANK_ID } from '@/common/defaults/assistant.defaults';
+import {
+  DEFAULT_ASSISTANT_RERANK_CANDIDATES_COUNT,
+  DEFAULT_ASSISTANT_RERANK_ID,
+} from '@/common/defaults/assistant.defaults';
 import { RagflowService } from '@/common/ragflow/ragflow.service';
 import {
   assertCanShareAs,
@@ -226,6 +229,7 @@ export class AssistantService {
         top_n: dto.topN,
         top_k: dto.topK,
         rerank_id: rerankId,
+        rerank_candidates_count: DEFAULT_ASSISTANT_RERANK_CANDIDATES_COUNT,
       },
     );
 

@@ -34,6 +34,13 @@ interface ExperimentConfig {
   experimentId: string;
   retrieval: {
     keyword?: boolean;
+    /**
+     * rerank 的候选池大小（RAGFlow 静默默认 64）。
+     * 链路是「混合检索出 top_k 个 → 只对前 rerank_candidates_count 个重排 → 取 top_n」，
+     * 所以真正的召回上限是这个值而不是 top_k：排在它之外的 chunk 连被 rerank 评估的
+     * 机会都没有，调大 top_n 也捞不回来。语料库变大后它会先成为瓶颈。
+     */
+    rerankCandidatesCount?: number;
     rerankId?: string;
     similarityThreshold?: number;
     topK?: number;
@@ -331,12 +338,15 @@ async function syncAssistantConfig(cfg: ExperimentConfig): Promise<void> {
     vector_similarity_weight: cfg.retrieval.vectorSimilarityWeight ?? 0.3,
     top_k: cfg.retrieval.topK ?? 1024,
     top_n: cfg.retrieval.topN ?? 6,
+    // PUT 是全量替换：不带上这个字段，助手上已设的值会被打回默认 64
+    rerank_candidates_count:
+      cfg.retrieval.rerankCandidatesCount ?? cur.rerank_candidates_count ?? 64,
     prompt_config: promptConfig,
   };
   if (cfg.retrieval.rerankId) body.rerank_id = cfg.retrieval.rerankId;
   await api('PUT', `/api/v1/chats/${cfg.assistantId}`, body);
   console.log(
-    `  assistant synced: top_k=${body.top_k} thr=${body.similarity_threshold} w=${body.vector_similarity_weight} top_n=${body.top_n}  prompt_len=${promptConfig.system.length}`,
+    `  assistant synced: top_k=${body.top_k} thr=${body.similarity_threshold} w=${body.vector_similarity_weight} top_n=${body.top_n} rerank_cand=${body.rerank_candidates_count}  prompt_len=${promptConfig.system.length}`,
   );
 }
 
@@ -495,7 +505,13 @@ async function main(): Promise<void> {
   await syncAssistantConfig(cfg);
   console.log('');
 
-  const limit = pLimit(3);
+  // 并发默认 3。调大 rerank_candidates_count 后，rerank 侧的文本量成倍增长，
+  // 外部 rerank 服务（SiliconFlow）会返回 429 —— 这种实验要用 EVAL_CONCURRENCY 降并发。
+  const concurrency = Math.max(
+    1,
+    Math.min(8, Number(process.env.EVAL_CONCURRENCY) || 3),
+  );
+  const limit = pLimit(concurrency);
   const tasks = questions.map((q) =>
     limit(async () => {
       try {

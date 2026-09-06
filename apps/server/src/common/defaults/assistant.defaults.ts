@@ -37,6 +37,17 @@ export const DEFAULT_ASSISTANT_PRESENCE_PENALTY = 0.4;
 //   fp=0.7 → 1639 字，完整 [ID:n] 22 个、被烧成空壳的 [] 16 个，后半段顿号句号消失
 //   fp=0   → 2171 字，完整 [ID:n] 47 个、空 [] 0 个，全程正常
 export const DEFAULT_ASSISTANT_FREQUENCY_PENALTY = 0;
+// 128：RAGFlow 的 rerank 候选池大小，出厂默认 64。链路是「混合检索出 top_k 个 →
+// 只对前 rerank_candidates_count 个重排 → 取 top_n」，所以**真正的召回上限是这个值
+// 而不是 top_k**：排在它之外的 chunk 连被 rerank 评估的机会都没有，调大 top_n 也捞不回。
+// 语料库一变大它就先成为瓶颈 —— 同一道题（Q213）在 10 文档的小库里参考段落能排进
+// top-30，换到 26 文档的大库就被挤出 64 名。
+//
+// 2026-09-06 实测（82 题 / 各两轮 / 单变量）：64 → 87.3%，128 → 89.0%。
+// 稳定改善 9 题（Q115 0.00→1.00、Q116 +0.23 等），稳定劣化 4 题（Q210 -0.5：候选池
+// 变大后 rerank 重新洗牌，原本命中的段落被挤出 top-30）—— 扩大候选池是双刃剑，净 +1.7pp。
+// 更大的值未验证：256 会打爆 SiliconFlow rerank 的速率限制（429）。
+export const DEFAULT_ASSISTANT_RERANK_CANDIDATES_COUNT = 128;
 export const DEFAULT_ASSISTANT_SIMILARITY_THRESHOLD = 0.2;
 // 建助手时若调用方没指定 rerank，优先尝试的模型引用。注意这里**不是**兜底值：
 // 实例没挂它时 `resolveDefaultRerankId()` 会退到实例上任一可用 rerank 模型，
