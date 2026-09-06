@@ -13,6 +13,7 @@ import {
   numbersEqual,
   parseNumber,
   scoreAnswer,
+  inlineTableUnits,
   scoreRetrieval,
   unitsCompatible,
 } from './scoring';
@@ -254,6 +255,21 @@ describe('scoreRetrieval', () => {
   it('handles empty chunks', () => {
     const r = scoreRetrieval([], { doc: 'X', section: '' });
     expect(r.matched).toBe(false);
+    // 有参考文档、只是没召回到 —— 这是真的检索失败，必须计入指标
+    expect(r.applicable).toBe(true);
+  });
+
+  // 「检索边界」题（参考答案就是"知识库里没有"，如 0820 题集的 Q24/Q27）没有
+  // 正确文档可召回，rank 必然为 0。把它们计入 hit@1 分母等于把"本来就无解"记成
+  // "没做到"，会把检索指标永久压在封顶值以下，掩盖真实召回表现。
+  it('参考文档为空的题标记为不可评，不该计入检索指标', () => {
+    const r = scoreRetrieval([{ documentName: 'whatever.docx' }], {
+      doc: '',
+      section: '全文无对应章节',
+    });
+    expect(r.applicable).toBe(false);
+    expect(r.matched).toBe(false);
+    expect(r.rank).toBe(0);
   });
 });
 
@@ -338,6 +354,55 @@ describe('scoreAnswer', () => {
     expect(r.finalScore).toBe(1);
   });
 });
+describe('inlineTableUnits', () => {
+  // Q26 实证：答案把统计数字排成 Markdown 表格，单位留在表头（"数量（个）"），
+  // 单元格里只剩裸数字。规则分要求数字与单位紧邻，于是整张表一个都匹配不上 ——
+  // 答案明明全对，却只拿到 0.45。这是排版导致的系统性低估，不是质量问题。
+  const table = [
+    '| 物理点类型 | 数量（个） | 备注 |',
+    '| :--- | :--- | :--- |',
+    '| 点试验物理点 | 24 | 共2个点试验 |',
+    '| 段试验物理点 | 100 | / |',
+    '| 合计 | 149 | 含所有类型 |',
+  ].join('\n');
+
+  it('把表头括号里的单位补给同列的裸数字', () => {
+    const out = inlineTableUnits(table);
+    expect(out).toContain('24个');
+    expect(out).toContain('100个');
+    expect(out).toContain('149个');
+  });
+
+  it('只补裸数字所在的那一列，不碰其它列', () => {
+    // "点试验物理点" 这类文字列不该被加上单位
+    expect(inlineTableUnits(table)).toContain('点试验物理点');
+  });
+
+  it('表头没有单位时原样返回', () => {
+    const t = ['| 名称 | 数量 |', '| --- | --- |', '| 甲 | 24 |'].join('\n');
+    expect(inlineTableUnits(t)).toBe(t);
+  });
+
+  it('非表格文本原样返回', () => {
+    expect(inlineTableUnits('设计炮数为63750个，实际63787个')).toBe(
+      '设计炮数为63750个，实际63787个',
+    );
+  });
+
+  it('scoreAnswer: 表格排版的数字不再漏判', () => {
+    const r = scoreAnswer(
+      table,
+      [
+        { pattern: '24', type: 'number', unit: '个' },
+        { pattern: '100', type: 'number', unit: '个' },
+        { pattern: '149', type: 'number', unit: '个' },
+      ],
+      [],
+    );
+    expect(r.finalScore).toBe(1);
+  });
+});
+
 describe('unitsCompatible', () => {
   it('炮 ↔ 个 (勘探场景同义)', () => {
     expect(unitsCompatible('炮', '个')).toBe(true);

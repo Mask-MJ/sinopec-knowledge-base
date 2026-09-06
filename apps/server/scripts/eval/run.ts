@@ -387,8 +387,13 @@ async function processOne(
 function aggregate(results: QuestionResult[]) {
   const n = results.length;
   if (n === 0) return null;
+  // 检索指标只统计「有正确文档可召回」的题。参考答案为"知识库里没有"的
+  // 检索边界题（0820 的 Q24/Q27）无从评判召回，计入分母会把指标永久压在
+  // 封顶值以下 —— 详见 RetrievalScore.applicable 的注释。
+  const retrievable = results.filter((r) => r.retrieval.applicable);
+  const rn = retrievable.length;
   const sum = (sel: (r: QuestionResult) => number) =>
-    results.reduce((s, r) => s + sel(r), 0);
+    retrievable.reduce((s, r) => s + sel(r), 0);
   // 每题统一一个 0-1 分数：mustContain 走 finalScore，LLM-judge 走 llmJudgeScore
   const perQuestionScore = (r: QuestionResult): null | number => {
     if (r.answerScore != null) return r.answerScore.finalScore;
@@ -403,10 +408,12 @@ function aggregate(results: QuestionResult[]) {
       : 0;
   return {
     n,
-    mrr: sum((r) => r.retrieval.mrr) / n,
-    hitAt1: sum((r) => r.retrieval.hitAt1) / n,
-    hitAt3: sum((r) => r.retrieval.hitAt3) / n,
-    matched: sum((r) => (r.retrieval.matched ? 1 : 0)) / n,
+    retrievalN: rn,
+    retrievalSkipped: n - rn,
+    mrr: rn > 0 ? sum((r) => r.retrieval.mrr) / rn : 0,
+    hitAt1: rn > 0 ? sum((r) => r.retrieval.hitAt1) / rn : 0,
+    hitAt3: rn > 0 ? sum((r) => r.retrieval.hitAt3) / rn : 0,
+    matched: rn > 0 ? sum((r) => (r.retrieval.matched ? 1 : 0)) / rn : 0,
     answerAvg: totalScore,
     answerScored: scoredResults.length,
     pending: results.filter((r) => perQuestionScore(r) == null && r.answerText)
@@ -434,6 +441,9 @@ function generateMarkdown(
     '',
     '## Aggregate',
     `- N = ${agg.n}`,
+  );
+  lines.push(
+    `- 检索指标口径 = ${agg.retrievalN}/${agg.n} 题${agg.retrievalSkipped > 0 ? `（${agg.retrievalSkipped} 题参考答案为"知识库中没有"，无正确文档可召回，已排除）` : ''}`,
   );
   lines.push(`- MRR = ${agg.mrr.toFixed(3)}`);
   lines.push(`- hit@1 = ${(agg.hitAt1 * 100).toFixed(1)}%`);
@@ -517,7 +527,7 @@ async function main(): Promise<void> {
 
   if (agg) {
     console.log(
-      `\nDone: MRR=${agg.mrr.toFixed(3)}  hit@1=${(agg.hitAt1 * 100).toFixed(1)}%  hit@3=${(agg.hitAt3 * 100).toFixed(1)}%  doc-match=${(agg.matched * 100).toFixed(1)}%  answer-avg=${(agg.answerAvg * 100).toFixed(1)}%  (judge-pending=${agg.pending})`,
+      `\nDone: MRR=${agg.mrr.toFixed(3)}  hit@1=${(agg.hitAt1 * 100).toFixed(1)}%  hit@3=${(agg.hitAt3 * 100).toFixed(1)}%  doc-match=${(agg.matched * 100).toFixed(1)}%  (检索口径 ${agg.retrievalN}/${agg.n} 题${agg.retrievalSkipped > 0 ? `，${agg.retrievalSkipped} 题无参考文档已排除` : ''})  answer-avg=${(agg.answerAvg * 100).toFixed(1)}%  (judge-pending=${agg.pending})`,
     );
   }
 }
