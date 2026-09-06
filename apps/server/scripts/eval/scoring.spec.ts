@@ -5,6 +5,7 @@ import { describe, expect, it } from 'vitest';
 import {
   cleanText,
   findNumberTokens,
+  inlineTableUnits,
   matchesFact,
   matchesNotContain,
   normalizeDocName,
@@ -13,7 +14,6 @@ import {
   numbersEqual,
   parseNumber,
   scoreAnswer,
-  inlineTableUnits,
   scoreRetrieval,
   unitsCompatible,
 } from './scoring';

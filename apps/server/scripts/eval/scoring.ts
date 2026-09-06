@@ -248,10 +248,13 @@ const WELL_TOKEN_RE = /[A-Z]{2,3}[-\s_]*\d+(?:[-\s_]*[JKjk][-\s_]*\d*)?/g;
 /** Markdown 表格分隔行，如 `| :--- | ---: |` */
 const TABLE_DIVIDER_RE = /^\s*\|(?:\s*:?-+:?\s*\|)+\s*$/;
 /** 表头单元格里括号中的单位，如 `数量（个）` / `覆盖次数(次)` */
-const HEADER_UNIT_RE = /[(（]\s*([^)）\s]+?)\s*[)）]\s*$/;
+const HEADER_UNIT_RE = /[(（]\s*([^)）\s]+)\s*[)）]\s*$/;
 
 const splitRow = (line: string): string[] =>
-  line.replace(/^\s*\|/, '').replace(/\|\s*$/, '').split('|');
+  line
+    .replace(/^\s*\|/, '')
+    .replace(/\|\s*$/, '')
+    .split('|');
 
 /**
  * 把 Markdown 表格中「表头带单位、单元格只剩裸数字」的情况补成「数字+单位」。
@@ -281,7 +284,9 @@ export function inlineTableUnits(text: string): string {
     }
     // 表头：本行之后若紧跟分隔行，则把各列括号里的单位记下来
     if (units.length === 0 && TABLE_DIVIDER_RE.test(lines[i + 1] ?? '')) {
-      units = splitRow(line).map((c) => HEADER_UNIT_RE.exec(c.trim())?.[1] ?? '');
+      units = splitRow(line).map(
+        (c) => HEADER_UNIT_RE.exec(c.trim())?.[1] ?? '',
+      );
       return line;
     }
     if (!sawDivider) return line;
