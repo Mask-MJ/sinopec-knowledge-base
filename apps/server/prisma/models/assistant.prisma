@@ -16,8 +16,10 @@ model Assistant {
   topP                     Float              @default(0.3)
   /// 存在惩罚
   presencePenalty          Float              @default(0.4)
-  /// 频率惩罚
-  frequencyPenalty         Float              @default(0.7)
+  /// 频率惩罚。必须是 0：RAGFlow 把它作为累积惩罚（logit 每复现一次就再减一次），
+  /// 非 0 会让长答案解码崩溃成 `[ID:suite_7_3_3]` / `XNUMX` / 连串 x。
+  /// 详见 common/defaults/assistant.defaults.ts 的同名常量。
+  frequencyPenalty         Float              @default(0)
   /// 最大生成长度
   maxTokens                Int                @default(512)
   /// 加权关键字相似度

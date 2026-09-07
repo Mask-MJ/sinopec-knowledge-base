@@ -36,6 +36,16 @@ export interface NotContainItem {
 }
 
 export interface RetrievalScore {
+  /**
+   * 这道题是否有「正确文档」可供召回。
+   *
+   * 「检索边界」题的参考答案本身就是"知识库里没有这个内容"（0820 题集的
+   * Q24 / Q27），`ref.doc` 为空，rank 必然是 0。这类题与"有正确文档却没召回到"
+   * 在数值上完全同形，若一并计入 hit@1 / MRR 的分母，等于把"本来就无解"记成
+   * "没做到" —— 检索指标会被永久压在封顶值以下，掩盖真实召回表现。
+   * 汇总时应只统计 `applicable === true` 的题。
+   */
+  applicable: boolean;
   hitAt1: 0 | 1;
   hitAt3: 0 | 1;
   hitAtN: 0 | 1;
@@ -116,6 +126,8 @@ export function normalizeUnit(unit: null | string | undefined): string {
 const UNIT_GROUPS: Record<string, number> = {
   炮: 1,
   个: 1,
+  // 「接收点总数 236232 个」与「236232 点」在勘探语料里是同一件事
+  点: 1,
   次: 1,
   束: 1,
   道: 1,
@@ -180,11 +192,17 @@ export function normalizeWell(s: string): string {
 }
 
 export function normalizeDocName(s: string): string {
-  return s
-    .replace(/_noimg(?=\.|$)/, '')
-    .replace(/\.(docx|pdf|md|txt)$/i, '')
-    .replaceAll(/\s+/g, '')
-    .toLowerCase();
+  return (
+    s
+      .replace(/_noimg(?=\.|$)/, '')
+      .replace(/\.(docx|pdf|md|txt)$/i, '')
+      // 同一份文档导入不同知识库时，文件名里的括号和顿号常被转成下划线
+      // （`梁北二井（12采区）` → `梁北二井_12采区_`）。这纯属排版差异，不抹掉的话
+      // 检索指标会把命中判成未命中 —— 82 题全量库上一次误判了 15 题。
+      // 只去分隔性标点，数字与文字保留，`顺北42` 和 `顺北43` 依旧区分得开。
+      .replaceAll(/[\s_\-—()（）[\]【】、,，]/g, '')
+      .toLowerCase()
+  );
 }
 
 export function cleanText(text: string): string {
@@ -200,7 +218,7 @@ export function cleanText(text: string): string {
 }
 
 const NUMBER_TOKEN_RE =
-  /(\d{1,3}(?:,\d{3})+|\d+(?:\.\d+)?)\s*([万亿千])?\s*(km²|km2|km\^2|平方千米|平方公里|m²|m2|m\^2|平方米|km|千米|公里|[m米次个束炮道根站线%°度d天年月日]|metre|meter|mm|毫米|m\/s)?/g;
+  /(\d{1,3}(?:,\d{3})+|\d+(?:\.\d+)?)\s*([万亿千])?\s*(km²|km2|km\^2|平方千米|平方公里|m²|m2|m\^2|平方米|km|千米|公里|[m米次个点束炮道根站线%°度d天年月日]|metre|meter|mm|毫米|m\/s)?/g;
 
 const MULTIPLIER_MAP: Record<string, number> = {
   万: 1e4,
@@ -234,6 +252,65 @@ export function findNumberTokens(text: string): NumberToken[] {
 }
 
 const WELL_TOKEN_RE = /[A-Z]{2,3}[-\s_]*\d+(?:[-\s_]*[JKjk][-\s_]*\d*)?/g;
+
+/** Markdown 表格分隔行，如 `| :--- | ---: |` */
+const TABLE_DIVIDER_RE = /^\s*\|(?:\s*:?-+:?\s*\|)+\s*$/;
+/** 表头单元格里括号中的单位，如 `数量（个）` / `覆盖次数(次)` */
+const HEADER_UNIT_RE = /[(（]\s*([^)）\s]+)\s*[)）]\s*$/;
+
+const splitRow = (line: string): string[] =>
+  line
+    .replace(/^\s*\|/, '')
+    .replace(/\|\s*$/, '')
+    .split('|');
+
+/**
+ * 把 Markdown 表格中「表头带单位、单元格只剩裸数字」的情况补成「数字+单位」。
+ *
+ * 规则分要求数字与单位紧邻才算命中，而模型一旦把统计结果排成表格，单位就留在
+ * 表头（`数量（个）`）、单元格里只剩 `24` —— 整张表一个都匹配不上，答案明明全对
+ * 却被判低分（Q26 实证：0.45，实际应为 0.91）。这是排版导致的系统性低估。
+ *
+ * 只补「单元格是纯数字」且「该列表头括号里有单位」的格子，不动其它内容，因此不会
+ * 放宽正文里的裸数字匹配 —— `顺8井北` 中的 `8` 依旧不会命中 `8m`。
+ */
+export function inlineTableUnits(text: string): string {
+  if (!text.includes('|')) return text;
+  const lines = text.split('\n');
+  let units: string[] = [];
+  let sawDivider = false;
+
+  const out = lines.map((line, i) => {
+    if (!line.trimStart().startsWith('|')) {
+      units = [];
+      sawDivider = false;
+      return line;
+    }
+    if (TABLE_DIVIDER_RE.test(line)) {
+      sawDivider = units.length > 0;
+      return line;
+    }
+    // 表头：本行之后若紧跟分隔行，则把各列括号里的单位记下来
+    if (units.length === 0 && TABLE_DIVIDER_RE.test(lines[i + 1] ?? '')) {
+      units = splitRow(line).map(
+        (c) => HEADER_UNIT_RE.exec(c.trim())?.[1] ?? '',
+      );
+      return line;
+    }
+    if (!sawDivider) return line;
+    const cells = splitRow(line);
+    if (!cells.some((c, col) => units[col] && /^\s*\d+(?:\.\d+)?\s*$/.test(c)))
+      return line;
+    const patched = cells.map((c, col) => {
+      const unit = units[col];
+      if (!unit || !/^\s*\d+(?:\.\d+)?\s*$/.test(c)) return c;
+      return ` ${c.trim()}${unit} `;
+    });
+    return `|${patched.join('|')}|`;
+  });
+
+  return out.join('\n');
+}
 
 export function matchesFact(text: string, fact: FactItem): boolean {
   if (fact.type === 'number') {
@@ -282,9 +359,18 @@ export function scoreRetrieval(
   chunks: ChunkRef[],
   ref: QuestionRef,
 ): RetrievalScore {
-  if (chunks.length === 0 || !ref.doc) {
-    return { matched: false, rank: 0, hitAt1: 0, hitAt3: 0, hitAtN: 0, mrr: 0 };
-  }
+  const miss = {
+    applicable: true,
+    matched: false,
+    rank: 0,
+    hitAt1: 0,
+    hitAt3: 0,
+    hitAtN: 0,
+    mrr: 0,
+  } as const;
+  // 没有参考文档 = 无从评判召回，不是召回失败
+  if (!ref.doc) return { ...miss, applicable: false };
+  if (chunks.length === 0) return { ...miss };
   const refDoc = normalizeDocName(ref.doc);
   let rank = 0;
   for (const [i, chunk] of chunks.entries()) {
@@ -295,10 +381,9 @@ export function scoreRetrieval(
       break;
     }
   }
-  if (rank === 0) {
-    return { matched: false, rank: 0, hitAt1: 0, hitAt3: 0, hitAtN: 0, mrr: 0 };
-  }
+  if (rank === 0) return { ...miss };
   return {
+    applicable: true,
     matched: true,
     rank,
     hitAt1: rank <= 1 ? 1 : 0,
@@ -313,7 +398,7 @@ export function scoreAnswer(
   mustContain: FactItem[],
   mustNotContain: NotContainItem[],
 ): AnswerScore {
-  const text = cleanText(rawText);
+  const text = inlineTableUnits(cleanText(rawText));
   let totalWeight = 0;
   let hitWeight = 0;
   let criticalMissing = false;

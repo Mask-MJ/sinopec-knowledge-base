@@ -1,4 +1,4 @@
-/* eslint-disable unicorn/prefer-module , unicorn/no-process-exit , unicorn/prefer-single-call , no-console , no-lone-blocks , eqeqeq , @typescript-eslint/no-explicit-any , @typescript-eslint/no-unsafe-assignment , @typescript-eslint/no-unsafe-member-access , @typescript-eslint/no-unsafe-argument , @typescript-eslint/no-unsafe-return , @typescript-eslint/restrict-template-expressions , @typescript-eslint/use-unknown-in-catch-callback-variable , turbo/no-undeclared-env-vars */
+/* eslint-disable unicorn/prefer-module , unicorn/no-process-exit , unicorn/prefer-single-call , no-console , no-lone-blocks , eqeqeq , @typescript-eslint/no-explicit-any , @typescript-eslint/no-unsafe-assignment , @typescript-eslint/no-unsafe-member-access , @typescript-eslint/no-unsafe-argument , @typescript-eslint/no-unsafe-return , @typescript-eslint/restrict-template-expressions , @typescript-eslint/use-unknown-in-catch-callback-variable */
 // cspell:disable-file
 // scripts/eval/ 是开发评测工具，按照 ESLint config-protection 钩子要求，
 // 不修改 eslint.config.mjs ignores；改用 file-level disable 注释。
@@ -15,6 +15,10 @@ import { resolve } from 'node:path';
 import pLimit from 'p-limit';
 
 import {
+  DEFAULT_ASSISTANT_FREQUENCY_PENALTY,
+  DEFAULT_ASSISTANT_PRESENCE_PENALTY,
+} from '../../src/common/defaults/assistant.defaults';
+import {
   averageScores,
   parseJudgeScore,
   resolveJudgeReplicas,
@@ -30,6 +34,13 @@ interface ExperimentConfig {
   experimentId: string;
   retrieval: {
     keyword?: boolean;
+    /**
+     * rerank 的候选池大小（RAGFlow 静默默认 64）。
+     * 链路是「混合检索出 top_k 个 → 只对前 rerank_candidates_count 个重排 → 取 top_n」，
+     * 所以真正的召回上限是这个值而不是 top_k：排在它之外的 chunk 连被 rerank 评估的
+     * 机会都没有，调大 top_n 也捞不回来。语料库变大后它会先成为瓶颈。
+     */
+    rerankCandidatesCount?: number;
     rerankId?: string;
     similarityThreshold?: number;
     topK?: number;
@@ -277,45 +288,65 @@ async function syncAssistantConfig(cfg: ExperimentConfig): Promise<void> {
   // 关键：RAGFlow PUT 是全量替换，遗漏的字段会回到默认值。
   // 必须先 GET 拿现有配置（特别是 prompt_config / llm_setting），再 merge 检索参数后 PUT，
   // 否则会把 prompt 清空。
-  const existing = await api<any[]>(
-    'GET',
-    `/api/v1/chats?id=${cfg.assistantId}`,
-  );
-  const cur = existing[0] ?? {};
-  const curPrompt = cur.prompt ?? {};
+  const existing = await api<any>('GET', `/api/v1/chats?id=${cfg.assistantId}`);
+  // RAGFlow 0.27 起 data 是 { chats, total }；0.26 及更早直接返回数组。
+  const chats: any[] = Array.isArray(existing)
+    ? existing
+    : (existing?.chats ?? []);
+  const cur = chats[0];
+  // 拿不到现有配置就必须停下。PUT 是全量替换，带着兜底值写回去会把线上助手的
+  // 模型绑定和 prompt 一起冲掉 —— 0.27 改返回结构时就差点这么干（兜底的
+  // `deepseek-chat@DeepSeek` 恰好不存在、PUT 被 RAGFlow 拒了才没酿成事故）。
+  if (!cur) {
+    throw new Error(
+      `assistant ${cfg.assistantId} not found in GET /api/v1/chats; refusing to PUT defaults over it`,
+    );
+  }
+  // 0.27 把配置平铺成 llm_id / llm_setting / prompt_config；
+  // 0.26 及更早是嵌套的 llm{model_name,...} 与 prompt{prompt, variables,...}。
   const curLlm = cur.llm ?? {};
+  const curPrompt = cur.prompt ?? {};
+  const curSetting = cur.llm_setting ?? curLlm;
+  const llmId = cur.llm_id ?? curLlm.model_name;
+  const promptConfig = cur.prompt_config ?? {
+    empty_response: curPrompt.empty_response ?? '',
+    opener: curPrompt.opener ?? '',
+    parameters: curPrompt.variables ?? [{ key: 'knowledge', optional: false }],
+    quote: curPrompt.show_quote ?? true,
+    refine_multiturn: curPrompt.refine_multiturn ?? true,
+    system: curPrompt.prompt ?? '',
+  };
+  if (!llmId || !promptConfig.system) {
+    throw new Error(
+      `assistant ${cfg.assistantId}: GET returned no llm_id / system prompt (RAGFlow response shape changed?); refusing to PUT and wipe them`,
+    );
+  }
   const body: Record<string, unknown> = {
     name: cur.name ?? 'assistant',
     dataset_ids: cfg.datasetIds,
-    llm_id: curLlm.model_name ?? 'deepseek-chat@DeepSeek',
+    llm_id: llmId,
     llm_setting: {
-      temperature: curLlm.temperature ?? 0.1,
-      top_p: curLlm.top_p ?? 0.3,
-      presence_penalty: curLlm.presence_penalty ?? 0.4,
-      frequency_penalty: curLlm.frequency_penalty ?? 0.7,
-      max_tokens: curLlm.max_tokens ?? 512,
+      temperature: curSetting.temperature ?? 0.1,
+      top_p: curSetting.top_p ?? 0.3,
+      presence_penalty:
+        curSetting.presence_penalty ?? DEFAULT_ASSISTANT_PRESENCE_PENALTY,
+      frequency_penalty:
+        curSetting.frequency_penalty ?? DEFAULT_ASSISTANT_FREQUENCY_PENALTY,
+      max_tokens: curSetting.max_tokens ?? 512,
     },
     similarity_threshold: cfg.retrieval.similarityThreshold ?? 0.2,
     vector_similarity_weight: cfg.retrieval.vectorSimilarityWeight ?? 0.3,
     top_k: cfg.retrieval.topK ?? 1024,
     top_n: cfg.retrieval.topN ?? 6,
-    // RAGFlow 字段命名错位：GET 返回 prompt.prompt（system 字符串），
-    // PUT 接受 prompt_config.system —— 必须做映射
-    prompt_config: {
-      system: curPrompt.prompt ?? '',
-      parameters: curPrompt.variables ?? [
-        { key: 'knowledge', optional: false },
-      ],
-      empty_response: curPrompt.empty_response ?? '',
-      opener: curPrompt.opener ?? '',
-      quote: curPrompt.show_quote ?? true,
-      refine_multiturn: curPrompt.refine_multiturn ?? true,
-    },
+    // PUT 是全量替换：不带上这个字段，助手上已设的值会被打回默认 64
+    rerank_candidates_count:
+      cfg.retrieval.rerankCandidatesCount ?? cur.rerank_candidates_count ?? 64,
+    prompt_config: promptConfig,
   };
   if (cfg.retrieval.rerankId) body.rerank_id = cfg.retrieval.rerankId;
   await api('PUT', `/api/v1/chats/${cfg.assistantId}`, body);
   console.log(
-    `  assistant synced: top_k=${body.top_k} thr=${body.similarity_threshold} w=${body.vector_similarity_weight} top_n=${body.top_n}  prompt_len=${(curPrompt.prompt ?? '').length}`,
+    `  assistant synced: top_k=${body.top_k} thr=${body.similarity_threshold} w=${body.vector_similarity_weight} top_n=${body.top_n} rerank_cand=${body.rerank_candidates_count}  prompt_len=${promptConfig.system.length}`,
   );
 }
 
@@ -366,8 +397,13 @@ async function processOne(
 function aggregate(results: QuestionResult[]) {
   const n = results.length;
   if (n === 0) return null;
+  // 检索指标只统计「有正确文档可召回」的题。参考答案为"知识库里没有"的
+  // 检索边界题（0820 的 Q24/Q27）无从评判召回，计入分母会把指标永久压在
+  // 封顶值以下 —— 详见 RetrievalScore.applicable 的注释。
+  const retrievable = results.filter((r) => r.retrieval.applicable);
+  const rn = retrievable.length;
   const sum = (sel: (r: QuestionResult) => number) =>
-    results.reduce((s, r) => s + sel(r), 0);
+    retrievable.reduce((s, r) => s + sel(r), 0);
   // 每题统一一个 0-1 分数：mustContain 走 finalScore，LLM-judge 走 llmJudgeScore
   const perQuestionScore = (r: QuestionResult): null | number => {
     if (r.answerScore != null) return r.answerScore.finalScore;
@@ -382,10 +418,12 @@ function aggregate(results: QuestionResult[]) {
       : 0;
   return {
     n,
-    mrr: sum((r) => r.retrieval.mrr) / n,
-    hitAt1: sum((r) => r.retrieval.hitAt1) / n,
-    hitAt3: sum((r) => r.retrieval.hitAt3) / n,
-    matched: sum((r) => (r.retrieval.matched ? 1 : 0)) / n,
+    retrievalN: rn,
+    retrievalSkipped: n - rn,
+    mrr: rn > 0 ? sum((r) => r.retrieval.mrr) / rn : 0,
+    hitAt1: rn > 0 ? sum((r) => r.retrieval.hitAt1) / rn : 0,
+    hitAt3: rn > 0 ? sum((r) => r.retrieval.hitAt3) / rn : 0,
+    matched: rn > 0 ? sum((r) => (r.retrieval.matched ? 1 : 0)) / rn : 0,
     answerAvg: totalScore,
     answerScored: scoredResults.length,
     pending: results.filter((r) => perQuestionScore(r) == null && r.answerText)
@@ -413,6 +451,9 @@ function generateMarkdown(
     '',
     '## Aggregate',
     `- N = ${agg.n}`,
+  );
+  lines.push(
+    `- 检索指标口径 = ${agg.retrievalN}/${agg.n} 题${agg.retrievalSkipped > 0 ? `（${agg.retrievalSkipped} 题参考答案为"知识库中没有"，无正确文档可召回，已排除）` : ''}`,
   );
   lines.push(`- MRR = ${agg.mrr.toFixed(3)}`);
   lines.push(`- hit@1 = ${(agg.hitAt1 * 100).toFixed(1)}%`);
@@ -464,7 +505,13 @@ async function main(): Promise<void> {
   await syncAssistantConfig(cfg);
   console.log('');
 
-  const limit = pLimit(3);
+  // 并发默认 3。调大 rerank_candidates_count 后，rerank 侧的文本量成倍增长，
+  // 外部 rerank 服务（SiliconFlow）会返回 429 —— 这种实验要用 EVAL_CONCURRENCY 降并发。
+  const concurrency = Math.max(
+    1,
+    Math.min(8, Number(process.env.EVAL_CONCURRENCY) || 3),
+  );
+  const limit = pLimit(concurrency);
   const tasks = questions.map((q) =>
     limit(async () => {
       try {
@@ -496,7 +543,7 @@ async function main(): Promise<void> {
 
   if (agg) {
     console.log(
-      `\nDone: MRR=${agg.mrr.toFixed(3)}  hit@1=${(agg.hitAt1 * 100).toFixed(1)}%  hit@3=${(agg.hitAt3 * 100).toFixed(1)}%  doc-match=${(agg.matched * 100).toFixed(1)}%  answer-avg=${(agg.answerAvg * 100).toFixed(1)}%  (judge-pending=${agg.pending})`,
+      `\nDone: MRR=${agg.mrr.toFixed(3)}  hit@1=${(agg.hitAt1 * 100).toFixed(1)}%  hit@3=${(agg.hitAt3 * 100).toFixed(1)}%  doc-match=${(agg.matched * 100).toFixed(1)}%  (检索口径 ${agg.retrievalN}/${agg.n} 题${agg.retrievalSkipped > 0 ? `，${agg.retrievalSkipped} 题无参考文档已排除` : ''})  answer-avg=${(agg.answerAvg * 100).toFixed(1)}%  (judge-pending=${agg.pending})`,
     );
   }
 }

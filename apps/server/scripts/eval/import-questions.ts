@@ -21,6 +21,8 @@ import { execFileSync } from 'node:child_process';
 import { mkdirSync, readdirSync, writeFileSync } from 'node:fs';
 import { dirname, resolve } from 'node:path';
 
+import { GENERIC_JUDGE_RUBRIC } from './judge-rubric';
+
 interface BatchConfig {
   /** 题面用简称、跟真实语料文件名对不上时的显式映射（脚本会报告漏网的）。 */
   docAliases?: Record<string, string>;
@@ -351,6 +353,7 @@ function normalizeDoc(doc: string): { doc: string; section: string } {
  * dev/holdout split。跨工区对比题靠客户标的【跨项目】直接归类——
  * 它的答案会同时提到多个工区，关键词判不准。
  */
+
 function classifyTopic(
   answer: string,
   question: string,
@@ -378,22 +381,7 @@ const questions = raw.map((q) => {
   // 自动抽出的数值事实对它们没意义，一律交给 LLM judge。
   const conceptual = q.tags.some((t) => t === '检索边界' || t === '简答');
   const useLLMJudge = conceptual || mustContain.length === 0;
-  // 没有人工 rubric 的题写一个通用 rubric，让 LLM judge 能跑分：
-  // 给定参考答案后按"关键事实覆盖 / 准确性 / 完整性"三档打分。
-  const llmJudgeRubric = useLLMJudge
-    ? [
-        '通用评分（0.00-1.00 一位小数，按下列三档加权）：',
-        '- 关键事实覆盖（0.60）：模型答案是否提到参考答案中的核心事实、要点、清单项目',
-        '- 准确性（0.30）：是否与参考答案矛盾，是否编造',
-        '- 完整性（0.10）：列举/枚举型问题是否尽量完整',
-        '',
-        '判定速查：',
-        '- 完全覆盖关键事实且无错误 → 1.00',
-        '- 覆盖约一半关键事实且无错误 → 0.50',
-        '- 覆盖一两项 / 含轻微错误 → 0.20-0.40',
-        '- 完全跑题 / 编造 / 未回答 → 0.00',
-      ].join('\n')
-    : '';
+  const llmJudgeRubric = useLLMJudge ? GENERIC_JUDGE_RUBRIC : '';
   return {
     id: q.id,
     topic,
