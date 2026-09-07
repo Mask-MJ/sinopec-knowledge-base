@@ -20,6 +20,7 @@
 import { execFileSync } from 'node:child_process';
 import { mkdirSync, readdirSync, writeFileSync } from 'node:fs';
 import { dirname, resolve } from 'node:path';
+
 import { GENERIC_JUDGE_RUBRIC } from './judge-rubric';
 
 interface BatchConfig {
@@ -352,7 +353,6 @@ function normalizeDoc(doc: string): { doc: string; section: string } {
  * dev/holdout split。跨工区对比题靠客户标的【跨项目】直接归类——
  * 它的答案会同时提到多个工区，关键词判不准。
  */
-
 
 function classifyTopic(
   answer: string,
