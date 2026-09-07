@@ -3,6 +3,7 @@ import { Test, TestingModule } from '@nestjs/testing';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 
 import { PRISMA_SERVICE_TOKEN } from '@/common/database/prisma.extension';
+import { DEFAULT_ASSISTANT_RERANK_CANDIDATES_COUNT } from '@/common/defaults/assistant.defaults';
 import { RagflowService } from '@/common/ragflow/ragflow.service';
 import {
   createMockActiveUser,
@@ -498,5 +499,55 @@ describe('assistantService 会话归属（RAGFlow 0.27 起无法在其侧按用�
     expect(prisma.client.assistantSession.create).toHaveBeenCalledWith({
       data: { assistantId: 1, sessionId: 's-new', userId: 1 },
     });
+  });
+});
+
+describe('assistantService.update 推给 RAGFlow 的检索参数', () => {
+  let service: AssistantService;
+  const ragflow = { request: vi.fn() };
+  const prisma = createMockPrismaService();
+
+  beforeEach(async () => {
+    vi.clearAllMocks();
+    const module: TestingModule = await Test.createTestingModule({
+      providers: [
+        AssistantService,
+        { provide: PRISMA_SERVICE_TOKEN, useValue: prisma },
+        { provide: RagflowService, useValue: ragflow },
+        { provide: ConfigService, useValue: { get: () => 'test-model' } },
+      ],
+    }).compile();
+    service = module.get(AssistantService);
+
+    prisma.client.assistant.findUniqueOrThrow.mockResolvedValue({
+      id: 1,
+      assistantId: 'rf-1',
+      deptId: null,
+      permission: 'me',
+      userId: 1,
+    });
+    prisma.client.user.findUniqueOrThrow.mockResolvedValue({
+      deptId: null,
+      id: 1,
+      isAdmin: false,
+    });
+    prisma.client.assistant.update.mockResolvedValue({ id: 1 });
+    ragflow.request.mockResolvedValue({});
+  });
+
+  // PUT 是整体替换：漏掉 rerank_candidates_count，RAGFlow 会把它重置回默认的 64，
+  // 于是一次无关的编辑保存就悄悄把召回上限从 128 削掉一半。
+  it('带上 rerank_candidates_count，不让 RAGFlow 把它重置回 64', async () => {
+    await service.update(createMockActiveUser(), 1, {
+      name: '改个名字',
+    } as never);
+
+    expect(ragflow.request).toHaveBeenCalledWith(
+      'PUT',
+      '/api/v1/chats/rf-1',
+      expect.objectContaining({
+        rerank_candidates_count: DEFAULT_ASSISTANT_RERANK_CANDIDATES_COUNT,
+      }),
+    );
   });
 });

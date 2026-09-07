@@ -69,7 +69,7 @@ export class CreateAssistantDto {
 
   /**
    * 频率惩罚
-   * @example 0.7
+   * @example 0
    */
   @IsNumber()
   @IsOptional()
