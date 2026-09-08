@@ -3,7 +3,12 @@
 // scripts/eval/ 是开发评测工具，按照 ESLint config-protection 钩子要求，
 // 不修改 eslint.config.mjs ignores；改用 file-level disable 注释。
 
-import type { AnswerScore, ChunkRef, RetrievalScore } from './scoring';
+import type {
+  AnswerScore,
+  ChunkRef,
+  RetrievalCoverage,
+  RetrievalScore,
+} from './scoring';
 
 /**
  * RAG 评测 runner（裸 fetch 版，不依赖 NestJS）。
@@ -24,7 +29,12 @@ import {
   resolveJudgeReplicas,
   runReplicas,
 } from './judge';
-import { cleanText, scoreAnswer, scoreRetrieval } from './scoring';
+import {
+  cleanText,
+  scoreAnswer,
+  scoreRetrieval,
+  scoreRetrievalCoverage,
+} from './scoring';
 
 interface ExperimentConfig {
   assistantId?: string;
@@ -51,6 +61,8 @@ interface ExperimentConfig {
 }
 
 interface QuestionRow {
+  /** 参考答案原文；chunk 级覆盖度判定的取数来源 */
+  answer?: { raw: string };
   id: number;
   mustContain: any[];
   mustNotContain: any[];
@@ -68,6 +80,8 @@ interface QuestionSet {
 interface QuestionResult {
   answerScore: AnswerScore | null;
   answerText: string;
+  /** chunk 级召回覆盖度，补文档级 hit@1 看不见的段落级失败 */
+  coverage: RetrievalCoverage;
   durationMs: number;
   llmJudgeReplicas?: (null | number)[];
   llmJudgeScore?: null | number;
@@ -175,11 +189,17 @@ async function callRetrieval(
     keyword: cfg.retrieval.keyword ?? false,
     page: 1,
     page_size: cfg.retrieval.topN ?? 6,
+    // 必须显式传：/api/v1/retrieval 不读 assistant 配置，漏传就退回 RAGFlow 默认的 64。
+    // 那样检索指标（hit@1 / chunk 覆盖度）量的是 64 候选池，而答案是助手用 128 生成的，
+    // 两条链路口径不一致，诊断会指向错误的地方。RAGFlow 还要求它 ≥ page × page_size。
+    rerank_candidates_count: cfg.retrieval.rerankCandidatesCount ?? 64,
   };
   if (cfg.retrieval.rerankId) body.rerank_id = cfg.retrieval.rerankId;
   const data = await api<{ chunks?: any[] }>('POST', '/api/v1/retrieval', body);
   return (data.chunks ?? []).map((c: any) => ({
     documentName: c.document_name ?? c.docnm_kwd ?? '',
+    // 正文是 chunk 级判定的唯一依据；只映射文件名的旧口径看不见「文档对了、段落没排进来」
+    content: c.content ?? c.content_with_weight ?? '',
     similarity: c.similarity,
     vectorSimilarity: c.vector_similarity,
     termSimilarity: c.term_similarity,
@@ -364,6 +384,7 @@ async function processOne(
   const start = Date.now();
   const chunks = await callRetrieval(q, cfg);
   const retrieval = scoreRetrieval(chunks, q.reference);
+  const coverage = scoreRetrievalCoverage(chunks, q.answer?.raw ?? '');
   const answerText = cleanText(await callChat(q, cfg));
   let answerScore: AnswerScore | null = null;
   let llmJudgeScore: null | number = null;
@@ -383,6 +404,7 @@ async function processOne(
     topic: q.topic,
     question: q.question,
     retrieval,
+    coverage,
     answerText,
     answerScore,
     llmJudgeScore,
@@ -416,10 +438,17 @@ function aggregate(results: QuestionResult[]) {
       ? scoredResults.reduce((s, r) => s + (perQuestionScore(r) as number), 0) /
         scoredResults.length
       : 0;
+  // chunk 级覆盖度只统计「参考答案里有数值可判」的题：定性题（"四级质量检查制度"
+  // 这类）没有可机器判定的锚点，计入分母会把指标压低成一个看不懂的数。
+  const coverable = results.filter((r) => r.coverage?.applicable);
+  const cn = coverable.length;
   return {
     n,
     retrievalN: rn,
     retrievalSkipped: n - rn,
+    coverageN: cn,
+    chunkCoverage:
+      cn > 0 ? coverable.reduce((s, r) => s + r.coverage.ratio, 0) / cn : 0,
     mrr: rn > 0 ? sum((r) => r.retrieval.mrr) / rn : 0,
     hitAt1: rn > 0 ? sum((r) => r.retrieval.hitAt1) / rn : 0,
     hitAt3: rn > 0 ? sum((r) => r.retrieval.hitAt3) / rn : 0,
@@ -543,7 +572,7 @@ async function main(): Promise<void> {
 
   if (agg) {
     console.log(
-      `\nDone: MRR=${agg.mrr.toFixed(3)}  hit@1=${(agg.hitAt1 * 100).toFixed(1)}%  hit@3=${(agg.hitAt3 * 100).toFixed(1)}%  doc-match=${(agg.matched * 100).toFixed(1)}%  (检索口径 ${agg.retrievalN}/${agg.n} 题${agg.retrievalSkipped > 0 ? `，${agg.retrievalSkipped} 题无参考文档已排除` : ''})  answer-avg=${(agg.answerAvg * 100).toFixed(1)}%  (judge-pending=${agg.pending})`,
+      `\nDone: MRR=${agg.mrr.toFixed(3)}  hit@1=${(agg.hitAt1 * 100).toFixed(1)}%  hit@3=${(agg.hitAt3 * 100).toFixed(1)}%  doc-match=${(agg.matched * 100).toFixed(1)}%  (检索口径 ${agg.retrievalN}/${agg.n} 题${agg.retrievalSkipped > 0 ? `，${agg.retrievalSkipped} 题无参考文档已排除` : ''})  answer-avg=${(agg.answerAvg * 100).toFixed(1)}%  (judge-pending=${agg.pending})\n      chunk 级召回覆盖度=${(agg.chunkCoverage * 100).toFixed(1)}%  (可判定 ${agg.coverageN}/${agg.n} 题，其余题参考答案里没有可机器判定的数值)`,
     );
   }
 }

@@ -15,6 +15,7 @@ import {
   parseNumber,
   scoreAnswer,
   scoreRetrieval,
+  scoreRetrievalCoverage,
   unitsCompatible,
 } from './scoring';
 
@@ -495,5 +496,72 @@ describe('unitsCompatible', () => {
         unit: '炮',
       }),
     ).toBe(true);
+  });
+});
+
+describe('scoreRetrievalCoverage', () => {
+  const chunk = (content: string) => ({ content, documentName: 'doc.md' });
+
+  it('参考答案的数值全在召回正文里 → 全覆盖', () => {
+    const r = scoreRetrievalCoverage(
+      [chunk('低速层厚度0-4m，速度395-1000m/s')],
+      '低速层厚度一般在0-4m，速度395-1000m/s',
+    );
+    expect(r.applicable).toBe(true);
+    expect(r.ratio).toBe(1);
+    expect(r.missing).toEqual([]);
+  });
+
+  it('召回的是同一篇文档的另一段 → 数值对不上，覆盖率为 0', () => {
+    // Q19 的真实失败形态：文档级 rank=1，但那一段根本没排进来
+    const r = scoreRetrievalCoverage(
+      [chunk('区域概况：低降速带厚度1-12m，速度350-800m/s')],
+      '低速层厚度一般在0-4m，速度395-1000m/s，高速层速度一般在3400-5700m/s。',
+    );
+    expect(r.applicable).toBe(true);
+    expect(r.covered).toBe(0);
+    expect(r.missing).toContain('395');
+  });
+
+  it('部分命中时只记命中的那部分', () => {
+    const r = scoreRetrievalCoverage(
+      [chunk('低速层厚度0-4m，其余参数见附表')],
+      '低速层厚度0-4m，高速层速度3400-5700m/s',
+    );
+    expect(r.covered).toBeGreaterThan(0);
+    expect(r.covered).toBeLessThan(r.total);
+  });
+
+  it('单位写法不同但同义 → 算命中', () => {
+    const r = scoreRetrievalCoverage([chunk('井深8米')], '井深8m');
+    expect(r.ratio).toBe(1);
+  });
+
+  it('带单位的数值不被裸数字命中', () => {
+    // "顺8井北" 里的 8 不该命中 "8m"，与 matchesFact 同口径
+    const r = scoreRetrievalCoverage([chunk('顺8井北三维')], '井深8m');
+    expect(r.covered).toBe(0);
+  });
+
+  it('参考答案里没有数值 → 无从判定，不计入分母', () => {
+    const r = scoreRetrievalCoverage(
+      [chunk('建立四级质量检查制度')],
+      '建立四级质量检查制度，推行三动态技术理念',
+    );
+    expect(r.applicable).toBe(false);
+  });
+
+  it('召回结果没带正文 → 无从判定，不计入分母', () => {
+    const r = scoreRetrievalCoverage([{ documentName: 'doc.md' }], '井深8m');
+    expect(r.applicable).toBe(false);
+  });
+
+  it('参考答案里重复出现的同一数值只算一次', () => {
+    const r = scoreRetrievalCoverage(
+      [chunk('覆盖次数900次')],
+      '900次，共900次',
+    );
+    expect(r.total).toBe(1);
+    expect(r.ratio).toBe(1);
   });
 });

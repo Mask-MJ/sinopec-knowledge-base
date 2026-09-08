@@ -7,11 +7,26 @@
 // 所有评分逻辑无副作用、纯函数，便于 spec 测试。
 
 export interface ChunkRef {
+  /** 召回段落正文。chunk 级判定要靠它；只比文件名的旧口径可以没有 */
+  content?: string;
   documentName: string;
   positions?: number[];
   similarity?: number;
   termSimilarity?: number;
   vectorSimilarity?: number;
+}
+
+/**
+ * chunk 级召回覆盖度。`applicable === false` 表示这道题无从判定
+ * （参考答案里没有数值，或召回结果没带正文），汇总时应排除，不能当 0 计。
+ */
+export interface RetrievalCoverage {
+  applicable: boolean;
+  covered: number;
+  /** 没被召回的数值原文，直接就是「缺了什么」的诊断线索 */
+  missing: string[];
+  ratio: number;
+  total: number;
 }
 
 export interface QuestionRef {
@@ -391,6 +406,71 @@ export function scoreRetrieval(
     hitAtN: 1,
     mrr: 1 / rank,
   };
+}
+
+/**
+ * chunk 级召回判定：参考答案里的数值，有多少个真的出现在召回回来的正文里。
+ *
+ * `scoreRetrieval` 只比对文件名 —— 一篇文档只要被召回就记 hit@1=1，于是
+ * 「文档对了、但需要的那一段根本没排进 top_n」这种失败会被文档级 100% 的
+ * 假象整个盖住（Q19 就是：参考的表层结构数值一个都不在召回里，文档级 rank 仍是 1）。
+ *
+ * 只判数值，不判定性表述。「四级质量检查制度」这类要点的同义判定交给 LLM judge：
+ * 在这里做中文分词启发式，等于造一个比被测系统还不可靠的判据。
+ */
+export function scoreRetrievalCoverage(
+  chunks: ChunkRef[],
+  answerRaw: string,
+): RetrievalCoverage {
+  const unjudgeable: RetrievalCoverage = {
+    applicable: false,
+    covered: 0,
+    missing: [],
+    ratio: 0,
+    total: 0,
+  };
+
+  // 参考答案里没有数值 → 无从判定，不该计入分母（同 scoreRetrieval 的 applicable 约定）
+  const refTokens = dedupeNumberTokens(findNumberTokens(cleanText(answerRaw)));
+  if (refTokens.length === 0) return unjudgeable;
+
+  // 召回结果没带正文（历史结果文件、或只取了文件名）→ 同样无从判定
+  const bodies = chunks.map((c) => c?.content ?? '').filter(Boolean);
+  if (bodies.length === 0) return unjudgeable;
+
+  const candidates = findNumberTokens(
+    inlineTableUnits(cleanText(bodies.join('\n'))),
+  );
+
+  const missing: string[] = [];
+  let covered = 0;
+  for (const want of refTokens) {
+    const hit = candidates.some(
+      (got) =>
+        numbersEqual(got.num, want.num) && unitsCompatible(want.unit, got.unit),
+    );
+    if (hit) covered += 1;
+    else missing.push(want.raw.trim());
+  }
+
+  return {
+    applicable: true,
+    covered,
+    missing,
+    ratio: covered / refTokens.length,
+    total: refTokens.length,
+  };
+}
+
+/** 同一数值在参考答案里重复出现只算一个要点 */
+function dedupeNumberTokens(tokens: NumberToken[]): NumberToken[] {
+  const seen = new Set<string>();
+  return tokens.filter((t) => {
+    const key = `${t.num}|${t.unit}`;
+    if (seen.has(key)) return false;
+    seen.add(key);
+    return true;
+  });
 }
 
 export function scoreAnswer(
