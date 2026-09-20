@@ -15,9 +15,18 @@ DIR="${RAGFLOW_DIR:-/var/www/ragflow/docker}"
 ADMIN_EMAIL="${ADMIN_EMAIL:-admin@sinopec.com}"
 ADMIN_PASSWORD="${ADMIN_PASSWORD:-}"   # 不设默认口令，没传就随机生成
 MODEL_BASE_URL="${MODEL_BASE_URL:-http://10.55.247.252:19997}"
-INSTANCE="${INSTANCE_NAME:-xinference-252}"
+# Xinference 的 key 按模型授权，chat 和 embedding 各一把，所以要建两个实例
+CHAT_API_KEY="${CHAT_API_KEY:-}"
+EMBED_API_KEY="${EMBED_API_KEY:-}"
+RERANK_API_KEY="${RERANK_API_KEY:-}"   # 可选，配上检索质量更好
+CHAT_MODEL="${CHAT_MODEL:-chat@xinference}"
+EMBED_MODEL="${EMBED_MODEL:-embedding@xinference}"
+RERANK_MODEL="${RERANK_MODEL:-rerank@xinference}"
+CHAT_INSTANCE="${CHAT_INSTANCE:-xinference-chat}"
+EMBED_INSTANCE="${EMBED_INSTANCE:-xinference-embedding}"
+RERANK_INSTANCE="${RERANK_INSTANCE:-xinference-rerank}"
 PROVIDER=Xinference
-CHAT_MAX_TOKENS="${CHAT_MAX_TOKENS:-131072}"
+CHAT_MAX_TOKENS="${CHAT_MAX_TOKENS:-262144}"   # qwen3.8 的 context_length，换模型必须同步改
 EMBED_MAX_TOKENS="${EMBED_MAX_TOKENS:-8192}"
 
 log() { printf '\n[%s] %s\n' "$(date '+%F %T')" "$*"; }
@@ -153,49 +162,64 @@ TOKEN=$(curl -sS -D - -o /dev/null -X POST "$API/api/v1/auth/login" \
 
 # ── 4. 配模型 ───────────────────────────────────
 log "配置 $PROVIDER（$MODEL_BASE_URL）"
-# 建实例时 RAGFlow 会真的调一次 chat 和 embedding，模型服务不通就没法往下走
-curl -sS -m 10 -o /dev/null "$MODEL_BASE_URL/v1/models" \
-  || die "连不上模型服务 $MODEL_BASE_URL。先确认 Xinference 在跑、chat 和 embedding 两个模型已加载"
+[[ -n "$CHAT_API_KEY" && -n "$EMBED_API_KEY" ]] \
+  || die "缺 key。用法：CHAT_API_KEY=<chat 的 key> EMBED_API_KEY=<embedding 的 key> bash $0
+         key 在 $MODEL_BASE_URL/api-key-management 里，两个模型各一把"
+
+check_key() { # $1=key $2=用途，建实例时 RAGFlow 会真调模型，先确认 key 能用
+  local code auth=(-H "Authorization: Bearer $1")
+  code=$(curl -s -o /dev/null -m 10 -w '%{http_code}' "${auth[@]}" "$MODEL_BASE_URL/v1/models")
+  case "$code" in
+    200) : ;;
+    401|403) die "$2 的 key 认证失败（HTTP $code），到 $MODEL_BASE_URL/api-key-management 核对" ;;
+    *) die "模型服务不可用（HTTP $code）：$MODEL_BASE_URL" ;;
+  esac
+}
+check_key "$CHAT_API_KEY" chat
+check_key "$EMBED_API_KEY" embedding
+
 providers=$(api GET /api/v1/providers)
 if ! grep -q "\"$PROVIDER\"" <<<"$providers"; then
   api PUT /api/v1/providers "{\"provider_name\":\"$PROVIDER\"}" >/dev/null
   log "已添加 provider $PROVIDER"
 fi
 
-instances=$(api GET "/api/v1/providers/$PROVIDER/instances")
-if ! grep -q "\"$INSTANCE\"" <<<"$instances"; then
-  # 必须带 model_info：不带的话 RAGFlow 会去 base_url 自动探测模型列表，
-  # Xinference 探测不到就直接失败。带了则跳过探测，改为逐个真实调用验证。
-  api POST "/api/v1/providers/$PROVIDER/instances" "$(cat <<JSON
-{"instance_name":"$INSTANCE","api_key":"x","base_url":"$MODEL_BASE_URL","region":"",
- "model_info":[{"model_type":["chat"],"model_name":"chat","max_tokens":$CHAT_MAX_TOKENS},
-               {"model_type":["embedding"],"model_name":"embedding","max_tokens":$EMBED_MAX_TOKENS}]}
+setup_model() { # $1=实例名 $2=key $3=模型名 $4=类型 $5=max_tokens
+  local insts resp
+  insts=$(api GET "/api/v1/providers/$PROVIDER/instances")
+  if ! grep -q "\"$1\"" <<<"$insts"; then
+    # 必须带 model_info：不带的话 RAGFlow 会去 base_url 自动探测模型列表，
+    # 探测不到就直接失败。带了则跳过探测，改为真实调一次这个模型来验证。
+    api POST "/api/v1/providers/$PROVIDER/instances" "$(cat <<JSON
+{"instance_name":"$1","api_key":"$2","base_url":"$MODEL_BASE_URL","region":"",
+ "model_info":[{"model_type":["$4"],"model_name":"$3","max_tokens":$5}]}
 JSON
 )" >/dev/null
-  log "已添加实例 $INSTANCE"
-fi
-
-add_model() { # $1=模型名 $2=类型 $3=max_tokens
-  local resp
-  resp=$(curl -sS -X POST "$API/api/v1/providers/$PROVIDER/instances/$INSTANCE/models" \
+    log "已建实例 $1（模型 $3）"
+  fi
+  resp=$(curl -sS -X POST "$API/api/v1/providers/$PROVIDER/instances/$1/models" \
          -H "Authorization: $TOKEN" -H 'Content-Type: application/json' \
-         -d "{\"model_name\":\"$1\",\"model_type\":\"$2\",\"max_tokens\":$3}")
+         -d "{\"model_name\":\"$3\",\"model_type\":\"$4\",\"max_tokens\":$5}")
   case "$(jget message <<<"$resp")" in
-    *"already exists"*) log "模型 $1@$PROVIDER 已登记（建实例时带 model_info 就一并登记了）" ;;
-    *) [[ "$(jget code <<<"$resp")" == 0 ]] || die "添加模型 $1 失败：$(jget message <<<"$resp")"
-       log "已添加模型 $1@$PROVIDER（$2）" ;;
+    *"already exists"*) : ;;
+    *) [[ "$(jget code <<<"$resp")" == 0 ]] || die "登记模型 $3 失败：$(jget message <<<"$resp")" ;;
   esac
   api PATCH /api/v1/models/default \
-    "{\"model_provider\":\"$PROVIDER\",\"model_instance\":\"$INSTANCE\",\"model_name\":\"$1\",\"model_type\":\"$2\"}" >/dev/null
+    "{\"model_provider\":\"$PROVIDER\",\"model_instance\":\"$1\",\"model_name\":\"$3\",\"model_type\":\"$4\"}" >/dev/null
+  log "$4 就绪：$3@$PROVIDER（实例 $1）"
 }
-add_model chat chat "$CHAT_MAX_TOKENS"
-add_model embedding embedding "$EMBED_MAX_TOKENS"
+setup_model "$CHAT_INSTANCE" "$CHAT_API_KEY" "$CHAT_MODEL" chat "$CHAT_MAX_TOKENS"
+setup_model "$EMBED_INSTANCE" "$EMBED_API_KEY" "$EMBED_MODEL" embedding "$EMBED_MAX_TOKENS"
+if [[ -n "$RERANK_API_KEY" ]]; then
+  check_key "$RERANK_API_KEY" rerank
+  setup_model "$RERANK_INSTANCE" "$RERANK_API_KEY" "$RERANK_MODEL" rerank "$EMBED_MAX_TOKENS"
+fi
 
 models=$(api GET /api/v1/models)
-for m in chat embedding; do
+for m in "$CHAT_MODEL" "$EMBED_MODEL"; do
   grep -q "\"$m\"" <<<"$models" || die "模型 $m 没出现在 /api/v1/models 里，配置没生效"
 done
-log "模型已登记：chat@$PROVIDER、embedding@$PROVIDER"
+log "模型已登记：$CHAT_MODEL@$PROVIDER、$EMBED_MODEL@$PROVIDER"
 
 # ── 5. 给应用用的 API key ───────────────────────
 tokens=$(api GET /api/v1/system/tokens)
@@ -216,7 +240,7 @@ RAGFlow v0.27.1 部署完成
   控制台   http://<本机IP>:$(sed -n 's/^SVR_WEB_HTTP_PORT=//p' "$DIR/.env" | tail -1)
   API      $API
   管理员   $ADMIN_EMAIL / $PW_HINT
-  模型     chat@$PROVIDER、embedding@$PROVIDER  →  $MODEL_BASE_URL
+  模型     $CHAT_MODEL@$PROVIDER、$EMBED_MODEL@$PROVIDER  →  $MODEL_BASE_URL
 
 接下来：
   1. 把这个 API key 填进应用的 .env：
