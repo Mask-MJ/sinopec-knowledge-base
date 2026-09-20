@@ -16,6 +16,10 @@ COPY internal/eslint-config/package.json internal/eslint-config/
 COPY internal/prettier-config/package.json internal/prettier-config/
 COPY internal/commitlint-config/package.json internal/commitlint-config/
 
+# 内网环境 registry.npmjs.org 可能很慢，按需换镜像（留空则用默认源）
+ARG NPM_REGISTRY=
+RUN if [ -n "$NPM_REGISTRY" ]; then pnpm config set registry "$NPM_REGISTRY" --global; fi
+
 # --ignore-scripts 跳过 preinstall/postinstall（避免 only-allow 和 stub 在无源码时失败）
 RUN pnpm install --frozen-lockfile --ignore-scripts
 
@@ -41,9 +45,11 @@ WORKDIR /app
 
 # pandoc 用于上传 docx 时的预处理（绕开 RAGFlow 0.24 deepdoc DocxParser 的
 # 表格 cell 数字丢字 bug，详见 DocxPreprocessService）
-# Alpine 源切换到清华镜像：dl-cdn.alpinelinux.org 在国内网络环境下常 hang，
-# 导致 apk add 卡住无超时（中石化部署机实测 30min+ 无响应）
-RUN sed -i 's|dl-cdn.alpinelinux.org|mirrors.tuna.tsinghua.edu.cn|g' /etc/apk/repositories \
+# Alpine 源换成国内镜像：dl-cdn.alpinelinux.org 在国内常 hang，apk add 卡住无超时
+# （中石化部署机实测 30min+ 无响应）。默认用北外——2026-09-20 在中石化内网实测
+# 4.8 MB/s，而清华在那台机器上直接 Connection reset、阿里云只有 21 KB/s。
+ARG ALPINE_MIRROR=mirrors.bfsu.edu.cn
+RUN sed -i "s|dl-cdn.alpinelinux.org|${ALPINE_MIRROR}|g" /etc/apk/repositories \
     && apk add --no-cache pandoc
 
 # 拷贝完整的部署目录（含 prisma CLI 及其依赖）

@@ -38,8 +38,6 @@ bash deploy/ragflow/bootstrap.sh
 | `ADMIN_EMAIL` | `admin@sinopec.com` | 管理员账号 |
 | `ADMIN_PASSWORD` | 随机生成 | 不传就随机生成一个 24 位密码，存进部署目录的 `.admin-credentials`（权限 600）。要指定就 `ADMIN_PASSWORD=xxx bash deploy/ragflow/bootstrap.sh` |
 | `MODEL_BASE_URL` | `http://10.55.247.252:19997` | 模型服务地址，RAGFlow 内部会自动补 `/v1` |
-| `MODEL_API_KEY` | 空 | 模型平台要鉴权时必填（脚本会先用它试 `/v1/models`，401 就直接退出）|
-| `INSTANCE_NAME` | `xinference-252` | provider 实例名 |
 | `CHAT_API_KEY` / `EMBED_API_KEY` | 无，必填 | Xinference 的 key 按模型授权，两个模型各一把。在 `<模型服务>/api-key-management` 里看 |
 | `RERANK_API_KEY` | 空 | 可选。配上 rerank 检索质量更好 |
 | `CHAT_MODEL` / `EMBED_MODEL` / `RERANK_MODEL` | `chat@xinference` / `embedding@xinference` / `rerank@xinference` | Xinference 上的模型 id，注意本身就带 `@` |
@@ -49,12 +47,9 @@ bash deploy/ragflow/bootstrap.sh
 
 ## 实例名会进模型引用，定了别改
 
-RAGFlow 0.27.1 的模型引用是**三段**：`模型名@实例名@厂商`，比如知识库里存的是
-`embedding@xinference@xinference-embedding@Xinference`（模型名本身带 `@`，所以看着有四段）。
+RAGFlow 0.27.1 的模型引用是**三段**：`模型名@实例名@厂商`，比如知识库里存的是 `embedding@xinference@xinference-embedding@Xinference`（模型名本身带 `@`，所以看着有四段）。
 
-实例名是引用的一部分，改名会让已建的知识库和助手引用不到模型。业务系统侧已经按三段式拼
-（见 `apps/server/src/common/ragflow/ragflow.service.ts` 的 `toLlmItems`），两段式会报
-`LookupError: Instance default not found`。
+实例名是引用的一部分，改名会让已建的知识库和助手引用不到模型。业务系统侧已经按三段式拼（见 `apps/server/src/common/ragflow/ragflow.service.ts` 的 `toLlmItems`），两段式会报 `LookupError: Instance default not found`。
 
 ## 要改端口的话（有坑）
 
