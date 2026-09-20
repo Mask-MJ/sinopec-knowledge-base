@@ -58,7 +58,8 @@
     "docnm",
     "qwen",
     "UNSTART",
-    "reentrancy", "rerank", "reranker"
+    "reentrancy", "rerank", "reranker",
+    "infini", "infiniflow", "myhuaweicloud", "aliyuncs", "pgsty"
   ],
   "ignorePaths": [
     "**/*.log",
