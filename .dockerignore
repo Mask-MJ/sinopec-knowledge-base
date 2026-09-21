@@ -24,6 +24,9 @@ docker/
 !docker/entrypoint.sh
 docker-compose*.yaml
 
+# 部署脚本和 RAGFlow 配置，镜像里用不到
+deploy/
+
 # Documentation
 *.md
 !README.md

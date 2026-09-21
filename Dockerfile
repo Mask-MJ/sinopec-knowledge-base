@@ -37,7 +37,9 @@ RUN pnpm run postinstall \
     && pnpm --filter @sinopec-kb/client build-only
 
 # 生成精简的 server 生产依赖（包含 devDeps 中的 prisma CLI）
-RUN pnpm --filter @sinopec-kb/server deploy --legacy /app/deploy
+# 输出目录不能叫 /app/deploy：仓库里有 deploy/ 目录，COPY . . 之后会撞名，
+# pnpm 报 ERR_PNPM_DEPLOY_DIR_NOT_EMPTY
+RUN pnpm --filter @sinopec-kb/server deploy --legacy /app/prod-deps
 
 # ===== Stage 3: Production =====
 FROM node:22-alpine AS production
@@ -53,8 +55,8 @@ RUN sed -i "s|dl-cdn.alpinelinux.org|${ALPINE_MIRROR}|g" /etc/apk/repositories \
     && apk add --no-cache pandoc
 
 # 拷贝完整的部署目录（含 prisma CLI 及其依赖）
-COPY --from=builder /app/deploy/node_modules ./node_modules
-COPY --from=builder /app/deploy/package.json ./
+COPY --from=builder /app/prod-deps/node_modules ./node_modules
+COPY --from=builder /app/prod-deps/package.json ./
 
 # 拷贝后端构建产物
 COPY --from=builder /app/apps/server/dist ./dist

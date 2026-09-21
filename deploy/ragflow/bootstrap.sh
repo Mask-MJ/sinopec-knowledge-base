@@ -83,8 +83,11 @@ for f in docker-compose.yml docker-compose-base.yml service_conf.yaml.template e
   else
     cp "$SRC/$f" "$DIR/$f"
   fi
+  # 容器内是非 root 用户读这些文件，不能受部署机 umask 影响（umask 077 时 mysql
+  # 读不了 init.sql，初始化会中断并留下一份残缺的数据目录）
+  chmod 644 "$DIR/$f"
 done
-chmod +x "$DIR/entrypoint.sh"
+chmod 755 "$DIR/entrypoint.sh"
 
 if [[ ! -f "$DIR/.env" ]]; then
   # 密码不写进仓库，首次部署随机生成
@@ -116,6 +119,12 @@ if [[ -z "$ADMIN_PASSWORD" ]]; then
   log "已生成管理员密码，存在 $CRED（权限 600）"
 fi
 
+# 老的 .env 可能没有这一项（上游没有，是我们加的），补上：默认 10 秒不够模型冷启动
+if ! grep -q '^LLM_TIMEOUT_SECONDS=' "$DIR/.env"; then
+  echo 'LLM_TIMEOUT_SECONDS=120' >> "$DIR/.env"
+  log "已给 .env 补上 LLM_TIMEOUT_SECONDS=120（上游默认 10 秒，模型冷启动不够）"
+fi
+
 API_PORT=$(sed -n 's/^SVR_HTTP_PORT=//p' "$DIR/.env" | tail -1)
 API="http://127.0.0.1:${API_PORT:-9380}"
 
@@ -129,6 +138,12 @@ ready=""
 for _ in $(seq 1 120); do
   if [[ "$(curl -s -o /dev/null -m 5 -w '%{http_code}' "$API/api/v1/system/healthz")" == 200 ]]; then
     ready=1; break
+  fi
+  broken=$(docker compose ps -a --format '{{.Service}}\t{{.State}}' \
+           | awk -F'\t' '$2=="restarting" || $2=="exited" {printf "%s(%s) ", $1, $2}')
+  if [[ -n "$broken" ]]; then
+    docker compose logs --tail 30 "${broken%%(*}"
+    die "容器起不来：$broken"
   fi
   sleep 5
 done
