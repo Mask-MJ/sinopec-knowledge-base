@@ -2,7 +2,7 @@
 import { useFullscreen } from '@vueuse/core';
 import { NText } from 'naive-ui';
 
-import { SUPPORT_LANGUAGES } from '@/config/constants/app';
+import { DEFAULT_HOME_PATH, SUPPORT_LANGUAGES } from '@/config/constants/app';
 import { $t } from '@/locales';
 
 import PreferencesDrawer from './PreferencesDrawer.vue';
@@ -74,15 +74,25 @@ const options = [
     key: 'header-divider',
     type: 'divider',
   },
+  { label: () => $t('page.portal.backToFront'), key: 'front' },
   { label: () => $t('common.userCenter'), key: 'userInfo' },
   { label: () => $t('common.logout'), key: 'logout' },
 ];
 
 function handleSelect(key: string) {
-  if (key === 'logout') {
-    userStore.logout();
-  } else if (key === 'userInfo') {
-    router.push('/profile');
+  switch (key) {
+    case 'front': {
+      router.push(DEFAULT_HOME_PATH);
+      break;
+    }
+    case 'logout': {
+      userStore.logout();
+      break;
+    }
+    case 'userInfo': {
+      router.push('/profile');
+      break;
+    }
   }
 }
 </script>

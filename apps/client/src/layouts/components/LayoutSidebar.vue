@@ -4,7 +4,7 @@ import type { MenuOption } from 'naive-ui';
 
 import { RouterLink } from 'vue-router';
 
-import { DEFAULT_HOME_PATH } from '@/config/constants';
+import { BACKEND_HOME_PATH } from '@/config/constants';
 import { $t } from '@/locales';
 import { transformationTree } from '@/utils';
 
@@ -64,7 +64,7 @@ const menuOptions = computed<MenuOption[]>(() => {
   <div class="h-full flex flex-col items-stretch">
     <NCard content-class="!p-0" :bordered="false">
       <RouterLink
-        :to="DEFAULT_HOME_PATH"
+        :to="BACKEND_HOME_PATH"
         class="h-12 w-full flex items-center overflow-hidden whitespace-nowrap border-b-1 border-[var(--n-border-color)]"
       >
         <img src="@/assets/logo.png" width="30" height="30" class="ml-4 mr-2" />

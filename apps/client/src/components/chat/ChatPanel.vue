@@ -32,6 +32,9 @@ const {
   initMessages,
 } = useChat(assistantIdRef, sessionIdRef);
 
+// 当前会话的实时消息（含本次新发的问答），供导出使用
+defineExpose({ messages: chatMessages });
+
 const avatar = computed(() => userStore.userInfo?.avatar);
 
 // Sync history messages from parent

@@ -135,6 +135,20 @@ declare module 'vue-router/auto-routes' {
       Record<never, never>,
       | never
     >,
+    '/portal/': RouteRecordInfo<
+      '/portal/',
+      '/portal',
+      Record<never, never>,
+      Record<never, never>,
+      | never
+    >,
+    '/qa/': RouteRecordInfo<
+      '/qa/',
+      '/qa',
+      Record<never, never>,
+      Record<never, never>,
+      | never
+    >,
     '/system/dept/': RouteRecordInfo<
       '/system/dept/',
       '/system/dept',
@@ -283,6 +297,18 @@ declare module 'vue-router/auto-routes' {
     'src/views/monitor/operationLog/index.page.vue': {
       routes:
         | '/monitor/operationLog/'
+      views:
+        | never
+    }
+    'src/views/portal/index.page.vue': {
+      routes:
+        | '/portal/'
+      views:
+        | never
+    }
+    'src/views/qa/index.page.vue': {
+      routes:
+        | '/qa/'
       views:
         | never
     }

@@ -20,6 +20,7 @@ declare module 'vue' {
     CitationPopover: typeof import('./../src/components/chat/CitationPopover.vue')['default']
     Copyright: typeof import('./../src/components/common/Copyright.vue')['default']
     DarkModeContainer: typeof import('./../src/components/common/DarkModeContainer.vue')['default']
+    ExportActions: typeof import('./../src/components/common/ExportActions.vue')['default']
     Fallback: typeof import('./../src/components/common/Fallback.vue')['default']
     Icon403: typeof import('./../src/components/icons/icon-403.vue')['default']
     Icon404: typeof import('./../src/components/icons/icon-404.vue')['default']
