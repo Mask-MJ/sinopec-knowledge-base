@@ -53,6 +53,8 @@ export const COMMON_ROLE_MENU_PATHS: readonly string[] = [
   '/knowledgeBase/detail/:id',
   '/assistant',
   '/assistant/chat/:id',
+  '/portal',
+  '/qa',
 ];
 
 /**
@@ -81,6 +83,27 @@ export const COMMON_ROLE_BUTTON_PERMISSIONS: readonly string[] = [
 
 /** 菜单种子数据 */
 export const SEED_MENUS: Prisma.MenuCreateInput[] = [
+  // 前台页面：登记成菜单只为通过路由守卫 hasAccess()，不进后台侧栏和标签栏
+  {
+    name: '门户',
+    title: 'page.portal.title',
+    icon: 'i-ant-design:home-outlined',
+    order: 0,
+    type: 'menu',
+    path: '/portal',
+    hideInMenu: true,
+    hideInTab: true,
+  },
+  {
+    name: '物探智问',
+    title: 'page.portal.qa',
+    icon: 'i-ant-design:message-outlined',
+    order: 0,
+    type: 'menu',
+    path: '/qa',
+    hideInMenu: true,
+    hideInTab: true,
+  },
   {
     name: '概览',
     title: 'page.dashboard.title',
