@@ -1,0 +1,12 @@
+{
+  "title": "门户",
+  "subtitle": "Geophysical Large Language Model",
+  "qa": "物探智问",
+  "qaDesc": "基于物探知识库直接提问",
+  "weekly": "周报助手",
+  "weeklyDesc": "周报撰写与整理",
+  "backend": "后台管理",
+  "backToFront": "返回前台",
+  "noAssistant": "管理员尚未配置知识库助手",
+  "loadFailed": "加载失败，请刷新重试"
+}

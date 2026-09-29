@@ -6,9 +6,14 @@ import type { DropdownOption } from 'naive-ui';
 export const LOGIN_PATH = '/login';
 
 /**
- * @zh_CN 默认首页地址
+ * @zh_CN 默认首页地址（前台门户）
  */
-export const DEFAULT_HOME_PATH = '/dashboard/analytics';
+export const DEFAULT_HOME_PATH = '/portal';
+
+/**
+ * @zh_CN 后台首页地址（前台「后台管理」入口、后台侧栏 LOGO 的落点）
+ */
+export const BACKEND_HOME_PATH = '/dashboard/analytics';
 
 export type LanguageOption = DropdownOption & {
   key: 'en-US' | 'zh-CN';

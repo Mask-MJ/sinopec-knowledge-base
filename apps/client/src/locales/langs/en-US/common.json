@@ -4,6 +4,8 @@
   "login": "Login",
   "logout": "Logout",
   "userCenter": "User Center",
+  "exportMd": "Export MD",
+  "exportPdf": "Export PDF",
   "prompt": "Prompt",
   "cancel": "Cancel",
   "confirm": "Confirm",

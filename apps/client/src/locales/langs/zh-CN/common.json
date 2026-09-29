@@ -4,6 +4,8 @@
   "login": "登录",
   "logout": "退出登录",
   "userCenter": "个人中心",
+  "exportMd": "导出 MD",
+  "exportPdf": "导出 PDF",
   "prompt": "提示",
   "cancel": "取消",
   "confirm": "确认",

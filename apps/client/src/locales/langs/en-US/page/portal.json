@@ -1,0 +1,12 @@
+{
+  "title": "Portal",
+  "subtitle": "Geophysical Large Language Model",
+  "qa": "Geo Q&A",
+  "qaDesc": "Ask the geophysics knowledge base directly",
+  "weekly": "Weekly Report",
+  "weeklyDesc": "Draft and organize weekly reports",
+  "backend": "Admin Console",
+  "backToFront": "Back to Portal",
+  "noAssistant": "No knowledge base assistant has been configured by the administrator",
+  "loadFailed": "Failed to load, please refresh and retry"
+}
