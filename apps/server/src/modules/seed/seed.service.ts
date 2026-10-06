@@ -97,19 +97,6 @@ export class SeedService implements OnApplicationBootstrap {
     this.logger.log('✅ Seed data injected successfully.');
   }
 
-  private async syncSeedRolePermissions() {
-    await this.syncRolePermissions(
-      'common',
-      COMMON_ROLE_MENU_PATHS,
-      COMMON_ROLE_BUTTON_PERMISSIONS,
-    );
-    await this.syncRolePermissions(
-      'general-chat',
-      GENERAL_CHAT_ROLE_MENU_PATHS,
-      GENERAL_CHAT_ROLE_BUTTON_PERMISSIONS,
-    );
-  }
-
   /**
    * 幂等同步: 把 menuPaths 对应的菜单、以及挂在这些菜单下且码在
    * buttonPermissions 里的按钮挂到角色下。只增不删，不覆盖管理员的手动调整。
@@ -202,6 +189,19 @@ export class SeedService implements OnApplicationBootstrap {
         );
       }
     }
+  }
+
+  private async syncSeedRolePermissions() {
+    await this.syncRolePermissions(
+      'common',
+      COMMON_ROLE_MENU_PATHS,
+      COMMON_ROLE_BUTTON_PERMISSIONS,
+    );
+    await this.syncRolePermissions(
+      'general-chat',
+      GENERAL_CHAT_ROLE_MENU_PATHS,
+      GENERAL_CHAT_ROLE_BUTTON_PERMISSIONS,
+    );
   }
 
   /**
