@@ -1,12 +1,17 @@
+import { Buffer } from 'node:buffer';
+
+import { Logger } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { Test, TestingModule } from '@nestjs/testing';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 
 import { PRISMA_SERVICE_TOKEN } from '@/common/database/prisma.extension';
 import { DEFAULT_ASSISTANT_RERANK_CANDIDATES_COUNT } from '@/common/defaults/assistant.defaults';
+import { DocxPreprocessService } from '@/common/docx-preprocess/docx-preprocess.service';
 import { RagflowService } from '@/common/ragflow/ragflow.service';
 import {
   createMockActiveUser,
+  createMockFile,
   createMockPrismaService,
 } from '@/test-utils/mock.factory';
 
@@ -27,6 +32,13 @@ const fakeChunk = (id: string, docId = 'doc-X', docName = 'X.docx') => ({
   vector_similarity: 0.7,
 });
 
+// 默认原样透传；需要验证预处理的用例自己改 mockImplementation
+const docxPreprocess = {
+  preprocessFiles: vi.fn((files: Express.Multer.File[]) =>
+    Promise.resolve(files),
+  ),
+};
+
 describe('assistantService.findAllSessions', () => {
   let service: AssistantService;
   const ragflow = { request: vi.fn() };
@@ -40,6 +52,7 @@ describe('assistantService.findAllSessions', () => {
         { provide: PRISMA_SERVICE_TOKEN, useValue: prisma },
         { provide: RagflowService, useValue: ragflow },
         { provide: ConfigService, useValue: { get: () => 'test-model' } },
+        { provide: DocxPreprocessService, useValue: docxPreprocess },
       ],
     }).compile();
     service = module.get(AssistantService);
@@ -173,6 +186,7 @@ describe('assistantService default model resolution', () => {
         { provide: PRISMA_SERVICE_TOKEN, useValue: prisma },
         { provide: RagflowService, useValue: ragflow },
         { provide: ConfigService, useValue: { get: configGet } },
+        { provide: DocxPreprocessService, useValue: docxPreprocess },
       ],
     }).compile();
     service = module.get(AssistantService);
@@ -357,6 +371,46 @@ describe('assistantService default model resolution', () => {
       );
     });
 
+    // D1（docs/spike-chat-attachment.md §6.1）：空回复非空时，知识库没召回到东西
+    // RAGFlow 就直接返回这句话、不调 LLM，用户随问题上传的附件会被整轮无视。
+    it('挂知识库的助手默认不设空回复，让附件在空召回时也能参与回答', async () => {
+      await service.create(createMockActiveUser(), {
+        datasetIds: ['kb-1'],
+        modelName: 'custom-llm@Local',
+        name: '带知识库的助手',
+        rerankId: '',
+      } as never);
+
+      expect(ragflow.request).toHaveBeenCalledWith(
+        'POST',
+        '/api/v1/chats',
+        expect.objectContaining({
+          prompt_config: expect.objectContaining({ empty_response: '' }),
+        }),
+      );
+      expect(prisma.client.assistant.create).toHaveBeenCalledWith({
+        data: expect.objectContaining({ emptyResponse: '' }),
+      });
+    });
+
+    it('调用方显式给了空回复时照用', async () => {
+      await service.create(createMockActiveUser(), {
+        datasetIds: ['kb-1'],
+        emptyResponse: '没找到',
+        modelName: 'custom-llm@Local',
+        name: '带知识库的助手',
+        rerankId: '',
+      } as never);
+
+      expect(ragflow.request).toHaveBeenCalledWith(
+        'POST',
+        '/api/v1/chats',
+        expect.objectContaining({
+          prompt_config: expect.objectContaining({ empty_response: '没找到' }),
+        }),
+      );
+    });
+
     it('passes rerankId through to RAGFlow as rerank_id and persists it', async () => {
       await service.create(createMockActiveUser(), {
         modelName: 'custom-llm@Local',
@@ -417,6 +471,7 @@ describe('assistantService 会话归属（RAGFlow 0.27 起无法在其侧按用�
         { provide: PRISMA_SERVICE_TOKEN, useValue: prisma },
         { provide: RagflowService, useValue: ragflow },
         { provide: ConfigService, useValue: { get: () => 'test-model' } },
+        { provide: DocxPreprocessService, useValue: docxPreprocess },
       ],
     }).compile();
     service = module.get(AssistantService);
@@ -515,6 +570,7 @@ describe('assistantService.update 推给 RAGFlow 的检索参数', () => {
         { provide: PRISMA_SERVICE_TOKEN, useValue: prisma },
         { provide: RagflowService, useValue: ragflow },
         { provide: ConfigService, useValue: { get: () => 'test-model' } },
+        { provide: DocxPreprocessService, useValue: docxPreprocess },
       ],
     }).compile();
     service = module.get(AssistantService);
@@ -549,5 +605,442 @@ describe('assistantService.update 推给 RAGFlow 的检索参数', () => {
         rerank_candidates_count: DEFAULT_ASSISTANT_RERANK_CANDIDATES_COUNT,
       }),
     );
+  });
+});
+
+describe('assistantService 对话附件', () => {
+  let service: AssistantService;
+  const ragflow = {
+    request: vi.fn(),
+    requestStream: vi.fn(),
+    uploadFile: vi.fn(),
+  };
+  const prisma = createMockPrismaService();
+
+  // 当前用户 sub=1；公共助手，创建者 99；会话 s1 归当前用户
+  beforeEach(async () => {
+    vi.clearAllMocks();
+    const module: TestingModule = await Test.createTestingModule({
+      providers: [
+        AssistantService,
+        { provide: PRISMA_SERVICE_TOKEN, useValue: prisma },
+        { provide: RagflowService, useValue: ragflow },
+        { provide: ConfigService, useValue: { get: () => 'test-model' } },
+        { provide: DocxPreprocessService, useValue: docxPreprocess },
+      ],
+    }).compile();
+    service = module.get(AssistantService);
+
+    prisma.client.assistant.findUniqueOrThrow.mockResolvedValue({
+      id: 1,
+      assistantId: 'rf-1',
+      deptId: null,
+      permission: 'public',
+      userId: 99,
+    });
+    prisma.client.user.findUniqueOrThrow.mockResolvedValue({
+      deptId: null,
+      id: 1,
+      isAdmin: false,
+    });
+    prisma.client.assistantSession.findMany.mockResolvedValue([
+      { sessionId: 's1', userId: 1 },
+      { sessionId: 's-other', userId: 2 },
+    ]);
+  });
+
+  describe('uploadAttachments', () => {
+    const pdf = () =>
+      createMockFile({
+        originalname: Buffer.from('报告.pdf', 'utf8').toString('latin1'),
+        mimetype: 'application/pdf',
+        size: 10,
+      });
+
+    beforeEach(() => {
+      ragflow.uploadFile.mockResolvedValue({
+        id: 'f1',
+        name: '报告.pdf',
+        size: 10,
+        mime_type: 'application/pdf',
+        created_by: 'tenant-1',
+      });
+      prisma.client.assistantAttachment.createMany.mockResolvedValue({
+        count: 1,
+      });
+    });
+
+    it('看不到的助手直接拒绝，不上传', async () => {
+      prisma.client.assistant.findUniqueOrThrow.mockResolvedValue({
+        id: 1,
+        assistantId: 'rf-1',
+        deptId: null,
+        permission: 'me',
+        userId: 99,
+      });
+
+      await expect(
+        service.uploadAttachments(1, createMockActiveUser(), 's1', [pdf()]),
+      ).rejects.toThrow(/无权访问此助手/);
+      expect(ragflow.uploadFile).not.toHaveBeenCalled();
+    });
+
+    it('别人的会话直接拒绝，不上传', async () => {
+      await expect(
+        service.uploadAttachments(1, createMockActiveUser(), 's-other', [
+          pdf(),
+        ]),
+      ).rejects.toThrow(/无权操作此会话/);
+      expect(ragflow.uploadFile).not.toHaveBeenCalled();
+    });
+
+    it('没有文件时报 400', async () => {
+      await expect(
+        service.uploadAttachments(1, createMockActiveUser(), 's1', []),
+      ).rejects.toThrow(/请选择/);
+    });
+
+    it('请求不是 multipart（拿不到文件）时报 400 而不是 500', async () => {
+      await expect(
+        service.uploadAttachments(
+          1,
+          createMockActiveUser(),
+          's1',
+          undefined as never,
+        ),
+      ).rejects.toThrow(/请选择/);
+    });
+
+    it('上传到 RAGFlow 失败时不落库', async () => {
+      ragflow.uploadFile.mockRejectedValue(new Error('RAGFlow down'));
+
+      await expect(
+        service.uploadAttachments(1, createMockActiveUser(), 's1', [pdf()]),
+      ).rejects.toThrow('RAGFlow down');
+      expect(
+        prisma.client.assistantAttachment.createMany,
+      ).not.toHaveBeenCalled();
+    });
+
+    it('落库失败时抛出，并把 RAGFlow 里留下的孤儿文件 ID 记进日志', async () => {
+      prisma.client.assistantAttachment.createMany.mockRejectedValue(
+        new Error('db down'),
+      );
+      const logged = vi
+        .spyOn(Logger.prototype, 'error')
+        .mockImplementation(() => undefined);
+
+      await expect(
+        service.uploadAttachments(1, createMockActiveUser(), 's1', [pdf()]),
+      ).rejects.toThrow('db down');
+      expect(String(logged.mock.calls[0]?.[0])).toContain('f1');
+      logged.mockRestore();
+    });
+
+    it('上传到 RAGFlow 的临时文件接口并登记归属', async () => {
+      const result = await service.uploadAttachments(
+        1,
+        createMockActiveUser(),
+        's1',
+        [pdf()],
+      );
+
+      expect(ragflow.uploadFile).toHaveBeenCalledWith(
+        '/api/v1/documents/upload',
+        expect.any(FormData),
+      );
+      const form = ragflow.uploadFile.mock.calls[0]?.[1] as FormData;
+      // multer 把 UTF-8 文件名按 latin1 解出来，要转回去
+      expect((form.getAll('file')[0] as File).name).toBe('报告.pdf');
+
+      expect(prisma.client.assistantAttachment.createMany).toHaveBeenCalledWith(
+        {
+          data: [
+            {
+              fileId: 'f1',
+              assistantId: 1,
+              sessionId: 's1',
+              userId: 1,
+              name: '报告.pdf',
+              mimeType: 'application/pdf',
+              size: 10,
+              createdBy: 'tenant-1',
+            },
+          ],
+        },
+      );
+      expect(result).toEqual([
+        { id: 'f1', name: '报告.pdf', mimeType: 'application/pdf', size: 10 },
+      ]);
+    });
+
+    it('多个文件时 RAGFlow 返回数组，逐个登记', async () => {
+      ragflow.uploadFile.mockResolvedValue([
+        {
+          id: 'f1',
+          name: 'a.md',
+          size: 1,
+          mime_type: 'text/markdown',
+          created_by: 't',
+        },
+        {
+          id: 'f2',
+          name: 'b.txt',
+          size: 2,
+          mime_type: 'text/plain',
+          created_by: 't',
+        },
+      ]);
+
+      const result = await service.uploadAttachments(
+        1,
+        createMockActiveUser(),
+        's1',
+        [
+          createMockFile({ originalname: 'a.md', mimetype: 'text/markdown' }),
+          createMockFile({ originalname: 'b.txt', mimetype: 'text/plain' }),
+        ],
+      );
+
+      expect(result.map((r) => r.id)).toEqual(['f1', 'f2']);
+      expect(
+        prisma.client.assistantAttachment.createMany.mock.calls[0]?.[0].data,
+      ).toHaveLength(2);
+    });
+
+    it('docx 先经 pandoc 预处理再上传', async () => {
+      const md = createMockFile({
+        originalname: 'a.md',
+        mimetype: 'text/markdown',
+      });
+      docxPreprocess.preprocessFiles.mockResolvedValueOnce([md]);
+
+      await service.uploadAttachments(1, createMockActiveUser(), 's1', [
+        createMockFile({ originalname: 'a.docx' }),
+      ]);
+
+      const form = ragflow.uploadFile.mock.calls[0]?.[1] as FormData;
+      expect((form.getAll('file')[0] as File).name).toBe('a.md');
+    });
+  });
+
+  describe('completions 组装 files', () => {
+    const res = () => ({
+      json: vi.fn((body: unknown) => body),
+      on: vi.fn(),
+      setHeader: vi.fn(),
+    });
+    const sentBody = () => ragflow.request.mock.calls[0]?.[2] as object;
+
+    beforeEach(() => {
+      ragflow.request.mockResolvedValue({ answer: 'ok' });
+    });
+
+    it('没有附件时请求体与原来逐字一致（非流式）', async () => {
+      await service.completions(
+        1,
+        createMockActiveUser(),
+        { question: 'q', sessionId: 's1', stream: false },
+        res() as never,
+      );
+
+      expect(JSON.stringify(sentBody())).toBe(
+        JSON.stringify({
+          chat_id: 'rf-1',
+          question: 'q',
+          stream: false,
+          session_id: 's1',
+          user_id: '1',
+        }),
+      );
+      expect(prisma.client.assistantAttachment.findMany).not.toHaveBeenCalled();
+    });
+
+    it('没有附件时请求体与原来逐字一致（流式）', async () => {
+      const stream = { on: vi.fn(), pipe: vi.fn(), destroy: vi.fn() };
+      ragflow.requestStream.mockResolvedValue(stream);
+
+      await service.completions(
+        1,
+        createMockActiveUser(),
+        { question: 'q', sessionId: 's1', attachmentIds: [] },
+        res() as never,
+      );
+
+      expect(JSON.stringify(ragflow.requestStream.mock.calls[0]?.[2])).toBe(
+        JSON.stringify({
+          chat_id: 'rf-1',
+          question: 'q',
+          stream: true,
+          session_id: 's1',
+          user_id: '1',
+        }),
+      );
+      expect(prisma.client.assistantAttachment.findMany).not.toHaveBeenCalled();
+    });
+
+    it('只按「本人 + 本会话 + 本助手」查附件', async () => {
+      prisma.client.assistantAttachment.findMany.mockResolvedValue([]);
+
+      await service
+        .completions(
+          1,
+          createMockActiveUser(),
+          {
+            question: 'q',
+            sessionId: 's1',
+            stream: false,
+            attachmentIds: ['f1'],
+          },
+          res() as never,
+        )
+        .catch(() => undefined);
+
+      expect(prisma.client.assistantAttachment.findMany).toHaveBeenCalledWith({
+        where: {
+          fileId: { in: ['f1'] },
+          userId: 1,
+          sessionId: 's1',
+          assistantId: 1,
+        },
+      });
+    });
+
+    // 归属表按 userId + sessionId 过滤，别人的 / 别的会话的附件查不出来，数量就对不上
+    it('别人的附件或别的会话的附件：数量对不上返回 403，不调 RAGFlow', async () => {
+      prisma.client.assistantAttachment.findMany.mockResolvedValue([
+        {
+          fileId: 'f1',
+          name: 'a.pdf',
+          mimeType: 'application/pdf',
+          createdBy: 't',
+        },
+      ]);
+
+      await expect(
+        service.completions(
+          1,
+          createMockActiveUser(),
+          {
+            question: 'q',
+            sessionId: 's1',
+            stream: false,
+            attachmentIds: ['f1', 'f-not-mine'],
+          },
+          res() as never,
+        ),
+      ).rejects.toThrow(/无权使用/);
+      expect(ragflow.request).not.toHaveBeenCalled();
+      expect(ragflow.requestStream).not.toHaveBeenCalled();
+    });
+
+    it('带附件却没给会话时拒绝', async () => {
+      await expect(
+        service.completions(
+          1,
+          createMockActiveUser(),
+          { question: 'q', stream: false, attachmentIds: ['f1'] },
+          res() as never,
+        ),
+      ).rejects.toThrow(/会话/);
+      expect(ragflow.request).not.toHaveBeenCalled();
+    });
+
+    it('在服务端组装 files，流式和非流式都带上', async () => {
+      prisma.client.assistantAttachment.findMany.mockResolvedValue([
+        {
+          fileId: 'f2',
+          name: 'b.md',
+          mimeType: 'text/markdown',
+          createdBy: 't',
+        },
+        {
+          fileId: 'f1',
+          name: 'a.pdf',
+          mimeType: 'application/pdf',
+          createdBy: 't',
+        },
+      ]);
+      const expected = [
+        {
+          id: 'f1',
+          name: 'a.pdf',
+          mime_type: 'application/pdf',
+          created_by: 't',
+        },
+        { id: 'f2', name: 'b.md', mime_type: 'text/markdown', created_by: 't' },
+      ];
+      const dto = {
+        question: 'q',
+        sessionId: 's1',
+        attachmentIds: ['f1', 'f2'],
+      };
+
+      await service.completions(
+        1,
+        createMockActiveUser(),
+        { ...dto, stream: false },
+        res() as never,
+      );
+      expect(sentBody()).toEqual({
+        chat_id: 'rf-1',
+        question: 'q',
+        stream: false,
+        session_id: 's1',
+        user_id: '1',
+        files: expected,
+      });
+
+      ragflow.requestStream.mockResolvedValue({
+        on: vi.fn(),
+        pipe: vi.fn(),
+        destroy: vi.fn(),
+      });
+      await service.completions(1, createMockActiveUser(), dto, res() as never);
+      expect(ragflow.requestStream.mock.calls[0]?.[2]).toMatchObject({
+        stream: true,
+        files: expected,
+      });
+    });
+  });
+
+  // RAGFlow 在消息上存的是完整文件对象（含 created_by 租户 id 等），前端只需要文件名
+  it('历史消息里的附件只把文件名交给前端', async () => {
+    ragflow.request.mockResolvedValue([
+      {
+        id: 's1',
+        chat_id: 'rf-1',
+        name: '会话',
+        messages: [
+          {
+            role: 'user',
+            content: 'q',
+            files: [
+              { id: 'f1', name: 'a.pdf', created_by: 'tenant', mime_type: 'x' },
+            ],
+          },
+          { role: 'assistant', content: 'a' },
+        ],
+      },
+    ]);
+
+    const [session] = await service.findAllSessions(
+      1,
+      createMockActiveUser(),
+      {},
+    );
+
+    expect(session?.messages[0]?.files).toEqual([{ name: 'a.pdf' }]);
+    expect(session?.messages[1]).not.toHaveProperty('files');
+  });
+
+  it('删会话时一并删掉它的附件记录', async () => {
+    ragflow.request.mockResolvedValue({});
+
+    await service.removeSession(1, createMockActiveUser(), 's1');
+
+    expect(prisma.client.assistantAttachment.deleteMany).toHaveBeenCalledWith({
+      where: { sessionId: 's1' },
+    });
   });
 });

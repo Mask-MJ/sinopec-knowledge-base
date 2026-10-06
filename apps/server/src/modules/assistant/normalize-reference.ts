@@ -10,6 +10,8 @@ export type RagflowChunk = ReferenceChunkEntity;
 /** RAGFlow GET /sessions 返回的原始 message — reference 是扁平 chunk 数组 */
 export interface RagflowRawMessage {
   content: string;
+  /** 用户消息上的附件（RAGFlow 存的是完整文件对象，这里只声明用得到的字段） */
+  files?: { name: string }[];
   reference?: RagflowChunk[];
   role: string;
 }
@@ -17,6 +19,7 @@ export interface RagflowRawMessage {
 /** Normalize 后的 message — reference 是前端期望的 { chunks, doc_aggs } */
 export interface NormalizedMessage {
   content: string;
+  files?: { name: string }[];
   reference?: ReferenceEntity;
   role: string;
 }
@@ -49,8 +52,8 @@ export function normalizeMessageReferences(
   messages: ReadonlyArray<RagflowRawMessage>,
 ): NormalizedMessage[] {
   const assistantIndexes: number[] = [];
-  for (let i = 0; i < messages.length; i++) {
-    if (messages[i]?.role === 'assistant') {
+  for (const [i, message] of messages.entries()) {
+    if (message?.role === 'assistant') {
       assistantIndexes.push(i);
     }
   }

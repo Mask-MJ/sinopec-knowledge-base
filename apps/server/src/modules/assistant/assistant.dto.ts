@@ -8,6 +8,8 @@ import {
 } from '@nestjs/swagger';
 import { Type } from 'class-transformer';
 import {
+  ArrayMaxSize,
+  ArrayUnique,
   IsArray,
   IsBoolean,
   IsIn,
@@ -30,6 +32,8 @@ import {
 } from '@/common/defaults/assistant.defaults';
 import { PaginateDto } from '@/common/dto/base.dto';
 import { RESOURCE_PERMISSIONS } from '@/modules/auth/authorization/resource-visibility';
+
+import { MAX_ATTACHMENTS_PER_TURN } from './attachment-policy';
 
 // ─── Assistant DTO ───────────────────────────────
 
@@ -255,6 +259,17 @@ export class UpdateSessionDto extends PartialType(CreateSessionDto) {}
 
 export class CreateCompletionsDto {
   /**
+   * 本轮提问附带的附件 ID（上传附件接口的返回值），只对这一次提问生效
+   * @example ['3f1c0e9a8b7d4c2e9f6a5b4c3d2e1f0a']
+   */
+  @ArrayMaxSize(MAX_ATTACHMENTS_PER_TURN)
+  @ArrayUnique()
+  @IsArray()
+  @IsOptional()
+  @IsString({ each: true })
+  attachmentIds?: string[];
+
+  /**
    * 开始人工智能对话的问题
    * @example '你好'
    */
@@ -277,4 +292,12 @@ export class CreateCompletionsDto {
   @IsOptional()
   @Type(() => Boolean)
   stream?: boolean;
+}
+
+export class UploadAttachmentsDto {
+  /**
+   * 本轮提问的附件，最多 5 个，每个不超过 20 MiB（pdf / docx / pptx / md / html / txt）
+   */
+  @ApiProperty({ type: 'array', items: { type: 'string', format: 'binary' } })
+  files: Express.Multer.File[];
 }

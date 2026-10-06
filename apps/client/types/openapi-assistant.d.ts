@@ -111,6 +111,23 @@ export interface paths {
         patch: operations["AssistantController_updateSession"];
         trace?: never;
     };
+    "/api/assistant/{id}/sessions/{sessionId}/attachments": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** 上传本轮提问的附件（只对随后那一次提问生效，返回的 id 放进 attachmentIds） */
+        post: operations["AssistantController_uploadAttachments"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
 }
 export type webhooks = Record<string, never>;
 export interface components {
@@ -174,6 +191,16 @@ export interface components {
             updatedAt: string;
             /** @description 所属用户 ID */
             userId: number;
+        };
+        AttachmentEntity: {
+            /** @description 附件 ID，提问时放进 attachmentIds */
+            id: string;
+            /** @description MIME 类型 */
+            mimeType: string;
+            /** @description 文件名（docx 会被预处理为 md） */
+            name: string;
+            /** @description 文件大小（字节） */
+            size: number;
         };
         CreateAssistantDto: {
             /**
@@ -282,6 +309,13 @@ export interface components {
         };
         CreateCompletionsDto: {
             /**
+             * @description 本轮提问附带的附件 ID（上传附件接口的返回值），只对这一次提问生效
+             * @example [
+             *       "3f1c0e9a8b7d4c2e9f6a5b4c3d2e1f0a"
+             *     ]
+             */
+            attachmentIds?: string[];
+            /**
              * @description 开始人工智能对话的问题
              * @example 你好
              */
@@ -376,10 +410,16 @@ export interface components {
         SessionMessageEntity: {
             /** @description 消息内容 */
             content: string;
+            /** @description 该条用户消息附带的附件（RAGFlow 原样保存的元数据） */
+            files?: components["schemas"]["SessionMessageFileEntity"][];
             /** @description 引用数据（assistant 消息可能包含，由 RAGFlow 在答复时返回） */
             reference?: components["schemas"]["ReferenceEntity"];
             /** @description 消息角色 */
             role: string;
+        };
+        SessionMessageFileEntity: {
+            /** @description 文件名 */
+            name: string;
         };
         UpdateAssistantDto: {
             /**
@@ -492,6 +532,10 @@ export interface components {
              * @example 会话1
              */
             name?: string;
+        };
+        UploadAttachmentsDto: {
+            /** @description 本轮提问的附件，最多 5 个，每个不超过 20 MiB（pdf / docx / pptx / md / html / txt） */
+            files: string[];
         };
     };
     responses: never;
@@ -772,6 +816,33 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["SessionEntity"];
+                };
+            };
+        };
+    };
+    AssistantController_uploadAttachments: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: number;
+                sessionId: string;
+            };
+            cookie?: never;
+        };
+        /** @description 附件 */
+        requestBody: {
+            content: {
+                "multipart/form-data": components["schemas"]["UploadAttachmentsDto"];
+            };
+        };
+        responses: {
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AttachmentEntity"][];
                 };
             };
         };

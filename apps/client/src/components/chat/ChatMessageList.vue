@@ -39,6 +39,7 @@ defineExpose({ scrollToBottom });
       :loading="msg.loading"
       :thinking-status="msg.thinkingStatus"
       :reference="msg.reference"
+      :files="msg.files"
       :avatar="avatar"
     />
   </div>

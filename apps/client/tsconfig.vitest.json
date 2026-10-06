@@ -3,10 +3,11 @@
   "compilerOptions": {
     "tsBuildInfoFile": "./node_modules/.tmp/tsconfig.vitest.tsbuildinfo",
 
-    "lib": [],
     "types": ["node", "jsdom"]
   },
   "include": [
+    "types/*",
+    "src/**/*.d.ts",
     "src/**/__tests__/*",
     "src/**/*.test.ts",
     "src/**/*.spec.ts",

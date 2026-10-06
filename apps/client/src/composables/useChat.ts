@@ -2,7 +2,7 @@ import type { Reference } from './useSSEStream';
 
 import { toRaw } from 'vue';
 
-import { completions } from '@/api/assistant';
+import { completions, uploadChatAttachments } from '@/api/assistant';
 
 import { useSSEStream } from './useSSEStream';
 
@@ -12,8 +12,15 @@ export type {
   ReferenceDocAgg,
 } from './useSSEStream';
 
+/** 历史消息上 RAGFlow 记录的附件元数据，前端只展示文件名 */
+export interface ChatMessageFile {
+  name: string;
+}
+
 export interface ChatMessage {
   content: string;
+  /** 该条用户消息附带的附件 */
+  files?: ChatMessageFile[];
   key: number;
   loading: boolean;
   reasoning: string;
@@ -61,6 +68,7 @@ export function useChat(
   function initMessages(
     history: ReadonlyArray<{
       content?: string;
+      files?: ReadonlyArray<ChatMessageFile>;
       reference?: Reference;
       role: string;
     }>,
@@ -75,6 +83,7 @@ export function useChat(
         loading: false,
         thinkingStatus: 'end' as const,
         reference: item.reference,
+        files: item.files?.map(({ name }) => ({ name })),
       };
     });
     activeAssistantIndex = -1;
@@ -87,9 +96,41 @@ export function useChat(
     Object.assign(msg, patch);
   }
 
-  async function send(question: string) {
-    if (!sessionId.value || sending.value || !question.trim()) return;
+  /**
+   * 发送一条提问。带附件时先上传、拿到附件 ID 再提问；附件只对这一次提问生效。
+   * 返回 false 表示没发出去（上传失败），调用方应保留输入框里的问题和附件。
+   */
+  async function send(question: string, files: File[] = []) {
+    if (!sessionId.value || sending.value || !question.trim()) return false;
     sending.value = true;
+    const currentSessionId = sessionId.value;
+
+    let attachmentIds: string[] = [];
+    let attachedNames: ChatMessageFile[] = [];
+    if (files.length > 0) {
+      try {
+        const uploaded = await uploadChatAttachments(
+          assistantId.value,
+          currentSessionId,
+          files,
+        );
+        attachmentIds = uploaded.map((item) => item.id);
+        // 用服务端清洗后的文件名，与刷新后历史消息里显示的一致
+        attachedNames = uploaded.map(({ name }) => ({ name }));
+      } catch (error) {
+        window.$message.error(
+          error instanceof Error ? error.message : '附件上传失败',
+        );
+        sending.value = false;
+        return false;
+      }
+      // 上传要几秒，期间切到别的会话的话，消息列表已换成那个会话，不能把这一问追加过去
+      if (sessionId.value !== currentSessionId) {
+        window.$message.warning('会话已切换，本次提问已取消');
+        sending.value = false;
+        return false;
+      }
+    }
 
     const userMsg: ChatMessage = {
       key: messages.value.length,
@@ -98,6 +139,7 @@ export function useChat(
       reasoning: '',
       loading: false,
       thinkingStatus: 'end',
+      files: attachedNames.length > 0 ? attachedNames : undefined,
     };
     const assistantMsg: ChatMessage = {
       key: messages.value.length + 1,
@@ -113,8 +155,10 @@ export function useChat(
     try {
       const { response } = await completions(assistantId.value, {
         stream: true,
-        sessionId: sessionId.value,
+        sessionId: currentSessionId,
         question,
+        // 没附件时不带这个键，请求体与原来一致
+        ...(attachmentIds.length > 0 && { attachmentIds }),
       });
       if (!response.body) throw new Error('响应体为空');
       await sseStream.startStream(response.body);
@@ -128,6 +172,7 @@ export function useChat(
     } finally {
       sending.value = false;
     }
+    return true;
   }
 
   // Watch SSE stream content changes

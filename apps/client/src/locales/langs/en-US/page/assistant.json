@@ -58,6 +58,8 @@
     "referenceNotFound": "Reference chunk not found",
     "referenceSources": "Reference Sources",
     "referenceUnavailable": "No reference data available for this message",
+    "addAttachment": "Attach files",
+    "attachmentHint": "Attachments apply to this question only; re-attach them for follow-ups",
     "similarity": "Similarity"
   }
 }

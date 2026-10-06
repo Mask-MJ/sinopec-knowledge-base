@@ -1,0 +1,32 @@
+/// 对话附件归属表
+///
+/// 附件经我们后端代理上传到 RAGFlow `POST /api/v1/documents/upload`，只存进对象存储、
+/// 不进任何数据集。RAGFlow 那一层不校验文件归属（所有用户共用一个 API key，即同一租户），
+/// completions 时由服务端按本表核对「本人 + 本会话」后再组装 `files`，
+/// 绝不透传客户端传来的文件对象。见 docs/spike-chat-attachment.md §2。
+///
+/// sessionId 不建外键：归属表上线前的历史会话在 AssistantSession 里没有记录。
+model AssistantAttachment {
+  /// RAGFlow 返回的文件ID（对象存储里的 location）
+  fileId      String    @id
+  /// 所属助手ID
+  assistantId Int
+  /// 所属 RAGFlow 会话ID
+  sessionId   String
+  /// 上传者用户ID
+  userId      Int
+  /// 文件名（RAGFlow 按扩展名选解析器；docx 已预处理为 md）
+  name        String
+  /// MIME 类型
+  mimeType    String
+  /// 文件大小（字节）
+  size        Int
+  /// RAGFlow 租户ID，决定从哪个桶（`{createdBy}-downloads`）取文件
+  createdBy   String
+  /// 创建时间
+  createdAt   DateTime  @default(now())
+  assistant   Assistant @relation(fields: [assistantId], references: [id], onDelete: Cascade)
+  user        User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([sessionId, userId])
+}

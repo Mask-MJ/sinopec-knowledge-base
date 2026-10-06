@@ -81,6 +81,7 @@ function getMarkdown() {
         <div class="min-h-0 flex-1 px-4">
           <ChatPanel
             ref="panelRef"
+            allow-attachments
             :assistant-id="assistantId"
             :session-id="activeId"
             :messages="activeSession?.messages || []"

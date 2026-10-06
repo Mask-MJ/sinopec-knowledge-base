@@ -3,6 +3,7 @@ import type { components, operations } from '#/openapi-assistant';
 import { client } from '@/utils';
 
 export type AssistantInfo = components['schemas']['AssistantEntity'];
+export type AttachmentInfo = components['schemas']['AttachmentEntity'];
 export type SearchParams =
   operations['AssistantController_findAll']['parameters']['query'];
 export type SessionInfo = components['schemas']['SessionEntity'];
@@ -104,4 +105,39 @@ export function completions(
     body,
     parseAs: 'stream',
   });
+}
+
+// 上传本轮提问的附件，返回的 id 放进 completions 的 attachmentIds
+export async function uploadChatAttachments(
+  id: number,
+  sessionId: string,
+  files: File[],
+): Promise<AttachmentInfo[]> {
+  const userStore = useUserStore();
+  const formData = new FormData();
+  for (const file of files) {
+    formData.append('files', file);
+  }
+  const response = await fetch(
+    `/api/assistant/${id}/sessions/${encodeURIComponent(sessionId)}/attachments`,
+    {
+      method: 'POST',
+      headers: {
+        Authorization: `Bearer ${userStore.token.accessToken}`,
+      },
+      body: formData,
+    },
+  );
+  // nginx 按整个请求体限大小，超了返回的是 HTML 而不是 JSON
+  if (response.status === 413) {
+    throw new Error('附件总大小超出限制，请减少文件或压缩后再上传');
+  }
+  if (!response.ok) {
+    const errBody = (await response.json().catch(() => null)) as null | {
+      message?: string | string[];
+    };
+    const raw = errBody?.message ?? '附件上传失败';
+    throw new Error(Array.isArray(raw) ? raw.join(', ') : raw);
+  }
+  return response.json() as Promise<AttachmentInfo[]>;
 }

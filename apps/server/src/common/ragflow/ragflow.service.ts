@@ -13,6 +13,7 @@ import {
   ServiceUnavailableException,
 } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
+import { isAxiosError } from 'axios';
 
 /** RAGFlow 通用响应结构 */
 interface RagflowResponse<T = unknown> {
@@ -76,6 +77,23 @@ export function toLlmItems(models: RagflowModelItem[]): RagflowLlmItem[] {
   );
 }
 
+/**
+ * 把异常压成一行摘要再写日志。
+ *
+ * 不能把 AxiosError 原样交给 logger：它的 toJSON() 带着 config.headers 和 config.data，
+ * winston 的 json 格式会把 `Authorization: Bearer <API key>` 和请求体原样写进日志文件。
+ */
+export function describeError(error: unknown): string {
+  if (isAxiosError(error)) {
+    const code = error.code ? ` [${error.code}]` : '';
+    const status = error.response ? ` (HTTP ${error.response.status})` : '';
+    return `${error.name}: ${error.message}${code}${status}`;
+  }
+  return error instanceof Error
+    ? (error.stack ?? error.message)
+    : String(error);
+}
+
 @Injectable()
 export class RagflowService {
   private static readonly RAGFLOW_CONFLICT = 103;
@@ -132,7 +150,7 @@ export class RagflowService {
         data: response.data,
       };
     } catch (error) {
-      this.logger.error(`RAGFlow 下载异常: ${path}`, error);
+      this.logger.error(`RAGFlow 下载异常: ${path}`, describeError(error));
       throw new ServiceUnavailableException(
         'RAGFlow 服务暂时不可用，请稍后重试',
       );
@@ -173,7 +191,7 @@ export class RagflowService {
       ) {
         throw error;
       }
-      this.logger.error('RAGFlow 获取 LLM 列表异常', error);
+      this.logger.error('RAGFlow 获取 LLM 列表异常', describeError(error));
       throw new ServiceUnavailableException(
         'RAGFlow 服务暂时不可用，请稍后重试',
       );
@@ -191,7 +209,7 @@ export class RagflowService {
       });
       return response.data;
     } catch (error) {
-      this.logger.warn('RAGFlow 健康检查失败', error);
+      this.logger.warn('RAGFlow 健康检查失败', describeError(error));
       throw new ServiceUnavailableException('RAGFlow 服务不可用');
     }
   }
@@ -240,7 +258,10 @@ export class RagflowService {
       ) {
         throw error;
       }
-      this.logger.error(`RAGFlow 请求异常: ${method} ${path}`, error);
+      this.logger.error(
+        `RAGFlow 请求异常: ${method} ${path}`,
+        describeError(error),
+      );
       throw new ServiceUnavailableException(
         'RAGFlow 服务暂时不可用，请稍后重试',
       );
@@ -270,7 +291,7 @@ export class RagflowService {
 
       return response.data;
     } catch (error) {
-      this.logger.error(`RAGFlow 流式请求异常: ${path}`, error);
+      this.logger.error(`RAGFlow 流式请求异常: ${path}`, describeError(error));
       throw new ServiceUnavailableException(
         'RAGFlow 服务暂时不可用，请稍后重试',
       );
@@ -311,7 +332,7 @@ export class RagflowService {
       ) {
         throw error;
       }
-      this.logger.error(`RAGFlow 上传异常: ${path}`, error);
+      this.logger.error(`RAGFlow 上传异常: ${path}`, describeError(error));
       throw new ServiceUnavailableException(
         'RAGFlow 服务暂时不可用，请稍后重试',
       );
