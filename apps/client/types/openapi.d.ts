@@ -2529,6 +2529,10 @@ export interface components {
              */
             username?: string;
         };
+        UploadAttachmentsDto: {
+            /** @description 本轮提问的附件，最多 5 个，每个不超过 20 MiB（pdf / docx / pptx / md / html / txt） */
+            files: string[];
+        };
         UserEntity: {
             avatar: string;
             /** Format: date-time */
@@ -2887,7 +2891,7 @@ export interface operations {
         /** @description 附件 */
         requestBody: {
             content: {
-                "multipart/form-data": components["schemas"]["FilesUploadDto"];
+                "multipart/form-data": components["schemas"]["UploadAttachmentsDto"];
             };
         };
         responses: {

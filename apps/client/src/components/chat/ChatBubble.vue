@@ -144,7 +144,11 @@ onUnmounted(() => citationObserver?.disconnect());
         v-if="files?.length && role === 'user'"
         class="mb-1.5 flex flex-wrap gap-1.5"
       >
-        <n-tag v-for="file in files" :key="file.name" size="small">
+        <n-tag
+          v-for="(file, index) in files"
+          :key="`${index}-${file.name}`"
+          size="small"
+        >
           <template #icon>
             <i class="i-ant-design:paper-clip-outlined"></i>
           </template>

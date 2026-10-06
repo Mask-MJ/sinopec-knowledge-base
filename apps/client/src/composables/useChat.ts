@@ -106,6 +106,7 @@ export function useChat(
     const currentSessionId = sessionId.value;
 
     let attachmentIds: string[] = [];
+    let attachedNames: ChatMessageFile[] = [];
     if (files.length > 0) {
       try {
         const uploaded = await uploadChatAttachments(
@@ -114,10 +115,18 @@ export function useChat(
           files,
         );
         attachmentIds = uploaded.map((item) => item.id);
+        // 用服务端清洗后的文件名，与刷新后历史消息里显示的一致
+        attachedNames = uploaded.map(({ name }) => ({ name }));
       } catch (error) {
         window.$message.error(
           error instanceof Error ? error.message : '附件上传失败',
         );
+        sending.value = false;
+        return false;
+      }
+      // 上传要几秒，期间切到别的会话的话，消息列表已换成那个会话，不能把这一问追加过去
+      if (sessionId.value !== currentSessionId) {
+        window.$message.warning('会话已切换，本次提问已取消');
         sending.value = false;
         return false;
       }
@@ -130,7 +139,7 @@ export function useChat(
       reasoning: '',
       loading: false,
       thinkingStatus: 'end',
-      files: files.length > 0 ? files.map(({ name }) => ({ name })) : undefined,
+      files: attachedNames.length > 0 ? attachedNames : undefined,
     };
     const assistantMsg: ChatMessage = {
       key: messages.value.length + 1,

@@ -42,9 +42,9 @@ describe('useChat.send 附件', () => {
 
   it('先上传附件，再带上附件 ID 提问，用户消息上显示文件名', async () => {
     vi.mocked(uploadChatAttachments).mockResolvedValue([
-      { id: 'f1', name: 'a.pdf', mimeType: 'application/pdf', size: 1 },
+      { id: 'f1', name: 'a_b_.pdf', mimeType: 'application/pdf', size: 1 },
     ]);
-    const file = new File(['x'], 'a.pdf');
+    const file = new File(['x'], 'a(b).pdf');
     const { messages, send } = useChat(ref(1), ref('s1'));
 
     await expect(send('q', [file])).resolves.toBe(true);
@@ -56,7 +56,8 @@ describe('useChat.send 附件', () => {
       question: 'q',
       attachmentIds: ['f1'],
     });
-    expect(messages.value[0]?.files).toEqual([{ name: 'a.pdf' }]);
+    // 用服务端清洗后的文件名，与刷新后历史消息里显示的一致
+    expect(messages.value[0]?.files).toEqual([{ name: 'a_b_.pdf' }]);
   });
 
   it('上传失败时不提问，返回 false 让输入框保留问题和附件', async () => {
@@ -68,5 +69,23 @@ describe('useChat.send 附件', () => {
     expect(completions).not.toHaveBeenCalled();
     expect(messages.value).toEqual([]);
     expect(window.$message.error).toHaveBeenCalledWith('太大了');
+  });
+
+  it('上传期间切换了会话：放弃这次提问，不把问答追加到新会话的视图里', async () => {
+    const sessionId = ref<string | undefined>('s1');
+    vi.mocked(uploadChatAttachments).mockImplementation(() => {
+      sessionId.value = 's2';
+      return Promise.resolve([
+        { id: 'f1', name: 'a.pdf', mimeType: 'application/pdf', size: 1 },
+      ]);
+    });
+    window.$message = { error: vi.fn(), warning: vi.fn() } as never;
+    const { messages, send } = useChat(ref(1), sessionId);
+
+    await expect(send('q', [new File(['x'], 'a.pdf')])).resolves.toBe(false);
+
+    expect(completions).not.toHaveBeenCalled();
+    expect(messages.value).toEqual([]);
+    expect(window.$message.warning).toHaveBeenCalled();
   });
 });

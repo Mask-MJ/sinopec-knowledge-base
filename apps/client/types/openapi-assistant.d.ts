@@ -338,16 +338,6 @@ export interface components {
              */
             name?: string;
         };
-        FilesUploadDto: {
-            /** @description 上传的文件列表 */
-            files: string[];
-            /**
-             * @description 文件类型
-             * @example images
-             * @enum {string}
-             */
-            type: "audios" | "images" | "videos";
-        };
         PaginateResponse: {
             /**
              * @description 页码
@@ -542,6 +532,10 @@ export interface components {
              * @example 会话1
              */
             name?: string;
+        };
+        UploadAttachmentsDto: {
+            /** @description 本轮提问的附件，最多 5 个，每个不超过 20 MiB（pdf / docx / pptx / md / html / txt） */
+            files: string[];
         };
     };
     responses: never;
@@ -839,7 +833,7 @@ export interface operations {
         /** @description 附件 */
         requestBody: {
             content: {
-                "multipart/form-data": components["schemas"]["FilesUploadDto"];
+                "multipart/form-data": components["schemas"]["UploadAttachmentsDto"];
             };
         };
         responses: {

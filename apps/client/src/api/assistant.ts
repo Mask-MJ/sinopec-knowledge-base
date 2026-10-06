@@ -128,6 +128,10 @@ export async function uploadChatAttachments(
       body: formData,
     },
   );
+  // nginx 按整个请求体限大小，超了返回的是 HTML 而不是 JSON
+  if (response.status === 413) {
+    throw new Error('附件总大小超出限制，请减少文件或压缩后再上传');
+  }
   if (!response.ok) {
     const errBody = (await response.json().catch(() => null)) as null | {
       message?: string | string[];
