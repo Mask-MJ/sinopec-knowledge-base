@@ -1,5 +1,6 @@
 import { Buffer } from 'node:buffer';
 
+import { Logger } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { Test, TestingModule } from '@nestjs/testing';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
@@ -699,6 +700,43 @@ describe('assistantService 对话附件', () => {
       ).rejects.toThrow(/请选择/);
     });
 
+    it('请求不是 multipart（拿不到文件）时报 400 而不是 500', async () => {
+      await expect(
+        service.uploadAttachments(
+          1,
+          createMockActiveUser(),
+          's1',
+          undefined as never,
+        ),
+      ).rejects.toThrow(/请选择/);
+    });
+
+    it('上传到 RAGFlow 失败时不落库', async () => {
+      ragflow.uploadFile.mockRejectedValue(new Error('RAGFlow down'));
+
+      await expect(
+        service.uploadAttachments(1, createMockActiveUser(), 's1', [pdf()]),
+      ).rejects.toThrow('RAGFlow down');
+      expect(
+        prisma.client.assistantAttachment.createMany,
+      ).not.toHaveBeenCalled();
+    });
+
+    it('落库失败时抛出，并把 RAGFlow 里留下的孤儿文件 ID 记进日志', async () => {
+      prisma.client.assistantAttachment.createMany.mockRejectedValue(
+        new Error('db down'),
+      );
+      const logged = vi
+        .spyOn(Logger.prototype, 'error')
+        .mockImplementation(() => undefined);
+
+      await expect(
+        service.uploadAttachments(1, createMockActiveUser(), 's1', [pdf()]),
+      ).rejects.toThrow('db down');
+      expect(String(logged.mock.calls[0]?.[0])).toContain('f1');
+      logged.mockRestore();
+    });
+
     it('上传到 RAGFlow 的临时文件接口并登记归属', async () => {
       const result = await service.uploadAttachments(
         1,
@@ -964,6 +1002,36 @@ describe('assistantService 对话附件', () => {
         files: expected,
       });
     });
+  });
+
+  // RAGFlow 在消息上存的是完整文件对象（含 created_by 租户 id 等），前端只需要文件名
+  it('历史消息里的附件只把文件名交给前端', async () => {
+    ragflow.request.mockResolvedValue([
+      {
+        id: 's1',
+        chat_id: 'rf-1',
+        name: '会话',
+        messages: [
+          {
+            role: 'user',
+            content: 'q',
+            files: [
+              { id: 'f1', name: 'a.pdf', created_by: 'tenant', mime_type: 'x' },
+            ],
+          },
+          { role: 'assistant', content: 'a' },
+        ],
+      },
+    ]);
+
+    const [session] = await service.findAllSessions(
+      1,
+      createMockActiveUser(),
+      {},
+    );
+
+    expect(session?.messages[0]?.files).toEqual([{ name: 'a.pdf' }]);
+    expect(session?.messages[1]).not.toHaveProperty('files');
   });
 
   it('删会话时一并删掉它的附件记录', async () => {

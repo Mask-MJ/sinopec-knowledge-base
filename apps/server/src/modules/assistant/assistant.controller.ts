@@ -24,7 +24,6 @@ import {
   ApiTags,
 } from '@nestjs/swagger';
 
-import { FilesUploadDto } from '@/common/dto/upload.dto';
 import { ApiPaginatedResponse } from '@/common/response/paginated.response';
 import { AutoPermission } from '@/modules/auth/authorization/decorators/auto-permission.decorator';
 import { ActiveUser } from '@/modules/auth/decorators/active-user.decorator';
@@ -37,6 +36,7 @@ import {
   QuerySessionDto,
   UpdateAssistantDto,
   UpdateSessionDto,
+  UploadAttachmentsDto,
 } from './assistant.dto';
 import {
   AssistantEntity,
@@ -190,7 +190,7 @@ export class AssistantController {
   /**
    * 上传本轮提问的附件（只对随后那一次提问生效，返回的 id 放进 attachmentIds）
    */
-  @ApiBody({ description: '附件', type: FilesUploadDto })
+  @ApiBody({ description: '附件', type: UploadAttachmentsDto })
   @ApiConsumes('multipart/form-data')
   @ApiCreatedResponse({ type: AttachmentEntity, isArray: true })
   @AutoPermission()
@@ -206,7 +206,7 @@ export class AssistantController {
     @Param('id') id: number,
     @ActiveUser() user: ActiveUserData,
     @Param('sessionId') sessionId: string,
-    @UploadedFiles() files: Express.Multer.File[],
+    @UploadedFiles() files: Express.Multer.File[] | undefined,
   ) {
     return this.assistantService.uploadAttachments(id, user, sessionId, files);
   }

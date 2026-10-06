@@ -8,7 +8,10 @@ import type {
   UpdateSessionDto,
 } from './assistant.dto';
 import type { AttachmentEntity } from './assistant.entity';
-import type { RagflowRawMessage } from './normalize-reference';
+import type {
+  NormalizedMessage,
+  RagflowRawMessage,
+} from './normalize-reference';
 import type { PrismaService } from '@/common/database/prisma.extension';
 import type { RagflowLlmItem } from '@/common/ragflow/ragflow.service';
 import type { ActiveUserData } from '@/modules/auth/interfaces/active-user-data.interface';
@@ -52,6 +55,15 @@ interface RagflowSessionRaw {
   messages: RagflowRawMessage[];
   name: string;
   update_date: string;
+}
+
+/**
+ * RAGFlow 在消息上存的是完整文件对象（含租户 id、对象存储 id），前端只需要文件名。
+ */
+function keepFileNames(message: NormalizedMessage): NormalizedMessage {
+  return message.files
+    ? { ...message, files: message.files.map(({ name }) => ({ name })) }
+    : message;
 }
 
 /** RAGFlow `POST /api/v1/documents/upload` 返回的单个文件 */
@@ -423,7 +435,9 @@ export class AssistantService {
 
     return mine.slice((page - 1) * pageSize, page * pageSize).map((s) => ({
       ...s,
-      messages: normalizeMessageReferences(s.messages ?? []),
+      messages: normalizeMessageReferences(s.messages ?? []).map((message) =>
+        keepFileNames(message),
+      ),
     }));
   }
 
@@ -614,11 +628,12 @@ export class AssistantService {
     id: number,
     user: ActiveUserData,
     sessionId: string,
-    files: Express.Multer.File[],
+    // 请求不是 multipart 时 multer 不会填这个参数
+    files: Express.Multer.File[] | undefined,
   ): Promise<AttachmentEntity[]> {
     const assistant = await this.assertCanView(id, user);
     await this.assertOwnsSession(id, assistant.userId, user, sessionId);
-    if (files.length === 0) {
+    if (!files?.length) {
       throw new BadRequestException('请选择要上传的附件');
     }
 
@@ -725,6 +740,9 @@ export class AssistantService {
    * RAGFlow 按请求体里的 `created_by` 取文件、不校验归属，而我们所有用户共用一个
    * API key。所以客户端给的 ID 必须**全部**是本人在本会话、本助手下上传的才放行，
    * 文件对象一律由服务端按归属表组装，绝不透传客户端的输入。
+   *
+   * 「只对本轮生效」由前端保证（每次发送都重新上传）；同一会话里重发旧的 ID
+   * 服务端仍会放行，这不越权，只是又解析一遍同一个文件。
    */
   private async resolveAttachmentFiles(
     assistantId: number,

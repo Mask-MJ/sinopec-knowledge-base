@@ -293,3 +293,11 @@ export class CreateCompletionsDto {
   @Type(() => Boolean)
   stream?: boolean;
 }
+
+export class UploadAttachmentsDto {
+  /**
+   * 本轮提问的附件，最多 5 个，每个不超过 20 MiB（pdf / docx / pptx / md / html / txt）
+   */
+  @ApiProperty({ type: 'array', items: { type: 'string', format: 'binary' } })
+  files: Express.Multer.File[];
+}
