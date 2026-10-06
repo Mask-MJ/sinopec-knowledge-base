@@ -32,5 +32,6 @@
   "deleteConfirm": "是否确认删除？如果有关联数据会一并删除",
   "deleteSuccess": "删除成功",
   "noDescription": "暂无描述",
-  "operationFailed": "操作失败"
+  "operationFailed": "操作失败",
+  "requestFailed": "请求失败（HTTP {status}），请稍后重试"
 }

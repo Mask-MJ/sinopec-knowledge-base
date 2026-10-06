@@ -1,0 +1,13 @@
+{
+  "history": "History",
+  "noHistory": "No reports yet",
+  "emptyTip": "Pick a branch, date and report type below, then click Generate",
+  "branch": "Branch",
+  "reportDate": "Date",
+  "reportType": "Report Type",
+  "generate": "Generate",
+  "generating": "Generating, this may take a few minutes. You can leave this page; the report will show up in History when done",
+  "generated": "Report generated",
+  "deleteConfirm": "Delete this report?",
+  "noOptions": "The administrator has not configured the weekly report branches or types in Dictionary Management"
+}

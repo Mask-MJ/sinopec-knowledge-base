@@ -155,6 +155,8 @@ export interface components {
             presencePenalty: number;
             /** @description 提示词模板 */
             prompt: string | null;
+            /** @description 重排序模型（`model@instance@provider`），空串表示不启用 */
+            rerankId: string;
             /** @description 加权关键字相似度 */
             similarityThreshold: number;
             /** @description 温度 */
@@ -199,7 +201,7 @@ export interface components {
             emptyResponse?: string;
             /**
              * @description 频率惩罚
-             * @example 0.7
+             * @example 0
              */
             frequencyPenalty?: number;
             /**
@@ -243,6 +245,15 @@ export interface components {
              * @example <prompt>
              */
             prompt?: string;
+            /**
+             * @description 重排序模型，格式 `model@instance@provider`。
+             *
+             *     不传 = 由服务端按 RAGFlow 实例上实际挂载的模型决定（见
+             *     `resolveDefaultRerankId`）；显式传空串 = 明确不启用 rerank。
+             *     这两者语义不同，所以这里刻意不给默认值。
+             * @example BAAI/bge-reranker-v2-m3@siliconflow@SILICONFLOW
+             */
+            rerankId?: string;
             /**
              * @description 加权关键字相似度
              * @example 0.2
@@ -396,7 +407,7 @@ export interface components {
             emptyResponse?: string;
             /**
              * @description 频率惩罚
-             * @example 0.7
+             * @example 0
              */
             frequencyPenalty?: number;
             /**
@@ -440,6 +451,15 @@ export interface components {
              * @example <prompt>
              */
             prompt?: string;
+            /**
+             * @description 重排序模型，格式 `model@instance@provider`。
+             *
+             *     不传 = 由服务端按 RAGFlow 实例上实际挂载的模型决定（见
+             *     `resolveDefaultRerankId`）；显式传空串 = 明确不启用 rerank。
+             *     这两者语义不同，所以这里刻意不给默认值。
+             * @example BAAI/bge-reranker-v2-m3@siliconflow@SILICONFLOW
+             */
+            rerankId?: string;
             /**
              * @description 加权关键字相似度
              * @example 0.2

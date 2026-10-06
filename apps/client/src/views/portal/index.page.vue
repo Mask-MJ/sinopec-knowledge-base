@@ -4,7 +4,6 @@ import { $t } from '@/locales';
 const preferencesStore = usePreferencesStore();
 const appName = computed(() => preferencesStore.state.app.name);
 
-// 周报助手（/weekly）由另一条分支开发，未合入前点进去是 404
 const entries = computed(() => [
   {
     to: '/qa',

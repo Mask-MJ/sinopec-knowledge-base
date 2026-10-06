@@ -24,5 +24,6 @@
   "deleteConfirm": "Are you sure you want to delete? Related data will also be deleted.",
   "deleteSuccess": "Deleted successfully",
   "noDescription": "No description",
-  "operationFailed": "Operation failed"
+  "operationFailed": "Operation failed",
+  "requestFailed": "Request failed (HTTP {status}), please try again later"
 }

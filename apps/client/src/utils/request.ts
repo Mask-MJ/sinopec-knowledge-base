@@ -3,6 +3,7 @@ import type { paths as AuthPaths } from '#/openapi-auth';
 import type { paths as KnowledgeBasePaths } from '#/openapi-knowledge-base';
 import type { paths as MonitorPaths } from '#/openapi-monitor';
 import type { paths as SystemPaths } from '#/openapi-system';
+import type { paths as WeeklyReportPaths } from '#/openapi-weekly-report';
 import type { Middleware } from 'openapi-fetch';
 
 // openapi-fetch 的 createClient 只接受单一 paths 类型，把按 NestJS feature
@@ -14,7 +15,8 @@ type paths = AssistantPaths &
   AuthPaths &
   KnowledgeBasePaths &
   MonitorPaths &
-  SystemPaths;
+  SystemPaths &
+  WeeklyReportPaths;
 
 import { isString } from 'lodash-es';
 import createClient from 'openapi-fetch';
@@ -231,6 +233,11 @@ const authMiddleware: Middleware = {
           }
           throw new ApiError(isString(errorMsg) ? errorMsg : 'Request failed');
         }
+        // 非 JSON 错误多半是 nginx 自己的 502/504 页面（后端重启、读超时），
+        // 调用方都按「请求层已提示」处理，这里不提示用户就什么都看不到
+        window.$message.error(
+          $t('common.requestFailed', { status: response.status }),
+        );
         throw new ApiError(`Request failed with status ${response.status}`);
       }
     }

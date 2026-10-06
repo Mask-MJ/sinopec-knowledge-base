@@ -856,6 +856,42 @@ export interface paths {
         patch: operations["UserController_update"];
         trace?: never;
     };
+    "/api/weekly-report/reports": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** 获取周报历史列表（不含正文） */
+        get: operations["WeeklyReportController_findAll"];
+        put?: never;
+        /** 生成周报（同步等待对方服务返回，耗时可能数分钟） */
+        post: operations["WeeklyReportController_generate"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/weekly-report/reports/{id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** 获取周报详情 */
+        get: operations["WeeklyReportController_findOne"];
+        put?: never;
+        post?: never;
+        /** 删除周报 */
+        delete: operations["WeeklyReportController_remove"];
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
 }
 export type webhooks = Record<string, never>;
 export interface components {
@@ -926,6 +962,8 @@ export interface components {
             presencePenalty: number;
             /** @description 提示词模板 */
             prompt: string | null;
+            /** @description 重排序模型（`model@instance@provider`），空串表示不启用 */
+            rerankId: string;
             /** @description 加权关键字相似度 */
             similarityThreshold: number;
             /** @description 温度 */
@@ -974,7 +1012,7 @@ export interface components {
             emptyResponse?: string;
             /**
              * @description 频率惩罚
-             * @example 0.7
+             * @example 0
              */
             frequencyPenalty?: number;
             /**
@@ -1018,6 +1056,15 @@ export interface components {
              * @example <prompt>
              */
             prompt?: string;
+            /**
+             * @description 重排序模型，格式 `model@instance@provider`。
+             *
+             *     不传 = 由服务端按 RAGFlow 实例上实际挂载的模型决定（见
+             *     `resolveDefaultRerankId`）；显式传空串 = 明确不启用 rerank。
+             *     这两者语义不同，所以这里刻意不给默认值。
+             * @example BAAI/bge-reranker-v2-m3@siliconflow@SILICONFLOW
+             */
+            rerankId?: string;
             /**
              * @description 加权关键字相似度
              * @example 0.2
@@ -1550,6 +1597,23 @@ export interface components {
              */
             type: "audios" | "images" | "videos";
         };
+        GenerateWeeklyReportDto: {
+            /**
+             * @description 分公司（字典 weeklyReport.branch 的键值）
+             * @example 华东分公司
+             */
+            branch: string;
+            /**
+             * @description 报告日期
+             * @example 2025-09-20
+             */
+            reportDate: string;
+            /**
+             * @description 报告类型（字典 weeklyReport.type 的键值）
+             * @example weekly
+             */
+            reportType: string;
+        };
         HealthEntity: {
             /**
              * @description 服务状态
@@ -1899,7 +1963,7 @@ export interface components {
             emptyResponse?: string;
             /**
              * @description 频率惩罚
-             * @example 0.7
+             * @example 0
              */
             frequencyPenalty?: number;
             /**
@@ -1943,6 +2007,15 @@ export interface components {
              * @example <prompt>
              */
             prompt?: string;
+            /**
+             * @description 重排序模型，格式 `model@instance@provider`。
+             *
+             *     不传 = 由服务端按 RAGFlow 实例上实际挂载的模型决定（见
+             *     `resolveDefaultRerankId`）；显式传空串 = 明确不启用 rerank。
+             *     这两者语义不同，所以这里刻意不给默认值。
+             * @example BAAI/bge-reranker-v2-m3@siliconflow@SILICONFLOW
+             */
+            rerankId?: string;
             /**
              * @description 加权关键字相似度
              * @example 0.2
@@ -2435,6 +2508,48 @@ export interface components {
             /** Format: date-time */
             updatedAt: string;
             username: string;
+        };
+        WeeklyReportEntity: {
+            /** @description 分公司 */
+            branch: string;
+            /** @description 报告正文（Markdown） */
+            content: string;
+            /**
+             * Format: date-time
+             * @description 生成时间
+             */
+            createdAt: string;
+            /** @description 主键 ID */
+            id: number;
+            /**
+             * @description 报告日期（纯日期串，不带时区）
+             * @example 2025-09-20
+             */
+            reportDate: string;
+            /** @description 报告类型 */
+            reportType: string;
+            /** @description 生成人 ID */
+            userId: number;
+        };
+        WeeklyReportListItemEntity: {
+            /** @description 分公司 */
+            branch: string;
+            /**
+             * Format: date-time
+             * @description 生成时间
+             */
+            createdAt: string;
+            /** @description 主键 ID */
+            id: number;
+            /**
+             * @description 报告日期（纯日期串，不带时区）
+             * @example 2025-09-20
+             */
+            reportDate: string;
+            /** @description 报告类型 */
+            reportType: string;
+            /** @description 生成人 ID */
+            userId: number;
         };
     };
     responses: never;
@@ -4504,6 +4619,108 @@ export interface operations {
                 content: {
                     "application/json": components["schemas"]["UserEntity"];
                 };
+            };
+        };
+    };
+    WeeklyReportController_findAll: {
+        parameters: {
+            query?: {
+                /**
+                 * @description 页码
+                 *     @default 1
+                 */
+                current?: number;
+                /**
+                 * @description 每页数量
+                 *     @default 10
+                 */
+                pageSize?: number;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PaginateResponse"] & {
+                        /** @default 1 */
+                        currentPage: number;
+                        /** @default [] */
+                        list: components["schemas"]["WeeklyReportListItemEntity"][];
+                        /** @default 0 */
+                        pageCount: number;
+                        /** @default 0 */
+                        totalCount: number;
+                    };
+                };
+            };
+        };
+    };
+    WeeklyReportController_generate: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["GenerateWeeklyReportDto"];
+            };
+        };
+        responses: {
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["WeeklyReportEntity"];
+                };
+            };
+        };
+    };
+    WeeklyReportController_findOne: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["WeeklyReportEntity"];
+                };
+            };
+        };
+    };
+    WeeklyReportController_remove: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
             };
         };
     };

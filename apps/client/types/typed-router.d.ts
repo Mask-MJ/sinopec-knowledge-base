@@ -191,6 +191,13 @@ declare module 'vue-router/auto-routes' {
       Record<never, never>,
       | never
     >,
+    '/weekly/': RouteRecordInfo<
+      '/weekly/',
+      '/weekly',
+      Record<never, never>,
+      Record<never, never>,
+      | never
+    >,
   }
 
   /**
@@ -345,6 +352,12 @@ declare module 'vue-router/auto-routes' {
     'src/views/system/user/index.page.vue': {
       routes:
         | '/system/user/'
+      views:
+        | never
+    }
+    'src/views/weekly/index.page.vue': {
+      routes:
+        | '/weekly/'
       views:
         | never
     }
