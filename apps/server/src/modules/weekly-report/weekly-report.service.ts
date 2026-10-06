@@ -121,6 +121,22 @@ export class WeeklyReportService {
     return task;
   }
 
+  async remove(id: number, user: ActiveUserData) {
+    const { count } = await this.prisma.client.weeklyReport.deleteMany({
+      where: { id, ...(await this.visibleScope(user)) },
+    });
+    if (count === 0) throw new NotFoundException('周报不存在或已被删除');
+    return { message: '删除周报成功' };
+  }
+
+  private async assertInDict(dictValue: string, value: string, label: string) {
+    const hit = await this.prisma.client.dictData.findFirst({
+      where: { value, status: true, dict: { value: dictValue, status: true } },
+      select: { id: true },
+    });
+    if (!hit) throw new BadRequestException(`不支持的${label}：${value}`);
+  }
+
   private async doGenerate(
     user: ActiveUserData,
     dto: GenerateWeeklyReportDto,
@@ -143,22 +159,6 @@ export class WeeklyReportService {
       },
     });
     return withPlainDate(report);
-  }
-
-  async remove(id: number, user: ActiveUserData) {
-    const { count } = await this.prisma.client.weeklyReport.deleteMany({
-      where: { id, ...(await this.visibleScope(user)) },
-    });
-    if (count === 0) throw new NotFoundException('周报不存在或已被删除');
-    return { message: '删除周报成功' };
-  }
-
-  private async assertInDict(dictValue: string, value: string, label: string) {
-    const hit = await this.prisma.client.dictData.findFirst({
-      where: { value, status: true, dict: { value: dictValue, status: true } },
-      select: { id: true },
-    });
-    if (!hit) throw new BadRequestException(`不支持的${label}：${value}`);
   }
 
   private async requestReport(dto: GenerateWeeklyReportDto): Promise<string> {
