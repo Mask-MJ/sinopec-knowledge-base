@@ -58,6 +58,8 @@
     "referenceNotFound": "未找到对应引用片段",
     "referenceSources": "参考来源",
     "referenceUnavailable": "该消息未携带引用数据",
+    "addAttachment": "添加附件",
+    "attachmentHint": "附件仅用于本次提问，追问请重新附上",
     "similarity": "相似度"
   }
 }

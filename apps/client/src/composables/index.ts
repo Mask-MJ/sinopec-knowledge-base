@@ -1,6 +1,7 @@
 export { parseThinkContent, useChat } from '@/composables/useChat';
 export type {
   ChatMessage,
+  ChatMessageFile,
   Reference,
   ReferenceChunk,
   ReferenceDocAgg,

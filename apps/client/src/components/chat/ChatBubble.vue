@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import type { Reference } from '@/composables';
+import type { ChatMessageFile, Reference } from '@/composables';
 
 import MarkdownRender from 'markstream-vue';
 
@@ -14,6 +14,7 @@ import 'markstream-vue/index.css';
 const props = defineProps<{
   avatar?: string;
   content: string;
+  files?: ChatMessageFile[];
   loading?: boolean;
   reasoning?: string;
   reference?: Reference;
@@ -137,6 +138,19 @@ onUnmounted(() => citationObserver?.disconnect());
         :final="!loading"
         :max-live-nodes="0"
       />
+
+      <!-- User attachments -->
+      <div
+        v-if="files?.length && role === 'user'"
+        class="mb-1.5 flex flex-wrap gap-1.5"
+      >
+        <n-tag v-for="file in files" :key="file.name" size="small">
+          <template #icon>
+            <i class="i-ant-design:paper-clip-outlined"></i>
+          </template>
+          {{ file.name }}
+        </n-tag>
+      </div>
 
       <!-- User text content -->
       <div
