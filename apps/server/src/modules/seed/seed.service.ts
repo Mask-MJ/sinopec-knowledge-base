@@ -9,6 +9,8 @@ import { HashingService } from '@/common/hashing';
 import {
   COMMON_ROLE_BUTTON_PERMISSIONS,
   COMMON_ROLE_MENU_PATHS,
+  GENERAL_CHAT_ROLE_BUTTON_PERMISSIONS,
+  GENERAL_CHAT_ROLE_MENU_PATHS,
   LEGACY_ADMIN_PASSWORD_HASH,
   SEED_DICTS,
   SEED_MENUS,
@@ -30,7 +32,7 @@ export class SeedService implements OnApplicationBootstrap {
     try {
       await this.seedInitialIfEmpty();
       await this.upgradeLegacyAdminPassword();
-      await this.syncCommonRolePermissions();
+      await this.syncSeedRolePermissions();
       await this.syncSeedDicts();
     } catch (error: unknown) {
       if (
@@ -96,35 +98,44 @@ export class SeedService implements OnApplicationBootstrap {
   }
 
   /**
-   * 幂等同步: 把 COMMON_ROLE_MENU_PATHS / COMMON_ROLE_BUTTON_PERMISSIONS
-   * 对应的菜单全部挂到 common 角色下
+   * 幂等同步: 把 menuPaths 对应的菜单、以及挂在这些菜单下且码在
+   * buttonPermissions 里的按钮挂到角色下。只增不删，不覆盖管理员的手动调整。
+   * 同一个权限码会在多个页面下各有一行按钮，按父菜单限定才不会把别的页面一并挂上
    */
-  private async syncCommonRolePermissions() {
-    const commonRole = await this.prisma.client.role.findUnique({
-      where: { value: 'common' },
+  private async syncRolePermissions(
+    roleValue: string,
+    menuPaths: readonly string[],
+    buttonPermissions: readonly string[],
+  ) {
+    const role = await this.prisma.client.role.findUnique({
+      where: { value: roleValue },
     });
-    if (!commonRole) {
-      this.logger.warn('⚠️  common 角色不存在，跳过权限同步');
+    if (!role) {
+      this.logger.warn(`⚠️  ${roleValue} 角色不存在，跳过权限同步`);
       return;
     }
 
     const targetMenus = await this.prisma.client.menu.findMany({
       where: {
         OR: [
-          { path: { in: [...COMMON_ROLE_MENU_PATHS] } },
-          { permission: { in: [...COMMON_ROLE_BUTTON_PERMISSIONS] } },
+          { path: { in: [...menuPaths] } },
+          {
+            type: 'button',
+            permission: { in: [...buttonPermissions] },
+            parent: { path: { in: [...menuPaths] } },
+          },
         ],
       },
       select: { id: true },
     });
 
     if (targetMenus.length === 0) {
-      this.logger.warn('⚠️  未找到 common 角色对应菜单，跳过同步');
+      this.logger.warn(`⚠️  未找到 ${roleValue} 角色对应菜单，跳过同步`);
       return;
     }
 
     await this.prisma.client.role.update({
-      where: { id: commonRole.id },
+      where: { id: role.id },
       data: {
         menus: {
           connect: targetMenus.map((menu) => ({ id: menu.id })),
@@ -133,7 +144,7 @@ export class SeedService implements OnApplicationBootstrap {
     });
 
     this.logger.log(
-      `🔄 已同步 common 角色权限：${targetMenus.length} 个菜单/按钮`,
+      `🔄 已同步 ${roleValue} 角色权限：${targetMenus.length} 个菜单/按钮`,
     );
   }
 
@@ -178,6 +189,19 @@ export class SeedService implements OnApplicationBootstrap {
         );
       }
     }
+  }
+
+  private async syncSeedRolePermissions() {
+    await this.syncRolePermissions(
+      'common',
+      COMMON_ROLE_MENU_PATHS,
+      COMMON_ROLE_BUTTON_PERMISSIONS,
+    );
+    await this.syncRolePermissions(
+      'general-chat',
+      GENERAL_CHAT_ROLE_MENU_PATHS,
+      GENERAL_CHAT_ROLE_BUTTON_PERMISSIONS,
+    );
   }
 
   /**

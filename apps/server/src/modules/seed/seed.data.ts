@@ -4,6 +4,7 @@ import type { Prisma } from '@prisma/generated/client';
 export const SEED_ROLES: Prisma.RoleCreateManyInput[] = [
   { name: '超级管理员', value: 'admin', order: 1 },
   { name: '普通角色', value: 'common', order: 2 },
+  { name: '通用聊天', value: 'general-chat', order: 3 },
 ];
 
 /**
@@ -41,44 +42,42 @@ export const LEGACY_ADMIN_PASSWORD_HASH =
   '$2b$10$kxYSbbQSzJ64r4EIcORm8umQB7GQRLNxWAKHmJalYMzkgRZbAaIDq';
 
 /**
- * 普通角色 (common) 应当可见的菜单 path 列表
- * SeedService 启动时会幂等地把这些菜单挂到 common 角色下
+ * 普通角色 (common) 应当可见的菜单 path 列表：只用前台页面
+ * SeedService 启动时会幂等地把这些菜单挂到 common 角色下（只增不删）
  */
-export const COMMON_ROLE_MENU_PATHS: readonly string[] = [
-  '/dashboard',
-  '/dashboard/analytics',
-  '/dashboard/workspace',
-  '/dashboard/chat',
-  '/knowledgeBase',
-  '/knowledgeBase/detail/:id',
-  '/assistant',
-  '/assistant/chat/:id',
-  '/portal',
-  '/qa',
-];
+export const COMMON_ROLE_MENU_PATHS: readonly string[] = ['/portal', '/qa'];
 
 /**
  * 普通角色 (common) 应当具备的按钮权限码
  * 命名遵循 `@AutoPermission()` 自动生成规则: `<module>:<resource>:<action>`
+ * SeedService 只挂父菜单在 COMMON_ROLE_MENU_PATHS 里的按钮，
+ * 同码按钮在 /dashboard/chat、/assistant 下也有，不会被一并挂上
  */
 export const COMMON_ROLE_BUTTON_PERMISSIONS: readonly string[] = [
-  // 知识库 - 文件操作
-  'knowledge-base:documents:create',
-  'knowledge-base:documents:update',
-  'knowledge-base:documents:delete',
-  // 知识库 - 解析
-  'knowledge-base:parse:create',
-  'knowledge-base:parse:delete',
-  // 知识库 - 检索
-  'knowledge-base:retrieval:create',
-  // 聊天助手 - 会话
+  // 物探智问 - 会话
   'assistant:sessions:create',
   'assistant:sessions:update',
   'assistant:sessions:delete',
-  // 聊天助手 - 对话
+  // 物探智问 - 对话
   'assistant:completions:create',
-  // 聊天助手 - 通用助手
+];
+
+/**
+ * 通用聊天角色 (general-chat) 应当可见的菜单 path 列表
+ * 侧栏从根节点建树，不挂父目录 /dashboard 的话「通用聊天」不会出现在侧栏
+ */
+export const GENERAL_CHAT_ROLE_MENU_PATHS: readonly string[] = [
+  '/dashboard',
+  '/dashboard/chat',
+];
+
+/** 通用聊天角色 (general-chat) 应当具备的按钮权限码 */
+export const GENERAL_CHAT_ROLE_BUTTON_PERMISSIONS: readonly string[] = [
   'assistant:general:create',
+  'assistant:completions:create',
+  'assistant:sessions:create',
+  'assistant:sessions:update',
+  'assistant:sessions:delete',
 ];
 
 /** 菜单种子数据 */
@@ -103,6 +102,30 @@ export const SEED_MENUS: Prisma.MenuCreateInput[] = [
     path: '/qa',
     hideInMenu: true,
     hideInTab: true,
+    children: {
+      create: [
+        {
+          name: '物探智问会话-创建',
+          type: 'button',
+          permission: 'assistant:sessions:create',
+        },
+        {
+          name: '物探智问会话-更新',
+          type: 'button',
+          permission: 'assistant:sessions:update',
+        },
+        {
+          name: '物探智问会话-删除',
+          type: 'button',
+          permission: 'assistant:sessions:delete',
+        },
+        {
+          name: '物探智问对话',
+          type: 'button',
+          permission: 'assistant:completions:create',
+        },
+      ],
+    },
   },
   {
     name: '概览',
