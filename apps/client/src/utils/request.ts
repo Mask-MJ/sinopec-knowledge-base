@@ -6,6 +6,16 @@ import type { paths as SystemPaths } from '#/openapi-system';
 import type { paths as WeeklyReportPaths } from '#/openapi-weekly-report';
 import type { Middleware } from 'openapi-fetch';
 
+import { isString } from 'lodash-es';
+import createClient from 'openapi-fetch';
+import { storeToRefs } from 'pinia';
+
+import { LOGIN_PATH } from '@/config/constants';
+import { $t } from '@/locales';
+import { router } from '@/router';
+import { useUserStore } from '@/stores/modules/user';
+import { formatDateTime } from '@/utils/date';
+
 // openapi-fetch 的 createClient 只接受单一 paths 类型，把按 NestJS feature
 // module 拆分的 spec paths（见 server app-routes.ts）交叉合并即可获得统一
 // client.GET/POST 调用。各 module 的 components / operations 仍由消费方从
@@ -17,16 +27,6 @@ type paths = AssistantPaths &
   MonitorPaths &
   SystemPaths &
   WeeklyReportPaths;
-
-import { isString } from 'lodash-es';
-import createClient from 'openapi-fetch';
-import { storeToRefs } from 'pinia';
-
-import { LOGIN_PATH } from '@/config/constants';
-import { $t } from '@/locales';
-import { router } from '@/router';
-import { useUserStore } from '@/stores/modules/user';
-import { formatDateTime } from '@/utils/date';
 
 /**
  * API 错误类
