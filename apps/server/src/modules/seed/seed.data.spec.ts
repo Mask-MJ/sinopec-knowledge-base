@@ -56,7 +56,7 @@ describe('seed.data', () => {
     expect(missing).toEqual([]);
   });
 
-  it.each(['/portal', '/qa'])(
+  it.each(['/portal', '/qa', '/weekly'])(
     'front page %s is hidden from the admin sidebar and tab bar',
     (path) => {
       const menu = seededMenus.find((item) => item.path === path);
@@ -66,22 +66,29 @@ describe('seed.data', () => {
   );
 
   describe('common role (front pages only)', () => {
-    it('only sees the portal and the knowledge base Q&A', () => {
-      expect([...COMMON_ROLE_MENU_PATHS].sort()).toEqual(['/portal', '/qa']);
+    it('only sees the portal, the knowledge base Q&A and the weekly report', () => {
+      expect([...COMMON_ROLE_MENU_PATHS].sort()).toEqual([
+        '/portal',
+        '/qa',
+        '/weekly',
+      ]);
     });
 
-    it('only holds the buttons /qa needs to chat', () => {
+    it('only holds the buttons /qa and /weekly need', () => {
       expect([...COMMON_ROLE_BUTTON_PERMISSIONS].sort()).toEqual([
         'assistant:completions:create',
         'assistant:sessions:create',
         'assistant:sessions:delete',
         'assistant:sessions:update',
+        'weekly-report:reports:create',
+        'weekly-report:reports:delete',
+        'weekly-report:reports:read',
       ]);
     });
 
-    it('gets its buttons from /qa itself', () => {
+    it('gets its buttons from the front pages themselves', () => {
       expect(
-        unreachableButtons(['/qa'], COMMON_ROLE_BUTTON_PERMISSIONS),
+        unreachableButtons(['/qa', '/weekly'], COMMON_ROLE_BUTTON_PERMISSIONS),
       ).toEqual([]);
     });
   });

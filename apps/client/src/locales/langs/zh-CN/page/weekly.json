@@ -1,0 +1,13 @@
+{
+  "history": "历史报告",
+  "noHistory": "还没有生成过报告",
+  "emptyTip": "在下方选择分公司、日期和报告类型后点击「生成」",
+  "branch": "分公司",
+  "reportDate": "日期",
+  "reportType": "报告类型",
+  "generate": "生成",
+  "generating": "正在生成，可能需要几分钟；离开页面也不影响，完成后会出现在历史报告里",
+  "generated": "报告已生成",
+  "deleteConfirm": "确认删除这篇报告？",
+  "noOptions": "管理员尚未在字典管理中配置「周报分公司」或「周报类型」"
+}

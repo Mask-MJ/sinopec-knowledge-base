@@ -29,6 +29,10 @@ services:
       MINIO_ENDPOINT: minio
       MINIO_PORT: 9000
       MINIO_CLIENT_PORT: 9001
+      # 周报服务：容器里的 127.0.0.1 是 app 容器自己，地址要写宿主机/对方机器的 IP
+      WEEKLY_REPORT_URL: ${WEEKLY_REPORT_URL:-}
+      WEEKLY_REPORT_API_KEY: ${WEEKLY_REPORT_API_KEY:-}
+      WEEKLY_REPORT_TIMEOUT_SECONDS: ${WEEKLY_REPORT_TIMEOUT_SECONDS:-300}
     networks:
       - sinopec-kb
     depends_on:

@@ -3,18 +3,8 @@ import type { paths as AuthPaths } from '#/openapi-auth';
 import type { paths as KnowledgeBasePaths } from '#/openapi-knowledge-base';
 import type { paths as MonitorPaths } from '#/openapi-monitor';
 import type { paths as SystemPaths } from '#/openapi-system';
+import type { paths as WeeklyReportPaths } from '#/openapi-weekly-report';
 import type { Middleware } from 'openapi-fetch';
-
-// openapi-fetch 的 createClient 只接受单一 paths 类型，把按 NestJS feature
-// module 拆分的 spec paths（见 server app-routes.ts）交叉合并即可获得统一
-// client.GET/POST 调用。各 module 的 components / operations 仍由消费方从
-// 对应的 #/openapi-{module} 按需 import，保持按视图 tree-shake、d.ts 不
-// 加载无关定义。
-type paths = AssistantPaths &
-  AuthPaths &
-  KnowledgeBasePaths &
-  MonitorPaths &
-  SystemPaths;
 
 import { isString } from 'lodash-es';
 import createClient from 'openapi-fetch';
@@ -25,6 +15,18 @@ import { $t } from '@/locales';
 import { router } from '@/router';
 import { useUserStore } from '@/stores/modules/user';
 import { formatDateTime } from '@/utils/date';
+
+// openapi-fetch 的 createClient 只接受单一 paths 类型，把按 NestJS feature
+// module 拆分的 spec paths（见 server app-routes.ts）交叉合并即可获得统一
+// client.GET/POST 调用。各 module 的 components / operations 仍由消费方从
+// 对应的 #/openapi-{module} 按需 import，保持按视图 tree-shake、d.ts 不
+// 加载无关定义。
+type paths = AssistantPaths &
+  AuthPaths &
+  KnowledgeBasePaths &
+  MonitorPaths &
+  SystemPaths &
+  WeeklyReportPaths;
 
 /**
  * API 错误类
@@ -231,6 +233,11 @@ const authMiddleware: Middleware = {
           }
           throw new ApiError(isString(errorMsg) ? errorMsg : 'Request failed');
         }
+        // 非 JSON 错误多半是 nginx 自己的 502/504 页面（后端重启、读超时），
+        // 调用方都按「请求层已提示」处理，这里不提示用户就什么都看不到
+        window.$message.error(
+          $t('common.requestFailed', { status: response.status }),
+        );
         throw new ApiError(`Request failed with status ${response.status}`);
       }
     }

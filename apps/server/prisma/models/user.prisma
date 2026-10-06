@@ -34,6 +34,7 @@ model User {
   roles             Role[]             @relation("RoleToUser")
   assistants        Assistant[]
   assistantSessions AssistantSession[]
+  weeklyReports     WeeklyReport[]
 
   @@index([deptId])
   @@index([status])

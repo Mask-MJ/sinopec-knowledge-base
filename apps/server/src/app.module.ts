@@ -20,6 +20,7 @@ import { KnowledgeBaseModule } from './modules/knowledge-base/knowledge-base.mod
 import { MonitorModule } from './modules/monitor/monitor.module';
 import { SeedModule } from './modules/seed/seed.module';
 import { SystemModule } from './modules/system/system.module';
+import { WeeklyReportModule } from './modules/weekly-report/weekly-report.module';
 
 @Module({
   imports: [
@@ -59,6 +60,7 @@ import { SystemModule } from './modules/system/system.module';
     MonitorModule,
     KnowledgeBaseModule,
     AssistantModule,
+    WeeklyReportModule,
     SeedModule,
   ],
   controllers: [],

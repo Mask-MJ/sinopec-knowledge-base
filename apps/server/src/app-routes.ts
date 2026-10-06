@@ -5,6 +5,7 @@ import { AuthModule } from '@/modules/auth/auth.module';
 import { KnowledgeBaseModule } from '@/modules/knowledge-base/knowledge-base.module';
 import { MonitorModule } from '@/modules/monitor/monitor.module';
 import { SystemModule } from '@/modules/system/system.module';
+import { WeeklyReportModule } from '@/modules/weekly-report/weekly-report.module';
 
 export interface AppRouteChild {
   module: Type;
@@ -37,4 +38,5 @@ export const APP_ROUTES: AppRoute[] = [
   { path: 'monitor', module: MonitorModule },
   { path: 'knowledge-base', module: KnowledgeBaseModule },
   { path: 'assistant', module: AssistantModule },
+  { path: 'weekly-report', module: WeeklyReportModule },
 ];

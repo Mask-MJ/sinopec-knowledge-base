@@ -45,7 +45,11 @@ export const LEGACY_ADMIN_PASSWORD_HASH =
  * 普通角色 (common) 应当可见的菜单 path 列表：只用前台页面
  * SeedService 启动时会幂等地把这些菜单挂到 common 角色下（只增不删）
  */
-export const COMMON_ROLE_MENU_PATHS: readonly string[] = ['/portal', '/qa'];
+export const COMMON_ROLE_MENU_PATHS: readonly string[] = [
+  '/portal',
+  '/qa',
+  '/weekly',
+];
 
 /**
  * 普通角色 (common) 应当具备的按钮权限码
@@ -60,6 +64,10 @@ export const COMMON_ROLE_BUTTON_PERMISSIONS: readonly string[] = [
   'assistant:sessions:delete',
   // 物探智问 - 对话
   'assistant:completions:create',
+  // 周报助手
+  'weekly-report:reports:create',
+  'weekly-report:reports:read',
+  'weekly-report:reports:delete',
 ];
 
 /**
@@ -285,6 +293,36 @@ export const SEED_MENUS: Prisma.MenuCreateInput[] = [
           name: '助手对话',
           type: 'button',
           permission: 'assistant:completions:create',
+        },
+      ],
+    },
+  },
+  {
+    name: '周报助手',
+    title: 'page.portal.weekly',
+    icon: 'i-ant-design:file-text-outlined',
+    order: 0,
+    type: 'menu',
+    path: '/weekly',
+    // 前台页面，不进后台侧边栏和标签栏
+    hideInMenu: true,
+    hideInTab: true,
+    children: {
+      create: [
+        {
+          name: '生成周报',
+          type: 'button',
+          permission: 'weekly-report:reports:create',
+        },
+        {
+          name: '查看周报',
+          type: 'button',
+          permission: 'weekly-report:reports:read',
+        },
+        {
+          name: '删除周报',
+          type: 'button',
+          permission: 'weekly-report:reports:delete',
         },
       ],
     },
@@ -578,6 +616,22 @@ export const SEED_DICTS: Prisma.DictCreateInput[] = [
         { name: 'Q&A 提问回答', value: 'qa', order: 5 },
         { name: '表格分块', value: 'table', order: 6 },
       ],
+    },
+  },
+  // 周报的两个字典：键值原样传给对方报告服务。
+  // syncSeedDicts 启动时会补回缺失的种子行，下线某项请改为停用而不是删除。
+  {
+    name: '周报分公司',
+    value: 'weeklyReport.branch',
+    dictData: {
+      create: [{ name: '华东分公司', value: '华东分公司', order: 1 }],
+    },
+  },
+  {
+    name: '周报类型',
+    value: 'weeklyReport.type',
+    dictData: {
+      create: [{ name: '周报', value: 'weekly', order: 1 }],
     },
   },
 ];
