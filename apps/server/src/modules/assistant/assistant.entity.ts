@@ -140,10 +140,34 @@ export class ReferenceEntity {
   doc_aggs: ReferenceDocAggEntity[];
 }
 
+/** 对话附件（上传附件接口的返回值） */
+export class AttachmentEntity {
+  /** 附件 ID，提问时放进 attachmentIds */
+  id: string;
+
+  /** MIME 类型 */
+  mimeType: string;
+
+  /** 文件名（docx 会被预处理为 md） */
+  name: string;
+
+  /** 文件大小（字节） */
+  size: number;
+}
+
+/** 历史消息上 RAGFlow 记录的附件元数据 */
+export class SessionMessageFileEntity {
+  /** 文件名 */
+  name: string;
+}
+
 /** 会话历史中的单条消息 */
 export class SessionMessageEntity {
   /** 消息内容 */
   content: string;
+
+  /** 该条用户消息附带的附件（RAGFlow 原样保存的元数据） */
+  files?: SessionMessageFileEntity[];
 
   /** 引用数据（assistant 消息可能包含，由 RAGFlow 在答复时返回） */
   reference?: ReferenceEntity;

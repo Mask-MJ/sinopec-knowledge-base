@@ -7,13 +7,17 @@ import type {
   UpdateAssistantDto,
   UpdateSessionDto,
 } from './assistant.dto';
+import type { AttachmentEntity } from './assistant.entity';
 import type { RagflowRawMessage } from './normalize-reference';
 import type { PrismaService } from '@/common/database/prisma.extension';
 import type { RagflowLlmItem } from '@/common/ragflow/ragflow.service';
 import type { ActiveUserData } from '@/modules/auth/interfaces/active-user-data.interface';
 import type { Response } from 'express';
 
+import { Buffer } from 'node:buffer';
+
 import {
+  BadRequestException,
   ForbiddenException,
   Inject,
   Injectable,
@@ -24,10 +28,13 @@ import { ConfigService } from '@nestjs/config';
 
 import { PRISMA_SERVICE_TOKEN } from '@/common/database/prisma.extension';
 import {
+  DEFAULT_ASSISTANT_EMPTY_RESPONSE,
   DEFAULT_ASSISTANT_RERANK_CANDIDATES_COUNT,
   DEFAULT_ASSISTANT_RERANK_ID,
 } from '@/common/defaults/assistant.defaults';
+import { DocxPreprocessService } from '@/common/docx-preprocess/docx-preprocess.service';
 import { RagflowService } from '@/common/ragflow/ragflow.service';
+import { sanitizeFilename } from '@/common/utils';
 import {
   assertCanShareAs,
   buildVisibilityWhere,
@@ -35,6 +42,7 @@ import {
   canViewResource,
 } from '@/modules/auth/authorization/resource-visibility';
 
+import { toRagflowFiles } from './attachment-policy';
 import { normalizeMessageReferences } from './normalize-reference';
 
 interface RagflowSessionRaw {
@@ -46,10 +54,17 @@ interface RagflowSessionRaw {
   update_date: string;
 }
 
+/** RAGFlow `POST /api/v1/documents/upload` 返回的单个文件 */
+interface RagflowUploadedFile {
+  created_by: string;
+  id: string;
+  mime_type: string;
+  name: string;
+  size: number;
+}
+
 @Injectable()
 export class AssistantService {
-  private static readonly DEFAULT_EMPTY_RESPONSE = '知识库中未找到您要的答案！';
-
   /** 默认开场白 */
   private static readonly DEFAULT_OPENER =
     '你好！我是你的助理，有什么可以帮到你的吗？';
@@ -75,7 +90,6 @@ export class AssistantService {
     '{knowledge}',
   ].join('\n');
 
-  /** 关联知识库时的默认空回复 */
   /**
    * 单次从 RAGFlow 取回的会话上限，取回后本地按归属过滤。
    * 不能超过 RAGFlow 的 REST_API_MAX_PAGE_SIZE(=100)，否则它直接抛
@@ -93,6 +107,7 @@ export class AssistantService {
     @Inject(PRISMA_SERVICE_TOKEN) private readonly prisma: PrismaService,
     private readonly ragflow: RagflowService,
     private readonly configService: ConfigService,
+    private readonly docxPreprocess: DocxPreprocessService,
   ) {}
 
   /**
@@ -122,19 +137,24 @@ export class AssistantService {
     res: Response,
   ) {
     const assistant = await this.assertCanView(id, user);
+    const files = await this.resolveAttachmentFiles(id, user, dto);
+    const stream = dto.stream !== false;
+    const body = {
+      chat_id: assistant.assistantId,
+      question: dto.question,
+      stream,
+      session_id: dto.sessionId,
+      user_id: String(user.sub),
+      // 没附件时不带 files 键，请求体与接入附件前逐字一致
+      ...(files && { files }),
+    };
 
     // 非流式模式：返回 JSON
-    if (dto.stream === false) {
+    if (!stream) {
       const result = await this.ragflow.request(
         'POST',
         '/api/v1/chat/completions',
-        {
-          chat_id: assistant.assistantId,
-          question: dto.question,
-          stream: false,
-          session_id: dto.sessionId,
-          user_id: String(user.sub),
-        },
+        body,
       );
       return res.json(result);
     }
@@ -143,13 +163,7 @@ export class AssistantService {
     const ragflowStream = await this.ragflow.requestStream(
       'POST',
       '/api/v1/chat/completions',
-      {
-        chat_id: assistant.assistantId,
-        question: dto.question,
-        stream: true,
-        session_id: dto.sessionId,
-        user_id: String(user.sub),
-      },
+      body,
     );
 
     res.setHeader('Content-Type', 'text/event-stream');
@@ -198,9 +212,7 @@ export class AssistantService {
         ? AssistantService.KB_CHAT_PROMPT
         : AssistantService.GENERAL_CHAT_PROMPT);
     const opener = dto.opener || AssistantService.DEFAULT_OPENER;
-    const emptyResponse = hasKnowledgeBase
-      ? dto.emptyResponse || AssistantService.DEFAULT_EMPTY_RESPONSE
-      : (dto.emptyResponse ?? '');
+    const emptyResponse = dto.emptyResponse ?? DEFAULT_ASSISTANT_EMPTY_RESPONSE;
 
     const ragflowData = await this.ragflow.request<{ id: string }>(
       'POST',
@@ -456,6 +468,10 @@ export class AssistantService {
     await this.prisma.client.assistantSession.deleteMany({
       where: { sessionId },
     });
+    // RAGFlow 删会话时会顺带删掉消息里引用过的附件文件，这里同步清掉归属记录
+    await this.prisma.client.assistantAttachment.deleteMany({
+      where: { sessionId },
+    });
 
     return removed;
   }
@@ -588,6 +604,73 @@ export class AssistantService {
     return { message: '更新会话成功' };
   }
 
+  /**
+   * 上传本轮提问的附件。
+   *
+   * 文件只进 RAGFlow 的对象存储、不进任何数据集，提问时由 RAGFlow 当场解析。
+   * RAGFlow 那层不区分我们的用户，归属记在本地表里，completions 时据此核对。
+   */
+  async uploadAttachments(
+    id: number,
+    user: ActiveUserData,
+    sessionId: string,
+    files: Express.Multer.File[],
+  ): Promise<AttachmentEntity[]> {
+    const assistant = await this.assertCanView(id, user);
+    await this.assertOwnsSession(id, assistant.userId, user, sessionId);
+    if (files.length === 0) {
+      throw new BadRequestException('请选择要上传的附件');
+    }
+
+    // docx 先经 pandoc 转 md，绕开 RAGFlow DocxParser 丢表格数字的问题；转换失败则原样上传
+    const preprocessed = await this.docxPreprocess.preprocessFiles(files);
+    const form = new FormData();
+    for (const file of preprocessed) {
+      const rawName = Buffer.from(file.originalname, 'latin1').toString('utf8');
+      form.append(
+        'file',
+        new File([file.buffer], sanitizeFilename(rawName), {
+          type: file.mimetype,
+        }),
+      );
+    }
+
+    // 只传一个文件时 RAGFlow 返回对象，多个时返回数组
+    const uploaded = await this.ragflow.uploadFile<
+      RagflowUploadedFile | RagflowUploadedFile[]
+    >('/api/v1/documents/upload', form);
+    const rows = (Array.isArray(uploaded) ? uploaded : [uploaded]).map(
+      (file) => ({
+        fileId: file.id,
+        assistantId: id,
+        sessionId,
+        userId: user.sub,
+        name: file.name,
+        mimeType: file.mime_type,
+        size: file.size,
+        createdBy: file.created_by,
+      }),
+    );
+
+    try {
+      await this.prisma.client.assistantAttachment.createMany({ data: rows });
+    } catch (error) {
+      // RAGFlow 没有删除这类临时文件的接口，只能记下孤儿
+      this.logger.error(
+        `附件归属登记失败，RAGFlow 留下孤儿文件: ${rows.map((r) => r.fileId).join(', ')}`,
+        error,
+      );
+      throw error;
+    }
+
+    return rows.map(({ fileId, mimeType, name, size }) => ({
+      id: fileId,
+      mimeType,
+      name,
+      size,
+    }));
+  }
+
   /** 写入类操作：共享只放宽读，改 / 删仅创建者与 admin。 */
   private async assertCanEdit(id: number, user: ActiveUserData) {
     const { assistant, isOwner, userData } = await this.loadForAccess(id, user);
@@ -634,6 +717,38 @@ export class AssistantService {
       where: { id: user.sub },
     });
     return { assistant, isOwner: assistant.userId === user.sub, userData };
+  }
+
+  /**
+   * 把 attachmentIds 换成 RAGFlow completions 的 `files`；没有附件时返回 undefined。
+   *
+   * RAGFlow 按请求体里的 `created_by` 取文件、不校验归属，而我们所有用户共用一个
+   * API key。所以客户端给的 ID 必须**全部**是本人在本会话、本助手下上传的才放行，
+   * 文件对象一律由服务端按归属表组装，绝不透传客户端的输入。
+   */
+  private async resolveAttachmentFiles(
+    assistantId: number,
+    user: ActiveUserData,
+    dto: CreateCompletionsDto,
+  ) {
+    const ids = dto.attachmentIds ?? [];
+    if (ids.length === 0) return undefined;
+    if (!dto.sessionId) {
+      throw new BadRequestException('附件只能在会话中使用');
+    }
+
+    const rows = await this.prisma.client.assistantAttachment.findMany({
+      where: {
+        fileId: { in: ids },
+        userId: user.sub,
+        sessionId: dto.sessionId,
+        assistantId,
+      },
+    });
+    if (rows.length !== ids.length) {
+      throw new ForbiddenException('无权使用这些附件');
+    }
+    return toRagflowFiles(rows, ids);
   }
 
   /**

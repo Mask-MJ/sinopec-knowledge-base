@@ -68,6 +68,31 @@ export const DEFAULT_ASSISTANT_RERANK_ID =
 // 业务层 DTO 沿用现有命名 / 值（0.7），不在本默认表里改动。
 export const DEFAULT_ASSISTANT_KEYWORDS_SIMILARITY_WEIGHT = 0.7;
 
+// 空串 = 不设空回复。RAGFlow 在知识库空召回且配了空回复时直接返回这句话、不调 LLM，
+// 用户随问题上传的附件会被整轮无视（2026-09-28 本机 v0.27.1 实测复现）。置空后交给
+// 提示词第 5 条「不知道就说不知道」兜底，代价是没命中的问题也走一次 LLM、措辞不再固定。
+// 见 docs/spike-chat-attachment.md §2.1 坑 1、§6.1 D1。
+export const DEFAULT_ASSISTANT_EMPTY_RESPONSE = '';
+
+/**
+ * 系统提示词里关于用户上传附件的条款（docs/spike-chat-attachment.md §2.1 坑 2、§6.1 D2）。
+ *
+ * RAGFlow v0.27.1 把附件全文以 `File: <文件名>\nContent as following:` 的格式拼在本轮
+ * 用户消息末尾，没有 ID。不单独交代出处写法时，实测模型会把附件内容标成 `[ID:0]`
+ * （前端「参考资料」随之显示一篇无关报告）或自造 `[ID: k77]`。
+ * 附件只对本轮生效，实测追问时模型会编造附件内容，所以要求没附件时别答附件细节。
+ *
+ * 注意：RAGFlow 用 Python `str.format` 填这段提示词，这里不能出现花括号。
+ */
+export const ATTACHMENT_PROMPT_SECTION = `## 用户上传的附件
+
+用户消息中"File: 文件名"及其后"Content as following:"之后的内容，是用户本轮随问题上传的附件原文，不属于知识库：
+
+- 附件原文可以作为回答依据。附件里明确写出的事实可以直接回答，不算"知识库未给出"。
+- 引用附件内容时，在句末写"（附件：文件名）"，**不要标 [ID:n]**——[ID:n] 只用于知识库内容。
+- 附件只对它所在的那一轮提问有效。本轮消息里没有附件时，不要回答之前附件里的细节（你已看不到附件原文），请用户重新附上附件再问。
+`;
+
 /** 系统提示词：中石化勘探技术报告专业助手。{knowledge} 是 RAGFlow 的检索结果占位。 */
 export const DEFAULT_ASSISTANT_SYSTEM_PROMPT = `你是中石化勘探技术报告专业助手。根据知识库内容回答问题，遵守以下规则：
 
@@ -96,5 +121,6 @@ export const DEFAULT_ASSISTANT_SYSTEM_PROMPT = `你是中石化勘探技术报�
 - 用户问"项目起止 / 立项 / 立卷日期"时，引用第 1 类日期。
 - 同一段落里若同时出现多个日期，必须按上述分类挑出对应的那一类日期再答。
 
+${ATTACHMENT_PROMPT_SECTION}
 /no_think
 `;

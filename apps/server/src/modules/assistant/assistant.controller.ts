@@ -11,14 +11,20 @@ import {
   Post,
   Query,
   Res,
+  UploadedFiles,
+  UseInterceptors,
 } from '@nestjs/common';
+import { FilesInterceptor } from '@nestjs/platform-express';
 import {
   ApiBearerAuth,
+  ApiBody,
+  ApiConsumes,
   ApiCreatedResponse,
   ApiOkResponse,
   ApiTags,
 } from '@nestjs/swagger';
 
+import { FilesUploadDto } from '@/common/dto/upload.dto';
 import { ApiPaginatedResponse } from '@/common/response/paginated.response';
 import { AutoPermission } from '@/modules/auth/authorization/decorators/auto-permission.decorator';
 import { ActiveUser } from '@/modules/auth/decorators/active-user.decorator';
@@ -32,8 +38,16 @@ import {
   UpdateAssistantDto,
   UpdateSessionDto,
 } from './assistant.dto';
-import { AssistantEntity, SessionEntity } from './assistant.entity';
+import {
+  AssistantEntity,
+  AttachmentEntity,
+  SessionEntity,
+} from './assistant.entity';
 import { AssistantService } from './assistant.service';
+import {
+  ATTACHMENT_MULTER_OPTIONS,
+  MAX_ATTACHMENTS_PER_TURN,
+} from './attachment-policy';
 
 @ApiBearerAuth('bearer')
 @ApiTags('聊天助手管理')
@@ -171,5 +185,29 @@ export class AssistantController {
     @Body() dto: UpdateSessionDto,
   ) {
     return this.assistantService.updateSession(id, user, sessionId, dto);
+  }
+
+  /**
+   * 上传本轮提问的附件（只对随后那一次提问生效，返回的 id 放进 attachmentIds）
+   */
+  @ApiBody({ description: '附件', type: FilesUploadDto })
+  @ApiConsumes('multipart/form-data')
+  @ApiCreatedResponse({ type: AttachmentEntity, isArray: true })
+  @AutoPermission()
+  @Post(':id/sessions/:sessionId/attachments')
+  @UseInterceptors(
+    FilesInterceptor(
+      'files',
+      MAX_ATTACHMENTS_PER_TURN,
+      ATTACHMENT_MULTER_OPTIONS,
+    ),
+  )
+  uploadAttachments(
+    @Param('id') id: number,
+    @ActiveUser() user: ActiveUserData,
+    @Param('sessionId') sessionId: string,
+    @UploadedFiles() files: Express.Multer.File[],
+  ) {
+    return this.assistantService.uploadAttachments(id, user, sessionId, files);
   }
 }
