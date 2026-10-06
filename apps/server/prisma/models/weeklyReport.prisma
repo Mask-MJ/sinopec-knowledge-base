@@ -1,0 +1,22 @@
+/// 周报生成记录
+///
+/// 对方报告服务无会话、不存历史，每次生成的结果只在本地留档。
+model WeeklyReport {
+  /// 主键ID
+  id         Int      @id @default(autoincrement())
+  /// 生成人ID
+  userId     Int
+  /// 分公司（字典 weeklyReport.branch 的键值）
+  branch     String
+  /// 报告日期
+  reportDate DateTime @db.Date
+  /// 报告类型（字典 weeklyReport.type 的键值）
+  reportType String
+  /// 报告正文（Markdown）
+  content    String
+  /// 生成时间
+  createdAt  DateTime @default(now())
+  user       User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId, createdAt])
+}

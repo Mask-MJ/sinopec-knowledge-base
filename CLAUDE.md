@@ -68,6 +68,7 @@ pnpm -F @sinopec-kb/client openapi
 | `/monitor`        | MonitorModule       | 操作日志/登录日志/系统信息    |
 | `/knowledge-base` | KnowledgeBaseModule | 知识库管理                    |
 | `/assistant`      | AssistantModule     | AI 助手                       |
+| `/weekly-report`  | WeeklyReportModule  | 周报助手（转发对方报告服务）  |
 
 **Common 层** (`src/common/`)：
 

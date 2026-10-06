@@ -143,6 +143,28 @@ class EnvironmentVariables {
   @Max(65_535)
   @Min(0)
   REDIS_PORT!: number;
+
+  // ─── Weekly Report（对方团队的报告生成服务） ──────
+
+  /** 可不配：未配置时服务照常启动，只有周报接口返回「未配置」 */
+  @IsOptional()
+  @IsString()
+  WEEKLY_REPORT_API_KEY?: string;
+
+  /**
+   * 单次生成超时（秒）。nginx 的 /api/ 读超时是 600 秒，要比它短一截，
+   * 否则 nginx 先断开，用户拿到的是 nginx 的 504 页面而不是中文提示
+   */
+  @IsInt()
+  @IsOptional()
+  @Max(590)
+  @Min(1)
+  WEEKLY_REPORT_TIMEOUT_SECONDS?: number;
+
+  /** 生成接口的完整地址，如 http://host:8001/generate_report */
+  @IsOptional()
+  @IsString()
+  WEEKLY_REPORT_URL?: string;
 }
 
 export function validate(config: Record<string, unknown>) {

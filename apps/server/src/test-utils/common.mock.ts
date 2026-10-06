@@ -99,7 +99,8 @@ type MockPrismaClient = Record<
   | 'operationLog'
   | 'post'
   | 'role'
-  | 'user',
+  | 'user'
+  | 'weeklyReport',
   MockModelMethods
 > & {
   $executeRawUnsafe: MockFn;
