@@ -5,6 +5,9 @@ import { Inject, Injectable, Logger } from '@nestjs/common';
 
 import { PRISMA_SERVICE_TOKEN } from '@/common/database/prisma.extension';
 import { HashingService } from '@/common/hashing';
+import { describeError } from '@/common/ragflow/ragflow.service';
+import { CreateAssistantDto } from '@/modules/assistant/assistant.dto';
+import { AssistantService } from '@/modules/assistant/assistant.service';
 
 import {
   COMMON_ROLE_BUTTON_PERMISSIONS,
@@ -26,6 +29,7 @@ export class SeedService implements OnApplicationBootstrap {
     @Inject(PRISMA_SERVICE_TOKEN)
     private readonly prisma: PrismaService,
     private readonly hashingService: HashingService,
+    private readonly assistantService: AssistantService,
   ) {}
 
   async onApplicationBootstrap() {
@@ -47,6 +51,60 @@ export class SeedService implements OnApplicationBootstrap {
       }
       throw error;
     }
+
+    // RAGFlow 请求可能等待 120 秒；非关键补缺在后台运行，不阻塞 HTTP 监听。
+    void this.seedDefaultKnowledgeAssistant().catch((error: unknown) => {
+      this.logger.warn(
+        `默认知识库助手初始化失败，下次启动将重试：${describeError(error)}`,
+      );
+    });
+  }
+
+  /**
+   * 为问答页补齐全公司可见的知识库助手，每次启动检查，兼容已部署环境。
+   * 只绑定显式共享的知识库，既有助手及管理员调整保持不变。
+   */
+  private async seedDefaultKnowledgeAssistant() {
+    const existing = await this.prisma.client.assistant.findFirst({
+      where: { isGeneral: false, permission: 'public' },
+    });
+    if (existing) return;
+
+    const kb = await this.prisma.client.knowledgeBase.findFirst({
+      where: { permission: 'public', datasetId: { not: null } },
+      orderBy: { id: 'asc' },
+    });
+    if (!kb?.datasetId) {
+      this.logger.warn(
+        '默认知识库助手未初始化：请先在 /knowledgeBase 配置全公司共享的知识库，然后重启应用或在 /assistant 创建共享助手。',
+      );
+      return;
+    }
+
+    const admin = await this.prisma.client.user.findFirst({
+      where: { isAdmin: true },
+      orderBy: { id: 'asc' },
+    });
+    if (!admin) {
+      this.logger.warn('默认知识库助手未初始化：没有管理员账号。');
+      return;
+    }
+
+    await this.assistantService.create(
+      {
+        sub: admin.id,
+        username: admin.username,
+        nickname: admin.nickname,
+        roles: [],
+      },
+      Object.assign(new CreateAssistantDto(), {
+        name: '物探知识库助手',
+        description: '基于共享技术报告库的知识问答助手',
+        permission: 'public',
+        datasetIds: [kb.datasetId],
+      }),
+    );
+    this.logger.log('已初始化全公司共享的物探知识库助手。');
   }
 
   /** 仅在首次部署时灌入完整 seed 数据 */

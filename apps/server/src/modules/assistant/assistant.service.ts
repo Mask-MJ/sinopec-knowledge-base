@@ -149,13 +149,22 @@ export class AssistantService {
     res: Response,
   ) {
     const assistant = await this.assertCanView(id, user);
+    if (dto.sessionId) {
+      await this.assertOwnsSession(id, assistant.userId, user, dto.sessionId);
+    }
     const files = await this.resolveAttachmentFiles(id, user, dto);
+    // 未传会话 ID 时也由应用建会话并登记归属，不能让 RAGFlow 创建无归属记录。
+    let sessionId = dto.sessionId;
+    if (!sessionId) {
+      const session = await this.createSession(id, user, {});
+      sessionId = session.id;
+    }
     const stream = dto.stream !== false;
     const body = {
       chat_id: assistant.assistantId,
       question: dto.question,
       stream,
-      session_id: dto.sessionId,
+      session_id: sessionId,
       user_id: String(user.sub),
       // 没附件时不带 files 键，请求体与接入附件前逐字一致
       ...(files && { files }),

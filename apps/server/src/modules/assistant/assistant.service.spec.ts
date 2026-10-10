@@ -836,6 +836,60 @@ describe('assistantService 对话附件', () => {
       ragflow.request.mockResolvedValue({ answer: 'ok' });
     });
 
+    it.each([
+      { stream: false, isAdmin: false },
+      { stream: true, isAdmin: false },
+      { stream: false, isAdmin: true },
+      { stream: true, isAdmin: true },
+    ])(
+      "rejects another user's session before sending to RAGFlow: %j",
+      async ({ stream, isAdmin }) => {
+        prisma.client.user.findUniqueOrThrow.mockResolvedValue({
+          deptId: null,
+          id: 1,
+          isAdmin,
+        });
+        ragflow.requestStream.mockResolvedValue({
+          on: vi.fn(),
+          pipe: vi.fn(),
+          destroy: vi.fn(),
+        });
+
+        await expect(
+          service.completions(
+            1,
+            createMockActiveUser(),
+            { question: 'q', sessionId: 's-other', stream },
+            res() as never,
+          ),
+        ).rejects.toThrow(/无权操作此会话/);
+        expect(ragflow.request).not.toHaveBeenCalled();
+        expect(ragflow.requestStream).not.toHaveBeenCalled();
+      },
+    );
+
+    it('registers a new session to the caller when sessionId is omitted', async () => {
+      ragflow.request
+        .mockResolvedValueOnce({ id: 'new-session' })
+        .mockResolvedValueOnce({ answer: 'ok' });
+
+      await service.completions(
+        1,
+        createMockActiveUser(),
+        { question: 'q', stream: false },
+        res() as never,
+      );
+
+      expect(prisma.client.assistantSession.create).toHaveBeenCalledWith({
+        data: { assistantId: 1, sessionId: 'new-session', userId: 1 },
+      });
+      expect(ragflow.request).toHaveBeenLastCalledWith(
+        'POST',
+        '/api/v1/chat/completions',
+        expect.objectContaining({ session_id: 'new-session', user_id: '1' }),
+      );
+    });
+
     it('没有附件时请求体与原来逐字一致（非流式）', async () => {
       await service.completions(
         1,
