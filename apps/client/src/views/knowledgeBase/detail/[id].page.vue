@@ -73,7 +73,7 @@ const pollingTimer = ref<ReturnType<typeof setInterval>>();
 function startPolling() {
   stopPolling();
   pollingTimer.value = setInterval(() => {
-    reset();
+    refresh();
   }, 5000);
 }
 
@@ -232,7 +232,7 @@ const columns = computed(() => [
                     await parseDocuments(knowledgeBaseId.value, [row.id]);
                     startPolling();
                   }
-                  reset();
+                  refresh();
                 } catch {
                   // 错误已由请求中间件处理
                 }
@@ -266,14 +266,17 @@ const searchColumns = computed<ProSearchFormColumns<SearchParams>>(() => [
 const searchForm = createProSearchForm();
 
 const {
+  refresh,
   table: { tableProps },
   search: { proSearchFormProps, reset },
 } = useNDataTable(
-  async (_params, formData) => {
-    const { data } = await getKnowledgeBaseFileList(
-      knowledgeBaseId.value,
-      formData as unknown as SearchParamsWithDocument,
-    );
+  async ({ current, pageSize }, formData) => {
+    // 文档列表透传 RAGFlow，分页字段是 page 而非通用的 current
+    const { data } = await getKnowledgeBaseFileList(knowledgeBaseId.value, {
+      ...(formData as unknown as SearchParamsWithDocument),
+      page: current,
+      pageSize,
+    });
     const result = data as unknown as null | { docs: any[]; total: number };
     const list = result?.docs ?? [];
     // 有正在解析的任务时保持轮询，否则停止
@@ -331,7 +334,6 @@ onMounted(async () => {
       row-key="id"
       :columns="columns"
       v-bind="tableProps"
-      :pagination="false"
     >
       <template #toolbar>
         <n-flex>

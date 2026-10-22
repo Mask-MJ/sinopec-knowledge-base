@@ -100,8 +100,11 @@ async function addSession() {
 async function fetchSessions() {
   if (!props.assistantId) return;
   try {
+    // 侧栏不翻页，按后端单次可取的上限（SESSION_FETCH_LIMIT）一次取全，
+    // 不传会落到接口默认的每页 30 条，更早的会话就看不到了
     const { data = [] } = await getChatSessionList(props.assistantId, {
       name: searchName.value || undefined,
+      pageSize: 100,
     });
     sessionList.value = data;
     if (sessionList.value.length > 0 && !activeId.value) {

@@ -121,8 +121,8 @@ const {
   table: { tableProps },
   search: { proSearchFormProps, reset },
 } = useNDataTable(
-  async (_params, formData) => {
-    const { data } = await getKnowledgeBaseList(formData);
+  async (params, formData) => {
+    const { data } = await getKnowledgeBaseList({ ...params, ...formData });
     return { list: data?.list || [], total: data?.totalCount || 0 };
   },
   { form: searchForm },
@@ -166,7 +166,6 @@ onMounted(async () => {
       row-key="id"
       :columns="columns"
       v-bind="tableProps"
-      :pagination="false"
     >
       <template #toolbar>
         <n-flex>
